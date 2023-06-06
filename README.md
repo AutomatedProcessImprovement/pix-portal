@@ -1,1 +1,1 @@
-# pix-combined
+# Process Improvement eXplorer - PIX
