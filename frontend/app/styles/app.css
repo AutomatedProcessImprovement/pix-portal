@@ -1,0 +1,23 @@
+.App-logo {
+    @apply h-[40vmin] pointer-events-none motion-safe:animate-[App-logo-spin_infinite_20s_linear];
+}
+.App-header {
+    @apply bg-[#282c34] min-h-screen flex flex-col items-center justify-center text-[calc(10px_+_2vmin)] text-[white];
+}
+.App-link {
+    @apply text-[#61dafb];
+}
+@keyframes App-logo-spin {
+    from {
+        @apply rotate-0;
+    }
+    to {
+        @apply rotate-[360deg];
+    }
+}
+.centeredContent {
+    @apply text-center;
+}
+.simulationScenarioContainer {
+    @apply text-left;
+}
