@@ -9,7 +9,8 @@ import Menu from '@mui/material/Menu';
 import Avatar from '@mui/material/Avatar';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
-import {Link} from "@mui/material";
+import { Link } from 'react-router-dom';
+
 
 interface MenuOptions {
   title: string,
@@ -18,12 +19,12 @@ interface MenuOptions {
 
 const userMenuOptions: Array<MenuOptions> = [
   {title: "Profile", to: "/profile"},
-  {title: "Dashboard", to: "/dashboard"},
+  {title: "Dashboard", to: "/profile/dashboard"},
   {title: "Logout", to: "/logout"},
 ]
 
 const navMenuOptions: Array<MenuOptions> = [
-  {title: "My Projects", to: "/projects"},
+  {title: "My Projects", to: "/my/projects"},
 ]
 
 const NavBar = ({isLoggedIn=true}) => {
@@ -38,7 +39,7 @@ const NavBar = ({isLoggedIn=true}) => {
     setAnchorElUser(null);
   };
 
-  // noinspection TypeScriptValidateTypes
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -54,7 +55,7 @@ const NavBar = ({isLoggedIn=true}) => {
                 mr: 2,
                 display: { xs: 'none', md: 'flex' },
                 fontWeight: 700,
-                letterSpacing: '.3rem',
+                letterSpacing: '.2rem',
                 color: 'inherit',
                 textDecoration: 'none',
               }}
@@ -65,10 +66,10 @@ const NavBar = ({isLoggedIn=true}) => {
           {!isLoggedIn &&
               <Box sx={{flexGrow: 0, display: {xs: 'none', md: 'flex'}}}>
                   <Button
-                    key={"login"}
-                    to={"/login"}
-                    // onClick={handleCloseNavMenu}
-                    sx={{my: 2, color: 'white', display: 'block'}}
+                      key={"login"}
+                      to={"/login"}
+                      component={Link}
+                      sx={{my: 2, color: 'white', display: 'block'}}
                   >
                     {"Login"}
                   </Button>
@@ -80,37 +81,37 @@ const NavBar = ({isLoggedIn=true}) => {
                   <Button
                     key={title}
                     to={to}
+                    component={Link}
                     sx={{mr: 5, my: 2, color: 'white', display: 'block'}}
                   >
                     {title}
                   </Button>
                 ))}
-                <IconButton onClick={handleOpenUserMenu} sx={{p: 0, mr: 4}}>
-                    <Avatar alt="Remy Sharp" src="/public/2.jpg"/>
-                </IconButton>
-                <Menu
-                    sx={{mt: '45px'}}
-                    id="menu-appbar"
-                    anchorEl={anchorElUser}
-                    anchorOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right',
-                    }}
-                    keepMounted
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right',
-                    }}
-                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    open={Boolean(anchorElUser)}
-                    onClose={handleCloseUserMenu}
-                >
-                  {userMenuOptions.map(({title, to}) => (
-                    <MenuItem component={Link} key={title} to={to}>
-                      <Typography textAlign="center">{title}</Typography>
-                    </MenuItem>
-                  ))}
-                </Menu>
+                  <IconButton onClick={handleOpenUserMenu} sx={{p: 0, mr: 4}}>
+                      <Avatar alt="Remy Sharp" src="/src/assets/2.jpg"/>
+                  </IconButton>
+                  <Menu
+                      sx={{mt: '45px'}}
+                      id="menu-appbar"
+                      anchorEl={anchorElUser}
+                      anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                      }}
+                      keepMounted
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                      }}
+                      open={Boolean(anchorElUser)}
+                      onClose={handleCloseUserMenu}
+                  >
+                    {userMenuOptions.map(({title, to}) => (
+                      <MenuItem component={Link} key={title} to={to}>
+                        <Typography textAlign="center">{title}</Typography>
+                      </MenuItem>
+                    ))}
+                  </Menu>
               </Box>
           }
         </Toolbar>
