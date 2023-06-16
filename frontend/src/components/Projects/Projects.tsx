@@ -1,4 +1,5 @@
 import {
+  AlertColor,
   Box,
   Button,
   Container,
@@ -7,23 +8,66 @@ import {
   Typography
 } from "@mui/material";
 import Project from "./Project";
-
+import * as React from "react";
+import {v4 as uuidv4} from 'uuid'
+import CreateProjectDialog from "../Upload/CreateProjectDialog";
+import PixSnackBar from "../PIXSnackBar/PixSnackBar";
+import {useState} from "react";
 
 const temp_projects= [
-  {uuid: 1, pcd: "12/12/12", pname:"Project 1", uname: "me"},
-  {uuid: 2, pcd: "12/13/12", pname:"Project 2", uname: "me"},
-  {uuid: 3, pcd: "12/14/12", pname:"Project 3", uname: "me"},
-  {uuid: 4, pcd: "12/15/12", pname:"Project 4", uname: "me"},
-  {uuid: 5, pcd: "12/16/12", pname:"Project 5", uname: "me"}
 ]
 
 const Projects = () => {
+
+  const [pList, setPlist] = React.useState(temp_projects)
+
+  const [open, setOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState("")
+  const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const setInfoMessage = (value: string) => {
+    setSnackColor("info")
+    setSnackMessage(value)
+  };
+
+  const setSuccessMessage = (value: string) => {
+    setSnackColor("success")
+    setSnackMessage(value)
+  };
+
+  const setErrorMessage = (value: string) => {
+    setSnackColor("error")
+    setSnackMessage(value)
+  };
+
+  const onSnackbarClose = () => {
+    setSuccessMessage("")
+    setInfoMessage("")
+    setErrorMessage("")
+  };
+
+
+  const handleAdd = (e: string) => {
+    console.log(e)
+    // TODO ASYNC ADD NEW PROJECT
+    setSuccessMessage("New project created")
+    const newProject = {uuid: uuidv4(), projectCreationDate: new Date().toLocaleDateString(), projectName: e, userName: "You?"}
+    setPlist(pList.concat(newProject))
+    handleClose()
+  }
 
   return (
     <>
       <Box
         sx={{
-          // bgcolor: 'background.paper',
           pt: 4,
           pb: 4,
         }}
@@ -44,39 +88,48 @@ const Projects = () => {
             spacing={2}
             justifyContent="center"
           >
-            <Button variant="contained">Create new project</Button>
+            <Button variant="contained" onClick={handleClickOpen}>Create new project</Button>
           </Stack>
         </Container>
       </Box>
       <Container sx={{ py: 5, minWidth: '65%' }}>
         <Grid container spacing={4}>
-          {temp_projects.map((item) => (
-            <Project
-             projectCreationDate={item.pcd}
-             projectName={item.pname}
-             userName={item.uname}
-             uuid={item.uuid}
-            />
-            // <Grid item key={card} xs={3}>
-            //   <Card
-            //     sx={{ height: '100%'}}
-            //   >
-            //     <CardActionArea>
-            //       <CardContent sx={{ flexGrow: 1, mb: 3 }}>
-            //         <FolderIcon sx={{ fontSize: '40px'}}/>
-            //         <Typography gutterBottom variant="h5" component="h2">
-            //           My Project #
-            //         </Typography>
-            //         <Typography sx={{ mb: 1.5 }} color="text.secondary">
-            //           30 February 3500 - User Name
-            //         </Typography>
-            //       </CardContent>
-            //     </CardActionArea>
-            //   </Card>
-            // </Grid>
-          ))}
+          {pList.length === 0 ?
+            <Grid item xs={12}>
+              <Typography
+                component="h4"
+                variant="h5"
+                align="center"
+                color="text.primary"
+                gutterBottom
+              >
+                It's quite empty here...
+              </Typography>
+            </Grid>
+              :
+            pList.map(({uuid, projectName, userName, projectCreationDate}) => (
+              <Project
+                key={uuid}
+                projectCreationDate={projectCreationDate}
+                projectName={projectName}
+                userName={userName}
+                uuid={uuid}
+              />
+            ))
+          }
         </Grid>
       </Container>
+
+      < CreateProjectDialog
+        open={open}
+        onClose={handleClose}
+        onSubmit={handleAdd}
+      />
+      {snackMessage && <PixSnackBar
+          message={snackMessage}
+          severityLevel={snackColor}
+          onSnackbarClose={onSnackbarClose}
+      />}
     </>
   )
 }

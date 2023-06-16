@@ -27,8 +27,10 @@ const navMenuOptions: Array<MenuOptions> = [
   {title: "My Projects", to: "/my/projects"},
 ]
 
-const NavBar = ({isLoggedIn=true}) => {
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+const NavBar = () => {
+  // {isLoggedIn=true}
+  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null)
+  const [isLogged, setIsLogged] = React.useState<Boolean>(false)
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -38,6 +40,11 @@ const NavBar = ({isLoggedIn=true}) => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const handleLoginClick = () => {
+    handleCloseUserMenu()
+    setIsLogged(!isLogged)
+  }
 
 
   return (
@@ -63,19 +70,20 @@ const NavBar = ({isLoggedIn=true}) => {
               Process Improvement eXplorer
             </Typography>
           </Box>
-          {!isLoggedIn &&
+          {!isLogged &&
               <Box sx={{flexGrow: 0, display: {xs: 'none', md: 'flex'}}}>
                   <Button
                       key={"login"}
-                      to={"/login"}
-                      component={Link}
+                      // to={"/login"}
+                      // component={Link}
+                      onClick={handleLoginClick}
                       sx={{my: 2, color: 'white', display: 'block'}}
                   >
                     {"Login"}
                   </Button>
               </Box>
           }
-          {isLoggedIn &&
+          {isLogged &&
               <Box sx={{flexGrow: 0, display: {xs: 'none', md: 'flex'}}}>
                 {navMenuOptions.map(({title, to}) => (
                   <Button
@@ -107,10 +115,13 @@ const NavBar = ({isLoggedIn=true}) => {
                       onClose={handleCloseUserMenu}
                   >
                     {userMenuOptions.map(({title, to}) => (
-                      <MenuItem component={Link} key={title} to={to}>
-                        <Typography textAlign="center">{title}</Typography>
-                      </MenuItem>
+                          <MenuItem component={Link} key={title} to={to}>
+                            <Typography textAlign="center">{title}</Typography>
+                          </MenuItem>
                     ))}
+                      {/*<MenuItem key={"Logout"} onClick={handleLoginClick}>*/}
+                      {/*    <Typography textAlign="center">{"Logout"}</Typography>*/}
+                      {/*</MenuItem>*/}
                   </Menu>
               </Box>
           }
