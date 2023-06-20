@@ -13,8 +13,8 @@ import * as React from "react";
 
 enum TagType {
   "BPMN" = {icon: <DescriptionIcon/>, chip: <Chip label={"BPMN"} color="primary"/>},
-  "SIMMODEL" = {icon: <FindInPageIcon/>, chip: <Chip label={"SIM MODEL"} color="secondary"/>},
-  "EVLOG" = {icon: <GroupIcon/>, chip: <Chip label={"EVENT LOG"} color="success"/>},
+  "SIM_MODEL" = {icon: <FindInPageIcon/>, chip: <Chip label={"SIM MODEL"} color="secondary"/>},
+  "EVENT_LOG" = {icon: <GroupIcon/>, chip: <Chip label={"EVENT LOG"} color="success"/>},
   "UNTAGGED" = {icon: <FolderIcon/>, chip: <Chip label={"UNTAGGED"} color={"error"}/>},
 }
 
@@ -22,15 +22,16 @@ interface FileProps {
   uuid: number
   name: string
   path: string,
-  tag: TagType,
+  tag: string[],
   uploadDate: string
 
 }
 
 const File = (props: FileProps) => {
+  console.log(props)
 
-  const [type, setType] = React.useState(props.tag ? TagType[props.tag] : TagType["UNTAGGED"])
-  console.log(type)
+  const [types, setTypes] = React.useState(props.tag)
+  // console.log(type)
 
   // const navigate = useNavigate();
 
@@ -47,6 +48,7 @@ const File = (props: FileProps) => {
 
   // setIcon(TagType[props.tag])
 
+
   return (
     <Grid item key={props.uuid} xs={3}>
       <Card
@@ -54,14 +56,16 @@ const File = (props: FileProps) => {
       >
         <CardActionArea>
           <CardContent sx={{ flexGrow: 1, mb: 3 }}>
-            {type["icon"]}
+            {TagType.BPMN["icon"]}
             <Typography gutterBottom variant="h5" component="h2">
               {props.name}
             </Typography>
             <Typography sx={{ mb: 1.5 }} color="text.secondary">
               {props.uploadDate}
             </Typography>
-              {type["chip"]}
+            {types.map((value => (
+                TagType[value].chip
+              )))}
           </CardContent>
         </CardActionArea>
       </Card>

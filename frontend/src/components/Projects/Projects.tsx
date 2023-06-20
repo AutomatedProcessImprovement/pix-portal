@@ -12,15 +12,30 @@ import * as React from "react";
 import {v4 as uuidv4} from 'uuid'
 import CreateProjectDialog from "../Upload/CreateProjectDialog";
 import PixSnackBar from "../PIXSnackBar/PixSnackBar";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import  moment from "moment";
+import {createNewProject, getProjects} from "../../api/api";
 
 const temp_projects= [
 ]
 
 const Projects = () => {
 
-  const [pList, setPlist] = React.useState(temp_projects)
 
+  const _collectProjects = () => {
+    const projects = getProjects().then((result:any) => {
+      const jsonProjects = result.data.projects
+      console.log(jsonProjects)
+      setPlist(jsonProjects)
+    })
+  }
+
+  useEffect(() => {
+    console.log("Mounted")
+    _collectProjects()
+  }, [])
+
+  const [pList, setPlist] = React.useState(temp_projects)
   const [open, setOpen] = useState(false);
   const [snackMessage, setSnackMessage] = useState("")
   const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
@@ -57,11 +72,16 @@ const Projects = () => {
 
   const handleAdd = (e: string) => {
     console.log(e)
-    // TODO ASYNC ADD NEW PROJECT
-    setSuccessMessage("New project created")
-    const newProject = {uuid: uuidv4(), projectCreationDate: new Date().toLocaleDateString(), projectName: e, userName: "You?"}
-    setPlist(pList.concat(newProject))
-    handleClose()
+    const _ = createNewProject().then((e:any) => {
+      setSuccessMessage(e.data.message)
+      // Poll the server again to receive the updated list of projects
+      _collectProjects()
+      handleClose()
+    });
+    // setSuccessMessage("New project created")
+    // const newProject = {uuid: uuidv4(), projectCreationDate: new Date().toLocaleDateString(), projectName: e, userName: "You?"}
+    // setPlist(pList.concat(newProject))
+
   }
 
   return (
@@ -107,13 +127,13 @@ const Projects = () => {
               </Typography>
             </Grid>
               :
-            pList.map(({uuid, projectName, userName, projectCreationDate}) => (
+            pList.map(({id, name, userName="TEMP", createdOn}) => (
               <Project
-                key={uuid}
-                projectCreationDate={projectCreationDate}
-                projectName={projectName}
+                key={id}
+                projectCreationDate={moment(createdOn).format('DD/MM/YYYY')}
+                projectName={name}
                 userName={userName}
-                uuid={uuid}
+                uuid={id}
               />
             ))
           }

@@ -1,23 +1,16 @@
+version: '3.8'
 services:
-  postgres:
+  db:
     image: postgres
+    restart: always
     environment:
-      - POSTGRES_USER=username
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=ferretdb
-    volumes:
-      - ./data:/var/lib/postgresql/data
-#    ports:
-#      - 5432:5432
-
-  ferretdb:
-    image: ghcr.io/ferretdb/ferretdb
-    restart: on-failure
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=pix
     ports:
-      - 27017:27017
-    environment:
-      - FERRETDB_POSTGRESQL_URL=postgres://postgres:5432/ferretdb
-
-networks:
-  default:
-    name: ferretdb
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+volumes:
+  db:
+    driver: local

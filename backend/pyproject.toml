@@ -10,8 +10,13 @@ packages = []
 python = "^3.10"
 fastapi = "^0.97.0"
 uvicorn = "^0.22.0"
-pymongo = "^4.3.3"
-
+psycopg2 = "^2.9.6"
+sqlalchemy = "^2.0.16"
+fastapi-sqlalchemy = "^0.2.1"
+python-dotenv = "^1.0.0"
+alembic = "^1.11.1"
+pydantic = "^1.10.9"
+python-multipart = "^0.0.6"
 
 [build-system]
 requires = ["poetry-core"]
