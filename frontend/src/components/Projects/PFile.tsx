@@ -1,4 +1,4 @@
-import {Card, CardActionArea, CardContent, Chip, Grid, Typography} from "@mui/material";
+import {Card, CardActionArea, CardContent, Chip, Grid, Stack, Typography} from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
 import {useNavigate} from 'react-router-dom';
 import paths from "../../router/paths";
@@ -27,9 +27,7 @@ interface FileProps {
 
 }
 
-const File = (props: FileProps) => {
-  console.log(props)
-
+const PFile = (props: FileProps) => {
   const [types, setTypes] = React.useState(props.tag)
   // console.log(type)
 
@@ -63,9 +61,11 @@ const File = (props: FileProps) => {
             <Typography sx={{ mb: 1.5 }} color="text.secondary">
               {props.uploadDate}
             </Typography>
+            <Stack direction="row" spacing={1}>
             {types.map((value => (
                 TagType[value].chip
               )))}
+            </Stack>
           </CardContent>
         </CardActionArea>
       </Card>
@@ -73,4 +73,4 @@ const File = (props: FileProps) => {
   )
 }
 
-export default File
+export default PFile

@@ -23,7 +23,7 @@ const Projects = () => {
 
 
   const _collectProjects = () => {
-    const projects = getProjects().then((result:any) => {
+    const _projects = getProjects().then((result:any) => {
       const jsonProjects = result.data.projects
       console.log(jsonProjects)
       setPlist(jsonProjects)
@@ -72,8 +72,8 @@ const Projects = () => {
 
   const handleAdd = (e: string) => {
     console.log(e)
-    const _ = createNewProject().then((e:any) => {
-      setSuccessMessage(e.data.message)
+    const _ = createNewProject(e).then((_e:any) => {
+      setSuccessMessage(_e.data.message)
       // Poll the server again to receive the updated list of projects
       _collectProjects()
       handleClose()

@@ -21,3 +21,16 @@ export const createNewProject = async (name: string) => {
     formData
   )
 }
+
+export const uploadFile = async (file: File, tags: string[], projectId: number) => {
+  const formData = new FormData()
+  formData.append('name', file.name)
+  formData.append('tags', tags)
+  formData.append('projectId', projectId)
+  formData.append('file',file)
+  // console.log(formData)
+  return await axios.post(
+    `/upload/`,
+    formData
+  )
+}

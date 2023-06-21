@@ -41,14 +41,16 @@ async def get_all_projects():
 @app.get("/projects/{project_id}")
 async def get_project_files(project_id):
     print(project_id)
+    values = {'project_id': project_id}
     query = text('select file.id, file.name, file.\"createdOn\", file.project_id, ' +
                  'array_agg(distinct tag.value::text) as tags ' +
                  'from file inner join "fileTag" on file.id = "fileTag"."fileId"' +
                  ' inner join tag on "fileTag"."tagId" = tag.id ' +
+                 'where file.project_id = :project_id ' +
                  'group by file.id'
                  )
     # projects = db_session.query(F).filter_by(project_id=project_id).all()
-    res = db_session.execute(query)
+    res = db_session.execute(query, values)
     _dict = res.mappings().all()
     pprint(_dict)
 
