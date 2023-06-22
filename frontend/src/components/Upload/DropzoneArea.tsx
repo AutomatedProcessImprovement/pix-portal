@@ -1,21 +1,19 @@
 import { Dropzone, FileMosaic } from "@files-ui/react";
 import * as React from "react";
 import {ProjectFile} from "../../types/types";
-import {Box, Chip, MenuItem, OutlinedInput, Select, SelectChangeEvent, Stack} from "@mui/material";
-
 
 interface CustomDropzoneAreaProps {
   acceptedFiles: string[];
   setSelectedLogFile: (file:any) => void;
+  extFiles: any
+  setExtFiles: (file:any) => void
 }
 //
 const DropZoneArea = (props: CustomDropzoneAreaProps) => {
-  // const classes = useStyles();
   const { acceptedFiles, setSelectedLogFile} = props
-  const [extFiles, setExtFiles] = React.useState([]);
-  const updateFiles = (incomingFiles) => {
-    console.log("incoming files", incomingFiles);
+  const [extFiles, setExtFiles] = [props.extFiles, props.setExtFiles]
 
+  const updateFiles = (incomingFiles) => {
     const projectFile = new ProjectFile()
     projectFile.tags = []
     projectFile.file = incomingFiles[0].file

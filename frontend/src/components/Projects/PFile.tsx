@@ -1,25 +1,19 @@
 import {
   Card,
-  CardActionArea,
+  CardActions,
   CardContent,
   Chip,
   createTheme,
-  Grid,
-  Stack,
+  Grid, IconButton,
   ThemeProvider,
   Typography
 } from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
-import {useNavigate} from 'react-router-dom';
-import paths from "../../router/paths";
 import DescriptionIcon from '@mui/icons-material/Description';
 import FindInPageIcon from '@mui/icons-material/FindInPage';
 import GroupIcon from '@mui/icons-material/Group';
+import DeleteIcon from '@mui/icons-material/Delete';
 import * as React from "react";
-
-// class TagClass {
-//   static readonly BPMN = {icon: <DescriptionIcon/>, chip: <Chip label={"BPMN"} color={"#000000"}/>},
-// }
 
 const theme = createTheme({
   status: {
@@ -68,11 +62,20 @@ interface FileProps {
   path: string,
   tag: string[],
   uploadDate: string
+  onClickRemove: (id: number) => void
 
 }
 
 const PFile = (props: FileProps) => {
   const [types, setTypes] = React.useState(props.tag)
+  const onClickRemove = props.onClickRemove
+  console.log(props)
+
+
+  const onRemove = () => {
+    onClickRemove(props.uuid)
+  }
+
   // console.log(type)
 
   // const navigate = useNavigate();
@@ -91,29 +94,31 @@ const PFile = (props: FileProps) => {
   // setIcon(TagType[props.tag])
 
 
+
   return (
     <Grid item key={props.uuid} xs={3}>
       <Card
         sx={{ height: '100%'}}
       >
-        <CardActionArea>
-          <CardContent sx={{ flexGrow: 1, mb: 3 }}>
-            {TagType.BPMN["icon"]}
-            <Typography gutterBottom variant="h5" component="h2">
-              {props.name}
-            </Typography>
-            <Typography sx={{ mb: 1.5 }} color="text.secondary">
-              {props.uploadDate}
-            </Typography>
-            <Stack direction="row" spacing={1}>
-              <ThemeProvider theme={theme}>
-                {types.map((value => (
-                    TagType[value].chip
-                  )))}
-              </ThemeProvider>
-            </Stack>
-          </CardContent>
-        </CardActionArea>
+        <CardContent sx={{ flexGrow: 1, mb: 3 }}>
+          {TagType.BPMN["icon"]}
+          <Typography variant="h5" component="h2">
+            {props.name}
+          </Typography>
+          <Typography sx={{ mb: 1.5 }} color="text.secondary">
+            {props.uploadDate}
+          </Typography>
+            <ThemeProvider theme={theme}>
+              {types.map((value => (
+                  TagType[value].chip
+                )))}
+            </ThemeProvider>
+        </CardContent>
+        <CardActions>
+          <IconButton aria-label="delete file" onClick={onRemove}>
+            <DeleteIcon />
+          </IconButton>
+        </CardActions>
       </Card>
     </Grid>
   )

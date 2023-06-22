@@ -57,6 +57,20 @@ async def get_project_files(project_id):
     return {"files": _dict}
 
 
+@app.delete("/remove/{fid}")
+async def remove_file(
+        fid: int
+):
+    print(fid)
+    file = db_session.get(F, fid)
+    print(file)
+    db_session.delete(file)
+    # db_session.remove(file)
+    db_session.commit()
+
+    return {"message": "File successfully removed"}
+
+
 @app.post("/create/")
 async def create_project(
         name: str = Form(...)

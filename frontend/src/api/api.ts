@@ -22,6 +22,12 @@ export const createNewProject = async (name: string) => {
   )
 }
 
+export const removeProjectFile = async (fid: number) => {
+  return await axios.delete(
+    `/remove/${fid}`,
+  )
+}
+
 export const uploadFile = async (file: File, tags: string[], projectId: number) => {
   const formData = new FormData()
   formData.append('name', file.name)

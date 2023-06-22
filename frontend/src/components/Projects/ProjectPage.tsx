@@ -15,10 +15,8 @@ import {useLocation} from "react-router-dom";
 import * as React from "react";
 import PFile from "./PFile";
 import {useEffect, useState} from "react";
-import {getProjectFiles, getProjects, uploadFile} from "../../api/api";
+import {getProjectFiles, removeProjectFile, uploadFile} from "../../api/api";
 import DropZoneArea from "../Upload/DropzoneArea";
-import {ProjectFile} from "../../types/types";
-import {amber, blue, deepPurple, red, teal} from "@mui/material/colors";
 import { createTheme } from '@mui/material/styles';
 interface ProjectProps {
   uuid: number
@@ -65,11 +63,11 @@ const files = []
 const ProjectPage = () => {
 
   const [selectedLogFile, setSelectedLogFile] = useState<File | null>(null);
+  const [dropzoneFiles, setDropzoneFiles] = useState<>([]);
   const [tagValue, setTagValue] = React.useState<string>("UNTAGGED");
 
 
   useEffect(() => {
-    console.log("Mounted")
     collectFiles()
   }, [])
 
@@ -77,10 +75,19 @@ const ProjectPage = () => {
   const { pInfo } = state.state as ProjectProps
   const [fList, setFlist] = useState(files)
 
+
   const collectFiles = () => {
-    const files = getProjectFiles(pInfo.uuid).then((result:any) => {
+    const _ = getProjectFiles(pInfo.uuid).then((result:any) => {
       const jsonFiles = result.data.files
       setFlist(jsonFiles)
+    })
+  }
+
+  const handleRemove = (fid: number) => {
+    // console.log(fid)
+    const _ = removeProjectFile(fid).then((results: any) => {
+      // TODO snackbar
+      collectFiles()
     })
   }
 
@@ -92,6 +99,9 @@ const ProjectPage = () => {
       (e) => {
         console.log(e)
         collectFiles()
+        setTagValue("UNTAGGED")
+        setSelectedLogFile(null)
+        setDropzoneFiles([])
       }
     );
   };
@@ -188,7 +198,8 @@ const ProjectPage = () => {
                 <DropZoneArea
                   acceptedFiles={'.json,.xes,.bpmn,.csv'}
                   setSelectedLogFile={setSelectedLogFile}
-                />
+                  extFiles={dropzoneFiles}
+                  setExtFiles={setDropzoneFiles}/>
               </Grid>
             <Grid item xs={2}>
               <Typography
@@ -252,15 +263,15 @@ const ProjectPage = () => {
 
         <Container sx={{ py: 5, minWidth: '65%' }}>
           <Grid container spacing={4}>
-            {fList.map(({uuid, path, tags, uploadDate, name}) => (
+            {fList.map(({id, path, tags, createdOn, name}) => (
               <PFile
-                key={uuid}
-                 name={name}
-                 path={path}
-                 tag={tags}
-                 uploadDate={uploadDate}
-                 uuid={uuid}
-              />
+                key={id}
+                name={name}
+                path={path}
+                tag={tags}
+                uploadDate={createdOn}
+                uuid={id}
+                onClickRemove={handleRemove}/>
             ))}
           </Grid>
         </Container>
