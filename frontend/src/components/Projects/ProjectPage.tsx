@@ -7,7 +7,7 @@ import {
   Paper,
   Select,
   SelectChangeEvent,
-  Stack,
+  Stack, ThemeProvider,
   Typography
 } from "@mui/material";
 import {useLocation} from "react-router-dom";
@@ -18,7 +18,8 @@ import {useEffect, useState} from "react";
 import {getProjectFiles, getProjects, uploadFile} from "../../api/api";
 import DropZoneArea from "../Upload/DropzoneArea";
 import {ProjectFile} from "../../types/types";
-
+import {amber, blue, deepPurple, red, teal} from "@mui/material/colors";
+import { createTheme } from '@mui/material/styles';
 interface ProjectProps {
   uuid: number
   projectName: string,
@@ -26,19 +27,45 @@ interface ProjectProps {
   userName: string
 }
 
+const theme = createTheme({
+  status: {
+    danger: '#e53e3e',
+  },
+  palette: {
+    primary: {
+      main: '#0971f1',
+      darker: '#053e85',
+    },
+    bpmn: {
+      main: '#ffc107',
+      contrastText: '#fff',
+    },
+    event_log: {
+      main: '#009688',
+      contrastText: '#fff',
+    },
+    sim_model: {
+      main: '#2196f3',
+      contrastText: '#fff',
+    },
+    cons_model: {
+      main: '#7e57c2',
+      contrastText: '#fff',
+    },
+    untagged: {
+      main: '#ef5350',
+      contrastText: '#fff',
+    },
+  },
+});
 
 
-const files = [
-  // {uuid: uuidv4(), path: "/some/path/model.bpmn", tag: "BPMN", uploadDate: "SOMEDATE", name: "Model"},
-  // {uuid: uuidv4(), path: "/some/path/simmodel.json", tag: "SIMMODEL", uploadDate: "SOMEDATE", name: "loan_application"},
-  // {uuid: uuidv4(), path: "/some/path/eventlog.csv", tag: "EVLOG", uploadDate: "SOMEDATE", name: "Load Event Log"},
-  // {uuid: uuidv4(), path: "/some/path/eventlog.csv", tag: "", uploadDate: "SOMEDATE", name: "FileName"},
-]
+const files = []
 
 const ProjectPage = () => {
 
   const [selectedLogFile, setSelectedLogFile] = useState<File | null>(null);
-  const [tagValue, setTagValue] = React.useState<string>("");
+  const [tagValue, setTagValue] = React.useState<string>("UNTAGGED");
 
 
   useEffect(() => {
@@ -53,24 +80,21 @@ const ProjectPage = () => {
   const collectFiles = () => {
     const files = getProjectFiles(pInfo.uuid).then((result:any) => {
       const jsonFiles = result.data.files
-      // console.log(jsonFiles)
       setFlist(jsonFiles)
     })
   }
 
   const handleClickTest = () => {
-    uploadFile(selectedLogFile, [tagValue], pInfo.uuid).then(
+
+    const actual = tValToActual[tagValue]
+
+    uploadFile(selectedLogFile, [actual], pInfo.uuid).then(
       (e) => {
         console.log(e)
         collectFiles()
       }
     );
   };
-
-  const onFinishUpload = () => {
-    setSelectedLogFile(null)
-    setTagValue("")
-  }
 
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -83,24 +107,38 @@ const ProjectPage = () => {
     },
   };
 
+  const colors = {
+    'BPMN': 'bpmn',
+    'EVENT LOG': 'event_log',
+    'SIM MODEL': 'sim_model',
+    'CONS MODEL': 'cons_model',
+    'UNTAGGED': 'untagged'
+  }
+
+
   const fileTags = [
     'BPMN',
-    'EVENT_LOG',
-    'SIM_MODEL',
-    'CONS_MODEL'
+    'EVENT LOG',
+    'SIM MODEL',
+    'CONS MODEL',
+    'UNTAGGED'
   ];
 
-  const colors = {
-    'BPMN': 'primary',
-    'EVENT_LOG': 'success',
-    'SIM_MODEL': 'secondary',
-    'CONS_MODEL': 'error'
+  const tValToActual = {
+    'BPMN': 'BPMN',
+    'EVENT LOG': 'EVENT_LOG',
+    'SIM MODEL': 'SIM_MODEL',
+    'CONS MODEL': 'CONS_MODEL',
+    'UNTAGGED': 'UNTAGGED'
   }
+
+
 
   const handleChange = (event: SelectChangeEvent<typeof tagValue>) => {
     const {
       target: { value },
     } = event;
+
     setTagValue(
       value
     );
@@ -123,7 +161,6 @@ const ProjectPage = () => {
           {pInfo.projectName}
         </Typography>
 
-
         <Container sx={{ py: 3, minWidth: '65%' }}>
           <Paper
             elevation={2}
@@ -138,7 +175,7 @@ const ProjectPage = () => {
               justify="space-between"
               alignItems="center-top"
               >
-              <Grid item xs={8}>
+              <Grid item xs={10}>
                 <Typography
                   component="h1"
                   variant="h5"
@@ -153,7 +190,7 @@ const ProjectPage = () => {
                   setSelectedLogFile={setSelectedLogFile}
                 />
               </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={2}>
               <Typography
                 component="h1"
                 variant="h5"
@@ -164,6 +201,7 @@ const ProjectPage = () => {
                 Select Tag
               </Typography>
               <Select
+                displayEmpty
                 sx={{ width: '100%'}}
                 labelId="demo-multiple-chip-label"
                 id="demo-multiple-chip"
@@ -171,9 +209,11 @@ const ProjectPage = () => {
                 onChange={handleChange}
                 input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
                 renderValue={(selected) => (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      <Chip key={selected} label={selected} color={colors[selected]}/>
-                  </Box>
+                  <ThemeProvider theme={theme}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        <Chip key={selected} label={selected} color={colors[selected]}/>
+                    </Box>
+                  </ThemeProvider>
                 )}
                 MenuProps={MenuProps}
               >
@@ -191,15 +231,15 @@ const ProjectPage = () => {
             </Grid>
 
             </Grid>
-            <Stack
-              sx={{ pt: 1 }}
-              direction="row"
-              spacing={2}
-              justifyContent="center"
-            >
-              <Button variant="contained" onClick={handleClickTest}>Upload</Button>
-            </Stack>
           </Paper>
+          <Stack
+            sx={{ pt: 3 }}
+            direction="row"
+            spacing={2}
+            justifyContent="center"
+          >
+            <Button variant="contained" onClick={handleClickTest}>Upload</Button>
+          </Stack>
         </Container>
         <Typography
           component="h1"

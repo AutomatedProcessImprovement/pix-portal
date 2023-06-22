@@ -1,4 +1,14 @@
-import {Card, CardActionArea, CardContent, Chip, Grid, Stack, Typography} from "@mui/material";
+import {
+  Card,
+  CardActionArea,
+  CardContent,
+  Chip,
+  createTheme,
+  Grid,
+  Stack,
+  ThemeProvider,
+  Typography
+} from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
 import {useNavigate} from 'react-router-dom';
 import paths from "../../router/paths";
@@ -11,11 +21,45 @@ import * as React from "react";
 //   static readonly BPMN = {icon: <DescriptionIcon/>, chip: <Chip label={"BPMN"} color={"#000000"}/>},
 // }
 
+const theme = createTheme({
+  status: {
+    danger: '#e53e3e',
+  },
+  palette: {
+    primary: {
+      main: '#0971f1',
+      darker: '#053e85',
+    },
+    bpmn: {
+      main: '#ffc107',
+      contrastText: '#fff',
+    },
+    event_log: {
+      main: '#009688',
+      contrastText: '#fff',
+    },
+    sim_model: {
+      main: '#2196f3',
+      contrastText: '#fff',
+    },
+    cons_model: {
+      main: '#7e57c2',
+      contrastText: '#fff',
+    },
+    untagged: {
+      main: '#ef5350',
+      contrastText: '#fff',
+    },
+  },
+});
+
+
 enum TagType {
-  "BPMN" = {icon: <DescriptionIcon/>, chip: <Chip label={"BPMN"} color="primary"/>},
-  "SIM_MODEL" = {icon: <FindInPageIcon/>, chip: <Chip label={"SIM MODEL"} color="secondary"/>},
-  "EVENT_LOG" = {icon: <GroupIcon/>, chip: <Chip label={"EVENT LOG"} color="success"/>},
-  "UNTAGGED" = {icon: <FolderIcon/>, chip: <Chip label={"UNTAGGED"} color={"error"}/>},
+  "BPMN" = {icon: <DescriptionIcon/>, chip: <Chip label={"BPMN"} color="bpmn"/>},
+  "SIM_MODEL" = {icon: <FindInPageIcon/>, chip: <Chip label={"SIM MODEL"} color="sim_model"/>},
+  "CONS_MODEL" = {icon: <FindInPageIcon/>, chip: <Chip label={"CONS MODEL"} color="cons_model"/>},
+  "EVENT_LOG" = {icon: <GroupIcon/>, chip: <Chip label={"EVENT LOG"} color="event_log"/>},
+  "UNTAGGED" = {icon: <FolderIcon/>, chip: <Chip label={"UNTAGGED"} color={"untagged"}/>},
 }
 
 interface FileProps {
@@ -62,9 +106,11 @@ const PFile = (props: FileProps) => {
               {props.uploadDate}
             </Typography>
             <Stack direction="row" spacing={1}>
-            {types.map((value => (
-                TagType[value].chip
-              )))}
+              <ThemeProvider theme={theme}>
+                {types.map((value => (
+                    TagType[value].chip
+                  )))}
+              </ThemeProvider>
             </Stack>
           </CardContent>
         </CardActionArea>

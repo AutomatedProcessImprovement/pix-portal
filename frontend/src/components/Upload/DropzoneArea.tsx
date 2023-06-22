@@ -28,22 +28,6 @@ const DropZoneArea = (props: CustomDropzoneAreaProps) => {
     setSelectedLogFile(null);
   };
 
-  const handleStart = (filesToUpload) => {
-    console.log("advanced demo start upload", filesToUpload);
-  };
-  const handleFinish = (uploadedFiles) => {
-    console.log("advanced demo finish upload", uploadedFiles);
-  };
-
-
-
-
-
-  const onAlert = () => {
-  };
-
-
-
   return (
     <Dropzone
       onChange={updateFiles}
