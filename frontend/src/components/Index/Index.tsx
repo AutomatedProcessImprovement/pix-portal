@@ -4,6 +4,7 @@ import { styled } from '@mui/system';
 import * as React from "react";
 import {Link} from "react-router-dom";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { Navigate } from "react-router-dom";
 const blue = {
   500: '#007FFF',
   600: '#0072E5',
@@ -51,6 +52,12 @@ const CustomButton = styled(Button)(
   `,
 );
 
+interface authProps {
+  auth,
+  handleLogin,
+  userManager
+}
+
 
 const Index = () => {
 
@@ -59,40 +66,20 @@ const Index = () => {
 
   return(
     <>
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        p: 20,
-        m: 1,
-        flexGrow: 1,
-        flexDirection: 'column'
-      }}>
-        <Fade in={isVisible} appear={true} timeout={1500} >
-        <Typography
-          variant="h3"
-          noWrap
-          component="a"
-          href="/"
-          sx={{
-            mb: 4,
-            display: { xs: 'none', md: 'flex' },
-            fontWeight: 700,
-            letterSpacing: '.2rem',
-            color: 'text.primary',
-            textDecoration: 'none',
-          }}
-        >
-          # Process Improvement eXplorer #
-        </Typography>
-        </Fade>
-        <Fade in={isVisible} appear={true} timeout={2500} addEndListener={() => setTimeout(()=> {
-          setIsVisible2(true)
-        }, 1000)}>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          p: 20,
+          m: 1,
+          flexGrow: 1,
+          flexDirection: 'column'
+        }}>
+          <h1>Index</h1>
 
           <CustomButton
             key={"get-started"}
-            to={"/my/projects"}
+            to={"/login"}
             component={Link}
 
             sx={{ minWidth: '400px', minHeight: '50px', mb: 4}}
@@ -105,68 +92,111 @@ const Index = () => {
             </Typography>
 
           </CustomButton>
-        </Fade>
+        </Box>
+      )}
+      {/*{auth &&*/}
+      {/*<Box sx={{*/}
+      {/*  display: 'flex',*/}
+      {/*  justifyContent: 'center',*/}
+      {/*  alignItems: 'center',*/}
+      {/*  p: 20,*/}
+      {/*  m: 1,*/}
+      {/*  flexGrow: 1,*/}
+      {/*  flexDirection: 'column'*/}
+      {/*}}>*/}
+      {/*  <Fade in={isVisible} appear={true} timeout={1500} >*/}
+      {/*  <Typography*/}
+      {/*    variant="h3"*/}
+      {/*    noWrap*/}
+      {/*    component="a"*/}
+      {/*    href="/"*/}
+      {/*    sx={{*/}
+      {/*      mb: 4,*/}
+      {/*      display: { xs: 'none', md: 'flex' },*/}
+      {/*      fontWeight: 700,*/}
+      {/*      letterSpacing: '.2rem',*/}
+      {/*      color: 'text.primary',*/}
+      {/*      textDecoration: 'none',*/}
+      {/*    }}*/}
+      {/*  >*/}
+      {/*    # Process Improvement eXplorer #*/}
+      {/*  </Typography>*/}
+      {/*  </Fade>*/}
+      {/*  <Fade in={isVisible} appear={true} timeout={2500} addEndListener={() => setTimeout(()=> {*/}
+      {/*    setIsVisible2(true)*/}
+      {/*  }, 1000)}>*/}
 
-        <Fade in={isVisible2} appear={false}
-              timeout={2500}>
-          <List sx={{
-              mb: 4,}}>
-            <ListItem>
-              <Typography
-                variant="h4"
-                noWrap
-                component="a"
-                href="/"
-                sx={{
-                  display: { xs: 'none', md: 'flex' },
-                  fontWeight: 700,
-                  letterSpacing: '.2rem',
-                  color: 'text.primary',
-                  textDecoration: 'none',
-                }}
-              >
-                Project Management
-              </Typography>
-            </ListItem>
-            <ListItem>
-              <Typography
-                variant="h4"
-                noWrap
-                component="a"
-                href="/"
-                sx={{
-                  display: { xs: 'none', md: 'flex' },
-                  fontWeight: 700,
-                  letterSpacing: '.2rem',
-                  color: 'text.primary',
-                  textDecoration: 'none',
-                }}
-              >
-                File uploading
-              </Typography>
-            </ListItem>
-            <ListItem>
-              <Typography
-                variant="h4"
-                noWrap
-                component="a"
-                href="/"
-                sx={{
-                  display: { xs: 'none', md: 'flex' },
-                  fontWeight: 700,
-                  letterSpacing: '.2rem',
-                  color: 'text.primary',
-                  textDecoration: 'none',
-                }}
-              >
-                More...
-              </Typography>
-            </ListItem>
+          {/*<CustomButton*/}
+          {/*  key={"get-started"}*/}
+          {/*  to={"/login"}*/}
+          {/*  component={Link}*/}
 
-          </List>
+          {/*  sx={{ minWidth: '400px', minHeight: '50px', mb: 4}}*/}
+          {/*  endIcon={<ArrowForwardIosIcon />}*/}
+          {/*>*/}
+          {/*  <Typography*/}
+          {/*    variant="h6"*/}
+          {/*  >*/}
+          {/*    Get Started*/}
+          {/*  </Typography>*/}
 
-        </Fade>
-      </Box>
+          {/*</CustomButton>*/}
+      {/*  </Fade>*/}
+
+      {/*  <Fade in={isVisible2} appear={false}*/}
+      {/*        timeout={2500}>*/}
+      {/*    <List sx={{*/}
+      {/*        mb: 4,}}>*/}
+      {/*      <ListItem>*/}
+      {/*        <Typography*/}
+      {/*          variant="h4"*/}
+      {/*          noWrap*/}
+      {/*          sx={{*/}
+      {/*            display: { xs: 'none', md: 'flex' },*/}
+      {/*            fontWeight: 700,*/}
+      {/*            letterSpacing: '.2rem',*/}
+      {/*            color: 'text.primary',*/}
+      {/*            textDecoration: 'none',*/}
+      {/*          }}*/}
+      {/*        >*/}
+      {/*          Project Management*/}
+      {/*        </Typography>*/}
+      {/*      </ListItem>*/}
+      {/*      <ListItem>*/}
+      {/*        <Typography*/}
+      {/*          variant="h4"*/}
+      {/*          noWrap*/}
+      {/*          sx={{*/}
+      {/*            display: { xs: 'none', md: 'flex' },*/}
+      {/*            fontWeight: 700,*/}
+      {/*            letterSpacing: '.2rem',*/}
+      {/*            color: 'text.primary',*/}
+      {/*            textDecoration: 'none',*/}
+      {/*          }}*/}
+      {/*        >*/}
+      {/*          File uploading*/}
+      {/*        </Typography>*/}
+      {/*      </ListItem>*/}
+      {/*      <ListItem>*/}
+      {/*        <Typography*/}
+      {/*          variant="h4"*/}
+      {/*          noWrap*/}
+      {/*          sx={{*/}
+      {/*            display: { xs: 'none', md: 'flex' },*/}
+      {/*            fontWeight: 700,*/}
+      {/*            letterSpacing: '.2rem',*/}
+      {/*            color: 'text.primary',*/}
+      {/*            textDecoration: 'none',*/}
+      {/*          }}*/}
+      {/*        >*/}
+      {/*          More...*/}
+      {/*        </Typography>*/}
+      {/*      </ListItem>*/}
+
+      {/*    </List>*/}
+
+      {/*  </Fade>*/}
+      {/*</Box>}*/}
     </>
   )
 }

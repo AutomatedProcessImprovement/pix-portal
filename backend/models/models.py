@@ -1,10 +1,17 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Float, Identity, LargeBinary
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Float, Identity, LargeBinary, BigInteger
 
 from datetime import datetime
 
 from sqlalchemy.orm import relationship
 
 from config import Base
+
+
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer, Identity())
+    uuid = Column(String, primary_key=True)
+    projects = relationship('Project', back_populates='user')
 
 
 class Project(Base):
@@ -14,6 +21,8 @@ class Project(Base):
     createdOn = Column(DateTime(), default=datetime.now)
     lastUpdate = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
     files = relationship('File', back_populates='project')
+    user = relationship('User', back_populates='projects')
+    user_id = Column(String, ForeignKey('user.uuid'))
 
 
 class FileTag(Base):

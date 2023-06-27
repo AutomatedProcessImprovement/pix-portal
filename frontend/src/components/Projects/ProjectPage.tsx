@@ -60,16 +60,62 @@ const theme = createTheme({
 
 const files = []
 
-const ProjectPage = () => {
+const ProjectPage = ({auth, userManager}) => {
 
   const [selectedLogFile, setSelectedLogFile] = useState<File | null>(null);
   const [dropzoneFiles, setDropzoneFiles] = useState<>([]);
   const [tagValue, setTagValue] = React.useState<string>("UNTAGGED");
 
+  const [selectedProjectFiles, setSelectedProjectFiles] = useState([])
+  const [uniqueTags, setUniqueTags] = useState([])
+
 
   useEffect(() => {
     collectFiles()
   }, [])
+
+  useEffect(() => {
+    for (const key in selectedProjectFiles) {
+      for (const selKey in selectedProjectFiles[key].tags) {
+        if (uniqueTags.indexOf(selectedProjectFiles[key].tags[selKey]) === -1) {
+          setUniqueTags(uniqueTags.concat(selectedProjectFiles[key].tags[selKey]))
+        }
+      }
+    }
+  }, [selectedProjectFiles, uniqueTags])
+
+
+  const handleFileChecked = (checked, fileID, tags) => {
+    if (!checked) {
+      const checkFileExists = fileId => selectedProjectFiles.some( ({uuid}) => uuid == fileId)
+      if (checkFileExists(fileID)) {
+        const res = selectedProjectFiles.filter(obj => obj.uuid !== fileID);
+        setSelectedProjectFiles(res)
+        const res2 = uniqueTags.filter(obj => obj !== tags[0]);
+        setUniqueTags(res2)
+        return false
+      }
+    } else {
+      const newObj = {
+        'uuid': fileID,
+        'tags': tags
+      }
+
+      const checkFileExists = fileId => selectedProjectFiles.some(({uuid}) => uuid == fileId )
+      if (!checkFileExists(newObj.uuid)) {
+        for (const nk in newObj.tags) {
+          if (uniqueTags.indexOf(newObj.tags[nk]) === -1) {
+            console.log("adding file");
+            setUniqueTags(uniqueTags.concat(newObj.tags[nk]));
+            setSelectedProjectFiles(selectedProjectFiles.concat(newObj));
+            return true
+          } else {
+            return false
+          }
+        }
+      }
+    }
+  }
 
   const state = useLocation();
   const { pInfo } = state.state as ProjectProps
@@ -248,8 +294,11 @@ const ProjectPage = () => {
             direction="row"
             spacing={2}
             justifyContent="center"
+            useFlexGap
+            flexWrap="wrap"
           >
-            <Button variant="contained" onClick={handleClickTest}>Upload</Button>
+            <Button sx={{width: 400}} variant="contained" onClick={handleClickTest}>Upload File</Button>
+
           </Stack>
         </Container>
         <Typography
@@ -271,7 +320,9 @@ const ProjectPage = () => {
                 tag={tags}
                 uploadDate={createdOn}
                 uuid={id}
-                onClickRemove={handleRemove}/>
+                onClickRemove={handleRemove}
+                onChange={handleFileChecked}
+              />
             ))}
           </Grid>
         </Container>

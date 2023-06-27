@@ -1,10 +1,11 @@
 import {
+  Box,
   Card,
   CardActions,
-  CardContent,
+  CardContent, CardHeader, Checkbox,
   Chip,
   createTheme,
-  Grid, IconButton,
+  Grid, IconButton, Stack,
   ThemeProvider,
   Typography
 } from "@mui/material";
@@ -63,37 +64,27 @@ interface FileProps {
   tag: string[],
   uploadDate: string
   onClickRemove: (id: number) => void
+  onChange: (id: number) => boolean
 
 }
 
 const PFile = (props: FileProps) => {
   const [types, setTypes] = React.useState(props.tag)
+  const [checked, setChecked] = React.useState(false)
   const onClickRemove = props.onClickRemove
-  console.log(props)
+  const onClickChange = props.onChange
 
+  const onChange = (e) => {
+    if (e.target.checked) {
+      return onClickChange(true, props.uuid, props.tag);
+    } else {
+      return onClickChange(false, props.uuid, props.tag);
+    }
+  }
 
   const onRemove = () => {
     onClickRemove(props.uuid)
   }
-
-  // console.log(type)
-
-  // const navigate = useNavigate();
-
-  // const handleClick = () => {
-  //   console.log(props)
-  //   navigate(
-  //     paths.PROJECT_ID_PATH, {
-  //       state: {
-  //         pInfo: props
-  //       }
-  //     }
-  //   )
-  // }
-
-  // setIcon(TagType[props.tag])
-
-
 
   return (
     <Grid item key={props.uuid} xs={3}>
@@ -102,6 +93,7 @@ const PFile = (props: FileProps) => {
       >
         <CardContent sx={{ flexGrow: 1, mb: 3 }}>
           {TagType.BPMN["icon"]}
+          {/**/}
           <Typography variant="h5" component="h2">
             {props.name}
           </Typography>
@@ -114,10 +106,11 @@ const PFile = (props: FileProps) => {
                 )))}
             </ThemeProvider>
         </CardContent>
-        <CardActions>
-          <IconButton aria-label="delete file" onClick={onRemove}>
-            <DeleteIcon />
-          </IconButton>
+        <CardActions >
+            <IconButton aria-label="delete file" onClick={onRemove}>
+              <DeleteIcon />
+            </IconButton>
+          <Checkbox checked={checked} sx={{ml:'auto'}} onChange={(e)=> {setChecked(onChange(e))}}/>
         </CardActions>
       </Card>
     </Grid>

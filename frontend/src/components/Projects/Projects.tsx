@@ -15,27 +15,29 @@ import PixSnackBar from "../PIXSnackBar/PixSnackBar";
 import {useEffect, useState} from "react";
 import  moment from "moment";
 import {createNewProject, getProjects} from "../../api/api";
-
-const temp_projects= [
-]
-
-const Projects = () => {
+import {getUserObjectFromStorage} from "../../../authConfig";
 
 
-  const _collectProjects = () => {
-    const _projects = getProjects().then((result:any) => {
-      const jsonProjects = result.data.projects
-      console.log(jsonProjects)
-      setPlist(jsonProjects)
-    })
+const Projects = ({auth, userManager}) => {
+  const [userId, setUserId] = React.useState<string | null>(null)
+
+  const _collectProjects = (uuid) => {
+      const _projects = getProjects(uuid).then((result:any) => {
+        const jsonProjects = result.data.projects
+        console.log(jsonProjects)
+        setPlist(jsonProjects)
+      });
+
   }
 
   useEffect(() => {
-    console.log("Mounted")
-    _collectProjects()
-  }, [])
+    getUserObjectFromStorage(userManager).then((user)=> {
+      setUserId(user.profile.sub)
+      _collectProjects(user.profile.sub)
+    })
+  }, [auth, userManager])
 
-  const [pList, setPlist] = React.useState(temp_projects)
+  const [pList, setPlist] = React.useState([])
   const [open, setOpen] = useState(false);
   const [snackMessage, setSnackMessage] = useState("")
   const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
@@ -72,7 +74,7 @@ const Projects = () => {
 
   const handleAdd = (e: string) => {
     console.log(e)
-    const _ = createNewProject(e).then((_e:any) => {
+    const _ = createNewProject(userId, e).then((_e:any) => {
       setSuccessMessage(_e.data.message)
       // Poll the server again to receive the updated list of projects
       _collectProjects()
@@ -127,12 +129,12 @@ const Projects = () => {
               </Typography>
             </Grid>
               :
-            pList.map(({id, name, userName="TEMP", createdOn}) => (
+            pList.map(({id, name, user_id, createdOn}) => (
               <Project
                 key={id}
                 projectCreationDate={moment(createdOn).format('DD/MM/YYYY')}
                 projectName={name}
-                userName={userName}
+                userId={user_id}
                 uuid={id}
               />
             ))

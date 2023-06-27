@@ -7,7 +7,7 @@ interface ProjectProps {
   uuid: number
   projectName: string,
   projectCreationDate: string,
-  userName: string
+  userId: string
 }
 
 const Project = (props: ProjectProps) => {
@@ -37,7 +37,7 @@ const Project = (props: ProjectProps) => {
               {props.projectName}
             </Typography>
             <Typography sx={{ mb: 1.5 }} color="text.secondary">
-              {props.projectCreationDate} - {props.userName}
+              {props.projectCreationDate}
             </Typography>
           </CardContent>
         </CardActionArea>

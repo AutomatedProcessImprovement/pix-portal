@@ -6,8 +6,9 @@ from fastapi import FastAPI, UploadFile, File, Form
 from database import db_session
 from pydantic import BaseModel, FilePath
 from fastapi.middleware.cors import CORSMiddleware
-from models.models import File as F, Tag as T, Project, FileTag as FT
+from models.models import File as F, Tag as T, Project, FileTag as FT, User as U
 from sqlalchemy import literal_column, text
+from sqlalchemy import BigInteger, cast
 
 from collections import namedtuple
 
@@ -33,9 +34,11 @@ async def home():
 
 
 @app.get("/projects/")
-async def get_all_projects():
-    projects = db_session.query(Project).all()
-    return {"projects": projects}
+async def get_all_projects(uuid):
+    print(uuid)
+    result = db_session.query(Project).filter(Project.user_id == uuid).all()
+
+    return {"projects": result}
 
 
 @app.get("/projects/{project_id}")
@@ -73,9 +76,18 @@ async def remove_file(
 
 @app.post("/create/")
 async def create_project(
+        uuid: str = Form(...),
         name: str = Form(...)
 ):
+    user = db_session.query(U.uuid).filter_by(uuid=uuid).first() is not None
+    if not user:
+        #  CREATE NEW USER
+        newUser = U(uuid=uuid)
+        db_session.add(newUser)
+        db_session.commit()
+
     _project = Project(name=name)
+    _project.user_id = uuid
     db_session.add(_project)
     db_session.commit()
 
