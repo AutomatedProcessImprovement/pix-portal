@@ -10,6 +10,7 @@ import { UserManager, WebStorageStateStore } from "oidc-client-ts";
 import Callback from "../components/Callback";
 import ProtectedRoute from "./ProtectedRoute";
 import PrivateRoute from "./ProtectedRoute";
+import Register from "../components/Login/Register";
 
 
 interface RouterProps {
@@ -30,6 +31,10 @@ const AppRouter = (props: RouterProps) => {
       <Route
         path={paths.LOGIN_PATH}
         element={<Login auth={authenticated} handleLogin={authorize} />}
+      />
+      <Route
+        path={paths.REGISTER_PATH}
+        element={<Register />}
       />
       <Route
         path="/api/auth/callback/zitadel"

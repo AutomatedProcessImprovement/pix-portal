@@ -9,8 +9,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from models.models import File as F, Tag as T, Project, FileTag as FT, User as U
 from sqlalchemy import literal_column, text
 from sqlalchemy import BigInteger, cast
+from helpers.password_gen import generateOTP
 
 from collections import namedtuple
+
+import requests
+import json
 
 app = FastAPI()
 
@@ -27,6 +31,46 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.post("/register/")
+async def home(
+        username: str = Form(...),
+        firstname: str = Form(...),
+        lastname: str = Form(...),
+        email: str = Form(...)
+):
+    otp = generateOTP()
+
+    url = "http://localhost:8080/v2alpha/users/human"
+    payload = json.dumps({
+        "username": username,
+        "profile": {
+            "firstName": firstname,
+            "lastName": lastname,
+            "nickName": firstname,
+            "displayName": firstname + " " + lastname,
+            "preferredLanguage": "en"
+        },
+        "email": {
+            "email": email,
+            "isVerified": True
+        },
+        "password": {
+            "password": otp,
+            "changeRequired": True
+        }
+    })
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer dGdrLUC2RyTxLiz3ICKJgZqa7RVrpS50MfPGZzOWQE1O-MzODSa-q9P0hO9630UGCk1aokc'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    print(response.text)
+
+    return {"message": response.text, "otp": otp}
 
 @app.get("/")
 async def home():

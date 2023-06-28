@@ -17,6 +17,7 @@ python-dotenv = "^1.0.0"
 alembic = "^1.11.1"
 pydantic = "^1.10.9"
 python-multipart = "^0.0.6"
+requests = "^2.31.0"
 
 [build-system]
 requires = ["poetry-core"]
