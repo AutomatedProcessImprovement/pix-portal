@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Button, Typography} from "@mui/material";
+import {Button} from "@mui/material";
 import { buttonClasses } from '@mui/base/Button';
 import { styled } from '@mui/system';
 const blue = {
@@ -8,14 +8,14 @@ const blue = {
   700: '#0059B2',
 };
 
-const grey = {
-  100: '#eaeef2',
-  300: '#afb8c1',
-  900: '#24292f',
-};
+// const grey = {
+//   100: '#eaeef2',
+//   300: '#afb8c1',
+//   900: '#24292f',
+// };
 
 const CustomButton = styled(Button)(
-  ({ theme }) => `
+  () => `
   font-family: Segoe UI, sans-serif
   font-weight: bold;
   font-size: 17px;
