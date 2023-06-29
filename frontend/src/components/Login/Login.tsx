@@ -3,8 +3,7 @@ import * as React from "react";
 import {Box, Divider, Stack, Typography} from "@mui/material";
 import { Link } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import {handleRegister} from "../../api/api";
-import CustomButton from "../CustomButton";
+import CustomButton from "../CustomComponents/CustomButton";
 
 const Login = ({ auth, handleLogin, userManager }) => {
 

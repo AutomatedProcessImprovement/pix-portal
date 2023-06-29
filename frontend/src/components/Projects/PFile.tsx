@@ -1,12 +1,10 @@
 import {
-  Box,
   Card,
   CardActions,
-  CardContent, CardHeader, Checkbox,
+  CardContent, Checkbox,
   Chip,
   createTheme,
-  Grid, IconButton, Stack,
-  ThemeProvider,
+  Grid, IconButton, ThemeProvider,
   Typography
 } from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
@@ -15,6 +13,7 @@ import FindInPageIcon from '@mui/icons-material/FindInPage';
 import GroupIcon from '@mui/icons-material/Group';
 import DeleteIcon from '@mui/icons-material/Delete';
 import * as React from "react";
+import DownloadIcon from '@mui/icons-material/Download';
 
 const theme = createTheme({
   status: {
@@ -50,11 +49,11 @@ const theme = createTheme({
 
 
 enum TagType {
-  "BPMN" = {icon: <DescriptionIcon/>, chip: <Chip label={"BPMN"} color="bpmn"/>},
-  "SIM_MODEL" = {icon: <FindInPageIcon/>, chip: <Chip label={"SIM MODEL"} color="sim_model"/>},
-  "CONS_MODEL" = {icon: <FindInPageIcon/>, chip: <Chip label={"CONS MODEL"} color="cons_model"/>},
-  "EVENT_LOG" = {icon: <GroupIcon/>, chip: <Chip label={"EVENT LOG"} color="event_log"/>},
-  "UNTAGGED" = {icon: <FolderIcon/>, chip: <Chip label={"UNTAGGED"} color={"untagged"}/>},
+  "BPMN" = {icon: <DescriptionIcon/>, chip: <Chip label={"BPMN"} color="bpmn" key={'bpmn'}/>},
+  "SIM_MODEL" = {icon: <FindInPageIcon/>, chip: <Chip label={"SIM MODEL"} color="sim_model" key={'sim_model'}/>},
+  "CONS_MODEL" = {icon: <FindInPageIcon/>, chip: <Chip label={"CONS MODEL"} color="cons_model" key={'cons_model'}/>},
+  "EVENT_LOG" = {icon: <GroupIcon/>, chip: <Chip label={"EVENT LOG"} color="event_log" key={'event_log'}/>},
+  "UNTAGGED" = {icon: <FolderIcon/>, chip: <Chip label={"UNTAGGED"} color={"untagged"} key={'untagged'}/>},
 }
 
 interface FileProps {
@@ -65,14 +64,17 @@ interface FileProps {
   uploadDate: string
   onClickRemove: (id: number) => void
   onChange: (id: number) => boolean
+  onClickDownload: (id: number) => void
 
 }
 
 const PFile = (props: FileProps) => {
+  // TODO ability to change TagChip of file?
   const [types, setTypes] = React.useState(props.tag)
   const [checked, setChecked] = React.useState(false)
   const onClickRemove = props.onClickRemove
   const onClickChange = props.onChange
+  const onClickDownload = props.onClickDownload
 
   const onChange = (e) => {
     if (e.target.checked) {
@@ -80,6 +82,10 @@ const PFile = (props: FileProps) => {
     } else {
       return onClickChange(false, props.uuid, props.tag);
     }
+  }
+
+  const onDownload = () => {
+    onClickDownload(props.uuid)
   }
 
   const onRemove = () => {
@@ -93,7 +99,6 @@ const PFile = (props: FileProps) => {
       >
         <CardContent sx={{ flexGrow: 1, mb: 3 }}>
           {TagType.BPMN["icon"]}
-          {/**/}
           <Typography variant="h5" component="h2">
             {props.name}
           </Typography>
@@ -109,6 +114,9 @@ const PFile = (props: FileProps) => {
         <CardActions >
             <IconButton aria-label="delete file" onClick={onRemove}>
               <DeleteIcon />
+            </IconButton>
+            <IconButton aria-label="download-file" onClick={onDownload}>
+              <DownloadIcon />
             </IconButton>
           <Checkbox checked={checked} sx={{ml:'auto'}} onChange={(e)=> {setChecked(onChange(e))}}/>
         </CardActions>

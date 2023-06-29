@@ -14,8 +14,9 @@ import CreateProjectDialog from "../Upload/CreateProjectDialog";
 import PixSnackBar from "../PIXSnackBar/PixSnackBar";
 import {useEffect, useState} from "react";
 import  moment from "moment";
-import {createNewProject, getProjects} from "../../api/api";
+import {createNewProject, getProjects, removeProject} from "../../api/api";
 import {getUserObjectFromStorage} from "../../../authConfig";
+import ConfirmDialog from "../CustomComponents/ConfirmDialog";
 
 
 const Projects = ({auth, userManager}) => {
@@ -26,7 +27,9 @@ const Projects = ({auth, userManager}) => {
         const jsonProjects = result.data.projects
         console.log(jsonProjects)
         setPlist(jsonProjects)
-      });
+      }).catch((e)=> {
+        console.log(e)
+      })
 
   }
 
@@ -38,16 +41,36 @@ const Projects = ({auth, userManager}) => {
   }, [auth, userManager])
 
   const [pList, setPlist] = React.useState([])
-  const [open, setOpen] = useState(false);
+  const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [snackMessage, setSnackMessage] = useState("")
   const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
 
+  const [pid, setPid] = useState(null)
+
   const handleClickOpen = () => {
-    setOpen(true);
+    setOpenCreateDialog(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleCloseCreateDialog = () => {
+    setOpenCreateDialog(false);
+  };
+
+  const deleteProject = (pid) => {
+    removeProject(pid).then((res) => {
+      _collectProjects(userId)
+      setSuccessMessage(res.data.message)
+    }).catch((e) => {
+      setSuccessMessage(e.data.message)
+    })
+  }
+
+  const handleCloseDeleteDialog = (e) => {
+    if (e && pid) {
+      deleteProject(pid)
+    }
+    setPid(null);
+    setOpenDeleteDialog(false);
   };
 
   const setInfoMessage = (value: string) => {
@@ -77,13 +100,16 @@ const Projects = ({auth, userManager}) => {
     const _ = createNewProject(userId, e).then((_e:any) => {
       setSuccessMessage(_e.data.message)
       // Poll the server again to receive the updated list of projects
-      _collectProjects()
-      handleClose()
+      _collectProjects(userId)
+      handleCloseCreateDialog()
     });
-    // setSuccessMessage("New project created")
-    // const newProject = {uuid: uuidv4(), projectCreationDate: new Date().toLocaleDateString(), projectName: e, userName: "You?"}
-    // setPlist(pList.concat(newProject))
+  }
 
+
+  const handleRemove = (pid) => {
+    console.log(pid)
+    setOpenDeleteDialog(true)
+    setPid(pid)
   }
 
   return (
@@ -136,6 +162,7 @@ const Projects = ({auth, userManager}) => {
                 projectName={name}
                 userId={user_id}
                 uuid={id}
+                onDelete={handleRemove}
               />
             ))
           }
@@ -143,10 +170,15 @@ const Projects = ({auth, userManager}) => {
       </Container>
 
       < CreateProjectDialog
-        open={open}
-        onClose={handleClose}
+        open={openCreateDialog}
+        onClose={handleCloseCreateDialog}
         onSubmit={handleAdd}
       />
+      <ConfirmDialog
+        message={"Are you sure you want to delete this project?"}
+        onClose={handleCloseDeleteDialog}
+        open={openDeleteDialog}
+        title={"Delete file?"}/>
       {snackMessage && <PixSnackBar
           message={snackMessage}
           severityLevel={snackColor}

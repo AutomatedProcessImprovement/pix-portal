@@ -1,24 +1,18 @@
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import {handleRegister} from "../../api/api";
-import {Backdrop, CircularProgress} from "@mui/material";
-import {blue, green} from "@mui/material/colors";
-import {OTPDialog} from "../SimpleDialog";
+import {CircularProgress} from "@mui/material";
+import {blue} from "@mui/material/colors";
+import {OTPDialog} from "../CustomComponents/OTPDialog";
 import paths from "../../router/paths";
-import CustomButton from "../CustomButton";
+import CustomButton from "../CustomComponents/CustomButton";
 import {useNavigate} from 'react-router-dom';
 
 

@@ -20,14 +20,14 @@ class Project(Base):
     name = Column(String(255), nullable=False)
     createdOn = Column(DateTime(), default=datetime.now)
     lastUpdate = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
-    files = relationship('File', back_populates='project')
+    files = relationship('File', back_populates='project', cascade="all, delete, delete-orphan", passive_deletes=True,)
     user = relationship('User', back_populates='projects')
     user_id = Column(String, ForeignKey('user.uuid'))
 
 
 class FileTag(Base):
     __tablename__ = 'fileTag'
-    fileId = Column(Integer, ForeignKey('file.id'), primary_key=True)
+    fileId = Column(Integer, ForeignKey('file.id', ondelete="CASCADE"), primary_key=True)
     tagId = Column(Integer, ForeignKey('tag.id'), primary_key=True)
 
 
@@ -46,7 +46,7 @@ class File(Base):
     content = Column(LargeBinary, nullable=False)
     tags = relationship('Tag', secondary=FileTag.__table__, back_populates='files')
     project = relationship('Project', back_populates='files')
-    project_id = Column(Integer, ForeignKey('project.id'))
+    project_id = Column(Integer, ForeignKey('project.id', ondelete='CASCADE'))
     # TODO FILE OWNERSHIP
 
     # TODO PROJECT OWNERSHIP

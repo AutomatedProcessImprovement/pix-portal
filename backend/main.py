@@ -76,11 +76,24 @@ async def home(
 async def home():
     return {"message": "Hello World"}
 
+@app.get("/file/")
+async def home(fileId):
+    print(fileId)
+
+    result = db_session.query(F).filter(F.id == fileId).first()
+
+    file_name = result.name
+    file_content = result.content
+
+    return {"file": {'content': file_content, 'name': file_name}}
+
 
 @app.get("/projects/")
 async def get_all_projects(uuid):
     print(uuid)
     result = db_session.query(Project).filter(Project.user_id == uuid).all()
+
+    print(result)
 
     return {"projects": result}
 
@@ -104,7 +117,26 @@ async def get_project_files(project_id):
     return {"files": _dict}
 
 
-@app.delete("/remove/{fid}")
+@app.delete("/projects/remove/{pid}")
+async def remove_file(
+        pid: int
+):
+    print(pid)
+
+    project = db_session.get(Project, pid)
+    db_session.delete(project)
+    db_session.commit()
+    # file = db_session.get(F, fid)
+    # print(file)
+    # db_session.delete(file)
+    # db_session.remove(file)
+    # db_session.commit()
+
+    return {"message": "Project and related files successfully removed."}
+
+
+
+@app.delete("/files/remove/{fid}")
 async def remove_file(
         fid: int
 ):

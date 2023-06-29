@@ -42,8 +42,8 @@ const CreateProjectDialog = (props: SimpleDialogProps) => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={sendValue} autoFocus>
+          <Button color='error' variant="contained" onClick={onClose}>Cancel</Button>
+          <Button  color="primary" variant="contained" onClick={sendValue} autoFocus>
             Create
           </Button>
         </DialogActions>

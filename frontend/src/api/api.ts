@@ -1,5 +1,4 @@
-import {API_instance, ZITADEL_instance} from "../axios";
-import axios from "axios";
+import {API_instance} from "../axios";
 export const getProjects = async (userId: string) => {
   return await API_instance.get(
     `/projects/`, {
@@ -10,9 +9,18 @@ export const getProjects = async (userId: string) => {
   )
 }
 
+export const getProjectFileForDownload = async (fileId: number) => {
+  return await API_instance.get(
+    `/file/`, {
+      params: {
+        fileId: fileId
+      }
+    }
+  )
+}
+
 export const getProjectFiles = async (project_id: number) => {
   // TODO verify if user is project owner
-  console.log(project_id)
   return await API_instance.get(
     `/projects/${project_id}`
   )
@@ -28,9 +36,15 @@ export const createNewProject = async (userId: number, name: string) => {
   )
 }
 
+export const removeProject = async (pid: number) => {
+  return await API_instance.delete(
+    `/projects/remove/${pid}`,
+  )
+}
+
 export const removeProjectFile = async (fid: number) => {
   return await API_instance.delete(
-    `/remove/${fid}`,
+    `/files/remove/${fid}`,
   )
 }
 
@@ -60,71 +74,4 @@ export const handleRegister = async (uName: string, fName:string, lName: string,
     `/register/`,
     formData
   )
-
-
-  // let data = JSON.stringify({
-  //   "username": "minnie-mouse2",
-  //   "profile": {
-  //     "firstName": "Minnie",
-  //     "lastName": "Mouse",
-  //     "nickName": "Mini2",
-  //     "displayName": "Minnie Mouse",
-  //     "preferredLanguage": "en",
-  //     "gender": "GENDER_FEMALE"
-  //   },
-  //   "email": {
-  //     "email": "mini@mouse.com",
-  //     "isVerified": true
-  //   },
-  //   "password": {
-  //     "password": "Secr3tP4ssw0rd!",
-  //     "changeRequired": true
-  //   }
-  // });
-  //
-  // let config = {
-  //   method: 'post',
-  //   url: 'http://localhost:8080/v2alpha/users/human',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     'Accept': 'application/json',
-  //     'Authorization': 'Bearer dGdrLUC2RyTxLiz3ICKJgZqa7RVrpS50MfPGZzOWQE1O-MzODSa-q9P0hO9630UGCk1aokc'
-  //   },
-  //   data : data
-  // };
-  //
-  // axios(config)
-  //   .then((response) => {
-  //     console.log(JSON.stringify(response.data));
-  //   })
-  //   .catch((error) => {
-  //     console.log(error);
-  //   });
-  //
-  // console.log(data)
-  // return await ZITADEL_instance.post(
-  //   `/v2alpha/users/human`,
-  //   data
-  // )
-
-
-
-  // return axios({
-  //   method: 'POST',
-  //   url: 'http://localhost:8080/v2alpha/users/human',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     'Accept': 'application/json',
-  //     'Authorization': 'Bearer dGdrLUC2RyTxLiz3ICKJgZqa7RVrpS50MfPGZzOWQE1O-MzODSa-q9P0hO9630UGCk1aokc',
-  //   },
-  //   data: data
-  // })
-
-  // ZITADEL_instance.request(config)
-  //   .then((response) => {
-  //     console.log(JSON.stringify(response.data));
-  //   })
-  //   .catch((error) => {
-  //     console.log(error);
-  //   });
 }

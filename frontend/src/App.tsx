@@ -6,6 +6,7 @@ import {UserManager, WebStorageStateStore} from "oidc-client-ts";
 import {authConfig} from "../authConfig";
 import {useEffect, useState} from "react";
 
+
 function App() {
   const userManager = new UserManager({
     userStore: new WebStorageStateStore({ store: window.localStorage }),
@@ -20,6 +21,7 @@ function App() {
 
   function clearAuth() {
     userManager.signoutRedirect().then((user: any)=> {
+      setAuthenticated(false);
     });
   }
 
@@ -39,6 +41,7 @@ function App() {
   }, [userManager]);
 
   return (
+
       <BrowserRouter>
         <Navigation authenticated={authenticated} userInfo={userInfo} clearAuth={clearAuth}/>
         <div className="App">

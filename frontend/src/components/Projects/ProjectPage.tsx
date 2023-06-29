@@ -1,23 +1,34 @@
 import {
+  AlertColor,
   Box,
-  Button, Chip,
+  Button,
+  Chip,
   Container,
-  Grid, MenuItem,
+  Grid, IconButton,
+  MenuItem,
   OutlinedInput,
   Paper,
   Select,
   SelectChangeEvent,
-  Stack, ThemeProvider,
+  Stack,
+  ThemeProvider,
   Typography
 } from "@mui/material";
 import {useLocation} from "react-router-dom";
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 import * as React from "react";
-import PFile from "./PFile";
 import {useEffect, useState} from "react";
-import {getProjectFiles, removeProjectFile, uploadFile} from "../../api/api";
+import PFile from "./PFile";
+import {getProjectFileForDownload, getProjectFiles, removeProjectFile, uploadFile} from "../../api/api";
 import DropZoneArea from "../Upload/DropzoneArea";
-import { createTheme } from '@mui/material/styles';
+import {createTheme} from '@mui/material/styles';
+import ConfirmDialog from "../CustomComponents/ConfirmDialog";
+import PixSnackBar from "../PIXSnackBar/PixSnackBar";
+import paths from "../../router/paths";
+import {useNavigate} from 'react-router-dom';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+
 interface ProjectProps {
   uuid: number
   projectName: string,
@@ -63,12 +74,22 @@ const files = []
 const ProjectPage = ({auth, userManager}) => {
 
   const [selectedLogFile, setSelectedLogFile] = useState<File | null>(null);
-  const [dropzoneFiles, setDropzoneFiles] = useState<>([]);
+  const [dropzoneFiles, setDropzoneFiles] = useState([]);
   const [tagValue, setTagValue] = React.useState<string>("UNTAGGED");
 
   const [selectedProjectFiles, setSelectedProjectFiles] = useState([])
   const [uniqueTags, setUniqueTags] = useState([])
 
+  const [open, setOpen] = useState(false);
+  const [fid, setFid] = useState(null);
+
+  const [snackMessage, setSnackMessage] = useState("")
+  const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
+
+  const navigate = useNavigate();
+  const state = useLocation();
+  const { pInfo } = state.state as ProjectProps
+  const [fList, setFlist] = useState(files)
 
   useEffect(() => {
     collectFiles()
@@ -110,6 +131,8 @@ const ProjectPage = ({auth, userManager}) => {
             setSelectedProjectFiles(selectedProjectFiles.concat(newObj));
             return true
           } else {
+            setErrorMessage(
+              `You can only have one file of type : ${newObj.tags[nk]} selected.`)
             return false
           }
         }
@@ -117,9 +140,7 @@ const ProjectPage = ({auth, userManager}) => {
     }
   }
 
-  const state = useLocation();
-  const { pInfo } = state.state as ProjectProps
-  const [fList, setFlist] = useState(files)
+
 
 
   const collectFiles = () => {
@@ -131,25 +152,76 @@ const ProjectPage = ({auth, userManager}) => {
 
   const handleRemove = (fid: number) => {
     // console.log(fid)
-    const _ = removeProjectFile(fid).then((results: any) => {
-      // TODO snackbar
-      collectFiles()
-    })
+    setOpen(true)
+    setFid(fid)
+  }
+
+  const contentToBlob = (values, name) => {
+    const filetype = name.split('.')[1]
+    console.log(filetype)
+    let contentType;
+    switch (filetype) {
+      case 'json':
+        contentType = 'application/json'
+        break
+      case 'bpmn':
+        contentType = 'application/xml'
+        break
+      case 'csv':
+        contentType = 'text/csv'
+        break
+      default:
+        contentType = 'text/plain'
+    }
+
+    const content = JSON.stringify(values)
+    return new Blob([content], {type: contentType})
+  }
+
+  const handleDownload = (fid: number) => {
+    const _ = getProjectFileForDownload(fid)
+      .then((results: any) => [contentToBlob(results.data.file.content, results.data.file.name), results.data.file.name])
+      .then(([blob, name]) => {
+        const fileDownloadUrl = URL.createObjectURL(blob)
+        const link = document.createElement('a');
+
+        link.href = fileDownloadUrl;
+        link.setAttribute(
+          'download',
+          name
+        );
+        // Append to html link element page
+        document.body.appendChild(link);
+        // Start download
+        link.click();
+        // Clean up and remove the link
+        link.parentNode.removeChild(link);
+      })
   }
 
   const handleClickTest = () => {
 
     const actual = tValToActual[tagValue]
 
-    uploadFile(selectedLogFile, [actual], pInfo.uuid).then(
-      (e) => {
-        console.log(e)
-        collectFiles()
-        setTagValue("UNTAGGED")
-        setSelectedLogFile(null)
-        setDropzoneFiles([])
-      }
-    );
+    if (selectedLogFile) {
+      uploadFile(selectedLogFile, [actual], pInfo.uuid).then(
+        (e) => {
+          console.log(e)
+          collectFiles()
+          setTagValue("UNTAGGED")
+          setSelectedLogFile(null)
+          setDropzoneFiles([])
+
+          setSuccessMessage(e.data.message)
+        }
+      ).catch((e) => {
+        setErrorMessage(e.data.message)
+      });
+    } else {
+      setErrorMessage("Please select a file to upload")
+    }
+
+
   };
 
   const ITEM_HEIGHT = 48;
@@ -188,7 +260,32 @@ const ProjectPage = ({auth, userManager}) => {
     'UNTAGGED': 'UNTAGGED'
   }
 
+  const onSnackbarClose = () => {
+    setSuccessMessage("")
+    setInfoMessage("")
+    setErrorMessage("")
+  };
 
+  const setInfoMessage = (value: string) => {
+    setSnackColor("info")
+    setSnackMessage(value)
+  };
+
+  const setSuccessMessage = (value: string) => {
+    setSnackColor("success")
+    setSnackMessage(value)
+  };
+
+  const setErrorMessage = (value: string) => {
+    setSnackColor("error")
+    setSnackMessage(value)
+  };
+
+  const goBack = () => {
+    navigate(
+      paths.LOGIN_PATH
+    )
+  }
 
   const handleChange = (event: SelectChangeEvent<typeof tagValue>) => {
     const {
@@ -200,6 +297,24 @@ const ProjectPage = ({auth, userManager}) => {
     );
   };
 
+  const removeFile = (fid) => {
+    const _ = removeProjectFile(fid).then((results: any) => {
+       //TODO snackbar
+      setSuccessMessage(results.data.message)
+      collectFiles()
+    }).catch((e)=> {
+      setErrorMessage(e.data.message)
+    })
+  }
+
+  const handleClose = (e) => {
+    if (e && fid) {
+      removeFile(fid)
+    }
+    setFid(null)
+    setOpen(false);
+  };
+
   return (
       <Box
         sx={{
@@ -207,17 +322,27 @@ const ProjectPage = ({auth, userManager}) => {
           pb: 4,
         }}
       >
-        <Typography
-          component="h1"
-          variant="h4"
-          align="center"
-          color="text.primary"
-          gutterBottom
-        >
-          {pInfo.projectName}
-        </Typography>
+
 
         <Container sx={{ py: 3, minWidth: '65%' }}>
+          <Box
+            sx={{display: 'flex', justifyContent: 'space-between', pb: 4}}
+          >
+            <IconButton aria-label="delete" onClick={goBack}>
+              <ArrowBackIosIcon />
+            </IconButton>
+            <Typography
+              component="h1"
+              variant="h4"
+              align="center"
+              color="text.primary"
+            >
+              {pInfo.projectName}
+            </Typography>
+            <IconButton aria-label="download-all">
+              <CloudDownloadIcon />
+            </IconButton>
+          </Box>
           <Paper
             elevation={2}
             sx={{
@@ -322,10 +447,20 @@ const ProjectPage = ({auth, userManager}) => {
                 uuid={id}
                 onClickRemove={handleRemove}
                 onChange={handleFileChecked}
-              />
+                onClickDownload={handleDownload}/>
             ))}
           </Grid>
         </Container>
+        <ConfirmDialog
+          message={"Are you sure you want to delete this file?"}
+          onClose={handleClose}
+          open={open}
+          title={"Delete file?"}/>
+        {snackMessage && <PixSnackBar
+            message={snackMessage}
+            severityLevel={snackColor}
+            onSnackbarClose={onSnackbarClose}
+        />}
       </Box>
   )
 }

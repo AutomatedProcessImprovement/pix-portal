@@ -1,30 +1,9 @@
-import {Box, Button, Fade, List, ListItem, Typography} from "@mui/material";
-import { buttonClasses } from '@mui/base/Button';
-import { styled } from '@mui/system';
+import {Box, Fade, List, ListItem, Typography} from "@mui/material";
 import * as React from "react";
 import {Link} from "react-router-dom";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { Navigate } from "react-router-dom";
-import CustomButton from "../CustomButton";
+import CustomButton from "../CustomComponents/CustomButton";
 import {useEffect} from "react";
-const blue = {
-  500: '#007FFF',
-  600: '#0072E5',
-  700: '#0059B2',
-};
-
-const grey = {
-  100: '#eaeef2',
-  300: '#afb8c1',
-  900: '#24292f',
-};
-
-interface authProps {
-  auth,
-  handleLogin,
-  userManager
-}
-
 
 const Index = () => {
 
