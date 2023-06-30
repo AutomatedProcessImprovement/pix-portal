@@ -14,6 +14,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import DeleteIcon from '@mui/icons-material/Delete';
 import * as React from "react";
 import DownloadIcon from '@mui/icons-material/Download';
+import EditIcon from '@mui/icons-material/Edit';
 
 const theme = createTheme({
   status: {
@@ -64,7 +65,8 @@ interface FileProps {
   uploadDate: string
   onClickRemove: (id: number) => void
   onChange: (id: number) => boolean
-  onClickDownload: (id: number) => void
+  onClickDownload: (id: number) => void,
+  onEdit: (id: number) => {}
 
 }
 
@@ -75,6 +77,7 @@ const PFile = (props: FileProps) => {
   const onClickRemove = props.onClickRemove
   const onClickChange = props.onChange
   const onClickDownload = props.onClickDownload
+  const onEdit = props.onEdit
 
   const onChange = (e) => {
     if (e.target.checked) {
@@ -88,21 +91,24 @@ const PFile = (props: FileProps) => {
     onClickDownload(props.uuid)
   }
 
+  const onClickEdit = () => {
+    onEdit(props.uuid, props.name)
+  }
+
   const onRemove = () => {
     onClickRemove(props.uuid)
   }
 
   return (
-    <Grid item key={props.uuid} xs={3}>
       <Card
         sx={{ height: '100%'}}
       >
         <CardContent sx={{ flexGrow: 1, mb: 3 }}>
           {TagType.BPMN["icon"]}
-          <Typography variant="h5" component="h2">
+          <Typography variant="h5" component="h2" style={{ wordWrap: "break-word" }}>
             {props.name}
           </Typography>
-          <Typography sx={{ mb: 1.5 }} color="text.secondary">
+          <Typography sx={{ mb: 1.5 }} color="text.secondary" style={{ wordWrap: "break-word" }}>
             {props.uploadDate}
           </Typography>
             <ThemeProvider theme={theme}>
@@ -112,16 +118,18 @@ const PFile = (props: FileProps) => {
             </ThemeProvider>
         </CardContent>
         <CardActions >
-            <IconButton aria-label="delete file" onClick={onRemove}>
+            <IconButton sx={{ flexGrow: 0 }} aria-label="delete file" onClick={onRemove}>
               <DeleteIcon />
             </IconButton>
-            <IconButton aria-label="download-file" onClick={onDownload}>
+            <IconButton sx={{ flexGrow: 0 }} aria-label="download-file" onClick={onDownload}>
               <DownloadIcon />
             </IconButton>
-          <Checkbox checked={checked} sx={{ml:'auto'}} onChange={(e)=> {setChecked(onChange(e))}}/>
+          <IconButton aria-label="edit-profile-name" onClick={onClickEdit}>
+            <EditIcon />
+          </IconButton>
+          <Checkbox checked={checked} sx={{ ml: 'auto' }} onChange={(e)=> {setChecked(onChange(e))}}/>
         </CardActions>
       </Card>
-    </Grid>
   )
 }
 

@@ -20,7 +20,14 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import * as React from "react";
 import {useEffect, useState} from "react";
 import PFile from "./PFile";
-import {getProjectFileForDownload, getProjectFiles, removeProjectFile, uploadFile} from "../../api/api";
+import {
+  editExistingFileTitle,
+  editExistingProjectTitle,
+  getProjectFileForDownload,
+  getProjectFiles,
+  removeProjectFile,
+  uploadFile
+} from "../../api/api";
 import DropZoneArea from "../Upload/DropzoneArea";
 import {createTheme} from '@mui/material/styles';
 import ConfirmDialog from "../CustomComponents/ConfirmDialog";
@@ -28,6 +35,7 @@ import PixSnackBar from "../PIXSnackBar/PixSnackBar";
 import paths from "../../router/paths";
 import {useNavigate} from 'react-router-dom';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import CreateProjectDialog from "../Upload/CreateProjectDialog";
 
 interface ProjectProps {
   uuid: number
@@ -82,6 +90,7 @@ const ProjectPage = ({auth, userManager}) => {
 
   const [open, setOpen] = useState(false);
   const [fid, setFid] = useState(null);
+  const [fName, setFName] = useState("");
 
   const [snackMessage, setSnackMessage] = useState("")
   const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
@@ -90,6 +99,10 @@ const ProjectPage = ({auth, userManager}) => {
   const state = useLocation();
   const { pInfo } = state.state as ProjectProps
   const [fList, setFlist] = useState(files)
+
+  const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  const [createDialogTitle, setCreateDialogTitle] = useState("")
+  const [createDialogMessage, setCreateDialogMessage] = useState("")
 
   useEffect(() => {
     collectFiles()
@@ -105,6 +118,31 @@ const ProjectPage = ({auth, userManager}) => {
     }
   }, [selectedProjectFiles, uniqueTags])
 
+  const handleOpenEditDialog = (fid, prevName) => {
+    console.log(fid)
+    setFid(fid)
+    setFName(prevName)
+    setCreateDialogMessage("Enter a new name for the file")
+    setCreateDialogTitle("Edit existing file")
+    setOpenCreateDialog(true);
+  }
+
+  const handleCloseCreateDialog = () => {
+    setOpenCreateDialog(false);
+    setCreateDialogTitle("")
+    setCreateDialogMessage("")
+  };
+
+  const handleEdit = (_type, e: string) => {
+    console.log(e)
+    console.log(fid)
+    const _ = editExistingFileTitle(fid, e).then((_e:any) => {
+      setSuccessMessage(_e.data.message)
+      // Poll the server again to receive the updated list of projects
+      collectFiles()
+      handleCloseCreateDialog()
+    });
+  }
 
   const handleFileChecked = (checked, fileID, tags) => {
     if (!checked) {
@@ -139,9 +177,6 @@ const ProjectPage = ({auth, userManager}) => {
       }
     }
   }
-
-
-
 
   const collectFiles = () => {
     const _ = getProjectFiles(pInfo.uuid).then((result:any) => {
@@ -313,66 +348,50 @@ const ProjectPage = ({auth, userManager}) => {
     }
     setFid(null)
     setOpen(false);
-  };
+  }
 
   return (
-      <Box
-        sx={{
-          pt: 4,
-          pb: 4,
-        }}
-      >
+    <Box
+      sx={{
+        pt: 4,
+        pb: 4,
+      }}
+    >
 
 
-        <Container sx={{ py: 3, minWidth: '65%' }}>
-          <Box
-            sx={{display: 'flex', justifyContent: 'space-between', pb: 4}}
+      <Container sx={{ py: 3, minWidth: '65%' }}>
+        <Box
+          sx={{display: 'flex', justifyContent: 'space-between', pb: 4}}
+        >
+          <IconButton aria-label="delete" onClick={goBack}>
+            <ArrowBackIosIcon />
+          </IconButton>
+          <Typography
+            component="h1"
+            variant="h4"
+            align="center"
+            color="text.primary"
           >
-            <IconButton aria-label="delete" onClick={goBack}>
-              <ArrowBackIosIcon />
-            </IconButton>
-            <Typography
-              component="h1"
-              variant="h4"
-              align="center"
-              color="text.primary"
+            {pInfo.projectName}
+          </Typography>
+          <IconButton aria-label="download-all">
+            <CloudDownloadIcon />
+          </IconButton>
+        </Box>
+        <Paper
+          elevation={2}
+          sx={{
+            p: 2
+          }}
+        >
+          <Grid
+            container
+            spacing={2}
+            direction="row"
+            justify="space-between"
+            alignItems="center-top"
             >
-              {pInfo.projectName}
-            </Typography>
-            <IconButton aria-label="download-all">
-              <CloudDownloadIcon />
-            </IconButton>
-          </Box>
-          <Paper
-            elevation={2}
-            sx={{
-              p: 2
-            }}
-          >
-            <Grid
-              container
-              spacing={2}
-              direction="row"
-              justify="space-between"
-              alignItems="center-top"
-              >
-              <Grid item xs={10}>
-                <Typography
-                  component="h1"
-                  variant="h5"
-                  align="center"
-                  color="text.primary"
-                  gutterBottom
-                >
-                  Upload File
-                </Typography>
-                <DropZoneArea
-                  acceptedFiles={'.json,.xes,.bpmn,.csv'}
-                  setSelectedLogFile={setSelectedLogFile}
-                  extFiles={dropzoneFiles}
-                  setExtFiles={setDropzoneFiles}/>
-              </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={10}>
               <Typography
                 component="h1"
                 variant="h5"
@@ -380,88 +399,116 @@ const ProjectPage = ({auth, userManager}) => {
                 color="text.primary"
                 gutterBottom
               >
-                Select Tag
+                Upload File
               </Typography>
-              <Select
-                displayEmpty
-                sx={{ width: '100%'}}
-                labelId="demo-multiple-chip-label"
-                id="demo-multiple-chip"
-                value={tagValue}
-                onChange={handleChange}
-                input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-                renderValue={(selected) => (
-                  <ThemeProvider theme={theme}>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        <Chip key={selected} label={selected} color={colors[selected]}/>
-                    </Box>
-                  </ThemeProvider>
-                )}
-                MenuProps={MenuProps}
-              >
-
-                {fileTags.map((name) => (
-                  <MenuItem
-                    key={name}
-                    value={name}
-                    // style={getStyles(name, personName, theme)}
-                  >
-                    {name}
-                  </MenuItem>
-                ))}
-              </Select>
+              <DropZoneArea
+                acceptedFiles={'.json,.xes,.bpmn,.csv'}
+                setSelectedLogFile={setSelectedLogFile}
+                extFiles={dropzoneFiles}
+                setExtFiles={setDropzoneFiles}/>
             </Grid>
+          <Grid item xs={2}>
+            <Typography
+              component="h1"
+              variant="h5"
+              align="center"
+              color="text.primary"
+              gutterBottom
+            >
+              Select Tag
+            </Typography>
+            <Select
+              displayEmpty
+              sx={{ width: '100%'}}
+              labelId="demo-multiple-chip-label"
+              id="demo-multiple-chip"
+              value={tagValue}
+              onChange={handleChange}
+              input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+              renderValue={(selected) => (
+                <ThemeProvider theme={theme}>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      <Chip key={selected} label={selected} color={colors[selected]}/>
+                  </Box>
+                </ThemeProvider>
+              )}
+              MenuProps={MenuProps}
+            >
 
-            </Grid>
-          </Paper>
-          <Stack
-            sx={{ pt: 3 }}
-            direction="row"
-            spacing={2}
-            justifyContent="center"
-            useFlexGap
-            flexWrap="wrap"
-          >
-            <Button sx={{width: 400}} variant="contained" onClick={handleClickTest}>Upload File</Button>
-
-          </Stack>
-        </Container>
-        <Typography
-          component="h1"
-          variant="h4"
-          align="center"
-          color="text.primary"
-        >
-          Project Files
-        </Typography>
-
-        <Container sx={{ py: 5, minWidth: '65%' }}>
-          <Grid container spacing={4}>
-            {fList.map(({id, path, tags, createdOn, name}) => (
-              <PFile
-                key={id}
-                name={name}
-                path={path}
-                tag={tags}
-                uploadDate={createdOn}
-                uuid={id}
-                onClickRemove={handleRemove}
-                onChange={handleFileChecked}
-                onClickDownload={handleDownload}/>
-            ))}
+              {fileTags.map((name) => (
+                <MenuItem
+                  key={name}
+                  value={name}
+                  // style={getStyles(name, personName, theme)}
+                >
+                  {name}
+                </MenuItem>
+              ))}
+            </Select>
           </Grid>
-        </Container>
-        <ConfirmDialog
-          message={"Are you sure you want to delete this file?"}
-          onClose={handleClose}
-          open={open}
-          title={"Delete file?"}/>
-        {snackMessage && <PixSnackBar
-            message={snackMessage}
-            severityLevel={snackColor}
-            onSnackbarClose={onSnackbarClose}
-        />}
-      </Box>
+
+          </Grid>
+        </Paper>
+        <Stack
+          sx={{ pt: 3 }}
+          direction="row"
+          spacing={2}
+          justifyContent="center"
+          useFlexGap
+          flexWrap="wrap"
+        >
+          <Button sx={{width: 400}} variant="contained" onClick={handleClickTest}>Upload File</Button>
+
+        </Stack>
+      </Container>
+      <Typography
+        component="h1"
+        variant="h4"
+        align="center"
+        color="text.primary"
+      >
+        Project Files
+      </Typography>
+
+      <Container sx={{ py: 5, minWidth: '65%' }}>
+        <Grid container spacing={4}>
+          {fList.map(({id, path, tags, createdOn, name}) => (
+              <Grid item key={id} xs={3}>
+                <PFile
+                  key={id}
+                  name={name}
+                  path={path}
+                  tag={tags}
+                  uploadDate={createdOn}
+                  uuid={id}
+                  onClickRemove={handleRemove}
+                  onChange={handleFileChecked}
+                  onClickDownload={handleDownload}
+                  onEdit={handleOpenEditDialog}/>
+              </Grid>
+          ))}
+        </Grid>
+      </Container>
+      <ConfirmDialog
+        message={"Are you sure you want to delete this file?"}
+        onClose={handleClose}
+        open={open}
+        title={"Delete file?"}
+      />
+      <CreateProjectDialog
+        open={openCreateDialog}
+        onClose={handleCloseCreateDialog}
+        onSubmit={handleEdit}
+        message={createDialogMessage}
+        title={createDialogTitle}
+        type={""}
+        value={fName}/>
+      {snackMessage && <PixSnackBar
+          message={snackMessage}
+          severityLevel={snackColor}
+          onSnackbarClose={onSnackbarClose}
+      />}
+    </Box>
   )
 }
 

@@ -72,9 +72,11 @@ async def home(
 
     return {"message": response.text, "otp": otp}
 
+
 @app.get("/")
 async def home():
     return {"message": "Hello World"}
+
 
 @app.get("/file/")
 async def home(fileId):
@@ -135,7 +137,6 @@ async def remove_file(
     return {"message": "Project and related files successfully removed."}
 
 
-
 @app.delete("/files/remove/{fid}")
 async def remove_file(
         fid: int
@@ -149,8 +150,35 @@ async def remove_file(
 
     return {"message": "File successfully removed"}
 
+@app.put("/files/")
+async def update_file_name(
+        fid: str = Form(...),
+        name: str = Form(...)
+):
+    _file = db_session.query(F).filter_by(id=fid).update({F.name: name})
+    db_session.commit()
 
-@app.post("/create/")
+    return {"message": "File successfully updated"}
+
+
+@app.put("/projects/")
+async def update_project(
+        uuid: str = Form(...),
+        pid: str = Form(...),
+        name: str = Form(...)
+):
+    user = db_session.query(U.uuid).filter_by(uuid=uuid).first() is not None
+    if not user:
+        # TODO ERROR
+        return {"message": "User does not exist"}
+
+    _project = db_session.query(Project).filter_by(id=pid).update({Project.name: name})
+    db_session.commit()
+
+    return {"message": "Project successfully updated"}
+
+
+@app.post("/projects/")
 async def create_project(
         uuid: str = Form(...),
         name: str = Form(...)

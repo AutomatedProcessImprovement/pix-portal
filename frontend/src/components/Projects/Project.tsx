@@ -4,18 +4,21 @@ import {useNavigate} from 'react-router-dom';
 import paths from "../../router/paths";
 import * as React from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 interface ProjectProps {
   uuid: number
   projectName: string,
   projectCreationDate: string,
   userId: string,
-  onDelete: (pid) => void
+  onDelete: (pid) => void,
+  onEdit: (pid) => void
 }
+
 
 const Project = (props: ProjectProps) => {
 
-  const {uuid, projectName, projectCreationDate, userId, onDelete} = props
+  const {uuid, projectName, projectCreationDate, userId, onDelete, onEdit} = props
 
   const navigate = useNavigate();
 
@@ -35,8 +38,10 @@ const Project = (props: ProjectProps) => {
     onDelete(props.uuid)
   }
 
-
-  // TODO click to remove project
+  const onClickEdit = () => {
+    console.log(props.uuid)
+    onEdit(props.uuid)
+  }
 
   return (
     <Grid item key={props.uuid} xs={3}>
@@ -52,9 +57,12 @@ const Project = (props: ProjectProps) => {
             </Typography>
           </CardContent>
         </CardActionArea>
-        <CardActions >
-          <IconButton aria-label="delete file" onClick={onClickDelete}>
+        <CardActions sx={{ justifyContent: 'space-between' }} >
+          <IconButton aria-label="delete-project" onClick={onClickDelete}>
             <DeleteIcon />
+          </IconButton>
+          <IconButton aria-label="edit-profile-name" onClick={onClickEdit}>
+            <EditIcon />
           </IconButton>
         </CardActions>
       </Card>

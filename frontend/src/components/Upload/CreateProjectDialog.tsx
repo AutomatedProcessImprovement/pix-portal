@@ -9,26 +9,30 @@ import {useRef} from "react";
 
 export interface SimpleDialogProps {
   open: boolean;
-  onSubmit:(value: string) => void;
+  onSubmit:(type: string, value: string) => void;
   onClose: void;
+  title: string,
+  message: string,
+  type: string,
+  value: string
 }
 
 const CreateProjectDialog = (props: SimpleDialogProps) => {
-  const { onSubmit, onClose, open } = props;
+  const { onSubmit, onClose, open, title, message, type, value } = props;
   const valueRef = useRef('')
 
   const sendValue = () => {
     // console.log(valueRef.current["value"])
-    onSubmit(valueRef.current["value"])
+    onSubmit(type, valueRef.current["value"])
   }
 
   return (
     <Dialog maxWidth="sm" fullWidth={true} onClose={onClose} open={open}>
       {/*<form onSubmit={onSubmit}>*/}
-        <DialogTitle>Create a new project</DialogTitle>
+        <DialogTitle>{title}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Enter a name for the project.
+            {message}
           </DialogContentText>
           <TextField
             autoFocus
@@ -39,6 +43,7 @@ const CreateProjectDialog = (props: SimpleDialogProps) => {
             fullWidth
             variant="standard"
             inputRef={valueRef}
+            defaultValue={value}
           />
         </DialogContent>
         <DialogActions>

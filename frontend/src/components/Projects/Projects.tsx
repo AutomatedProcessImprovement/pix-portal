@@ -14,7 +14,7 @@ import CreateProjectDialog from "../Upload/CreateProjectDialog";
 import PixSnackBar from "../PIXSnackBar/PixSnackBar";
 import {useEffect, useState} from "react";
 import  moment from "moment";
-import {createNewProject, getProjects, removeProject} from "../../api/api";
+import {createNewProject, editExistingProjectTitle, getProjects, removeProject} from "../../api/api";
 import {getUserObjectFromStorage} from "../../../authConfig";
 import ConfirmDialog from "../CustomComponents/ConfirmDialog";
 
@@ -42,18 +42,27 @@ const Projects = ({auth, userManager}) => {
 
   const [pList, setPlist] = React.useState([])
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  const [createDialogTitle, setCreateDialogTitle] = useState("")
+  const [createDialogMessage, setCreateDialogMessage] = useState("")
+  const [type, setType] = useState("")
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [snackMessage, setSnackMessage] = useState("")
   const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
 
   const [pid, setPid] = useState(null)
 
-  const handleClickOpen = () => {
+  const handleClickOpenCreate = () => {
+    setType("ADD")
+    setCreateDialogMessage("Enter a name for the project")
+    setCreateDialogTitle("Create new project")
     setOpenCreateDialog(true);
   };
 
   const handleCloseCreateDialog = () => {
     setOpenCreateDialog(false);
+    setType("")
+    setCreateDialogTitle("")
+    setCreateDialogMessage("")
   };
 
   const deleteProject = (pid) => {
@@ -94,6 +103,24 @@ const Projects = ({auth, userManager}) => {
     setErrorMessage("")
   };
 
+  const handleSubmit = (type, e) => {
+    if (type === 'ADD') {
+      handleAdd(e)
+    }
+    if (type === 'EDIT') {
+      handleEdit(e)
+    }
+  }
+
+  const handleEdit = (e: string) => {
+    console.log(e)
+    const _ = editExistingProjectTitle(userId, pid, e).then((_e:any) => {
+      setSuccessMessage(_e.data.message)
+      // Poll the server again to receive the updated list of projects
+      _collectProjects(userId)
+      handleCloseCreateDialog()
+    });
+  }
 
   const handleAdd = (e: string) => {
     console.log(e)
@@ -105,6 +132,14 @@ const Projects = ({auth, userManager}) => {
     });
   }
 
+  const handleOpenEditDialog = (pid) => {
+    console.log(pid)
+    setPid(pid)
+    setType("EDIT")
+    setCreateDialogMessage("Enter a new name for the project")
+    setCreateDialogTitle("Edit existing project")
+    setOpenCreateDialog(true);
+  }
 
   const handleRemove = (pid) => {
     console.log(pid)
@@ -136,7 +171,7 @@ const Projects = ({auth, userManager}) => {
             spacing={2}
             justifyContent="center"
           >
-            <Button variant="contained" onClick={handleClickOpen}>Create new project</Button>
+            <Button variant="contained" onClick={handleClickOpenCreate}>Create new project</Button>
           </Stack>
         </Container>
       </Box>
@@ -163,6 +198,7 @@ const Projects = ({auth, userManager}) => {
                 userId={user_id}
                 uuid={id}
                 onDelete={handleRemove}
+                onEdit={handleOpenEditDialog}
               />
             ))
           }
@@ -172,8 +208,11 @@ const Projects = ({auth, userManager}) => {
       < CreateProjectDialog
         open={openCreateDialog}
         onClose={handleCloseCreateDialog}
-        onSubmit={handleAdd}
-      />
+        onSubmit={handleSubmit}
+        message={createDialogMessage}
+        title={createDialogTitle}
+        type={type}
+        value={""}/>
       <ConfirmDialog
         message={"Are you sure you want to delete this project?"}
         onClose={handleCloseDeleteDialog}

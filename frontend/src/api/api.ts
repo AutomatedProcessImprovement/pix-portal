@@ -31,7 +31,28 @@ export const createNewProject = async (userId: number, name: string) => {
   formData.append('uuid', userId)
   formData.append('name', name)
   return await API_instance.post(
-    `/create/`,
+    `/projects/`,
+    formData
+  )
+}
+
+export const editExistingProjectTitle = async (userId: number, projectId: number ,name: string) => {
+  const formData = new FormData()
+  formData.append('uuid', userId)
+  formData.append('pid', projectId)
+  formData.append('name', name)
+  return await API_instance.put(
+    `/projects/`,
+    formData
+  )
+}
+
+export const editExistingFileTitle = async (fileId: number ,name: string) => {
+  const formData = new FormData()
+  formData.append('fid', fileId)
+  formData.append('name', name)
+  return await API_instance.put(
+    `/files/`,
     formData
   )
 }
