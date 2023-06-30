@@ -1,7 +1,5 @@
 import {Card, CardActionArea, CardActions, CardContent, Grid, IconButton, Typography} from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
-import {useNavigate} from 'react-router-dom';
-import paths from "../../router/paths";
 import * as React from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -12,25 +10,17 @@ interface ProjectProps {
   projectCreationDate: string,
   userId: string,
   onDelete: (pid) => void,
-  onEdit: (pid) => void
+  onEdit: (pid) => void,
+  onSelect: (props) => {}
 }
 
 
 const Project = (props: ProjectProps) => {
+  const {uuid, projectName, projectCreationDate, userId, onDelete, onEdit, onSelect} = props
 
-  const {uuid, projectName, projectCreationDate, userId, onDelete, onEdit} = props
-
-  const navigate = useNavigate();
 
   const handleClick = () => {
-    console.log(props)
-    navigate(
-      paths.PROJECT_ID_PATH, {
-        state: {
-          pInfo: {uuid, projectName, projectCreationDate, userId}
-        }
-      }
-    )
+    onSelect({userId,projectName, projectCreationDate, uuid})
   }
 
   const onClickDelete = () => {

@@ -19,18 +19,8 @@ import {useNavigate} from 'react-router-dom';
 const Register = () => {
   const [loading, setLoading] = React.useState(false);
   const [otp, setOTP] = React.useState(null)
-
   const [open, setOpen] = React.useState(false);
-
   const navigate = useNavigate();
-
-  const timer = React.useRef<number>();
-
-  React.useEffect(() => {
-    return () => {
-      clearTimeout(timer.current);
-    };
-  }, []);
 
   const handleClose = (value: string) => {
     setOpen(false);
@@ -54,13 +44,10 @@ const Register = () => {
 
       handleRegister(data.get('username'), data.get('firstName'), data.get('lastName'), data.get('email')).then((res) => {
         setLoading(false)
-        console.log(res)
         setOTP(res.data.otp)
         setOpen(true)
-        console.log(open)
 
       }).catch((e) => {
-        console.log(e)
         setLoading(false)
       })
 

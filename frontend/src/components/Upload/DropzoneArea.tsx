@@ -8,7 +8,7 @@ interface CustomDropzoneAreaProps {
   extFiles: any
   setExtFiles: (file:any) => void
 }
-//
+
 const DropZoneArea = (props: CustomDropzoneAreaProps) => {
   const { acceptedFiles, setSelectedLogFile} = props
   const [extFiles, setExtFiles] = [props.extFiles, props.setExtFiles]

@@ -14,24 +14,30 @@ import CreateProjectDialog from "../Upload/CreateProjectDialog";
 import PixSnackBar from "../PIXSnackBar/PixSnackBar";
 import {useEffect, useState} from "react";
 import  moment from "moment";
-import {createNewProject, editExistingProjectTitle, getProjects, removeProject} from "../../api/api";
 import {getUserObjectFromStorage} from "../../../authConfig";
 import ConfirmDialog from "../CustomComponents/ConfirmDialog";
+import {createNewProject, editExistingProjectTitle, getProjects, removeProject} from "../../api/project_api";
+import paths from "../../router/paths";
+import {useNavigate} from 'react-router-dom';
+
 
 
 const Projects = ({auth, userManager}) => {
   const [userId, setUserId] = React.useState<string | null>(null)
+  const [pid, setPid] = useState(null)
+  const [pList, setPlist] = React.useState([])
 
-  const _collectProjects = (uuid) => {
-      const _projects = getProjects(uuid).then((result:any) => {
-        const jsonProjects = result.data.projects
-        console.log(jsonProjects)
-        setPlist(jsonProjects)
-      }).catch((e)=> {
-        console.log(e)
-      })
+  const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [createDialogTitle, setCreateDialogTitle] = useState("")
+  const [createDialogMessage, setCreateDialogMessage] = useState("")
+  const [type, setType] = useState("")
 
-  }
+  const [snackMessage, setSnackMessage] = useState("")
+  const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
+
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     getUserObjectFromStorage(userManager).then((user)=> {
@@ -40,30 +46,53 @@ const Projects = ({auth, userManager}) => {
     })
   }, [auth, userManager])
 
-  const [pList, setPlist] = React.useState([])
-  const [openCreateDialog, setOpenCreateDialog] = useState(false);
-  const [createDialogTitle, setCreateDialogTitle] = useState("")
-  const [createDialogMessage, setCreateDialogMessage] = useState("")
-  const [type, setType] = useState("")
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [snackMessage, setSnackMessage] = useState("")
-  const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
 
-  const [pid, setPid] = useState(null)
+  const _collectProjects = (uuid) => {
+      const _projects = getProjects(uuid).then((result:any) => {
+        const jsonProjects = result.data.projects
+        setPlist(jsonProjects)
+      }).catch((e)=> {
+        console.log(e)
+      })
+  }
+  
+  const handleNavigateSpecificProject = (projectProps) => {
+    navigate(
+      paths.PROJECT_ID_PATH, {
+        state: {
+          pid: projectProps.uuid,
+          projectName: projectProps.projectName,
+          projectCreationDate: projectProps.projectCreationDate,
+          uuid: projectProps.userId
+        }
+      }
+    )
+  }
 
-  const handleClickOpenCreate = () => {
-    setType("ADD")
-    setCreateDialogMessage("Enter a name for the project")
-    setCreateDialogTitle("Create new project")
-    setOpenCreateDialog(true);
-  };
+  const handleSubmit = (type, e) => {
+    if (type === 'ADD') {
+      handleAdd(e)
+    }
+    if (type === 'EDIT') {
+      handleEdit(e)
+    }
+  }
 
-  const handleCloseCreateDialog = () => {
-    setOpenCreateDialog(false);
-    setType("")
-    setCreateDialogTitle("")
-    setCreateDialogMessage("")
-  };
+  const handleEdit = (e: string) => {
+    const _ = editExistingProjectTitle(userId, pid, e).then((_e:any) => {
+      setSuccessMessage(_e.data.message)
+      _collectProjects(userId)
+      handleCloseCreateDialog()
+    });
+  }
+
+  const handleAdd = (e: string) => {
+    const _ = createNewProject(userId, e).then((_e:any) => {
+      setSuccessMessage(_e.data.message)
+      _collectProjects(userId)
+      handleCloseCreateDialog()
+    });
+  }
 
   const deleteProject = (pid) => {
     removeProject(pid).then((res) => {
@@ -73,6 +102,33 @@ const Projects = ({auth, userManager}) => {
       setSuccessMessage(e.data.message)
     })
   }
+
+  const handleOpenDeleteDialog = (pid) => {
+    setOpenDeleteDialog(true)
+    setPid(pid)
+  }
+
+  const handleClickOpenCreate = () => {
+    setType("ADD")
+    setCreateDialogMessage("Enter a name for the project")
+    setCreateDialogTitle("Create new project")
+    setOpenCreateDialog(true);
+  };
+
+  const handleOpenEditDialog = (pid) => {
+    setPid(pid)
+    setType("EDIT")
+    setCreateDialogMessage("Enter a new name for the project")
+    setCreateDialogTitle("Edit existing project")
+    setOpenCreateDialog(true);
+  }
+
+  const handleCloseCreateDialog = () => {
+    setOpenCreateDialog(false);
+    setType("")
+    setCreateDialogTitle("")
+    setCreateDialogMessage("")
+  };
 
   const handleCloseDeleteDialog = (e) => {
     if (e && pid) {
@@ -102,50 +158,6 @@ const Projects = ({auth, userManager}) => {
     setInfoMessage("")
     setErrorMessage("")
   };
-
-  const handleSubmit = (type, e) => {
-    if (type === 'ADD') {
-      handleAdd(e)
-    }
-    if (type === 'EDIT') {
-      handleEdit(e)
-    }
-  }
-
-  const handleEdit = (e: string) => {
-    console.log(e)
-    const _ = editExistingProjectTitle(userId, pid, e).then((_e:any) => {
-      setSuccessMessage(_e.data.message)
-      // Poll the server again to receive the updated list of projects
-      _collectProjects(userId)
-      handleCloseCreateDialog()
-    });
-  }
-
-  const handleAdd = (e: string) => {
-    console.log(e)
-    const _ = createNewProject(userId, e).then((_e:any) => {
-      setSuccessMessage(_e.data.message)
-      // Poll the server again to receive the updated list of projects
-      _collectProjects(userId)
-      handleCloseCreateDialog()
-    });
-  }
-
-  const handleOpenEditDialog = (pid) => {
-    console.log(pid)
-    setPid(pid)
-    setType("EDIT")
-    setCreateDialogMessage("Enter a new name for the project")
-    setCreateDialogTitle("Edit existing project")
-    setOpenCreateDialog(true);
-  }
-
-  const handleRemove = (pid) => {
-    console.log(pid)
-    setOpenDeleteDialog(true)
-    setPid(pid)
-  }
 
   return (
     <>
@@ -197,9 +209,9 @@ const Projects = ({auth, userManager}) => {
                 projectName={name}
                 userId={user_id}
                 uuid={id}
-                onDelete={handleRemove}
+                onDelete={handleOpenDeleteDialog}
                 onEdit={handleOpenEditDialog}
-              />
+               onSelect={handleNavigateSpecificProject}/>
             ))
           }
         </Grid>

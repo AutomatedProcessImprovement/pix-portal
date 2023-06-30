@@ -5,7 +5,7 @@ import {
   DialogTitle,
   TextField
 } from "@mui/material";
-import {useRef} from "react";
+import {useEffect, useRef, useState} from "react";
 
 export interface SimpleDialogProps {
   open: boolean;
@@ -20,15 +20,28 @@ export interface SimpleDialogProps {
 const CreateProjectDialog = (props: SimpleDialogProps) => {
   const { onSubmit, onClose, open, title, message, type, value } = props;
   const valueRef = useRef('')
+  const [label, setLabel] = useState('')
+
+  useEffect(() => {
+    switch (type) {
+      case "ADD":
+        setLabel("Project name")
+        break
+      case "EDIT":
+        setLabel("Project name")
+        break
+      case "FILE":
+        setLabel("File name")
+        break
+    }
+  }, [type])
 
   const sendValue = () => {
-    // console.log(valueRef.current["value"])
     onSubmit(type, valueRef.current["value"])
   }
 
   return (
     <Dialog maxWidth="sm" fullWidth={true} onClose={onClose} open={open}>
-      {/*<form onSubmit={onSubmit}>*/}
         <DialogTitle>{title}</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -38,7 +51,7 @@ const CreateProjectDialog = (props: SimpleDialogProps) => {
             autoFocus
             margin="dense"
             id="name"
-            label="Project Name"
+            label={label}
             type="text"
             fullWidth
             variant="standard"

@@ -4,7 +4,8 @@ import {
   Button,
   Chip,
   Container,
-  Grid, IconButton,
+  Grid,
+  IconButton,
   MenuItem,
   OutlinedInput,
   Paper,
@@ -14,77 +15,46 @@ import {
   ThemeProvider,
   Typography
 } from "@mui/material";
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 import * as React from "react";
 import {useEffect, useState} from "react";
 import PFile from "./PFile";
-import {
-  editExistingFileTitle,
-  editExistingProjectTitle,
-  getProjectFileForDownload,
-  getProjectFiles,
-  removeProjectFile,
-  uploadFile
-} from "../../api/api";
 import DropZoneArea from "../Upload/DropzoneArea";
-import {createTheme} from '@mui/material/styles';
 import ConfirmDialog from "../CustomComponents/ConfirmDialog";
 import PixSnackBar from "../PIXSnackBar/PixSnackBar";
 import paths from "../../router/paths";
-import {useNavigate} from 'react-router-dom';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CreateProjectDialog from "../Upload/CreateProjectDialog";
+import {getProjectFiles} from "../../api/project_api";
+import {editExistingFileTitle, getProjectFileForDownload, removeProjectFile, uploadFile} from "../../api/file_api";
+import {theme} from "../../themes/ChipTheme";
+import {MenuProps} from "../../themes/MenuPropsProjectPage";
+import {colors, fileTags, Selectable, tValToActual} from "../../helpers/mappers";
+import ToolSelectionMenu from "../CustomComponents/ToolSelectionMenu/ToolSelectionMenu";
 
 interface ProjectProps {
-  uuid: number
+  pid: number
   projectName: string,
   projectCreationDate: string,
-  userName: string
+  uuid: number
+  // userName: string
 }
 
-const theme = createTheme({
-  status: {
-    danger: '#e53e3e',
-  },
-  palette: {
-    primary: {
-      main: '#0971f1',
-      darker: '#053e85',
-    },
-    bpmn: {
-      main: '#ffc107',
-      contrastText: '#fff',
-    },
-    event_log: {
-      main: '#009688',
-      contrastText: '#fff',
-    },
-    sim_model: {
-      main: '#2196f3',
-      contrastText: '#fff',
-    },
-    cons_model: {
-      main: '#7e57c2',
-      contrastText: '#fff',
-    },
-    untagged: {
-      main: '#ef5350',
-      contrastText: '#fff',
-    },
-  },
-});
-
-
-const files = []
-
 const ProjectPage = ({auth, userManager}) => {
+  const navigate = useNavigate();
+  const state = useLocation();
+  const { uuid, projectName, projectCreationDate, pid } = state.state as ProjectProps
 
+  /** STUFF FOR DROPZONE COMPONENT*/
   const [selectedLogFile, setSelectedLogFile] = useState<File | null>(null);
   const [dropzoneFiles, setDropzoneFiles] = useState([]);
   const [tagValue, setTagValue] = React.useState<string>("UNTAGGED");
 
+  const [fList, setFlist] = useState([])
+
+  /** STUFF FOR PROJECT SELECTION CHECKBOX*/
   const [selectedProjectFiles, setSelectedProjectFiles] = useState([])
   const [uniqueTags, setUniqueTags] = useState([])
 
@@ -92,21 +62,23 @@ const ProjectPage = ({auth, userManager}) => {
   const [fid, setFid] = useState(null);
   const [fName, setFName] = useState("");
 
-  const [snackMessage, setSnackMessage] = useState("")
-  const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
-
-  const navigate = useNavigate();
-  const state = useLocation();
-  const { pInfo } = state.state as ProjectProps
-  const [fList, setFlist] = useState(files)
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [selectable, setSelectable] = useState<Selectable>({
+    SIMOD: false,
+    PROSIMOS: false,
+    OPTIMOS: false,
+  });
 
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [createDialogTitle, setCreateDialogTitle] = useState("")
   const [createDialogMessage, setCreateDialogMessage] = useState("")
 
+  const [snackMessage, setSnackMessage] = useState("")
+  const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
+
   useEffect(() => {
-    collectFiles()
-  }, [])
+    collectFiles(pid)
+  }, [state.state])
 
   useEffect(() => {
     for (const key in selectedProjectFiles) {
@@ -118,13 +90,49 @@ const ProjectPage = ({auth, userManager}) => {
     }
   }, [selectedProjectFiles, uniqueTags])
 
+  useEffect(() => {
+    const hasEventLog = uniqueTags.includes('EVENT_LOG');
+    const hasSimModel = uniqueTags.includes('SIM_MODEL');
+    const hasBpmn = uniqueTags.includes('BPMN');
+    const hasConsModel = uniqueTags.includes('CONS_MODEL');
+
+    setSelectable((prevSelectable) => ({
+      SIMOD: hasEventLog,
+      PROSIMOS: hasSimModel && hasBpmn,
+      OPTIMOS: hasConsModel && hasSimModel && hasBpmn,
+    }));
+}, [uniqueTags]);
+
+  const collectFiles = (pid) => {
+    const _ = getProjectFiles(pid).then((result:any) => {
+      const jsonFiles = result.data.files
+      setFlist(jsonFiles)
+    }).catch((e)=> {
+      console.log(e)
+    })
+  }
+
+  const handleOpenToolSelectionMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  }
+
+  const handleCloseToolSelectionMenu = (e:string) => {
+    console.log(e)
+    setAnchorEl(null);
+  };
+
+  /** DIALOG HANDLING FUNCTIONS */
   const handleOpenEditDialog = (fid, prevName) => {
-    console.log(fid)
     setFid(fid)
     setFName(prevName)
     setCreateDialogMessage("Enter a new name for the file")
     setCreateDialogTitle("Edit existing file")
     setOpenCreateDialog(true);
+  }
+
+  const handleOpenRemoveDialog = (fid: number) => {
+    setOpen(true)
+    setFid(fid)
   }
 
   const handleCloseCreateDialog = () => {
@@ -133,25 +141,86 @@ const ProjectPage = ({auth, userManager}) => {
     setCreateDialogMessage("")
   };
 
-  const handleEdit = (_type, e: string) => {
-    console.log(e)
-    console.log(fid)
+  const handleCloseRemoveDialog = (e) => {
+    if (e && fid) {
+      handleRemoveFile(fid)
+    }
+    setFid(null)
+    setOpen(false);
+  }
+
+  /** API CALL FUNCTIONS */
+  const handleRemoveFile = (fid) => {
+    const _ = removeProjectFile(fid).then((results: any) => {
+      setSuccessMessage(results.data.message)
+      collectFiles(pid)
+    }).catch((e)=> {
+      setErrorMessage(e.data.message)
+    })
+  }
+
+  const handleUploadFile = () => {
+    const actual = tValToActual[tagValue]
+
+    if (selectedLogFile) {
+      uploadFile(selectedLogFile, [actual], pid).then(
+        (e) => {
+          collectFiles(pid)
+          setTagValue("UNTAGGED")
+          setSelectedLogFile(null)
+          setDropzoneFiles([])
+          setSuccessMessage(e.data.message)
+        }
+      ).catch((e) => {
+        setErrorMessage(e.data.message)
+      });
+    } else {
+      setErrorMessage("Please select a file to upload")
+    }
+  };
+
+  const handleEditFile = (_type, e: string) => {
     const _ = editExistingFileTitle(fid, e).then((_e:any) => {
       setSuccessMessage(_e.data.message)
-      // Poll the server again to receive the updated list of projects
       collectFiles()
       handleCloseCreateDialog()
     });
   }
 
+  const handleDownloadFile = (fid: number) => {
+    const _ = getProjectFileForDownload(fid)
+      .then((results: any) => [contentToBlob(results.data.file.content, results.data.file.name), results.data.file.name])
+      .then(([blob, name]) => {
+        const fileDownloadUrl = URL.createObjectURL(blob)
+        const link = document.createElement('a');
+
+        link.href = fileDownloadUrl;
+        link.setAttribute(
+          'download',
+          name
+        );
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+      })
+  }
+
+  /** HANDLE MULTI FILE SELECTION FUNCTIONS - CHECKBOX*/
+  const handleCheckboxChange = (event: SelectChangeEvent<typeof tagValue>) => {
+    const {
+      target: { value },
+    } = event;
+    setTagValue(
+      value
+    );
+  };
+
   const handleFileChecked = (checked, fileID, tags) => {
     if (!checked) {
       const checkFileExists = fileId => selectedProjectFiles.some( ({uuid}) => uuid == fileId)
       if (checkFileExists(fileID)) {
-        const res = selectedProjectFiles.filter(obj => obj.uuid !== fileID);
-        setSelectedProjectFiles(res)
-        const res2 = uniqueTags.filter(obj => obj !== tags[0]);
-        setUniqueTags(res2)
+        setSelectedProjectFiles(selectedProjectFiles.filter(obj => obj.uuid !== fileID))
+        setUniqueTags(uniqueTags.filter(obj => obj !== tags[0]))
         return false
       }
     } else {
@@ -159,12 +228,10 @@ const ProjectPage = ({auth, userManager}) => {
         'uuid': fileID,
         'tags': tags
       }
-
       const checkFileExists = fileId => selectedProjectFiles.some(({uuid}) => uuid == fileId )
       if (!checkFileExists(newObj.uuid)) {
         for (const nk in newObj.tags) {
           if (uniqueTags.indexOf(newObj.tags[nk]) === -1) {
-            console.log("adding file");
             setUniqueTags(uniqueTags.concat(newObj.tags[nk]));
             setSelectedProjectFiles(selectedProjectFiles.concat(newObj));
             return true
@@ -178,22 +245,8 @@ const ProjectPage = ({auth, userManager}) => {
     }
   }
 
-  const collectFiles = () => {
-    const _ = getProjectFiles(pInfo.uuid).then((result:any) => {
-      const jsonFiles = result.data.files
-      setFlist(jsonFiles)
-    })
-  }
-
-  const handleRemove = (fid: number) => {
-    // console.log(fid)
-    setOpen(true)
-    setFid(fid)
-  }
-
   const contentToBlob = (values, name) => {
     const filetype = name.split('.')[1]
-    console.log(filetype)
     let contentType;
     switch (filetype) {
       case 'json':
@@ -208,93 +261,11 @@ const ProjectPage = ({auth, userManager}) => {
       default:
         contentType = 'text/plain'
     }
-
     const content = JSON.stringify(values)
     return new Blob([content], {type: contentType})
   }
 
-  const handleDownload = (fid: number) => {
-    const _ = getProjectFileForDownload(fid)
-      .then((results: any) => [contentToBlob(results.data.file.content, results.data.file.name), results.data.file.name])
-      .then(([blob, name]) => {
-        const fileDownloadUrl = URL.createObjectURL(blob)
-        const link = document.createElement('a');
-
-        link.href = fileDownloadUrl;
-        link.setAttribute(
-          'download',
-          name
-        );
-        // Append to html link element page
-        document.body.appendChild(link);
-        // Start download
-        link.click();
-        // Clean up and remove the link
-        link.parentNode.removeChild(link);
-      })
-  }
-
-  const handleClickTest = () => {
-
-    const actual = tValToActual[tagValue]
-
-    if (selectedLogFile) {
-      uploadFile(selectedLogFile, [actual], pInfo.uuid).then(
-        (e) => {
-          console.log(e)
-          collectFiles()
-          setTagValue("UNTAGGED")
-          setSelectedLogFile(null)
-          setDropzoneFiles([])
-
-          setSuccessMessage(e.data.message)
-        }
-      ).catch((e) => {
-        setErrorMessage(e.data.message)
-      });
-    } else {
-      setErrorMessage("Please select a file to upload")
-    }
-
-
-  };
-
-  const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 500,
-      },
-    },
-  };
-
-  const colors = {
-    'BPMN': 'bpmn',
-    'EVENT LOG': 'event_log',
-    'SIM MODEL': 'sim_model',
-    'CONS MODEL': 'cons_model',
-    'UNTAGGED': 'untagged'
-  }
-
-
-  const fileTags = [
-    'BPMN',
-    'EVENT LOG',
-    'SIM MODEL',
-    'CONS MODEL',
-    'UNTAGGED'
-  ];
-
-  const tValToActual = {
-    'BPMN': 'BPMN',
-    'EVENT LOG': 'EVENT_LOG',
-    'SIM MODEL': 'SIM_MODEL',
-    'CONS MODEL': 'CONS_MODEL',
-    'UNTAGGED': 'UNTAGGED'
-  }
-
+  /** SNACKBAR STUFF*/
   const onSnackbarClose = () => {
     setSuccessMessage("")
     setInfoMessage("")
@@ -316,38 +287,10 @@ const ProjectPage = ({auth, userManager}) => {
     setSnackMessage(value)
   };
 
-  const goBack = () => {
+  const handleNavigateBack = () => {
     navigate(
       paths.LOGIN_PATH
     )
-  }
-
-  const handleChange = (event: SelectChangeEvent<typeof tagValue>) => {
-    const {
-      target: { value },
-    } = event;
-
-    setTagValue(
-      value
-    );
-  };
-
-  const removeFile = (fid) => {
-    const _ = removeProjectFile(fid).then((results: any) => {
-       //TODO snackbar
-      setSuccessMessage(results.data.message)
-      collectFiles()
-    }).catch((e)=> {
-      setErrorMessage(e.data.message)
-    })
-  }
-
-  const handleClose = (e) => {
-    if (e && fid) {
-      removeFile(fid)
-    }
-    setFid(null)
-    setOpen(false);
   }
 
   return (
@@ -357,26 +300,28 @@ const ProjectPage = ({auth, userManager}) => {
         pb: 4,
       }}
     >
-
-
       <Container sx={{ py: 3, minWidth: '65%' }}>
         <Box
-          sx={{display: 'flex', justifyContent: 'space-between', pb: 4}}
+          sx={{display: 'flex', justifyContent: 'space-between', pb: 2}}
         >
-          <IconButton aria-label="delete" onClick={goBack}>
-            <ArrowBackIosIcon />
-          </IconButton>
+          <>
+            <IconButton aria-label="delete" onClick={handleNavigateBack}>
+              <ArrowBackIosIcon />
+            </IconButton>
+          </>
           <Typography
             component="h1"
             variant="h4"
             align="center"
             color="text.primary"
           >
-            {pInfo.projectName}
+            {projectName}
           </Typography>
-          <IconButton aria-label="download-all">
-            <CloudDownloadIcon />
-          </IconButton>
+          <>
+            <IconButton aria-label="download-all" onClick={handleOpenToolSelectionMenu}>
+              <CloudDownloadIcon />
+            </IconButton>
+          </>
         </Box>
         <Paper
           elevation={2}
@@ -407,46 +352,43 @@ const ProjectPage = ({auth, userManager}) => {
                 extFiles={dropzoneFiles}
                 setExtFiles={setDropzoneFiles}/>
             </Grid>
-          <Grid item xs={2}>
-            <Typography
-              component="h1"
-              variant="h5"
-              align="center"
-              color="text.primary"
-              gutterBottom
-            >
-              Select Tag
-            </Typography>
-            <Select
-              displayEmpty
-              sx={{ width: '100%'}}
-              labelId="demo-multiple-chip-label"
-              id="demo-multiple-chip"
-              value={tagValue}
-              onChange={handleChange}
-              input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-              renderValue={(selected) => (
-                <ThemeProvider theme={theme}>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      <Chip key={selected} label={selected} color={colors[selected]}/>
-                  </Box>
-                </ThemeProvider>
-              )}
-              MenuProps={MenuProps}
-            >
-
-              {fileTags.map((name) => (
-                <MenuItem
-                  key={name}
-                  value={name}
-                  // style={getStyles(name, personName, theme)}
-                >
-                  {name}
-                </MenuItem>
-              ))}
-            </Select>
-          </Grid>
-
+            <Grid item xs={2}>
+              <Typography
+                component="h1"
+                variant="h5"
+                align="center"
+                color="text.primary"
+                gutterBottom
+              >
+                Select Tag
+              </Typography>
+              <Select
+                displayEmpty
+                sx={{ width: '100%'}}
+                labelId="demo-multiple-chip-label"
+                id="demo-multiple-chip"
+                value={tagValue}
+                onChange={handleCheckboxChange}
+                input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+                renderValue={(selected) => (
+                  <ThemeProvider theme={theme}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        <Chip key={selected} label={selected} color={colors[selected]}/>
+                    </Box>
+                  </ThemeProvider>
+                )}
+                MenuProps={MenuProps}
+              >
+                {fileTags.map((name) => (
+                  <MenuItem
+                    key={name}
+                    value={name}
+                  >
+                    {name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Grid>
           </Grid>
         </Paper>
         <Stack
@@ -457,7 +399,7 @@ const ProjectPage = ({auth, userManager}) => {
           useFlexGap
           flexWrap="wrap"
         >
-          <Button sx={{width: 400}} variant="contained" onClick={handleClickTest}>Upload File</Button>
+          <Button sx={{width: 400}} variant="contained" onClick={handleUploadFile}>Upload File</Button>
 
         </Stack>
       </Container>
@@ -481,9 +423,9 @@ const ProjectPage = ({auth, userManager}) => {
                   tag={tags}
                   uploadDate={createdOn}
                   uuid={id}
-                  onClickRemove={handleRemove}
+                  onRemove={handleOpenRemoveDialog}
                   onChange={handleFileChecked}
-                  onClickDownload={handleDownload}
+                  onDownload={handleDownloadFile}
                   onEdit={handleOpenEditDialog}/>
               </Grid>
           ))}
@@ -491,18 +433,23 @@ const ProjectPage = ({auth, userManager}) => {
       </Container>
       <ConfirmDialog
         message={"Are you sure you want to delete this file?"}
-        onClose={handleClose}
+        onClose={handleCloseRemoveDialog}
         open={open}
         title={"Delete file?"}
       />
       <CreateProjectDialog
         open={openCreateDialog}
         onClose={handleCloseCreateDialog}
-        onSubmit={handleEdit}
+        onSubmit={handleEditFile}
         message={createDialogMessage}
         title={createDialogTitle}
-        type={""}
+        type={"FILE"}
         value={fName}/>
+      < ToolSelectionMenu
+        anchorEl={anchorEl}
+        onClose={handleCloseToolSelectionMenu}
+        selectable={selectable}
+      />
       {snackMessage && <PixSnackBar
           message={snackMessage}
           severityLevel={snackColor}
