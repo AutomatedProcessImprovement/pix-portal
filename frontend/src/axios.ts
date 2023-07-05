@@ -1,15 +1,20 @@
 import axios from "axios";
+import {storageconfig} from "../authConfig";
+
+
+export const REGISTER_API_INSTANCE = axios.create({
+  baseURL: "http://localhost:8000",
+});
+
 
 export const API_instance = axios.create({
-  baseURL: "http://localhost:8000"
+  baseURL: "http://localhost:8000",
 });
 
-export const ZITADEL_instance = axios.create({
-  baseURL: "http://localhost:8080",
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    // 'User-Agent': 'whatever',
-    'Authorization': 'Bearer dGdrLUC2RyTxLiz3ICKJgZqa7RVrpS50MfPGZzOWQE1O-MzODSa-q9P0hO9630UGCk1aokc',
-  },
+API_instance.interceptors.request.use(function (config) {
+  const token = JSON.parse(localStorage.getItem(storageconfig)).id_token;
+  config.headers.Authorization = "Bearer " + token;
+
+  return config;
 });
+

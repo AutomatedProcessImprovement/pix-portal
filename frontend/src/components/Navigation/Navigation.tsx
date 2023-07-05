@@ -33,7 +33,6 @@ const NavBar = ({authenticated, userInfo, clearAuth}) => {
   useEffect(() => {
     if (authenticated && userInfo) {
       setUsername(userInfo.preferred_username)
-      console.log(userName)
     }
   }, [authenticated, userInfo])
 

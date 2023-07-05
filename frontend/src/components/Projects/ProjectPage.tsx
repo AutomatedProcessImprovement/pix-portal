@@ -28,11 +28,12 @@ import paths from "../../router/paths";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CreateProjectDialog from "../Upload/CreateProjectDialog";
 import {getProjectFiles} from "../../api/project_api";
-import {editExistingFileTitle, getProjectFileForDownload, removeProjectFile, uploadFile} from "../../api/file_api";
+import {editExistingFileTitle, removeProjectFile, uploadFile} from "../../api/file_api";
 import {theme} from "../../themes/ChipTheme";
 import {MenuProps} from "../../themes/MenuPropsProjectPage";
 import {colors, fileTags, Selectable, tValToActual} from "../../helpers/mappers";
 import ToolSelectionMenu from "../CustomComponents/ToolSelectionMenu/ToolSelectionMenu";
+import {API_instance} from "../../axios";
 
 interface ProjectProps {
   pid: number
@@ -82,10 +83,8 @@ const ProjectPage = ({auth, userManager}) => {
 
   useEffect(() => {
     for (const key in selectedProjectFiles) {
-      for (const selKey in selectedProjectFiles[key].tags) {
-        if (uniqueTags.indexOf(selectedProjectFiles[key].tags[selKey]) === -1) {
-          setUniqueTags(uniqueTags.concat(selectedProjectFiles[key].tags[selKey]))
-        }
+      if (uniqueTags.indexOf(selectedProjectFiles[key].tags) === -1) {
+        setUniqueTags(uniqueTags.concat(selectedProjectFiles[key].tags))
       }
     }
   }, [selectedProjectFiles, uniqueTags])
@@ -105,8 +104,8 @@ const ProjectPage = ({auth, userManager}) => {
 
   const collectFiles = (pid) => {
     const _ = getProjectFiles(pid).then((result:any) => {
-      const jsonFiles = result.data.files
-      setFlist(jsonFiles)
+      const fileTagObjects = result.data.files
+      setFlist(fileTagObjects)
     }).catch((e)=> {
       console.log(e)
     })
@@ -117,7 +116,6 @@ const ProjectPage = ({auth, userManager}) => {
   }
 
   const handleCloseToolSelectionMenu = (e:string) => {
-    console.log(e)
     setAnchorEl(null);
   };
 
@@ -163,7 +161,7 @@ const ProjectPage = ({auth, userManager}) => {
     const actual = tValToActual[tagValue]
 
     if (selectedLogFile) {
-      uploadFile(selectedLogFile, [actual], pid).then(
+      uploadFile(selectedLogFile, actual, pid).then(
         (e) => {
           collectFiles(pid)
           setTagValue("UNTAGGED")
@@ -182,27 +180,33 @@ const ProjectPage = ({auth, userManager}) => {
   const handleEditFile = (_type, e: string) => {
     const _ = editExistingFileTitle(fid, e).then((_e:any) => {
       setSuccessMessage(_e.data.message)
-      collectFiles()
+      collectFiles(pid)
       handleCloseCreateDialog()
     });
   }
 
-  const handleDownloadFile = (fid: number) => {
-    const _ = getProjectFileForDownload(fid)
-      .then((results: any) => [contentToBlob(results.data.file.content, results.data.file.name), results.data.file.name])
-      .then(([blob, name]) => {
-        const fileDownloadUrl = URL.createObjectURL(blob)
-        const link = document.createElement('a');
+  const handleDownloadFile = async (path: string, filename) => {
+    try {
+      // Make a GET request to the API endpoint with the file path as a parameter
+      const response = await API_instance.get('/api/files', {
+        params: {
+          file_path: path
+        },
+        responseType: 'blob' // Set the response type to 'blob' to handle binary data
+      });
 
-        link.href = fileDownloadUrl;
-        link.setAttribute(
-          'download',
-          name
-        );
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode.removeChild(link);
-      })
+      // Create a temporary anchor element to download the file
+      const url = URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+    }
+
   }
 
   /** HANDLE MULTI FILE SELECTION FUNCTIONS - CHECKBOX*/
@@ -220,7 +224,7 @@ const ProjectPage = ({auth, userManager}) => {
       const checkFileExists = fileId => selectedProjectFiles.some( ({uuid}) => uuid == fileId)
       if (checkFileExists(fileID)) {
         setSelectedProjectFiles(selectedProjectFiles.filter(obj => obj.uuid !== fileID))
-        setUniqueTags(uniqueTags.filter(obj => obj !== tags[0]))
+        setUniqueTags(uniqueTags.filter(obj => obj !== tags))
         return false
       }
     } else {
@@ -230,16 +234,14 @@ const ProjectPage = ({auth, userManager}) => {
       }
       const checkFileExists = fileId => selectedProjectFiles.some(({uuid}) => uuid == fileId )
       if (!checkFileExists(newObj.uuid)) {
-        for (const nk in newObj.tags) {
-          if (uniqueTags.indexOf(newObj.tags[nk]) === -1) {
-            setUniqueTags(uniqueTags.concat(newObj.tags[nk]));
-            setSelectedProjectFiles(selectedProjectFiles.concat(newObj));
-            return true
-          } else {
-            setErrorMessage(
-              `You can only have one file of type : ${newObj.tags[nk]} selected.`)
-            return false
-          }
+        if (uniqueTags.indexOf(newObj.tags) === -1) {
+          setUniqueTags(uniqueTags.concat(newObj.tags));
+          setSelectedProjectFiles(selectedProjectFiles.concat(newObj));
+          return true
+        } else {
+          setErrorMessage(
+            `You can only have one file of type : ${newObj.tags} selected.`)
+          return false
         }
       }
     }
@@ -323,20 +325,20 @@ const ProjectPage = ({auth, userManager}) => {
             </IconButton>
           </>
         </Box>
-        <Paper
-          elevation={2}
-          sx={{
-            p: 2
-          }}
+        <Grid
+          container
+          spacing={2}
+          direction="row"
+          justify="space-between"
+          alignItems="center-top"
         >
-          <Grid
-            container
-            spacing={2}
-            direction="row"
-            justify="space-between"
-            alignItems="center-top"
+          <Grid item xs={10}>
+            <Paper
+              elevation={2}
+              sx={{
+                p: 2
+              }}
             >
-            <Grid item xs={10}>
               <Typography
                 component="h1"
                 variant="h5"
@@ -351,8 +353,15 @@ const ProjectPage = ({auth, userManager}) => {
                 setSelectedLogFile={setSelectedLogFile}
                 extFiles={dropzoneFiles}
                 setExtFiles={setDropzoneFiles}/>
-            </Grid>
-            <Grid item xs={2}>
+            </Paper>
+          </Grid>
+          <Grid item xs={2}>
+            <Paper
+              elevation={2}
+              sx={{
+                p: 2
+              }}
+            >
               <Typography
                 component="h1"
                 variant="h5"
@@ -388,9 +397,10 @@ const ProjectPage = ({auth, userManager}) => {
                   </MenuItem>
                 ))}
               </Select>
-            </Grid>
+            </Paper>
           </Grid>
-        </Paper>
+        </Grid>
+
         <Stack
           sx={{ pt: 3 }}
           direction="row"
@@ -414,15 +424,16 @@ const ProjectPage = ({auth, userManager}) => {
 
       <Container sx={{ py: 5, minWidth: '65%' }}>
         <Grid container spacing={4}>
-          {fList.map(({id, path, tags, createdOn, name}) => (
-              <Grid item key={id} xs={3}>
+          {fList.map(({File, Tag}) => (
+              <Grid item key={File.id} xs={3}>
                 <PFile
-                  key={id}
-                  name={name}
-                  path={path}
-                  tag={tags}
-                  uploadDate={createdOn}
-                  uuid={id}
+                  key={File.id}
+                  name={File.name}
+                  extension={File.extension}
+                  path={File.path}
+                  tag={Tag.value}
+                  uploadDate={File.created_at}
+                  uuid={File.id}
                   onRemove={handleOpenRemoveDialog}
                   onChange={handleFileChecked}
                   onDownload={handleDownloadFile}

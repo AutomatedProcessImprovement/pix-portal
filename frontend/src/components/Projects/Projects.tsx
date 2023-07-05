@@ -14,7 +14,6 @@ import CreateProjectDialog from "../Upload/CreateProjectDialog";
 import PixSnackBar from "../PIXSnackBar/PixSnackBar";
 import {useEffect, useState} from "react";
 import  moment from "moment";
-import {getUserObjectFromStorage} from "../../../authConfig";
 import ConfirmDialog from "../CustomComponents/ConfirmDialog";
 import {createNewProject, editExistingProjectTitle, getProjects, removeProject} from "../../api/project_api";
 import paths from "../../router/paths";
@@ -23,7 +22,6 @@ import {useNavigate} from 'react-router-dom';
 
 
 const Projects = ({auth, userManager}) => {
-  const [userId, setUserId] = React.useState<string | null>(null)
   const [pid, setPid] = useState(null)
   const [pList, setPlist] = React.useState([])
 
@@ -40,15 +38,15 @@ const Projects = ({auth, userManager}) => {
 
 
   useEffect(() => {
-    getUserObjectFromStorage(userManager).then((user)=> {
-      setUserId(user.profile.sub)
-      _collectProjects(user.profile.sub)
+    userManager.getUser().then((res)=> {
+      console.log("GETTING PROJECTS")
+      _collectProjects();
     })
   }, [auth, userManager])
 
 
-  const _collectProjects = (uuid) => {
-      const _projects = getProjects(uuid).then((result:any) => {
+  const _collectProjects = () => {
+      const _projects = getProjects().then((result:any) => {
         const jsonProjects = result.data.projects
         setPlist(jsonProjects)
       }).catch((e)=> {
@@ -79,24 +77,24 @@ const Projects = ({auth, userManager}) => {
   }
 
   const handleEdit = (e: string) => {
-    const _ = editExistingProjectTitle(userId, pid, e).then((_e:any) => {
+    const _ = editExistingProjectTitle(pid, e).then((_e:any) => {
       setSuccessMessage(_e.data.message)
-      _collectProjects(userId)
+      _collectProjects()
       handleCloseCreateDialog()
     });
   }
 
   const handleAdd = (e: string) => {
-    const _ = createNewProject(userId, e).then((_e:any) => {
+    const _ = createNewProject(e).then((_e:any) => {
       setSuccessMessage(_e.data.message)
-      _collectProjects(userId)
+      _collectProjects()
       handleCloseCreateDialog()
     });
   }
 
   const deleteProject = (pid) => {
     removeProject(pid).then((res) => {
-      _collectProjects(userId)
+      _collectProjects()
       setSuccessMessage(res.data.message)
     }).catch((e) => {
       setSuccessMessage(e.data.message)

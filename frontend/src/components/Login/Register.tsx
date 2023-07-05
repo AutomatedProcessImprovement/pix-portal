@@ -40,9 +40,9 @@ const Register = () => {
         lastname: data.get('lastName'),
         email: data.get('email'),
       });
-      console.log(data)
 
       handleRegister(data.get('username'), data.get('firstName'), data.get('lastName'), data.get('email')).then((res) => {
+        console.log(res.data)
         setLoading(false)
         setOTP(res.data.otp)
         setOpen(true)

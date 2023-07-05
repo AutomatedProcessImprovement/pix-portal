@@ -1,4 +1,4 @@
-import {API_instance} from "../axios";
+import {REGISTER_API_INSTANCE} from "../axios";
 
 
 export const handleRegister = async (uName: string, fName:string, lName: string, email:string) => {
@@ -7,10 +7,10 @@ export const handleRegister = async (uName: string, fName:string, lName: string,
   formData.append('username', uName)
   formData.append('firstname', fName)
   formData.append('lastname', lName)
-  formData.append('email',email)
+  formData.append('email', email)
 
-  return await API_instance.post(
-    `/register/`,
+  return await REGISTER_API_INSTANCE.post(
+    `/api/users/`,
     formData
   )
 }

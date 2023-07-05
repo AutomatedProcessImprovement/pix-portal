@@ -3,14 +3,10 @@ import {authConfig} from '../../authConfig';
 import {Navigate} from "react-router-dom"
 
 const Callback = ({ auth, setAuth, userManager, userInfo, setUserInfo, handleLogout }) => {
-
-  console.log(userInfo)
-
   useEffect(() => {
     if (auth === null) {
       console.log("doing effect")
       userManager.signinRedirectCallback().then((user) => {
-        console.log(user)
         if (user) {
 
           setAuth(true);

@@ -1,41 +1,34 @@
 import {API_instance} from "../axios";
 
-export const getProjects = async (userId: string) => {
+export const getProjects = async () => {
   return await API_instance.get(
-    `/projects/`, {
-      params: {
-        uuid: userId
-      }
-    }
+    `/api/projects/`
   )
 }
 export const getProjectFiles = async (project_id: number) => {
-  // TODO verify if user is project owner
   return await API_instance.get(
-    `/projects/${project_id}`
+    `/api/projects/${project_id}`
   )
 }
-export const createNewProject = async (userId: number, name: string) => {
+export const createNewProject = async (name: string) => {
   const formData = new FormData()
-  formData.append('uuid', userId)
   formData.append('name', name)
   return await API_instance.post(
-    `/projects/`,
+    `/api/projects/`,
     formData
   )
 }
-export const editExistingProjectTitle = async (userId: number, projectId: number, name: string) => {
+export const editExistingProjectTitle = async (projectId: number, name: string) => {
   const formData = new FormData()
-  formData.append('uuid', userId)
-  formData.append('pid', projectId)
+  formData.append('project_id', projectId)
   formData.append('name', name)
   return await API_instance.put(
-    `/projects/`,
+    `/api/projects/`,
     formData
   )
 }
 export const removeProject = async (pid: number) => {
   return await API_instance.delete(
-    `/projects/remove/${pid}`,
+    `/api/projects/${pid}`
   )
 }

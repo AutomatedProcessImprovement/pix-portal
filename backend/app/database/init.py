@@ -1,14 +1,14 @@
-from sqlalchemy import inspect
-
-from config import Base, db_session, engine
-from models.models import Tag
+from app.models.models import Tag
+from database import get_db, Base, engine, SessionLocal
+from app.models import models
 
 
 def init_db():
+    db = SessionLocal
+    models.Base.metadata.create_all(engine)
     # if not inspect(engine).has_table('tag'):
     print("Tables are not created yet. Creating tables")
-    Base.metadata.create_all(bind=engine)
-        # Prefill TAG table
+    # Prefill TAG table
     objects = [
         Tag(value='BPMN'),
         Tag(value='SIM_MODEL'),
@@ -17,9 +17,8 @@ def init_db():
         Tag(value='UNTAGGED')
     ]
     print(objects)
-    db_session.bulk_save_objects(objects)
-
-    db_session.commit()
+    db.bulk_save_objects(objects)
+    db.commit()
 
     print("Initialized the db")
 

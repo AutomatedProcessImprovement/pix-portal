@@ -12,6 +12,3 @@ export const authConfig = {
 
 export const storageconfig = "oidc.user:http://localhost:8080:220248957215899651@pix"
 
-export const getUserObjectFromStorage = (usermanager) => {
-  return  usermanager.getUser()
-}

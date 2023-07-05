@@ -32,6 +32,7 @@ enum TagType {
 interface FileProps {
   uuid: number
   name: string
+  extension: string
   path: string,
   tag: string[],
   uploadDate: string
@@ -61,7 +62,7 @@ const PFile = (props: FileProps) => {
   }
 
   const onClickDownload = () => {
-    onDownload(props.uuid)
+    onDownload(props.path, props.name + "." + props.extension)
   }
 
   const onClickEdit = () => {
@@ -85,9 +86,7 @@ const PFile = (props: FileProps) => {
             {props.uploadDate}
           </Typography>
             <ThemeProvider theme={theme}>
-              {tag.map((value => (
-                  TagType[value].chip
-                )))}
+              {TagType[tag].chip}
             </ThemeProvider>
         </CardContent>
         <CardActions >
