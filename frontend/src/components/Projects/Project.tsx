@@ -1,6 +1,5 @@
 import {Card, CardActionArea, CardActions, CardContent, Grid, IconButton, Typography} from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
-import * as React from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
@@ -9,10 +8,11 @@ interface ProjectProps {
   projectName: string,
   projectCreationDate: string,
   userId: string,
-  onDelete: (pid) => void,
-  onEdit: (pid) => void,
-  onSelect: (props) => {}
+  onDelete: (pid:any) => void,
+  onEdit: (pid:any) => void,
+  onSelect: (props:any) => void
 }
+
 
 
 const Project = (props: ProjectProps) => {

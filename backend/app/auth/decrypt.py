@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from fastapi import Depends, HTTPException, Header
 from sqlalchemy.orm import Session
 from app.database.database import get_db
-from app.models.models import User as U
+from app.models.models import User as U, User
 
 
 class UnauthorizedMessage(BaseModel):
@@ -31,7 +31,7 @@ def get_token(
     print(token)
     # Simulate a database query to find a known token
     user_data = decode_user(token)
-    if user_data['client_id'] != '220248957215899651@pix':
+    if user_data['azp'] != '221885342960123907@pix':
         raise HTTPException(
             status_code=http.HTTPStatus.FORBIDDEN,
             detail=UnauthorizedMessage().detail,
@@ -43,4 +43,9 @@ async def check_if_user_exists(authorization: str = Header(default="Bearer "), d
     user_data = get_token(authorization)
 
     user = db.query(U).filter(U.zitadel_id == user_data['sub']).first()
+    if not user:
+        new_user = User(zitadel_id=user_data['sub'])
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
     return user

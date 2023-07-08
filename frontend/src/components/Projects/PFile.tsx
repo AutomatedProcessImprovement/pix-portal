@@ -2,7 +2,7 @@ import {
   Card,
   CardActions,
   CardContent, Checkbox,
-  Chip, IconButton, ThemeProvider,
+  Chip, IconButton, LinearProgress, ThemeProvider,
   Typography
 } from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
@@ -16,17 +16,22 @@ import EditIcon from '@mui/icons-material/Edit';
 import {theme} from "../../themes/ChipTheme";
 
 // TODO MOVE THIS AND ALSO IMPLEMENT?
-const onClickChip = (e) => {
+const onClickChip = (e:any) => {
   console.log(e.target)
   console.log("CHIP clicked")
 }
 
-enum TagType {
-  "BPMN" = {icon: <DescriptionIcon/>, chip: <Chip label={"BPMN"} color="bpmn" key={'bpmn'} onClick={onClickChip} />},
-  "SIM_MODEL" = {icon: <FindInPageIcon/>, chip: <Chip label={"SIM MODEL"} color="sim_model" key={'sim_model'} onClick={onClickChip} />},
-  "CONS_MODEL" = {icon: <FindInPageIcon/>, chip: <Chip label={"CONS MODEL"} color="cons_model" key={'cons_model'} onClick={onClickChip} />},
-  "EVENT_LOG" = {icon: <GroupIcon/>, chip: <Chip label={"EVENT LOG"} color="event_log" key={'event_log'} onClick={onClickChip} />},
-  "UNTAGGED" = {icon: <FolderIcon/>, chip: <Chip label={"UNTAGGED"} color={"untagged"} key={'untagged'} onClick={onClickChip} />},
+const TagType = {
+  // @ts-ignore
+  "BPMN": {icon: <DescriptionIcon/>, chip: <Chip label={"BPMN"} color="bpmn" key={'bpmn'} onClick={onClickChip} />},
+  // @ts-ignore
+  "SIM_MODEL" : {icon: <FindInPageIcon/>, chip: <Chip label={"SIM MODEL"} color="sim_model" key={'sim_model'} onClick={onClickChip} />},
+  // @ts-ignore
+  "CONS_MODEL" : {icon: <FindInPageIcon/>, chip: <Chip label={"CONS MODEL"} color="cons_model" key={'cons_model'} onClick={onClickChip} />},
+  // @ts-ignore
+  "EVENT_LOG" : {icon: <GroupIcon/>, chip: <Chip label={"EVENT LOG"} color="event_log" key={'event_log'} onClick={onClickChip} />},
+  // @ts-ignore
+  "UNTAGGED" : {icon: <FolderIcon/>, chip: <Chip label={"UNTAGGED"} color={"untagged"} key={'untagged'} onClick={onClickChip} />},
 }
 
 interface FileProps {
@@ -34,12 +39,12 @@ interface FileProps {
   name: string
   extension: string
   path: string,
-  tag: string[],
+  tag: number,
   uploadDate: string
   onRemove: (id: number) => void
-  onChange: (id: number) => boolean
-  onDownload: (id: number) => void,
-  onEdit: (id: number) => void
+  onChange: (checked: boolean, fileId:any, tags:any ) => boolean
+  onDownload: (path:string, filename:any) => void,
+  onEdit: (id: number, name:string) => void
 
 }
 
@@ -53,7 +58,7 @@ const PFile = (props: FileProps) => {
   const [checked, setChecked] = React.useState(false)
 
 
-  const onClickChange = (e) => {
+  const onClickChange = (e:any) => {
     if (e.target.checked) {
       return onChange(true, props.uuid, props.tag);
     } else {
@@ -72,13 +77,17 @@ const PFile = (props: FileProps) => {
   const onClickRemove = () => {
     onRemove(props.uuid)
   }
-
+  const is_disabled = props.path == null || props.path.trim() == ""
   return (
       <Card
-        sx={{ height: '100%'}}
+        sx={{ height: '100%', position: 'relative' }}
       >
+        {is_disabled && (
+          <LinearProgress
+          />
+        )}
         <CardContent sx={{ flexGrow: 1, mb: 3 }}>
-          {TagType.BPMN["icon"]}
+          {(TagType as any).BPMN["icon"]}
           <Typography variant="h5" component="h2" noWrap>
             {props.name}
           </Typography>
@@ -86,20 +95,20 @@ const PFile = (props: FileProps) => {
             {props.uploadDate}
           </Typography>
             <ThemeProvider theme={theme}>
-              {TagType[tag].chip}
+              {(TagType as any)[tag].chip}
             </ThemeProvider>
         </CardContent>
         <CardActions >
-            <IconButton sx={{ flexGrow: 0 }} aria-label="delete file" onClick={onClickRemove}>
+            <IconButton disabled={is_disabled} sx={{ flexGrow: 0 }} aria-label="delete file" onClick={onClickRemove}>
               <DeleteIcon />
             </IconButton>
-            <IconButton sx={{ flexGrow: 0 }} aria-label="download-file" onClick={onClickDownload}>
+            <IconButton disabled={is_disabled} sx={{ flexGrow: 0 }} aria-label="download-file" onClick={onClickDownload}>
               <DownloadIcon />
             </IconButton>
-          <IconButton aria-label="edit-profile-name" onClick={onClickEdit}>
+          <IconButton disabled={is_disabled} aria-label="edit-profile-name" onClick={onClickEdit}>
             <EditIcon />
           </IconButton>
-          <Checkbox checked={checked} sx={{ ml: 'auto' }} onChange={(e)=> {setChecked(onClickChange(e))}}/>
+          <Checkbox disabled={is_disabled} checked={checked} sx={{ ml: 'auto' }} onChange={(e)=> {setChecked(onClickChange(e))}}/>
         </CardActions>
       </Card>
   )

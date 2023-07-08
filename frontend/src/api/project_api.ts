@@ -18,7 +18,7 @@ export const createNewProject = async (name: string) => {
     formData
   )
 }
-export const editExistingProjectTitle = async (projectId: number, name: string) => {
+export const editExistingProjectTitle = async (projectId: string, name: string) => {
   const formData = new FormData()
   formData.append('project_id', projectId)
   formData.append('name', name)

@@ -7,6 +7,7 @@ export const theme = createTheme({
   palette: {
     primary: {
       main: '#0971f1',
+      // @ts-ignore
       darker: '#053e85',
     },
     bpmn: {

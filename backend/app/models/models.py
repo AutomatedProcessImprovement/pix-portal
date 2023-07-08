@@ -59,7 +59,7 @@ class File(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     extension = Column(String(255), nullable=False)
-    path = Column(String, nullable=False)
+    path = Column(String)
     tag_id = Column(Integer, ForeignKey('tag.id'))
     tag = relationship('Tag', back_populates='files')
     project_id = Column(UUID(as_uuid=True), ForeignKey('project.id', ondelete="CASCADE"))

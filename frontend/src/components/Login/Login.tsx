@@ -1,11 +1,10 @@
 import { Navigate } from "react-router-dom";
-import * as React from "react";
 import {Box, Divider, Stack, Typography} from "@mui/material";
 import { Link } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CustomButton from "../CustomComponents/CustomButton";
 
-const Login = ({ auth, handleLogin, userManager }) => {
+const Login = ({ auth, handleLogin }:any) => {
 
   return (
     <div>
@@ -40,6 +39,7 @@ const Login = ({ auth, handleLogin, userManager }) => {
             </CustomButton>
             <CustomButton
               key={"signup-button"}
+              // @ts-ignore
               to={"/signup"}
               component={Link}
               sx={{ minWidth: '400px', minHeight: '50px'}}

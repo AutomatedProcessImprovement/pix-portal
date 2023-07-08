@@ -11,8 +11,9 @@ export const API_instance = axios.create({
   baseURL: "http://localhost:8000",
 });
 
-API_instance.interceptors.request.use(function (config) {
-  const token = JSON.parse(localStorage.getItem(storageconfig)).id_token;
+API_instance.interceptors.request.use((config) => {
+  const value = localStorage.getItem(storageconfig) || '{}'
+  const token = JSON.parse(value).id_token ;
   config.headers.Authorization = "Bearer " + token;
 
   return config;

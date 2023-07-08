@@ -1,4 +1,3 @@
-import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -6,7 +5,6 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import AdbIcon from '@mui/icons-material/Adb';
 import { Link } from 'react-router-dom';
-import {useEffect} from "react";
 
 
 interface MenuOptions {
@@ -14,43 +12,11 @@ interface MenuOptions {
   to: string
 }
 
-const userMenuOptions: Array<MenuOptions> = [
-  {title: "Profile", to: "/profile"},
-  {title: "Dashboard", to: "/profile/dashboard"},
-  {title: "Logout", to: "/logout"},
-]
-
 const navMenuOptions: Array<MenuOptions> = [
   {title: "My Projects", to: "/projects"},
 ]
 
-const NavBar = ({authenticated, userInfo, clearAuth}) => {
-  // {isLoggedIn=true}
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null)
-  const [isLogged, setIsLogged] = React.useState<Boolean>(false)
-  const [userName, setUsername] = React.useState<string | null>(null)
-
-  useEffect(() => {
-    if (authenticated && userInfo) {
-      setUsername(userInfo.preferred_username)
-    }
-  }, [authenticated, userInfo])
-
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
-  const handleLoginClick = () => {
-    handleCloseUserMenu()
-    setIsLogged(!isLogged)
-  }
-
-
+const NavBar = ({authenticated, clearAuth}:any) => {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">

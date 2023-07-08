@@ -18,11 +18,11 @@ import {useNavigate} from 'react-router-dom';
 
 const Register = () => {
   const [loading, setLoading] = React.useState(false);
-  const [otp, setOTP] = React.useState(null)
+  const [otp, setOTP] = React.useState<any>(null)
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
 
-  const handleClose = (value: string) => {
+  const handleClose = () => {
     setOpen(false);
     navigate(
       paths.LOGIN_PATH
@@ -40,7 +40,10 @@ const Register = () => {
         lastname: data.get('lastName'),
         email: data.get('email'),
       });
-
+      if (!data) {
+        return
+      }
+      // @ts-ignore
       handleRegister(data.get('username'), data.get('firstName'), data.get('lastName'), data.get('email')).then((res) => {
         console.log(res.data)
         setLoading(false)
@@ -48,8 +51,9 @@ const Register = () => {
         setOpen(true)
 
       }).catch((e) => {
+        console.log(e)
         setLoading(false)
-      })
+      });
 
     }
   };

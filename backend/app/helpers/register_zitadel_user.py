@@ -8,9 +8,9 @@ from app.helpers.generators import generateOTP
 def send_registration_request(username, firstname, lastname, email):
     otp = generateOTP()
     # TODO REMOVE BEARER TOKEN AND MOVE TO ENV, REGENERATE TOKEN IN ZITADEL FOR PROD
-    url = "http://localhost:8080/v2alpha/users/human"
+    url = "http://zitadel.cloud.ut.ee/management/v1/users/human/_import"
     payload = json.dumps({
-        "username": username,
+        "userName": username,
         "profile": {
             "firstName": firstname,
             "lastName": lastname,
@@ -20,21 +20,20 @@ def send_registration_request(username, firstname, lastname, email):
         },
         "email": {
             "email": email,
-            "isVerified": True
+            "isEmailVerified": True
         },
-        "password": {
-            "password": otp,
-            "changeRequired": True
-        }
+        "password": otp,
+        "passwordChangeRequired": True
     })
+    print(payload)
     headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Bearer dGdrLUC2RyTxLiz3ICKJgZqa7RVrpS50MfPGZzOWQE1O-MzODSa-q9P0hO9630UGCk1aokc'
+        'Authorization': 'Bearer RBfFXOSR4mkSf9EDmw8fvE_qLeJX0DFIGn3gm4HP7ivMZa2YEyzMOToOrvpDSxANvY8Jtiw'
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
-    print(response)
+    print(response.text)
     # TODO What if request fails.
 
     return response, otp

@@ -9,8 +9,8 @@ import {useEffect, useRef, useState} from "react";
 
 export interface SimpleDialogProps {
   open: boolean;
-  onSubmit:(type: string, value: string) => void;
-  onClose: void;
+  onSubmit:(type: string, value: any) => void;
+  onClose: () => void;
   title: string,
   message: string,
   type: string,
@@ -19,8 +19,8 @@ export interface SimpleDialogProps {
 
 const CreateProjectDialog = (props: SimpleDialogProps) => {
   const { onSubmit, onClose, open, title, message, type, value } = props;
-  const valueRef = useRef('')
-  const [label, setLabel] = useState('')
+  const valueRef = useRef<any>('')
+  const [label, setLabel] = useState<any>('')
 
   useEffect(() => {
     switch (type) {

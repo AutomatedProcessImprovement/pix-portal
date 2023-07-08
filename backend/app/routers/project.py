@@ -26,8 +26,8 @@ async def get_all_projects(authorization: Annotated[str | None, Header()], db: S
 
 @router.post('/')
 async def create_new_project(authorization: Annotated[str | None, Header()],
-                       name: str = Form(...),
-                       db: Session = Depends(get_db)):
+                             name: str = Form(...),
+                             db: Session = Depends(get_db)):
     user = await check_if_user_exists(authorization, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found, are you logged in?")
@@ -41,9 +41,9 @@ async def create_new_project(authorization: Annotated[str | None, Header()],
 
 @router.put('/')
 async def update_new_project(authorization: Annotated[str | None, Header()],
-                       name: str = Form(...),
-                       project_id: str = Form(...),
-                       db: Session = Depends(get_db)):
+                             name: str = Form(...),
+                             project_id: str = Form(...),
+                             db: Session = Depends(get_db)):
     print(name)
     print(project_id)
     user = await check_if_user_exists(authorization, db)
@@ -63,7 +63,9 @@ async def get_project_files(project_id, authorization: Annotated[str | None, Hea
     user = await check_if_user_exists(authorization, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found, are you logged in?")
-    res = db.query(F, P, U, T).filter(P.id == project_id, P.owner_id == user.id, F.tag_id == T.id).with_entities(F, T).all()
+    print("### USERID ###")
+    print(user.id)
+    res = db.query(U).join(P).filter(P.owner_id == user.id).join(F).filter(F.project_id == P.id).join(T).filter(T.id == F.tag_id).with_entities(F,T).all()
     print(res)
     return {'status': http.HTTPStatus.OK, 'files': res}
 

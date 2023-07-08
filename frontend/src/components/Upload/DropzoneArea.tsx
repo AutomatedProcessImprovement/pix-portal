@@ -1,9 +1,8 @@
 import { Dropzone, FileMosaic } from "@files-ui/react";
-import * as React from "react";
 import {ProjectFile} from "../../types/types";
 
 interface CustomDropzoneAreaProps {
-  acceptedFiles: string[];
+  acceptedFiles: string;
   setSelectedLogFile: (file:any) => void;
   extFiles: any
   setExtFiles: (file:any) => void
@@ -13,7 +12,7 @@ const DropZoneArea = (props: CustomDropzoneAreaProps) => {
   const { acceptedFiles, setSelectedLogFile} = props
   const [extFiles, setExtFiles] = [props.extFiles, props.setExtFiles]
 
-  const updateFiles = (incomingFiles) => {
+  const updateFiles = (incomingFiles:any) => {
     const projectFile = new ProjectFile()
     projectFile.tags = []
     projectFile.file = incomingFiles[0].file
@@ -21,8 +20,8 @@ const DropZoneArea = (props: CustomDropzoneAreaProps) => {
     setExtFiles(incomingFiles)
     setSelectedLogFile(incomingFiles[0].file);
   };
-  const onDelete = (id) => {
-    setExtFiles(extFiles.filter((x) => x.id !== id));
+  const onDelete = (id:any) => {
+    setExtFiles(extFiles.filter((x:any) => x.id !== id));
     setSelectedLogFile(null);
   };
 
@@ -36,7 +35,7 @@ const DropZoneArea = (props: CustomDropzoneAreaProps) => {
       maxFileSize={50 * 1024*1024}
       label="Drag'n drop files here or click to browse"
     >
-      {extFiles.map((file) => (
+      {extFiles.map((file:any) => (
         <FileMosaic key={file.id} {...file} onDelete={onDelete} info />
       ))}
     </Dropzone>
