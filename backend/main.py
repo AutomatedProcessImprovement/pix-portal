@@ -9,6 +9,7 @@ app = FastAPI()
 origins = [
     "http://localhost:5173",
     "http://localhost",
+    "http://pix.cloud.ut.ee",
 ]
 
 app.add_middleware(
