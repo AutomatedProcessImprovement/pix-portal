@@ -1,5 +1,4 @@
-from src.models.models import Tag
-from database import get_db, Base, engine, SessionLocal
+from src.database.database import get_db, Base, engine, SessionLocal
 from src.models import models
 
 
@@ -10,11 +9,11 @@ def init_db():
     print("Tables are not created yet. Creating tables")
     # Prefill TAG table
     objects = [
-        Tag(value='BPMN'),
-        Tag(value='SIM_MODEL'),
-        Tag(value='CONS_MODEL'),
-        Tag(value='EVENT_LOG'),
-        Tag(value='UNTAGGED')
+        models.Tag(value='BPMN'),
+        models.Tag(value='SIM_MODEL'),
+        models.Tag(value='CONS_MODEL'),
+        models.Tag(value='EVENT_LOG'),
+        models.Tag(value='UNTAGGED')
     ]
     print(objects)
     db.bulk_save_objects(objects)

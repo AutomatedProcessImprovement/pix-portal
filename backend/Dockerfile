@@ -17,7 +17,7 @@ RUN poetry config virtualenvs.create false && poetry install --no-dev
 COPY . .
 
 # Run the init.py script
-RUN python database/init.py
+RUN python init.py
 
 # Expose port 8000 for the application
 EXPOSE 8000
