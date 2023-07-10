@@ -60,8 +60,7 @@ async def get_project_files(project_id, authorization: Annotated[str | None, Hea
     if not user:
         raise HTTPException(status_code=404, detail="User not found, are you logged in?")
 
-    res = db.query(U).join(P).filter(P.owner_id == user.id).join(F).filter(F.project_id == P.id).join(T).filter(T.id == F.tag_id).with_entities(F,T).all()
-
+    res = db.query(U).join(P).filter(P.owner_id == user.id).join(F).filter(F.project_id == project_id).join(T).filter(T.id == F.tag_id).with_entities(F,T).all()
     return {'status': http.HTTPStatus.OK, 'files': res}
 
 
