@@ -1,5 +1,5 @@
 # Use the official Python base image
-FROM python:3.9
+FROM python:3.11
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 8000
 
 # Set the command to run your application with uvicorn
-CMD ["poetry", "run", "uvicorn", "your_module:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
