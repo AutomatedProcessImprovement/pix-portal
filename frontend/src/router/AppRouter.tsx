@@ -32,7 +32,7 @@ const AppRouter = (props: RouterProps) => {
         element={<Register />}
       />
       <Route
-        path="/api/auth/callback/zitadel"
+        path="/auth/callback/zitadel"
         element={
           <Callback
             auth={authenticated}
