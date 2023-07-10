@@ -4,8 +4,8 @@ import jwt
 from pydantic import BaseModel
 from fastapi import Depends, HTTPException, Header
 from sqlalchemy.orm import Session
-from app.database.database import get_db
-from app.models.models import User as U, User
+from src.database.database import get_db
+from src.models.models import User as U, User
 
 
 class UnauthorizedMessage(BaseModel):

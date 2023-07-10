@@ -4,12 +4,12 @@ import json
 from sqlalchemy.orm import Session
 from fastapi import Depends, status, APIRouter, Form
 
-from app.database.database import get_db
-from app.helpers.generators import generateAlphaNumericUUID
-from app.helpers.register_zitadel_user import send_registration_request
-from app.models import models
-from app.models.models import User
-from app.schemas import schemas
+from src.database.database import get_db
+from src.helpers.generators import generateAlphaNumericUUID
+from src.helpers.register_zitadel_user import send_registration_request
+from src.models import models
+from src.models.models import User
+from src.schemas import schemas
 
 router = APIRouter()
 

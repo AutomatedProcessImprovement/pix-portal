@@ -4,10 +4,10 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from typing import Annotated
 
-from app.auth.decrypt import decode_user, get_token, check_if_user_exists
-from app.database.database import get_db
-from app.disk_storage.filestore import deleteFile
-from app.models.models import Project as P, User as U, File as F, Tag as T
+from src.auth.decrypt import decode_user, get_token, check_if_user_exists
+from src.database.database import get_db
+from src.disk_storage.filestore import deleteFile
+from src.models.models import Project as P, User as U, File as F, Tag as T
 
 router = APIRouter()
 auth_scheme = OAuth2PasswordBearer(tokenUrl="token")

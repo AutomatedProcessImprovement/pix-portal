@@ -1,6 +1,6 @@
-from app.models.models import Tag
+from src.models.models import Tag
 from database import get_db, Base, engine, SessionLocal
-from app.models import models
+from src.models import models
 
 
 def init_db():

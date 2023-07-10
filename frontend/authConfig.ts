@@ -1,7 +1,7 @@
 export const authConfig = {
   authority: 'http://zitadel.cloud.ut.ee', //Replace with your issuer URL
   client_id: '221885342960123907@pix', //Replace with your client id
-  redirect_uri: 'http://pix.cloud.ut.ee/api/auth/callback/zitadel',
+  redirect_uri: 'http://pix.cloud.ut.ee/auth/callback/zitadel',
   response_type: 'code',
   scope: 'openid profile email',
   post_logout_redirect_uri: 'http://pix.cloud.ut.ee/',

@@ -6,10 +6,10 @@ from fastapi import APIRouter, Depends, UploadFile, status, File, Form, Header, 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.auth.decrypt import check_if_user_exists
-from app.database.database import get_db
-from app.models.models import File as F, Tag as T, User as U, Project as P
-from app.disk_storage.filestore import uploadFile, deleteFile
+from src.auth.decrypt import check_if_user_exists
+from src.database.database import get_db
+from src.models.models import File as F, Tag as T, User as U, Project as P
+from src.disk_storage.filestore import uploadFile, deleteFile
 from urllib.request import pathname2url
 from urllib.parse import urljoin
 from fastapi.responses import FileResponse

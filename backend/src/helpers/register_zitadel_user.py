@@ -2,7 +2,7 @@ import json
 
 import requests
 
-from app.helpers.generators import generateOTP
+from src.helpers.generators import generateOTP
 
 
 def send_registration_request(username, firstname, lastname, email):

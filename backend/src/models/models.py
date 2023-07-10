@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import uuid
 from datetime import datetime
 
-from app.database.database import Base
+from src.database.database import Base
 
 user_project_association = Table(
     'user_project_association',
