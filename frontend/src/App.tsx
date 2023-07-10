@@ -8,6 +8,9 @@ import {useEffect, useState} from "react";
 
 
 function App() {
+  const [authenticated, setAuthenticated] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
+
   const userManager = new UserManager({
     userStore: new WebStorageStateStore({ store: window.localStorage }),
     ...authConfig,
@@ -25,9 +28,6 @@ function App() {
     });
   }
 
-  const [authenticated, setAuthenticated] = useState<any>(null);
-  const [userInfo, setUserInfo] = useState<any>(null);
-
   useEffect(() => {
     userManager.getUser().then((user) => {
       if (user) {
@@ -43,7 +43,7 @@ function App() {
   return (
 
       <BrowserRouter>
-        <Navigation authenticated={authenticated} clearAuth={clearAuth}/>
+        <Navigation authenticated={authenticated} clearAuth={clearAuth} userManager={userManager}/>
         <div className="App">
           <AppRouter authenticated={authenticated} setAuthenticated={setAuthenticated} setUserInfo={setUserInfo} userInfo={userInfo} authorize={authorize} userManager={userManager}/>
         </div>

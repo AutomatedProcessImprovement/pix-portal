@@ -1,14 +1,17 @@
+import os
+
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from src.routers import project, file, user
-
+from dotenv import load_dotenv
 app = FastAPI()
 
 origins = [
     "http://localhost:5173",
     "http://localhost",
+    "http://localhost:80",
     "http://pix.cloud.ut.ee",
 ]
 

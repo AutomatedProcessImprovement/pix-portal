@@ -18,7 +18,7 @@ const Login = ({ auth, handleLogin }:any) => {
           flexGrow: 1,
           flexDirection: 'column'
         }}>
-          <Typography variant={'h3'} sx={{mb: '5%', fontWeight: 'bold' }}>Log in or Sign up</Typography>
+          <Typography variant={'h3'} sx={{mb: 4, fontWeight: 'bold' }}># Get Started #</Typography>
           <Stack direction="row" spacing={5}>
             <Divider orientation="vertical" flexItem />
             <CustomButton

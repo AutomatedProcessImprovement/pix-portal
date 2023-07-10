@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import {authConfig} from '../../authConfig';
 import {Navigate} from "react-router-dom"
+import {Box, CircularProgress, LinearProgress, Stack, Typography} from "@mui/material";
 
 const Callback = ({ auth, setAuth, userManager, userInfo, setUserInfo }:any) => {
   useEffect(() => {
@@ -38,7 +39,33 @@ const Callback = ({ auth, setAuth, userManager, userInfo, setUserInfo }:any) => 
     );
   }
   else {
-    return <div>Loading...</div>;
+    return (
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+        mt: 1
+      }}>
+        <Box
+          sx={{
+            p: 1,
+            m: 1,
+          }}>
+        <CircularProgress />
+        </Box>
+        <Box
+          sx={{
+            p: 1,
+            m: 1,
+          }}>
+          <Typography
+            variant="body1"
+          >
+            Loading
+          </Typography>
+        </Box>
+    </Box>);
   }
 
 };

@@ -1,9 +1,6 @@
-import shutil
-
 import aiofiles
 import shortuuid
 import os
-import tempfile
 
 curr_dir_path = os.path.abspath(os.path.dirname(__file__))
 write_path = os.path.abspath(os.path.join(curr_dir_path, '../..', 'static/files'))

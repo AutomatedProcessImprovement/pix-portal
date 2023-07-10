@@ -38,7 +38,6 @@ const Projects = ({auth, userManager}:any) => {
 
   useEffect(() => {
     userManager.getUser().then((res:any)=> {
-      console.log(res)
       _collectProjects();
     })
   }, [auth, userManager])

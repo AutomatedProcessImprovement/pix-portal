@@ -1,5 +1,6 @@
 import os
 
+from dotenv import load_dotenv
 from pydantic import BaseSettings
 
 
@@ -14,7 +15,14 @@ class Settings(BaseSettings):
     CLIENT_ORIGIN: str
 
     class Config:
-        env_file = f"{os.path.dirname(os.path.abspath(__file__))}/../../.env"
+        load_dotenv(".env")
+        print(os.getenv("ENV_PATH"))
+        if os.getenv("ENV_PATH") == 'local.env':
+            env_file = f"{os.path.dirname(os.path.abspath(__file__))}\\..\\..\\local.env"
+            load_dotenv("local.env")
+        elif os.getenv("ENV_PATH") == 'prod.env':
+            env_file = f"{os.path.dirname(os.path.abspath(__file__))}\\..\\..\\prod.env"
+            load_dotenv("prod.env")
 
 
 settings = Settings()
