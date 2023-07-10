@@ -8,9 +8,7 @@ import { Link } from 'react-router-dom';
 import {useEffect, useState} from "react";
 import {Avatar, Divider, IconButton, ListItemIcon, Menu, MenuItem} from "@mui/material";
 import * as React from "react";
-import {Logout, PersonAdd, Settings} from "@mui/icons-material";
-import paths from "../../router/paths";
-import {useNavigate} from 'react-router-dom';
+import {Logout, Settings} from "@mui/icons-material";
 
 
 interface MenuOptions {
@@ -24,11 +22,11 @@ const navMenuOptions: Array<MenuOptions> = [
 
 const NavBar = ({authenticated, clearAuth, userManager}:any) => {
   const [picture,setPicture] = useState<any>("")
+  // @ts-ignore
   const [user,setUser] = useState<any>("")
   const [avName,setAvName] = useState<any>("")
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const navigate = useNavigate();
 
 
   useEffect(() => {

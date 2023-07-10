@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import {authConfig} from '../../authConfig';
 import {Navigate} from "react-router-dom"
-import {Box, CircularProgress, LinearProgress, Stack, Typography} from "@mui/material";
+import {Box, CircularProgress, Typography} from "@mui/material";
 
 const Callback = ({ auth, setAuth, userManager, userInfo, setUserInfo }:any) => {
   useEffect(() => {

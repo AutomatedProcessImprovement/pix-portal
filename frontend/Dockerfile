@@ -16,6 +16,7 @@ COPY tsconfig.node.json tsconfig.node.json
 COPY authConfig.ts authConfig.ts
 COPY vite.config.ts vite.config.ts
 COPY index.html index.html
+COPY .env.production .env.production
 COPY ./public/ ./public
 COPY ./src/ ./src
 
