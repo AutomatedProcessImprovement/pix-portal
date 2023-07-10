@@ -3,12 +3,12 @@ import {storageconfig} from "../authConfig";
 
 
 export const REGISTER_API_INSTANCE = axios.create({
-  baseURL: "http://pix.cloud.ut.ee:8000",
+  baseURL: "http://pix.cloud.ut.ee",
 });
 
 
 export const API_instance = axios.create({
-  baseURL: "http://pix.cloud.ut.ee:8000",
+  baseURL: "http://pix.cloud.ut.ee",
 });
 
 API_instance.interceptors.request.use((config) => {
