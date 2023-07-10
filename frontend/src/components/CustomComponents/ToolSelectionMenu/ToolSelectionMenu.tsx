@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Divider from '@mui/material/Divider';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
@@ -12,7 +11,7 @@ import {Menu} from "@mui/material";
 
 export interface ToolSelectionMenuProps {
   anchorEl: any;
-  onClose: (e) => any;
+  onClose: (e:any) => any;
   selectable: any
 }
 

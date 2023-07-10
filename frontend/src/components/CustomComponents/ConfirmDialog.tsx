@@ -10,7 +10,7 @@ export interface SimpleDialogProps {
   open: boolean;
   title: string
   message: string;
-  onClose: (e) => any;
+  onClose: (e:any) => any;
 }
 
 const ConfirmDialog = (props: SimpleDialogProps) => {

@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import {authConfig} from '../../authConfig';
 import {Navigate} from "react-router-dom"
+import {Box, CircularProgress, Typography} from "@mui/material";
 
-const Callback = ({ auth, setAuth, userManager, userInfo, setUserInfo, handleLogout }) => {
+const Callback = ({ auth, setAuth, userManager, userInfo, setUserInfo }:any) => {
   useEffect(() => {
     if (auth === null) {
       console.log("doing effect")
-      userManager.signinRedirectCallback().then((user) => {
+      userManager.signinRedirectCallback().then((user:any) => {
         if (user) {
 
           setAuth(true);
@@ -24,7 +25,8 @@ const Callback = ({ auth, setAuth, userManager, userInfo, setUserInfo, handleLog
         } else {
           setAuth(false);
         }
-      }).catch((error) => {
+      }).catch((error:any) => {
+        console.log(error)
         setAuth(false);
       });
     }
@@ -37,7 +39,33 @@ const Callback = ({ auth, setAuth, userManager, userInfo, setUserInfo, handleLog
     );
   }
   else {
-    return <div>Loading...</div>;
+    return (
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+        mt: 1
+      }}>
+        <Box
+          sx={{
+            p: 1,
+            m: 1,
+          }}>
+        <CircularProgress />
+        </Box>
+        <Box
+          sx={{
+            p: 1,
+            m: 1,
+          }}>
+          <Typography
+            variant="body1"
+          >
+            Loading
+          </Typography>
+        </Box>
+    </Box>);
   }
 
 };

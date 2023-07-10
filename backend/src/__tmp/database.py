@@ -1,5 +1,5 @@
 # from config import Base, db_session, engine
-# from app.models.models import Tag
+# from src.models.models import Tag
 #
 #
 # def init_db():

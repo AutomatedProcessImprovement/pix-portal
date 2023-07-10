@@ -5,10 +5,10 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CustomButton from "../CustomComponents/CustomButton";
 import {useEffect} from "react";
 
-const Index = () => {
+const Home = () => {
 
-  const [isVisible, setIsVisible] = React.useState<Boolean>(false)
-  const [isVisible2, setIsVisible2] = React.useState<Boolean>(false)
+  const [isVisible, setIsVisible] = React.useState<boolean>(false)
+  const [isVisible2, setIsVisible2] = React.useState<boolean>(false)
 
   useEffect(() => {
     setIsVisible(true)
@@ -33,6 +33,7 @@ const Index = () => {
       <Fade in={isVisible} appear={true} timeout={1500} >
         <CustomButton
           key={"get-started"}
+          // @ts-ignore
           to={"/login"}
           component={Link}
 
@@ -117,4 +118,4 @@ const Index = () => {
   )
 }
 
-export default Index;
+export default Home;

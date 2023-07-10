@@ -3,16 +3,16 @@ import {storageconfig} from "../authConfig";
 
 
 export const REGISTER_API_INSTANCE = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: import.meta.env.VITE_REACT_APP_BASE_URL,
 });
 
 
 export const API_instance = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: import.meta.env.VITE_REACT_APP_BASE_URL,
 });
-
-API_instance.interceptors.request.use(function (config) {
-  const token = JSON.parse(localStorage.getItem(storageconfig)).id_token;
+API_instance.interceptors.request.use((config) => {
+  const value = localStorage.getItem(storageconfig) || '{}'
+  const token = JSON.parse(value).id_token ;
   config.headers.Authorization = "Bearer " + token;
 
   return config;

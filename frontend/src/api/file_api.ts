@@ -9,7 +9,7 @@ export const getProjectFileForDownload = async (fileId: number) => {
     }
   )
 }
-export const editExistingFileTitle = async (fileId: number, name: string) => {
+export const editExistingFileTitle = async (fileId: string, name: string) => {
   const formData = new FormData()
   formData.append('file_id', fileId)
   formData.append('name', name)
@@ -23,7 +23,7 @@ export const removeProjectFile = async (fid: number) => {
     `/api/files/${fid}`,
   )
 }
-export const uploadFile = async (file: File, tag: string, projectId: number) => {
+export const uploadFile = async (file: File, tag: string, projectId: string) => {
   const formData = new FormData()
   formData.append('tag', tag)
   formData.append('project_id', projectId)

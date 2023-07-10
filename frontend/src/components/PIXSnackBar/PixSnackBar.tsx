@@ -36,6 +36,7 @@ const PixSnackBar = (props: PixSnackBarProps) => {
   }, [message, alertMessage])
 
   const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    console.log(event)
     if (reason === 'clickaway') {
       return
     }

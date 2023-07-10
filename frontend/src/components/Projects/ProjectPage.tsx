@@ -36,32 +36,32 @@ import ToolSelectionMenu from "../CustomComponents/ToolSelectionMenu/ToolSelecti
 import {API_instance} from "../../axios";
 
 interface ProjectProps {
-  pid: number
+  pid: string
   projectName: string,
   projectCreationDate: string,
   uuid: number
   // userName: string
 }
 
-const ProjectPage = ({auth, userManager}) => {
+const ProjectPage = () => {
   const navigate = useNavigate();
   const state = useLocation();
-  const { uuid, projectName, projectCreationDate, pid } = state.state as ProjectProps
+  const { projectName, pid } = state.state as ProjectProps
 
   /** STUFF FOR DROPZONE COMPONENT*/
   const [selectedLogFile, setSelectedLogFile] = useState<File | null>(null);
   const [dropzoneFiles, setDropzoneFiles] = useState([]);
   const [tagValue, setTagValue] = React.useState<string>("UNTAGGED");
 
-  const [fList, setFlist] = useState([])
+  const [fList, setFlist] = useState<{File:any, Tag:any}[]>([])
 
   /** STUFF FOR PROJECT SELECTION CHECKBOX*/
-  const [selectedProjectFiles, setSelectedProjectFiles] = useState([])
-  const [uniqueTags, setUniqueTags] = useState([])
+  const [selectedProjectFiles, setSelectedProjectFiles] = useState<any>([])
+  const [uniqueTags, setUniqueTags] = useState<any>([])
 
   const [open, setOpen] = useState(false);
-  const [fid, setFid] = useState(null);
-  const [fName, setFName] = useState("");
+  const [fid, setFid] = useState<any>(null);
+  const [fName, setFName] = useState<any>("");
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [selectable, setSelectable] = useState<Selectable>({
@@ -95,15 +95,15 @@ const ProjectPage = ({auth, userManager}) => {
     const hasBpmn = uniqueTags.includes('BPMN');
     const hasConsModel = uniqueTags.includes('CONS_MODEL');
 
-    setSelectable((prevSelectable) => ({
+    setSelectable(() => ({
       SIMOD: hasEventLog,
       PROSIMOS: hasSimModel && hasBpmn,
       OPTIMOS: hasConsModel && hasSimModel && hasBpmn,
     }));
 }, [uniqueTags]);
 
-  const collectFiles = (pid) => {
-    const _ = getProjectFiles(pid).then((result:any) => {
+  const collectFiles = (pid:any) => {
+    getProjectFiles(pid).then((result:any) => {
       const fileTagObjects = result.data.files
       setFlist(fileTagObjects)
     }).catch((e)=> {
@@ -111,16 +111,17 @@ const ProjectPage = ({auth, userManager}) => {
     })
   }
 
-  const handleOpenToolSelectionMenu = (event) => {
+  const handleOpenToolSelectionMenu = (event:any) => {
     setAnchorEl(event.currentTarget);
   }
 
   const handleCloseToolSelectionMenu = (e:string) => {
+    console.log(e)
     setAnchorEl(null);
   };
 
   /** DIALOG HANDLING FUNCTIONS */
-  const handleOpenEditDialog = (fid, prevName) => {
+  const handleOpenEditDialog = (fid:any, prevName:any) => {
     setFid(fid)
     setFName(prevName)
     setCreateDialogMessage("Enter a new name for the file")
@@ -139,7 +140,7 @@ const ProjectPage = ({auth, userManager}) => {
     setCreateDialogMessage("")
   };
 
-  const handleCloseRemoveDialog = (e) => {
+  const handleCloseRemoveDialog = (e:any) => {
     if (e && fid) {
       handleRemoveFile(fid)
     }
@@ -148,8 +149,8 @@ const ProjectPage = ({auth, userManager}) => {
   }
 
   /** API CALL FUNCTIONS */
-  const handleRemoveFile = (fid) => {
-    const _ = removeProjectFile(fid).then((results: any) => {
+  const handleRemoveFile = (fid:any) => {
+    removeProjectFile(fid).then((results: any) => {
       setSuccessMessage(results.data.message)
       collectFiles(pid)
     }).catch((e)=> {
@@ -158,7 +159,7 @@ const ProjectPage = ({auth, userManager}) => {
   }
 
   const handleUploadFile = () => {
-    const actual = tValToActual[tagValue]
+    const actual = (tValToActual as any)[tagValue]
 
     if (selectedLogFile) {
       uploadFile(selectedLogFile, actual, pid).then(
@@ -177,15 +178,15 @@ const ProjectPage = ({auth, userManager}) => {
     }
   };
 
-  const handleEditFile = (_type, e: string) => {
-    const _ = editExistingFileTitle(fid, e).then((_e:any) => {
+  const handleEditFile = (_type:any, e: string) => {
+    editExistingFileTitle(fid, e).then((_e:any) => {
       setSuccessMessage(_e.data.message)
       collectFiles(pid)
       handleCloseCreateDialog()
     });
   }
 
-  const handleDownloadFile = async (path: string, filename) => {
+  const handleDownloadFile = async (path: string, filename:any) => {
     try {
       // Make a GET request to the API endpoint with the file path as a parameter
       const response = await API_instance.get('/api/files', {
@@ -219,12 +220,12 @@ const ProjectPage = ({auth, userManager}) => {
     );
   };
 
-  const handleFileChecked = (checked, fileID, tags) => {
+  const handleFileChecked = (checked:boolean, fileID:any, tags:any) => {
     if (!checked) {
-      const checkFileExists = fileId => selectedProjectFiles.some( ({uuid}) => uuid == fileId)
+      const checkFileExists = (fileId:any) => selectedProjectFiles.some( ({uuid}:any) => uuid == fileId)
       if (checkFileExists(fileID)) {
-        setSelectedProjectFiles(selectedProjectFiles.filter(obj => obj.uuid !== fileID))
-        setUniqueTags(uniqueTags.filter(obj => obj !== tags))
+        setSelectedProjectFiles(selectedProjectFiles.filter((obj:any) => obj.uuid !== fileID))
+        setUniqueTags(uniqueTags.filter((obj:any) => obj !== tags))
         return false
       }
     } else {
@@ -232,7 +233,7 @@ const ProjectPage = ({auth, userManager}) => {
         'uuid': fileID,
         'tags': tags
       }
-      const checkFileExists = fileId => selectedProjectFiles.some(({uuid}) => uuid == fileId )
+      const checkFileExists = (fileId:any) => selectedProjectFiles.some(({uuid}:any) => uuid == fileId )
       if (!checkFileExists(newObj.uuid)) {
         if (uniqueTags.indexOf(newObj.tags) === -1) {
           setUniqueTags(uniqueTags.concat(newObj.tags));
@@ -245,27 +246,28 @@ const ProjectPage = ({auth, userManager}) => {
         }
       }
     }
+    return false
   }
 
-  const contentToBlob = (values, name) => {
-    const filetype = name.split('.')[1]
-    let contentType;
-    switch (filetype) {
-      case 'json':
-        contentType = 'application/json'
-        break
-      case 'bpmn':
-        contentType = 'application/xml'
-        break
-      case 'csv':
-        contentType = 'text/csv'
-        break
-      default:
-        contentType = 'text/plain'
-    }
-    const content = JSON.stringify(values)
-    return new Blob([content], {type: contentType})
-  }
+  // const contentToBlob = (values:any, name:any) => {
+  //   const filetype = name.split('.')[1]
+  //   let contentType;
+  //   switch (filetype) {
+  //     case 'json':
+  //       contentType = 'application/json'
+  //       break
+  //     case 'bpmn':
+  //       contentType = 'application/xml'
+  //       break
+  //     case 'csv':
+  //       contentType = 'text/csv'
+  //       break
+  //     default:
+  //       contentType = 'text/plain'
+  //   }
+  //   const content = JSON.stringify(values)
+  //   return new Blob([content], {type: contentType})
+  // }
 
   /** SNACKBAR STUFF*/
   const onSnackbarClose = () => {
@@ -329,7 +331,6 @@ const ProjectPage = ({auth, userManager}) => {
           container
           spacing={2}
           direction="row"
-          justify="space-between"
           alignItems="center-top"
         >
           <Grid item xs={10}>
@@ -382,7 +383,7 @@ const ProjectPage = ({auth, userManager}) => {
                 renderValue={(selected) => (
                   <ThemeProvider theme={theme}>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        <Chip key={selected} label={selected} color={colors[selected]}/>
+                        <Chip key={selected} label={selected} color={(colors as any)[selected]}/>
                     </Box>
                   </ThemeProvider>
                 )}

@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 import Project from "./Project";
 import * as React from "react";
-import {v4 as uuidv4} from 'uuid'
 import CreateProjectDialog from "../Upload/CreateProjectDialog";
 import PixSnackBar from "../PIXSnackBar/PixSnackBar";
 import {useEffect, useState} from "react";
@@ -21,8 +20,8 @@ import {useNavigate} from 'react-router-dom';
 
 
 
-const Projects = ({auth, userManager}) => {
-  const [pid, setPid] = useState(null)
+const Projects = ({auth, userManager}:any) => {
+  const [pid, setPid] = useState<string | null>(null)
   const [pList, setPlist] = React.useState([])
 
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
@@ -38,15 +37,14 @@ const Projects = ({auth, userManager}) => {
 
 
   useEffect(() => {
-    userManager.getUser().then((res)=> {
-      console.log("GETTING PROJECTS")
+    userManager.getUser().then(()=> {
       _collectProjects();
     })
   }, [auth, userManager])
 
 
   const _collectProjects = () => {
-      const _projects = getProjects().then((result:any) => {
+      getProjects().then((result:any) => {
         const jsonProjects = result.data.projects
         setPlist(jsonProjects)
       }).catch((e)=> {
@@ -54,7 +52,7 @@ const Projects = ({auth, userManager}) => {
       })
   }
   
-  const handleNavigateSpecificProject = (projectProps) => {
+  const handleNavigateSpecificProject = (projectProps:any) => {
     navigate(
       paths.PROJECT_ID_PATH, {
         state: {
@@ -67,7 +65,7 @@ const Projects = ({auth, userManager}) => {
     )
   }
 
-  const handleSubmit = (type, e) => {
+  const handleSubmit = (type:any, e:any) => {
     if (type === 'ADD') {
       handleAdd(e)
     }
@@ -77,22 +75,24 @@ const Projects = ({auth, userManager}) => {
   }
 
   const handleEdit = (e: string) => {
-    const _ = editExistingProjectTitle(pid, e).then((_e:any) => {
-      setSuccessMessage(_e.data.message)
-      _collectProjects()
-      handleCloseCreateDialog()
-    });
+    if (pid != null) {
+      editExistingProjectTitle(pid, e).then((_e:any) => {
+        setSuccessMessage(_e.data.message)
+        _collectProjects()
+        handleCloseCreateDialog()
+      });
+    }
   }
 
   const handleAdd = (e: string) => {
-    const _ = createNewProject(e).then((_e:any) => {
+    createNewProject(e).then((_e:any) => {
       setSuccessMessage(_e.data.message)
       _collectProjects()
       handleCloseCreateDialog()
     });
   }
 
-  const deleteProject = (pid) => {
+  const deleteProject = (pid:any) => {
     removeProject(pid).then((res) => {
       _collectProjects()
       setSuccessMessage(res.data.message)
@@ -101,7 +101,7 @@ const Projects = ({auth, userManager}) => {
     })
   }
 
-  const handleOpenDeleteDialog = (pid) => {
+  const handleOpenDeleteDialog = (pid:any) => {
     setOpenDeleteDialog(true)
     setPid(pid)
   }
@@ -113,7 +113,7 @@ const Projects = ({auth, userManager}) => {
     setOpenCreateDialog(true);
   };
 
-  const handleOpenEditDialog = (pid) => {
+  const handleOpenEditDialog = (pid:any) => {
     setPid(pid)
     setType("EDIT")
     setCreateDialogMessage("Enter a new name for the project")
@@ -128,7 +128,7 @@ const Projects = ({auth, userManager}) => {
     setCreateDialogMessage("")
   };
 
-  const handleCloseDeleteDialog = (e) => {
+  const handleCloseDeleteDialog = (e:any) => {
     if (e && pid) {
       deleteProject(pid)
     }

@@ -8,21 +8,48 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import {handleRegister} from "../../api/api";
-import {CircularProgress} from "@mui/material";
+import {AlertColor, CircularProgress} from "@mui/material";
 import {blue} from "@mui/material/colors";
 import {OTPDialog} from "../CustomComponents/OTPDialog";
 import paths from "../../router/paths";
 import CustomButton from "../CustomComponents/CustomButton";
 import {useNavigate} from 'react-router-dom';
+import PixSnackBar from "../PIXSnackBar/PixSnackBar";
+import {useState} from "react";
 
 
 const Register = () => {
   const [loading, setLoading] = React.useState(false);
-  const [otp, setOTP] = React.useState(null)
+  const [otp, setOTP] = React.useState<any>(null)
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
 
-  const handleClose = (value: string) => {
+  const [snackMessage, setSnackMessage] = useState("")
+  const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
+
+  /** SNACKBAR STUFF*/
+  const onSnackbarClose = () => {
+    setSuccessMessage("")
+    setInfoMessage("")
+    setErrorMessage("")
+  };
+
+  const setInfoMessage = (value: string) => {
+    setSnackColor("info")
+    setSnackMessage(value)
+  };
+
+  const setSuccessMessage = (value: string) => {
+    setSnackColor("success")
+    setSnackMessage(value)
+  };
+
+  const setErrorMessage = (value: string) => {
+    setSnackColor("error")
+    setSnackMessage(value)
+  };
+
+  const handleClose = () => {
     setOpen(false);
     navigate(
       paths.LOGIN_PATH
@@ -40,16 +67,24 @@ const Register = () => {
         lastname: data.get('lastName'),
         email: data.get('email'),
       });
-
+      if (!data) {
+        setErrorMessage("Something went wrong.")
+        return
+      }
+      // @ts-ignore
       handleRegister(data.get('username'), data.get('firstName'), data.get('lastName'), data.get('email')).then((res) => {
         console.log(res.data)
+        console.log("YES")
         setLoading(false)
         setOTP(res.data.otp)
         setOpen(true)
+        setSuccessMessage("User successfully registered.")
 
       }).catch((e) => {
+        console.log(e)
+        setErrorMessage(e.response.data.detail)
         setLoading(false)
-      })
+      });
 
     }
   };
@@ -158,7 +193,13 @@ const Register = () => {
           </Grid>
         </Box>
       </Box>
+      {snackMessage && <PixSnackBar
+          message={snackMessage}
+          severityLevel={snackColor}
+          onSnackbarClose={onSnackbarClose}
+      />}
     </Container>
+
   );
 };
 

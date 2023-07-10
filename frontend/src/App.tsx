@@ -8,25 +8,26 @@ import {useEffect, useState} from "react";
 
 
 function App() {
+  const [authenticated, setAuthenticated] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
+
+  console.log(authConfig)
   const userManager = new UserManager({
     userStore: new WebStorageStateStore({ store: window.localStorage }),
     ...authConfig,
   });
 
   function authorize() {
-    userManager.signinRedirect().then((user: any)=> {
+    userManager.signinRedirect().then(()=> {
       setAuthenticated(true);
     });
   }
 
   function clearAuth() {
-    userManager.signoutRedirect().then((user: any)=> {
+    userManager.signoutRedirect().then(()=> {
       setAuthenticated(false);
     });
   }
-
-  const [authenticated, setAuthenticated] = useState(null);
-  const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
     userManager.getUser().then((user) => {
@@ -43,9 +44,9 @@ function App() {
   return (
 
       <BrowserRouter>
-        <Navigation authenticated={authenticated} userInfo={userInfo} clearAuth={clearAuth}/>
+        <Navigation authenticated={authenticated} clearAuth={clearAuth} userManager={userManager}/>
         <div className="App">
-          <AppRouter authenticated={authenticated} setAuthenticated={setAuthenticated} setUserInfo={setUserInfo} userInfo={userInfo} authorize={authorize} clearAuth={clearAuth} userManager={userManager}/>
+          <AppRouter authenticated={authenticated} setAuthenticated={setAuthenticated} setUserInfo={setUserInfo} userInfo={userInfo} authorize={authorize} userManager={userManager}/>
         </div>
       </BrowserRouter>
   );
