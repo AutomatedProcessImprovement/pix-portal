@@ -10,19 +10,19 @@ export const simulate = async (startDate: string, numProcesses: number,
     formData.append("modelFile", bpmnFile as Blob)
 
     return await axios.post(
-        '/api/prosimos/simulate',
+        '/prosimos/simulate',
         formData)
 };
 
 export const getFileByFileName = async (fileName: string) => {
     return await axios.get(
-        `/api/prosimos/simulationFile?fileName=${fileName}`
+        `/prosimos/simulationFile?fileName=${fileName}`
     )
 };
 
 export const getTaskByTaskId = async (taskId: string) => {
     return await axios.get(
-        `/api/prosimos/task?taskId=${taskId}`
+        `/prosimos/task?taskId=${taskId}`
     )
 };
 
@@ -34,6 +34,6 @@ export const discoverScenariosParams = async (selectedLogsFile: Blob,
     formData.append("bpmnFile", selectedBpmnFile)
 
     return axios.post(
-        '/api/prosimos/discovery',
+        '/prosimos/discovery',
         formData)
 };

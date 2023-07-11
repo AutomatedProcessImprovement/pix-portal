@@ -66,7 +66,7 @@ const SimulationResults = (props: SimulationResultsProps) => {
         console.log("Saving files to project")
         for (const f in files) {
             axios
-              .get(`/api/prosimos/simulationFile?fileName=${files[f]}`)
+              .get(`/prosimos/simulationFile?fileName=${files[f]}`)
               .then((data: any) => {
                   const mimeType = "text/csv"
                   const blob = new Blob([data.data], { type: mimeType })
