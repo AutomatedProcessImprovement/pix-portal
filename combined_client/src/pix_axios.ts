@@ -1,7 +1,7 @@
 import axios from "axios";
 import {storageconfig} from "../authConfig";
 
-
+console.log(import.meta.env.VITE_PIX_REACT_APP_BASE_URL)
 export const REGISTER_API_INSTANCE = axios.create({
   baseURL: import.meta.env.VITE_PIX_REACT_APP_BASE_URL,
 });
