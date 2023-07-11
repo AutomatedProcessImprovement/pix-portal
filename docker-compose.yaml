@@ -1,20 +1,29 @@
 version: '3.8'
 services:
-  client:
+  pix_client:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
     ports:
       - '5173:80'
     depends_on:
-      - api
+      - pix_api
 
-  api:
+  pix_api:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
       - '8000:8000'
+    depends_on:
+      - db
+
+  prosimos_api:
+    build:
+      context: ./prosimos-microservice
+      dockerfile: Dockerfile.api
+    ports:
+      - '5000:5000'
     depends_on:
       - db
 
@@ -36,10 +45,12 @@ services:
     ports:
       - '80:80'
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./local.conf:/etc/nginx/nginx.conf
     depends_on:
-      - client
-      - api
+      - pix_client
+      - prosimos_client
+      - prosimos_api
+      - pix_api
 
 volumes:
   db:
