@@ -32,6 +32,7 @@ const ResourceCalendars = (props: ResourceCalendarsProps) => {
         name: "resource_calendars"
     })
 
+    // @ts-ignore
     const initialRowSizes = new Array(fields.length).fill(true).reduce((acc, item, i) => {
         acc[i] = fields[i].time_periods.length * ROW_HEIGHT;
         return acc;
@@ -129,7 +130,7 @@ const ResourceCalendars = (props: ResourceCalendarsProps) => {
 
     const numSelected = selected.length
     const calendarsCount = fields.length
-
+    // @ts-ignore
     const renderRow = (({ style, index, data }: any) => {
         const calendar = fields[index]
         const isItemSelected = selected.indexOf(calendar.id) !== -1

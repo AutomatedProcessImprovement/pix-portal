@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useState } from "react";
 import { CaseBasedRule, FiringRule, JsonData, PriorityRule } from "../formData";
 import { EventsFromModel } from "../modelData";

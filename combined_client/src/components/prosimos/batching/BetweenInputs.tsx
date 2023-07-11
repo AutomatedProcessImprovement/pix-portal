@@ -41,6 +41,7 @@ const BetweenInputs = (props: BetweenInputsProps) => {
 
         if (isFirst) {
             const secondValue = Number(oldRange[1])
+            // @ts-ignore
             newBetweenValue = [newInputValue, secondValue]
 
             if (newInputValue >= secondValue) {
@@ -50,6 +51,7 @@ const BetweenInputs = (props: BetweenInputsProps) => {
             }
         } else {
             const firstValue = Number(oldRange[0])
+            // @ts-ignore
             newBetweenValue = [firstValue, newInputValue]
 
             if (newInputValue <= firstValue) {

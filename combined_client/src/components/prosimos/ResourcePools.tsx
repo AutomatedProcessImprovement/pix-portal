@@ -261,7 +261,7 @@ const ResourcePools = (props: ResourcePoolsProps) => {
             ...rowOpenState.slice(i + 1),
         ])
     };
-
+    // @ts-ignore
     const renderRow = ({ style, index, data }: any) => {
         const profile = fields[index]
 

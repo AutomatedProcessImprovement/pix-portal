@@ -9,8 +9,8 @@ import { defaultWorkWeekTimePeriod } from "./simulationParameters/defaultValues"
 import DeleteButtonToolbar from "./toolbar/DeleteButtonToolbar"
 import AddButtonToolbar from "./toolbar/AddButtonToolbar"
 import CalendarNameDialog from "./profiles/CalendarNameDialog"
-import { useSharedStyles } from "./sharedHooks/useSharedStyles"
 import { collectAllAssignedCalendars } from "./calendars/assignedCalendarsCollector"
+
 
 
 interface ResourceCalendarsProps {
@@ -19,7 +19,6 @@ interface ResourceCalendarsProps {
 }
 
 const ResourceCalendars = (props: ResourceCalendarsProps) => {
-    const classes = useSharedStyles()
     const { formState: { control: formControl, getValues }, formState, setErrorMessage } = props
     const [currCalendarIndex, setCurrCalendarIndex] = useState<number>()
     const [currCalendarKey, setCurrCalendarKey] = useState<string>("")
@@ -117,7 +116,7 @@ const ResourceCalendars = (props: ResourceCalendarsProps) => {
     return (
         <Grid container width="100%" spacing={2}>
             <Grid container item xs={12}>
-                <Grid container item xs={8} className={classes.centeredGrid}>
+                <Grid container item xs={8}>
                     <Grid item xs={8}>
                         <TextField
                             sx={{ width: "100%" }}
@@ -139,13 +138,13 @@ const ResourceCalendars = (props: ResourceCalendarsProps) => {
                         </TextField>
                     </Grid>
                 </Grid>
-                <Grid item xs={2} className={classes.centeredGrid}>
+                <Grid item xs={2} >
                     <DeleteButtonToolbar
                         onClick={onDeleteCalendars}
                         labelName="Delete selected"
                     />
                 </Grid>
-                <Grid item xs={2} className={classes.centeredGrid}>
+                <Grid item xs={2} >
                     <AddButtonToolbar
                         onClick={onNameDialogOpen}
                         labelName="new calendar"
@@ -155,7 +154,7 @@ const ResourceCalendars = (props: ResourceCalendarsProps) => {
                 </Grid>
             </Grid>
             {(currCalendarIndex === undefined)
-                ? <Grid item xs={12} className={classes.centeredGrid} sx={{ p: 2 }}>
+                ? <Grid item xs={12} sx={{ p: 2 }}>
                     <Typography>
                         Please select the calendar to see its time periods
                     </Typography>

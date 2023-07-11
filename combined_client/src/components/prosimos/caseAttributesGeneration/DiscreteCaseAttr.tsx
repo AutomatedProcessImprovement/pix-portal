@@ -1,7 +1,6 @@
 import { Card, Grid, TextField } from "@mui/material";
 import { UseFormReturn, Controller } from "react-hook-form";
 import { JsonData } from "../formData";
-import { useSharedStyles } from "../sharedHooks/useSharedStyles";
 import DeleteButtonToolbar from "../toolbar/DeleteButtonToolbar";
 import { REQUIRED_ERROR_MSG } from "../validationMessages";
 import DiscreteValueOptions from "./DiscreteValueOptions";
@@ -16,7 +15,6 @@ interface DiscreteCaseAttrProps {
 
 const DiscreteCaseAttr = (props: DiscreteCaseAttrProps) => {
     const { formState, formState: { control: formControl, formState: { errors } }, setErrorMessage, itemIndex, remove, referencedValuesByCaseAttr } = props
-    const classes = useSharedStyles()
 
     const onDiscreteCaseAttrDelete = () => {
         remove(itemIndex)
@@ -49,7 +47,7 @@ const DiscreteCaseAttr = (props: DiscreteCaseAttrProps) => {
                         }}
                     />
                 </Grid>
-                <Grid item xs={2} className={classes.centeredGrid}>
+                <Grid item xs={2}>
                     <DeleteButtonToolbar
                         onClick={onDiscreteCaseAttrDelete}
                         labelName="Delete"

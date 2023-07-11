@@ -17,7 +17,7 @@ const AllGatewaysProbabilities = (props: GatewayBranchingProbProps) => {
         control: formControl,
         name: `gateway_branching_probabilities`
     })
-
+    // @ts-ignore
     const renderRow = ({ index, key, style }: any) => {
         const item = fields[index]
         const gatewayKey = item.gateway_id

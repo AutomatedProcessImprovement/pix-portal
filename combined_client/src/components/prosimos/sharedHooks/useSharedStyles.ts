@@ -1,7 +1,6 @@
-import {Theme} from "@mui/material";
 import { makeStyles } from 'tss-react/mui';
 
-const useSharedStyles = makeStyles()((theme: Theme) => ({
+const useSharedStyles = makeStyles()(() => ({
     centeredGrid: {
         display: "flex",
         alignItems: "center",

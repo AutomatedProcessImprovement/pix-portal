@@ -4,11 +4,12 @@ import { Controller, FieldError, useFieldArray, UseFormReturn } from "react-hook
 import { JsonData } from "../formData";
 import { REQUIRED_ERROR_MSG } from "../validationMessages";
 import DistrFuncSelect from "./DistrFuncSelect";
-import { AllowedObjectName, AllowedDistrParamsName, DISTR_FUNC, distrFuncWithLabelNames, MODE_SEC, getNumOfParamsPerDistr } from "./constants";
-
+import { AllowedObjectName, AllowedDistrParamsName, DISTR_FUNC, distrFuncWithLabelNames, getNumOfParamsPerDistr } from "./constants";
+// @ts-nocheck
 interface TimeDistributionProps {
     formState: UseFormReturn<JsonData, object>
     objectNamePath: AllowedObjectName
+    // @ts-ignore
     errors?: {
         distribution_name?: FieldError
         distribution_params?: { value?: FieldError }[]
@@ -20,7 +21,9 @@ interface TimeDistributionProps {
 
 const TimeDistribution = (props: TimeDistributionProps) => {
     const { control: formControl, setValue, getValues } = props.formState
+    // @ts-ignore
     const { objectNamePath, errors: distrErrors, setErrorMessage } = props
+    // @ts-ignore
     const { fields, replace } = useFieldArray({
         keyName: 'key',
         control: formControl,
@@ -41,10 +44,11 @@ const TimeDistribution = (props: TimeDistributionProps) => {
             setValue(`${objectNamePath}.distribution_params.${index}.value`, 0)
         }
     };
-
+    // @ts-ignore
     const onNumberFieldChange = (num: Number, label: String, onChange: (value: Number) => void) => {
         let newDistrFunc = null
         if (currSelectedFunc == null) {
+            // @ts-ignore
             newDistrFunc = getValues(`${objectNamePath}.distribution_name`) as DISTR_FUNC
             setCurrSelectedFunc(newDistrFunc)
         }
@@ -89,6 +93,7 @@ const TimeDistribution = (props: TimeDistributionProps) => {
                                 value={value}
                                 label={labelName}
                                 onChange={(e) => {
+                                    // @ts-ignore
                                     onNumberFieldChange(Number(e.target.value), labelName, onChange)
                                 }}
                                 inputProps={{

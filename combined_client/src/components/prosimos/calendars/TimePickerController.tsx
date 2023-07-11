@@ -5,9 +5,11 @@ import AdapterMoment from "@mui/lab/AdapterMoment";
 import { TextField } from "@mui/material";
 
 const datetimeFormat = 'HH:mm:ss.SSS'
-
+// @ts-ignore
 interface TimePickerControllerProps<FieldValues> {
+    // @ts-ignore
     name: Path<FieldValues>
+    // @ts-ignore
     formState: UseFormReturn<FieldValues, object>
     label?: string
     fieldError?: FieldError
@@ -27,6 +29,7 @@ const TimePickerController = <FieldValues, > (props: TimePickerControllerProps<F
     return (
         <Controller
             name={name as Path<FieldValues>}
+            // @ts-ignore
             control={formControl}
             rules={{ required: true }}
             render={({ 
@@ -48,6 +51,7 @@ const TimePickerController = <FieldValues, > (props: TimePickerControllerProps<F
                         value={getCurrentValue(value)}
                         onChange={(newValue) => {
                             const newValueString = moment(newValue).format(datetimeFormat)
+                            // @ts-ignore
                             onChange(newValueString)
                         }}
                     />

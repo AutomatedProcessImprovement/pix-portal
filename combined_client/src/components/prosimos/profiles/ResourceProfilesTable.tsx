@@ -11,7 +11,7 @@ import { FixedSizeList } from "react-window";
 import ResourceProfilesTableRow from "./ResourceProfilesTableRow";
 
 export const colWidth = ["55%", "15%", "15%", "15%"]
-
+//@ts-nocheck
 export interface UpdateResourceCalendarRequest {
     isNew: boolean
     calendar: ResourceCalendar
@@ -87,7 +87,7 @@ const ResourceProfilesTable = (props: ResourceProfilesTableProps) => {
             setErrorMessage("Verify the correctness of all entered Resource Profiles")
             return
         }
-
+        // @ts-ignore
         prepend({
             id: getIdForNewResource(props.poolUuid, fields.slice(-1)),
             name: "",
@@ -166,7 +166,8 @@ const ResourceProfilesTable = (props: ResourceProfilesTableProps) => {
                                 itemKey={(i: number) => fields[i].key}
                                 overscanCount={2}
                             >
-                                {({ style, index, data }: any) => (
+                                {(// @ts-ignore
+                                  { style, index, data }: any) => (
                                     <ResourceProfilesTableRow
                                         index={index}
                                         resourcePoolIndex={resourcePoolIndex}

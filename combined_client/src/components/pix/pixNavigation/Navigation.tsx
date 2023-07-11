@@ -9,7 +9,6 @@ import {useEffect, useState} from "react";
 import {Avatar, Divider, IconButton, ListItemIcon, Menu, MenuItem} from "@mui/material";
 import * as React from "react";
 import {Logout, Settings} from "@mui/icons-material";
-import prosimos_paths from "../../../router/prosimos/prosimos_paths";
 
 
 interface MenuOptions {

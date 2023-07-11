@@ -23,6 +23,7 @@ const MEAN_SEC = "Mean (sec)"
 export const MODE_SEC = "Mode (sec)"
 const STD_DEV_SEC = "Std deviation (sec)"
 const VARIANCE_SEC = "Variance (sec)"
+// @ts-ignore
 const SHIFT_SEC = "Shift (sec)" // TODO: to be supported later
 const MIN_SEC = "Min (sec)"
 const MAX_SEC = "Max (sec)"

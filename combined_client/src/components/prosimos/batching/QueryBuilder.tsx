@@ -28,7 +28,9 @@ import { UpdateAndRemovePrioritisationErrors } from "../simulationParameters/use
 
 const useQueryBuilderStyles = makeStyles<void, 'group' | 'cond'>({
     name: "QueryBuilder"
-})((theme: Theme, _params, classes) => ({
+})(
+  // @ts-ignore
+  (theme: Theme, _params, classes) => ({
     group: {},
     groupControls: {},
     nested: {
@@ -152,6 +154,7 @@ export const QueryGroup = (allProps: QueryGroupProps) => {
     const { classes, cx } = useQueryBuilderStyles();
 
     const arrayPath = name
+    // @ts-ignore
     const { control, formState: { errors }, setError, clearErrors } = formState
     const { fields, append, remove } = useFieldArray({
         control,
@@ -467,7 +470,9 @@ const QueryCondition = (allProps: QueryConditionProps) => {
                                     value={value}
                                     variant="standard"
                                 >
-                                    {Object.keys(typeOperator).map((value, index, array) => {
+                                    {Object.keys(typeOperator).map(
+                                      // @ts-ignore
+                                      (value, index, array) => {
                                         const item = (typeOperator as any)[value];
                                         return (
                                             <MenuItem key={value} value={value}>

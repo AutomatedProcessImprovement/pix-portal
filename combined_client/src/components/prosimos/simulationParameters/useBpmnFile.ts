@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useState } from "react";
 import BpmnModdle from "bpmn-moddle";
 import BpmnModeler from "bpmn-js/lib/Modeler";

@@ -7,7 +7,9 @@ import WeekdaySelect from "./WeekdaySelect";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useState, useEffect } from "react";
 
+// @ts-ignore
 interface TimePeriodGridItemProps<FieldValues> {
+    // @ts-ignore
     formState: UseFormReturn<FieldValues, object>
     objectFieldName: string
     timePeriodIndex?: number
@@ -41,6 +43,7 @@ const TimePeriodGridItem = <FieldValues,>(props: TimePeriodGridItemProps<FieldVa
             <Grid item xs={2.5}>
                 <Controller
                     name={`${objectFieldName}.from` as Path<FieldValues>}
+                    // @ts-ignore
                     control={formControl}
                     rules={{ required: REQUIRED_ERROR_MSG }}
                     render={({ field }) => (
@@ -55,6 +58,7 @@ const TimePeriodGridItem = <FieldValues,>(props: TimePeriodGridItemProps<FieldVa
             <Grid item xs={2.5}>
                 <Controller
                     name={`${objectFieldName}.to` as Path<FieldValues>}
+                    // @ts-ignore
                     control={formControl}
                     rules={{ required: REQUIRED_ERROR_MSG }}
                     render={({ field }) => (

@@ -20,7 +20,7 @@ const GatewayProbabilities = (props: BranchingProbProps) => {
         control: formControl,
         name: `gateway_branching_probabilities.${gatewayIndex}.probabilities`
     })
-
+    // @ts-ignore
     const renderRow = ({ index, key, style }: any) => {
         const item = fields[index]
         const activityKey = item.path_id

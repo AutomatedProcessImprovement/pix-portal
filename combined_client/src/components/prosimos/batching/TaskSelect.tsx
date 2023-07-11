@@ -2,8 +2,9 @@ import { MenuItem, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { ControllerRenderProps, FieldError } from "react-hook-form";
 import { AllModelTasks } from "../modelData";
-
+// @ts-ignore
 interface BatchingTypeSelectProps<FieldValues>{
+    // @ts-ignore
     field: ControllerRenderProps<FieldValues, any>,
     label?: string
     fieldError?: FieldError
@@ -37,7 +38,9 @@ const TaskSelect = <FieldValues,>(props: BatchingTypeSelectProps<FieldValues>) =
             variant="standard"
             select
         >
-            {Object.entries(tasksFromModel).map((field, index) => {
+            {Object.entries(tasksFromModel).map(
+              // @ts-ignore
+              (field, index) => {
                 const taskId = field[0]
                 const taskDetails = field[1]
                 return (

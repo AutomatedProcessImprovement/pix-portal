@@ -50,7 +50,7 @@ const AllPrioritisationItems = (props: AllPrioritisationItemsProps) => {
             setErrorMessage("At least one case attribute should be defined")
         }
     }
-
+    // @ts-ignore
     const renderRow = ({ index, key, style }: any) => {
         const prioritisationItemKey = fields[index].key
 

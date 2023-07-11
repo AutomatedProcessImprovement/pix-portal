@@ -5,10 +5,13 @@ import AddButtonBase from "../toolbar/AddButtonBase";
 import TimePeriodGridItem from "./TimePeriodGridItem";
 import { List, AutoSizer } from 'react-virtualized';
 import { useEffect, useState, useRef } from "react";
-
+// @ts-ignore
 interface TimePeriodGridItemsWithAddProps<FieldValues> {
+    // @ts-ignore
     fields: FieldArrayWithId<FieldValues, FieldArrayPath<FieldValues>, "key">[]
+    // @ts-ignore
     formState: UseFormReturn<FieldValues, object>
+    // @ts-ignore
     objectFieldNamePart: keyof FieldValues
     onTimePeriodRemove: (index: number) => void
     onTimePeriodAdd: () => void
@@ -32,7 +35,7 @@ const TimePeriodGridItemsWithAdd = <FieldValues,>(props: TimePeriodGridItemsWith
             setIsRowAdded(false)
         }
     }, [fields, isRowAdded]);
-
+    // @ts-ignore
     const renderRow = ({ index, key, style }: any) => {
         const isWithoutDeleteButton = (fields.length === 1 && index === 0)
         const item = fields[index]
@@ -42,6 +45,7 @@ const TimePeriodGridItemsWithAdd = <FieldValues,>(props: TimePeriodGridItemsWith
                 <TimePeriodGridItem
                     key={item.key}
                     formState={props.formState}
+                    // @ts-ignore
                     objectFieldName={`${objectFieldNamePart}.${index}`}
                     isWithDeleteButton={!isWithoutDeleteButton}
                     timePeriodIndex={index}

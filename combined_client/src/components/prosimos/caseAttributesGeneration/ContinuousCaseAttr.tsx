@@ -4,7 +4,6 @@ import TimeDistribution from "../distributions/TimeDistribution";
 import { JsonData } from "../formData";
 import { REQUIRED_ERROR_MSG } from "../validationMessages";
 import DeleteButtonToolbar from "../toolbar/DeleteButtonToolbar";
-import { useSharedStyles } from "../sharedHooks/useSharedStyles";
 
 interface ContinuousCaseAttrProps {
     formState: UseFormReturn<JsonData, object>
@@ -15,7 +14,6 @@ interface ContinuousCaseAttrProps {
 
 const ContinuousCaseAttr = (props: ContinuousCaseAttrProps) => {
     const { formState, formState: { control: formControl, formState: { errors } }, setErrorMessage, itemIndex, remove } = props
-    const classes = useSharedStyles()
 
     const onContinuousCaseAttrDelete = () => {
         remove(itemIndex)
@@ -48,7 +46,7 @@ const ContinuousCaseAttr = (props: ContinuousCaseAttrProps) => {
                         }}
                     />
                 </Grid>
-                <Grid item xs={2} className={classes.centeredGrid}>
+                <Grid item xs={2}>
                     <DeleteButtonToolbar
                         onClick={onContinuousCaseAttrDelete}
                         labelName="Delete"

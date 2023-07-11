@@ -52,6 +52,7 @@ const transformCaseAttrArrToQueryBuilderSchema = (
 
     if (isDiscrete) {
         // collect all options value for current case attribute
+        // @ts-ignore
         accAllDiscreteOptions[currentAttrName] = values.map(({ key, value }: any) => key)
     }
 

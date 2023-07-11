@@ -120,7 +120,7 @@ const ProjectPage = () => {
     console.log(e);
     if (e === 'PROSIMOS') {
       console.log(selectedProjectFiles)
-      let files = {'bpmn': '', 'json': ''}
+      let files = {'bpmn': {} as File, 'json': {} as File}
       for (const fileKey in selectedProjectFiles) {
 
         const response = await API_instance.get('/api/files', {

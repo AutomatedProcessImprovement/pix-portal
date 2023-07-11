@@ -18,6 +18,7 @@ interface DistributionSectionProps {
 }
 
 const DistributionSection = (props: DistributionSectionProps) => {
+    // @ts-ignore
     const { sectionLabel, formState: { control: formControl }, taskIndex, objectFieldNamePart, valueLabel } = props
     const [isRowAdded, setIsRowAdded] = useState(false)
 

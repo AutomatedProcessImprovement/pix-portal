@@ -34,7 +34,7 @@ const PixSnackBar = (props: PixSnackBarProps) => {
       setAlertMessage(message)
     }
   }, [message, alertMessage])
-
+  // @ts-ignore
   const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return

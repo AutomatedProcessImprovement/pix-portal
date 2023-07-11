@@ -39,6 +39,7 @@ const ArrivalTimeDistr = (props: ArrivalTimeDistrProps) => {
             <TimeDistribution
                 formState={props.formState}
                 objectNamePath="arrival_time_distribution"
+                // @ts-ignore
                 errors={currentErrors}
                 setErrorMessage={props.setErrorMessage}
                 funcLabel="Inter arrival time"

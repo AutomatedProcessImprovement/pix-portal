@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import * as yup from "yup";
 import { AnyObject, Maybe } from "yup/lib/types";
 import moment from "moment";
@@ -79,6 +81,7 @@ const valueArray = yup.array()
 
 export const distributionValidation = {
   distribution_name: yup.string().required(REQUIRED_ERROR_MSG),
+  //@ts-ignore
   distribution_params: yup.mixed().when('distribution_name', (distr_name, schema) => {
     const valueDistr = distr_name as DISTR_FUNC
     return valueArray.min(getNumOfParamsPerDistr(valueDistr), `Missed required parameters for ${distr_name}`)

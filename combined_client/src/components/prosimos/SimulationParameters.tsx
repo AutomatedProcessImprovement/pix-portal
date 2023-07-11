@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import moment from 'moment';
 import { useTheme } from '@mui/material/styles';
-import { AlertColor, Badge, Button, ButtonGroup, Grid, Step, StepButton, StepIcon, Stepper, Theme } from '@mui/material';
+import { AlertColor, Badge, Button, ButtonGroup, Grid, Step, StepButton, StepIcon, Stepper } from '@mui/material';
 import { BatchProcessing, FiringRule, JsonData, ScenarioProperties } from './formData';
 import AllGatewaysProbabilities from './gateways/AllGatewaysProbabilities';
 import ResourcePools from './ResourcePools';
@@ -23,7 +23,6 @@ import { getTaskByTaskId, simulate } from '../../api/prosimos_api';
 import SimulationResults, { SimulationResult } from './results/SimulationResults';
 import paths from "../../router/prosimos/prosimos_paths";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import { makeStyles } from 'tss-react/mui';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useInterval } from 'usehooks-ts'
@@ -36,24 +35,17 @@ import AllCaseAttributes from './caseAttributesGeneration/AllCaseAttributes';
 import AllPrioritisationItems from './prioritisation/AllPrioritisationItems';
 import { transformPrioritisationRules } from './prioritisation/prioritisationRulesTransformer';
 import usePrioritisationErrors from './simulationParameters/usePrioritisationErrors';
+// @ts-ignore
 import { ReactComponent as ResourceAllocationIcon } from '../../icons/allocation.svg';
+// @ts-ignore
 import { ReactComponent as BatchIcon } from '../../icons/batch.svg';
+// @ts-ignore
 import { ReactComponent as PrioritisationIcon } from '../../icons/prioritisation.svg';
+// @ts-ignore
 import { ReactComponent as SimResultsIcon } from '../../icons/sim_results.svg';
+// @ts-ignore
 import { ReactComponent as CaseAttributesIcon } from '../../icons/case_attr.svg';
 import {uploadFile} from "../../api/pix_file_api";
-
-const useStyles = makeStyles()((theme: Theme) => ({
-    simParamsGrid: {
-        marginTop: "2vh!important"
-    },
-    stepperGrid: {
-        marginTop: "3vh!important"
-    },
-    stepper: {
-        "& .Mui-active": { color: theme.palette.info.dark }
-    }
-}));
 
 const tooltip_desc: { [key: string]: string } = {
     CASE_CREATION:
@@ -90,7 +82,6 @@ const fromContentToBlob = (values: any) => {
 };
 
 const SimulationParameters = () => {
-    const classes = useStyles()
 
     const theme = useTheme()
     const activeColor = theme.palette.info.dark
@@ -101,6 +92,7 @@ const SimulationParameters = () => {
     const { bpmnFile, jsonFile, projectId } = state as LocationState
 
     const [activeStep, setActiveStep] = useState<TABS>(TABS.CASE_CREATION)
+    // @ts-ignore
     const [fileDownloadUrl, setFileDownloadUrl] = useState("")
     const [snackMessage, setSnackMessage] = useState("")
     const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
@@ -123,6 +115,7 @@ const SimulationParameters = () => {
     const { jsonData, missedElemNum } = useJsonFile(jsonFile, eventsFromModel)
 
     const { formState } = useFormState(tasksFromModel, gateways, eventsFromModel, jsonData)
+    // @ts-ignore
     const { formState: { errors, isValid, isSubmitted, submitCount }, getValues, handleSubmit } = formState
     const [isScenarioParamsValid, setIsScenarioParamsValid] = useState(true)
     const { isPrioritisationRulesValid, updateErrors, removeErrorByPath } = usePrioritisationErrors(getValues("case_attributes"), getValues("prioritisation_rules"))
@@ -212,7 +205,7 @@ const SimulationParameters = () => {
 
     };
 
-    const onSaveToProject = (file, tag:"UNTAGGED") => {
+    const onSaveToProject = (file, tag="UNTAGGED") => {
         uploadFile(file, tag, projectId).then((res:any)=>{
             console.log(res)
         })
@@ -492,7 +485,7 @@ const SimulationParameters = () => {
 
     return (
         <form>
-            <Grid container alignItems="center" justifyContent="center" sx={{ mt: '2vh'}} className={classes.simParamsGrid}>
+            <Grid container alignItems="center" justifyContent="center" sx={{ mt: '2vh'}}>
                 <Grid item xs={10}>
                     <Grid container item xs={12}>
                         <Grid item xs={4} justifyContent="flex-start">
@@ -531,8 +524,8 @@ const SimulationParameters = () => {
                             </ButtonGroup>
                         </Grid>
                     </Grid>
-                    <Grid item container xs={12} sx={{ mt: "3vh"}} className={classes.stepperGrid} alignItems="center" justifyContent="center" >
-                        <Stepper className={classes.stepper} nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)} connector={<></>}>
+                    <Grid item container xs={12} sx={{ mt: "3vh"}} alignItems="center" justifyContent="center" >
+                        <Stepper nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)} connector={<></>}>
                             {Object.entries(visibleTabs.getAllItems()).map(([key, label]: [string, string]) => {
                                 const keyTab = key as keyof typeof TABS
                                 const valueTab: TABS = TABS[keyTab]

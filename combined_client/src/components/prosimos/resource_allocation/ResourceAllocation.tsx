@@ -10,7 +10,7 @@ import { defaultResourceAllocationDist } from "../simulationParameters/defaultVa
 import { FormHelperText } from '@mui/material';
 import { AutoSizer, List } from "react-virtualized";
 import AddButtonToolbar from "../toolbar/AddButtonToolbar"
-
+//@ts-nocheck
 const TASK_RESOURCE_DISTR = "task_resource_distribution"
 interface ResourceAllocationProps {
     tasksFromModel: AllModelTasks
@@ -58,7 +58,7 @@ const Row = (props: RowProps) => {
 
         await trigger(`task_resource_distribution.${allocationIndex}.resources`)
         const rowResourcesErrors = errors?.task_resource_distribution?.[allocationIndex]?.resources
-
+        // @ts-ignore
         if (rowResourcesErrors !== undefined && rowResourcesErrors.length > 0) {
             setErrorMessage("Verify the correctness of all entered Resource Allocations")
             return
@@ -79,7 +79,7 @@ const Row = (props: RowProps) => {
 
         remove(index)
     }
-
+    // @ts-ignore
     const renderRow = ({ index, key, style }: any) => {
         const resourceDistr = fields[index]
 

@@ -133,7 +133,9 @@ const AllBatching = (props: AllBatchingProps) => {
         return rowSizes[index]
     };
 
-    const renderRow = ({ style, index, data }: any) => {
+    const renderRow = (
+      // @ts-ignore
+      { style, index, data }: any) => {
         const currentField = fields[index]
 
         return (

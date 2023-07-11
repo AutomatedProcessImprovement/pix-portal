@@ -2,8 +2,8 @@ version: '3.8'
 services:
   pix_client:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile.local
+      context: ./combined_client
+      dockerfile: Dockerfile
     ports:
       - '5173:80'
     depends_on:
@@ -15,15 +15,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - '8000:8000'
-    depends_on:
-      - db
-
-  prosimos_api:
-    build:
-      context: ./prosimos-microservice
-      dockerfile: Dockerfile.api
-    ports:
-      - '5000:5000'
     depends_on:
       - db
 
@@ -48,9 +39,55 @@ services:
       - ./local.conf:/etc/nginx/nginx.conf
     depends_on:
       - pix_client
-      - prosimos_client
-      - prosimos_api
       - pix_api
+
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:3-management
+    container_name: prosimos-rabbitmq
+    # environment:
+    #     - RABBITMQ_DEFAULT_USER=myuser
+    #     - RABBITMQ_DEFAULT_PASS=mypassword
+    ports:
+      - 5672:5672 # port for the worker for tasks management
+      - 15672:15672 # GUI port
+
+  # worker deployment
+  worker:
+    build:
+      context: ./prosimos-microservice
+      dockerfile: Dockerfile.worker
+    container_name: prosimos-celery-worker
+    environment:
+      - CELERY_BROKER_URL=amqp://rabbit:5672/
+      - CELERY_RESULT_BACKEND=redis://redis:6379/
+      - FLASK_DEBUG=1
+    volumes:
+      - ./src/celery/data:/app/src/celery/data
+    depends_on:
+      - rabbit
+      - redis
+
+  # flask app deployment
+  prosimos_api:
+    build:
+      context: ./prosimos-microservice
+      dockerfile: Dockerfile.api
+    container_name: prosimos-api
+    ports:
+      - 5000:5000
+    volumes:
+      - ./src/celery/data:/app/src/celery/data
+    environment:
+      - CELERY_BROKER_URL=amqp://rabbit:5672/
+      - CELERY_RESULT_BACKEND=redis://redis:6379/
+      - FLASK_DEBUG=1
+
+  redis:
+    image: redis:6-alpine
+    ports:
+      - 6379:6379
+
 
 volumes:
   db:

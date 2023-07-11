@@ -4,7 +4,6 @@ import { Controller, UseFormReturn } from "react-hook-form";
 import { QueryBuilder } from "../batching/QueryBuilder";
 import { PrioritisationBuilderSchema } from "../batching/schemas";
 import { JsonData } from "../formData";
-import { useSharedStyles } from "../sharedHooks/useSharedStyles";
 import { UpdateAndRemovePrioritisationErrors } from "../simulationParameters/usePrioritisationErrors";
 import DeleteButtonToolbar from "../toolbar/DeleteButtonToolbar";
 import { REQUIRED_ERROR_MSG } from "../validationMessages";
@@ -23,7 +22,6 @@ const PrioritisationItem = (props: PrioritisationItemProps) => {
     const { formState, formState: { control: formControl, formState: { errors }, trigger }, builderSchema, discreteOptionsByCaseAttributeName,
         updateAndRemovePrioritisationErrors, index, onPrioritisationItemDelete: onPrioritisationItemDeleteProp } = props
     const [priorityLevelErrors, setPriorityLevelErrors] = useState<string | undefined>(undefined)
-    const classes = useSharedStyles()
 
     useEffect(() => {
         const prioritisationErrors = errors?.prioritisation_rules as any
@@ -63,6 +61,7 @@ const PrioritisationItem = (props: PrioritisationItemProps) => {
                                 label="Priority"
                                 onChange={(e) => {
                                     // save as a number in the json file
+                                    // @ts-ignore
                                     onChange(Number(e.target.value))
 
                                     // validate input
@@ -80,7 +79,7 @@ const PrioritisationItem = (props: PrioritisationItemProps) => {
                         }}
                     />
                 </Grid>
-                <Grid item xs={2} className={classes.centeredGrid}>
+                <Grid item xs={2}>
                     <DeleteButtonToolbar
                         onClick={onContinuousCaseAttrDelete}
                         labelName="Delete"

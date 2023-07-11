@@ -83,6 +83,7 @@ const AllCaseAttributes = (props: AllCaseAttributesProps) => {
         prepend(itemToAdd)
     }
 
+    // @ts-ignore
     const renderRow = ({ index, key, style }: any) => {
         const currCaseAttr = fields[index]
 

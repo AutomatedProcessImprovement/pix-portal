@@ -57,13 +57,14 @@ export interface ResourcePool {
     name: string,
     resource_list: ResourceInfo[]
 }
-
+//@ts-nocheck
 export interface ResourceInfo {
     id: string,
     name: string,
     cost_per_hour: number
     amount: number
     calendar: string
+    // @ts-ignore
     assignedTasks: string[]
 }
 

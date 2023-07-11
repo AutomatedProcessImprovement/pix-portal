@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import paths from "../../../router/prosimos/prosimos_paths";
+import pix_paths from "../../../router/pix/pix_paths";
 
 
 const useNewModel = () => {
     const navigate = useNavigate()
 
     const onUploadNewModel = () => {
-        navigate(paths.SIMULATOR_UPLOAD_PATH)
+        navigate(pix_paths.PROJECTS_PATH)
     };
     
     return { onUploadNewModel }

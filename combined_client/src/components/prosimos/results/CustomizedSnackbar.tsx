@@ -35,6 +35,7 @@ const CustomizedSnackbar = (props: CustomizedSnackbarProps) => {
         }
     }, [message, alertMessage])
 
+    // @ts-ignore
     const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
             return

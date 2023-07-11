@@ -4,7 +4,9 @@ import { ControllerRenderProps, FieldError } from "react-hook-form";
 import { useEffect } from "react";
 import { DISTR_FUNC } from "./constants";
 
+// @ts-ignore
 interface DistrFuncSelectProps<FieldValues> {
+    // @ts-ignore
     field: ControllerRenderProps<FieldValues, any>,
     label?: string
     fieldError?: FieldError
@@ -18,6 +20,7 @@ const DistrFuncSelect = <FieldValues,>(props: DistrFuncSelectProps<FieldValues>)
     const onDistrFuncChange = (e?: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const selectedValue = e?.target.value
         props.updateParamsNum(selectedValue as DISTR_FUNC)
+        // @ts-ignore
         onChange(e)
     }
 

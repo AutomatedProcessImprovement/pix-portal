@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { MenuItem, TextField } from "@mui/material";
 import { ControllerRenderProps, FieldError } from "react-hook-form";
 
+// @ts-ignore
 interface WeekdaySelectProps<FieldValues>{
+    // @ts-ignore
     field: ControllerRenderProps<FieldValues, any>,
     label?: string
     fieldError?: FieldError

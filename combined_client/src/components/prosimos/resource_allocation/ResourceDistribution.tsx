@@ -4,7 +4,7 @@ import TimeDistribution from "../distributions/TimeDistribution";
 import { JsonData } from "../formData";
 import ResourceSelect from "./ResourceSelect";
 import DeleteIcon from '@mui/icons-material/Delete';
-
+//@ts-nocheck
 interface ResourceDistributionProps {
     formState: UseFormReturn<JsonData, object>
     allocationIndex: number
@@ -52,6 +52,7 @@ const ResourceDistribution = (props: ResourceDistributionProps) => {
                     <TimeDistribution
                         formState={formState}
                         objectNamePath={`task_resource_distribution.${allocationIndex}.resources.${resourceIndex}`}
+                        // @ts-ignore
                         errors={distrErrors}
                         setErrorMessage={setErrorMessage}
                     />

@@ -4,7 +4,6 @@ import { useFieldArray, UseFormReturn } from "react-hook-form";
 import DistributionMappingWithAdd from "../batching/DistributionMappingWithAdd";
 import { AllowedDistrParamsName } from "../batching/DistributionSection";
 import { JsonData } from "../formData";
-import { useSharedStyles } from "../sharedHooks/useSharedStyles";
 import AddButtonBase from "../toolbar/AddButtonBase";
 
 interface DiscreteValueOptionsProps {
@@ -17,7 +16,6 @@ interface DiscreteValueOptionsProps {
 const DiscreteValueOptions = (props: DiscreteValueOptionsProps) => {
     const { formState: { control: formControl, getValues }, setErrorMessage, itemIndex, referencedValuesByCaseAttr } = props
     const [isRowAdded, setIsRowAdded] = useState(false)
-    const classes = useSharedStyles()
     const objectFieldNamePart = `case_attributes.${itemIndex}.values` as AllowedDistrParamsName
 
     const { fields, append, remove } = useFieldArray({
@@ -53,7 +51,7 @@ const DiscreteValueOptions = (props: DiscreteValueOptionsProps) => {
                 <Grid item xs={10}>
                     <Typography variant="subtitle2" align="left"> Option List </Typography>
                 </Grid>
-                <Grid item xs={2} className={classes.centeredGrid}>
+                <Grid item xs={2}>
                     <AddButtonBase
                         labelName="new option"
                         onClick={onOptionAdd}

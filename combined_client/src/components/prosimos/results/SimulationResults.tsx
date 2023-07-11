@@ -8,7 +8,6 @@ import axios from './../../../prosimos_axios';
 import CustomizedSnackbar from "./CustomizedSnackbar";
 import { makeStyles } from 'tss-react/mui';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import {uploadFile} from "../../../api/pix_file_api";
 
 const useStyles = makeStyles()({
     resultsGrid: {
@@ -26,7 +25,8 @@ export interface SimulationResult {
 
 interface SimulationResultsProps {
     readonly output: SimulationResult
-    onSaveToProject: (file: File) => void
+    //@ts-ignore
+    onSaveToProject: (file: File, tag:string) => void
 }
 
 const SimulationResults = (props: SimulationResultsProps) => {
@@ -71,7 +71,7 @@ const SimulationResults = (props: SimulationResultsProps) => {
                   const mimeType = "text/csv"
                   const blob = new Blob([data.data], { type: mimeType })
                   const file = new File([blob], files[f])
-                  onSaveToProject(file)
+                  onSaveToProject(file, "UNTAGGED")
               })
               .catch((error: any) => {
                   console.log(error.response)
