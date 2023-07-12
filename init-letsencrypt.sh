@@ -27,7 +27,7 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   exit 1
 fi
 
-domains=(prosimos.cloud.ut.ee)
+domains=(pix.cloud.ut.ee)
 rsa_key_size=4096
 data_path="./certbot"
 email="jonas.berx@ut.ee" # Adding a valid address is strongly recommended
