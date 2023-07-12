@@ -123,6 +123,7 @@ const SimulationParameters = () => {
     const { isPrioritisationRulesValid, updateErrors, removeErrorByPath } = usePrioritisationErrors(getValues("case_attributes"), getValues("prioritisation_rules"))
     const { visibleTabs, getIndexOfTab } = useTabVisibility(eventsFromModel)
 
+    // @ts-ignore
     const { onUploadNewModel } = useNewModel()
     const navigate = useNavigate();
 

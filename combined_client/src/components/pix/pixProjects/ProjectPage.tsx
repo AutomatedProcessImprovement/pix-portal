@@ -65,6 +65,7 @@ const ProjectPage = () => {
   const [fid, setFid] = useState<any>(null);
   const [fName, setFName] = useState<any>("");
 
+  // @ts-ignore
   const [selectable, setSelectable] = useState<Selectable>({
     SIMOD: false,
     PROSIMOS: false,
@@ -135,9 +136,11 @@ const ProjectPage = () => {
           responseType: 'blob' // Set the response type to 'blob' to handle binary data
         });
         if (selectedProjectFiles[fileKey].tags === 'BPMN') {
+          // @ts-ignore
           files.bpmn = new File([response.data], selectedProjectFiles[fileKey].uuid + ".bpmn")
         }
         if (selectedProjectFiles[fileKey].tags === 'SIM_MODEL') {
+          // @ts-ignore
           files.json = new File([response.data], selectedProjectFiles[fileKey].uuid + ".json")
         }
       }
@@ -261,6 +264,7 @@ const ProjectPage = () => {
         },
         responseType: 'blob' // Set the response type to 'blob' to handle binary data
       });
+      // @ts-ignore
       projectZip.file(fList[file].File.name+"."+fList[file].File.extension, [response.data])
     }
     zip.generateAsync({type:'blob'})
@@ -399,7 +403,7 @@ const ProjectPage = () => {
             alignItems="center-top"
           >
             <Grid item xs={2}>
-              <ToolSelectionButtonGroup selectable={selectable} onClose={handleCloseToolSelectionMenu} />
+              <ToolSelectionButtonGroup onClose={handleCloseToolSelectionMenu} />
             </Grid>
             <Grid item xs={10}>
               <Paper
