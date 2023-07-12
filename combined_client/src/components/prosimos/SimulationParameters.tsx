@@ -218,7 +218,7 @@ const SimulationParameters = () => {
 
     };
 
-    const onSaveToProject = (file, tag="UNTAGGED") => {
+    const onSaveToProject = (file, tag="RESULTS") => {
         uploadFile(file, tag, projectId).then((res:any)=>{
             console.log(res)
         })

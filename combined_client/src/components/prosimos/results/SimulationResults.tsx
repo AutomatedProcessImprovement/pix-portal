@@ -81,7 +81,7 @@ const SimulationResults = (props: SimulationResultsProps) => {
 
     const downloadSimulationFile = (filename: string) => {
         axios
-            .get(`/api/prosimos/simulationFile?fileName=${filename}`)
+            .get(`/prosimos/simulationFile?fileName=${filename}`)
             .then((data: any) => {
                 const mimeType = "text/csv"
                 const blob = new Blob([data.data], { type: mimeType })
