@@ -31,7 +31,7 @@ const TagType = {
   // @ts-ignore
   "EVENT_LOG" : {icon: <GroupIcon/>, chip: <Chip label={"EVENT LOG"} color="event_log" key={'event_log'} onClick={onClickChip} />},
   // @ts-ignore
-  "UNTAGGED" : {icon: <FolderIcon/>, chip: <Chip label={"UNTAGGED"} color={"untagged"} key={'untagged'} onClick={onClickChip} />},
+  "RESULTS" : {icon: <FolderIcon/>, chip: <Chip label={"RESULTS"} color={"secondary"} key={'results'} onClick={onClickChip} />},
 }
 
 interface FileProps {

@@ -264,8 +264,9 @@ const ProjectPage = () => {
         },
         responseType: 'blob' // Set the response type to 'blob' to handle binary data
       });
+      let blob = new Blob([response.data], {type: response.data.contentType})
       // @ts-ignore
-      projectZip.file(fList[file].File.name+"."+fList[file].File.extension, [response.data])
+      projectZip.file(fList[file].File.name+"."+fList[file].File.extension, blob)
     }
     zip.generateAsync({type:'blob'})
       .then((res:any) => {
