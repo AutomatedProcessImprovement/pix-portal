@@ -1,11 +1,10 @@
-import {Routes, Route, Navigate} from "react-router-dom"
+import {Routes, Route} from "react-router-dom"
 import pix_paths from "./pix/pix_paths"
 import prosimos_paths from "./prosimos/prosimos_paths"
 
 import Home from "../components/pix/pixIndex/Home";
 import Projects from "../components/pix/pixProjects/Projects";
 import ProjectPage from "../components/pix/pixProjects/ProjectPage";
-import Login from "../components/pix/pixLogin/Login";
 import Callback from "../components/pix/pixLoginCallback/Callback";
 import PrivateRoute from "./pix/ProtectedRoute";
 import Register from "../components/pix/pixLogin/Register";
@@ -30,11 +29,11 @@ const AppRouter = (props: RouterProps) => {
       {/* PIX ROUTING | UNPROTECTED */}
       <Route
         path={pix_paths.LOGIN_PATH}
-        element={<Login auth={authenticated} handleLogin={authorize}/>}
+        element={<Home auth={authenticated} handleLogin={authorize}/>}
       />
       <Route
         path={pix_paths.REGISTER_PATH}
-        element={<Register />}
+        element={<Register auth={authenticated} handleLogin={authorize}/>}
       />
       <Route
         path="/auth/callback/zitadel"
@@ -50,7 +49,7 @@ const AppRouter = (props: RouterProps) => {
       />
 
       {/* PIX PROJECT ROUTING | PROTECTED */}
-      <Route path={"/home"} element={<Home />} />
+      <Route path={"/home"} element={<Home auth={authenticated} handleLogin={authorize} />} />
       <Route path={pix_paths.PROJECTS_PATH} element={<PrivateRoute auth={authenticated}/>}>
         <Route path={pix_paths.PROJECTS_PATH} element={<Projects auth={authenticated} userManager={userManager}/>}/>
       </Route>
@@ -70,7 +69,7 @@ const AppRouter = (props: RouterProps) => {
       {/*DEFAULT ROUTING | REROUTING*/}
       <Route
         path="/"
-        element={<Navigate to="/home" replace/>}
+        element={<Home auth={authenticated} handleLogin={authorize}/>}
       />
     </Routes>
   )

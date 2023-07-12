@@ -46,6 +46,8 @@ import { ReactComponent as SimResultsIcon } from '../../icons/sim_results.svg';
 // @ts-ignore
 import { ReactComponent as CaseAttributesIcon } from '../../icons/case_attr.svg';
 import {uploadFile} from "../../api/pix_file_api";
+import {useNavigate} from 'react-router-dom';
+import pix_paths from "../../router/pix/pix_paths";
 
 const tooltip_desc: { [key: string]: string } = {
     CASE_CREATION:
@@ -73,7 +75,7 @@ interface LocationState {
     bpmnFile: File
     jsonFile: File
     projectId: string
-};
+}
 
 const fromContentToBlob = (values: any) => {
     const content = JSON.stringify(values)
@@ -122,6 +124,8 @@ const SimulationParameters = () => {
     const { visibleTabs, getIndexOfTab } = useTabVisibility(eventsFromModel)
 
     const { onUploadNewModel } = useNewModel()
+    const navigate = useNavigate();
+
 
     // validate both forms: scenario params and json fields
     useEffect(() => {
@@ -195,6 +199,14 @@ const SimulationParameters = () => {
         },
         isPollingEnabled ? 3000 : null
     );
+
+    const onBackToProject = () => {
+        navigate(
+          pix_paths.PROJECTS_PATH, {
+          //    TODO, if more state is passed, can redirect to project
+          }
+        );
+    }
 
     const onDownload = () => {
         const blob = getBlobBasedOnExistingInput()
@@ -491,9 +503,10 @@ const SimulationParameters = () => {
                         <Grid item xs={4} justifyContent="flex-start">
                             <ButtonGroup>
                                 <Button
-                                    onClick={onUploadNewModel}
+                                    // onClick={onUploadNewModel}
+                                    onClick={onBackToProject}
                                     startIcon={<ArrowBackIosNewIcon />}
-                                >Upload new model</Button>
+                                >Projects</Button>
                             </ButtonGroup>
                         </Grid>
                         <Grid item container xs={3} justifyContent="center">

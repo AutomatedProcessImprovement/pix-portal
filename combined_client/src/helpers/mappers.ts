@@ -3,7 +3,7 @@ export const colors = {
   'EVENT LOG': 'event_log',
   'SIM MODEL': 'sim_model',
   'CONS MODEL': 'cons_model',
-  'UNTAGGED': 'untagged'
+  // 'UNTAGGED': 'untagged'
 }
 
 
@@ -12,7 +12,8 @@ export const fileTags = [
   'EVENT LOG',
   'SIM MODEL',
   'CONS MODEL',
-  'UNTAGGED'
+  'None'
+  // 'UNTAGGED'
 ];
 
 export const tValToActual = {
@@ -20,7 +21,8 @@ export const tValToActual = {
   'EVENT LOG': 'EVENT_LOG',
   'SIM MODEL': 'SIM_MODEL',
   'CONS MODEL': 'CONS_MODEL',
-  'UNTAGGED': 'UNTAGGED'
+  'None': null
+  // 'UNTAGGED': 'UNTAGGED'
 }
 
 export interface Selectable {

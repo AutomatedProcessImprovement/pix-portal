@@ -16,9 +16,10 @@ import CustomButton from "../pixCustomButton/CustomButton";
 import {useNavigate} from 'react-router-dom';
 import PixSnackBar from "../PIXSnackBar/PixSnackBar";
 import {useState} from "react";
+import { Navigate } from "react-router-dom";
 
 
-const Register = () => {
+const Register = ({ auth, handleLogin }:any) => {
   const [loading, setLoading] = React.useState(false);
   const [otp, setOTP] = React.useState<any>(null)
   const [open, setOpen] = React.useState(false);
@@ -58,6 +59,7 @@ const Register = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    console.log(event)
     if (!loading) {
       setLoading(true)
       const data = new FormData(event.currentTarget);
@@ -186,7 +188,14 @@ const Register = () => {
           </Box>
           <Grid container justifyContent="flex-end">
             <Grid item>
-              <Link href={paths.LOGIN_PATH} variant="body2">
+              <Link
+                type={'button'}
+                component={'button'}
+                onClick={() => {
+                  handleLogin();
+                }}
+                variant="body2"
+              >
                 Already have an account? Sign in
               </Link>
             </Grid>
@@ -198,6 +207,7 @@ const Register = () => {
           severityLevel={snackColor}
           onSnackbarClose={onSnackbarClose}
       />}
+      {auth && <Navigate to="/projects" />}
     </Container>
 
   );

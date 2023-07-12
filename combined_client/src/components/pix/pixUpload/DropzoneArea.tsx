@@ -16,7 +16,6 @@ const DropZoneArea = (props: CustomDropzoneAreaProps) => {
     const projectFile = new ProjectFile()
     projectFile.tags = []
     projectFile.file = incomingFiles[0].file
-
     setExtFiles(incomingFiles)
     setSelectedLogFile(incomingFiles[0].file);
   };

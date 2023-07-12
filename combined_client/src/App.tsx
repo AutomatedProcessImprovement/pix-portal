@@ -11,7 +11,6 @@ function App() {
   const [authenticated, setAuthenticated] = useState<any>(null);
   const [userInfo, setUserInfo] = useState<any>(null);
 
-  console.log(authConfig)
   const userManager = new UserManager({
     userStore: new WebStorageStateStore({ store: window.localStorage }),
     ...authConfig,

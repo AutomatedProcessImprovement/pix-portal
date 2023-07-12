@@ -25,6 +25,7 @@ const NavBar = ({authenticated, clearAuth, userManager}:any) => {
   // @ts-ignore
   const [user,setUser] = useState<any>("")
   const [avName,setAvName] = useState<any>("")
+  const [href,setHref] = useState<any>("/home")
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -33,10 +34,13 @@ const NavBar = ({authenticated, clearAuth, userManager}:any) => {
     userManager.getUser().then((res:any)=> {
       if (res) {
         setUser(res);
+        setHref("/projects");
         if (res.profile.picture) {
-          setPicture(res.profile.picture+".jpg");
+          setPicture(res.profile.picture + ".jpg");
         }
-        setAvName(res.profile.nickname[0].toUpperCase())
+        setAvName(res.profile.nickname[0].toUpperCase());
+      } else {
+        setHref("/home")
       }
     })
   }, [authenticated, userManager])
@@ -62,7 +66,7 @@ const NavBar = ({authenticated, clearAuth, userManager}:any) => {
               variant="h6"
               noWrap
               component="a"
-              href="/home"
+              href={href}
               sx={{
                 mr: 2,
                 display: { xs: 'none', md: 'flex' },
@@ -78,8 +82,8 @@ const NavBar = ({authenticated, clearAuth, userManager}:any) => {
           {!authenticated &&
             <Box sx={{flexGrow: 0, display: {xs: 'none', md: 'flex'}}}>
               <Button
-                  key={"login"}
-                  href={"/login"}
+                  key={"home"}
+                  href={"/home"}
                   component={'a'}
                   sx={{my: 2, color: 'white', display: 'block'}}
               >

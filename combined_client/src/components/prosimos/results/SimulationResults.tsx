@@ -63,7 +63,6 @@ const SimulationResults = (props: SimulationResultsProps) => {
 
     const onClickSaveToProject = () => {
         const files = [statsFilename, logsFilename]
-        console.log("Saving files to project")
         for (const f in files) {
             axios
               .get(`/prosimos/simulationFile?fileName=${files[f]}`)
@@ -71,7 +70,7 @@ const SimulationResults = (props: SimulationResultsProps) => {
                   const mimeType = "text/csv"
                   const blob = new Blob([data.data], { type: mimeType })
                   const file = new File([blob], files[f])
-                  onSaveToProject(file, "UNTAGGED")
+                  onSaveToProject(file, "RESULTS")
               })
               .catch((error: any) => {
                   console.log(error.response)

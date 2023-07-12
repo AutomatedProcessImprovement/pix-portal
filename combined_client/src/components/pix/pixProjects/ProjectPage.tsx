@@ -3,9 +3,8 @@ import {
   Box,
   Button,
   Chip,
-  Container,
+  Container, Divider,
   Grid,
-  IconButton,
   MenuItem,
   OutlinedInput,
   Paper,
@@ -32,9 +31,11 @@ import {editExistingFileTitle, removeProjectFile, uploadFile} from "../../../api
 import {theme} from "../../../themes/ChipTheme";
 import {MenuProps} from "../../../themes/MenuPropsProjectPage";
 import {colors, fileTags, Selectable, tValToActual} from "../../../helpers/mappers";
-import ToolSelectionMenu from "../pixToolSelectionMenu/ToolSelectionMenu";
 import {API_instance} from "../../../pix_axios";
 import prosimos_paths from "../../../router/prosimos/prosimos_paths";
+import ToolSelectionButtonGroup from "../pixToolSelectionButtonGroup/ToolSelectionButtonGroup";
+import JSZip from "jszip";
+import FileSaver  from 'file-saver';
 
 interface ProjectProps {
   pid: string
@@ -52,7 +53,7 @@ const ProjectPage = () => {
   /** STUFF FOR DROPZONE COMPONENT*/
   const [selectedLogFile, setSelectedLogFile] = useState<File | null>(null);
   const [dropzoneFiles, setDropzoneFiles] = useState([]);
-  const [tagValue, setTagValue] = React.useState<string>("UNTAGGED");
+  const [tagValue, setTagValue] = React.useState<string>("None");
 
   const [fList, setFlist] = useState<{File:any, Tag:any}[]>([])
 
@@ -64,7 +65,6 @@ const ProjectPage = () => {
   const [fid, setFid] = useState<any>(null);
   const [fName, setFName] = useState<any>("");
 
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [selectable, setSelectable] = useState<Selectable>({
     SIMOD: false,
     PROSIMOS: false,
@@ -77,6 +77,8 @@ const ProjectPage = () => {
 
   const [snackMessage, setSnackMessage] = useState("")
   const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
+
+  const zip = new JSZip();
 
   useEffect(() => {
     collectFiles(pid)
@@ -112,15 +114,18 @@ const ProjectPage = () => {
     })
   }
 
-  const handleOpenToolSelectionMenu = (event:any) => {
-    setAnchorEl(event.currentTarget);
-  }
-
   const handleCloseToolSelectionMenu = async (e:string) => {
-    console.log(e);
+    if (selectedProjectFiles.length == 0) {
+      setErrorMessage("You must select at least one file.")
+      return
+    }
+    console.log()
     if (e === 'PROSIMOS') {
-      console.log(selectedProjectFiles)
-      let files = {'bpmn': {} as File, 'json': {} as File}
+      let files = {'bpmn': null, 'json': null};
+      if (uniqueTags.indexOf("BPMN") == -1) {
+        setErrorMessage("You must select at least a BPMN file for Prosimos")
+        return
+      }
       for (const fileKey in selectedProjectFiles) {
 
         const response = await API_instance.get('/api/files', {
@@ -130,15 +135,12 @@ const ProjectPage = () => {
           responseType: 'blob' // Set the response type to 'blob' to handle binary data
         });
         if (selectedProjectFiles[fileKey].tags === 'BPMN') {
-          files.bpmn = new File([response.data], selectedProjectFiles[fileKey].uuid+".bpmn")
+          files.bpmn = new File([response.data], selectedProjectFiles[fileKey].uuid + ".bpmn")
         }
         if (selectedProjectFiles[fileKey].tags === 'SIM_MODEL') {
-          files.json = new File([response.data], selectedProjectFiles[fileKey].uuid+".json")
+          files.json = new File([response.data], selectedProjectFiles[fileKey].uuid + ".json")
         }
       }
-
-      console.log(files)
-
       navigate(
         prosimos_paths.SIMULATOR_SCENARIO_PATH, {
           state: {
@@ -147,9 +149,11 @@ const ProjectPage = () => {
             'projectId': pid
           }
         }
-      )
+      );
+    } else {
+      setErrorMessage("You cannot go here yet. ");
     }
-    setAnchorEl(null);
+
   };
 
   /** DIALOG HANDLING FUNCTIONS */
@@ -193,11 +197,16 @@ const ProjectPage = () => {
   const handleUploadFile = () => {
     const actual = (tValToActual as any)[tagValue]
 
+    if (!actual) {
+      setErrorMessage("Please select a valid tag.")
+      return
+    }
+
     if (selectedLogFile) {
       uploadFile(selectedLogFile, actual, pid).then(
         (e) => {
           collectFiles(pid)
-          setTagValue("UNTAGGED")
+          setTagValue("None")
           setSelectedLogFile(null)
           setDropzoneFiles([])
           setSuccessMessage(e.data.message)
@@ -206,7 +215,7 @@ const ProjectPage = () => {
         setErrorMessage(e.data.message)
       });
     } else {
-      setErrorMessage("Please select a file to upload")
+      setErrorMessage("Please select a file to upload");
     }
   };
 
@@ -239,7 +248,26 @@ const ProjectPage = () => {
     } catch (error) {
       console.error('Error downloading file:', error);
     }
+  }
 
+  const handleDownloadEntireProject = async () => {
+    console.log(fList)
+    let projectZip = zip.folder(`${projectName}`);
+    for (const file in fList) {
+      console.log(fList[file].File.path)
+      const response = await API_instance.get('/api/files', {
+        params: {
+          file_path: fList[file].File.path
+        },
+        responseType: 'blob' // Set the response type to 'blob' to handle binary data
+      });
+      projectZip.file(fList[file].File.name+"."+fList[file].File.extension, [response.data])
+    }
+    zip.generateAsync({type:'blob'})
+      .then((res:any) => {
+        console.log(res)
+        FileSaver.saveAs(res, projectName);
+      })
   }
 
   /** HANDLE MULTI FILE SELECTION FUNCTIONS - CHECKBOX*/
@@ -337,127 +365,134 @@ const ProjectPage = () => {
         pb: 4,
       }}
     >
-      <Container sx={{ py: 3, minWidth: '65%' }}>
-        <Box
-          sx={{display: 'flex', justifyContent: 'space-between', pb: 2}}
-        >
-          <>
-            <IconButton aria-label="delete" onClick={handleNavigateBack}>
-              <ArrowBackIosIcon />
-            </IconButton>
-          </>
-          <Typography
-            component="h1"
-            variant="h4"
-            align="center"
-            color="text.primary"
+      <Container sx={{minWidth: '75%'}}>
+          <Box
+            sx={{display: 'flex', justifyContent: 'space-between', pb: 2}}
           >
-            {projectName}
-          </Typography>
-          <>
-            <IconButton aria-label="download-all" onClick={handleOpenToolSelectionMenu}>
-              <CloudDownloadIcon />
-            </IconButton>
-          </>
-        </Box>
-        <Grid
-          container
-          spacing={2}
-          direction="row"
-          alignItems="center-top"
-        >
-          <Grid item xs={10}>
-            <Paper
-              elevation={2}
-              sx={{
-                p: 2
-              }}
+            <>
+              <Button variant={'outlined'} key="back" sx={{	display: 'flex', justifyContent: 'left'}}  onClick={handleNavigateBack} startIcon={<ArrowBackIosIcon />}>My Projects</Button>
+              {/*<IconButton aria-label="delete">*/}
+              {/*  <ArrowBackIosIcon />*/}
+              {/*</IconButton>*/}
+            </>
+            <Typography
+              component="h1"
+              variant="h4"
+              align="center"
+              color="text.primary"
             >
-              <Typography
-                component="h1"
-                variant="h5"
-                align="center"
-                color="text.primary"
-                gutterBottom
+              {projectName}
+            </Typography>
+            <>
+              <Button variant={'outlined'} key="back" sx={{	display: 'flex', justifyContent: 'left'}}  onClick={handleDownloadEntireProject} endIcon={<CloudDownloadIcon />}>Download project</Button>
+              {/*<IconButton aria-label="download-all" >*/}
+              {/*  <CloudDownloadIcon />*/}
+              {/*</IconButton>*/}
+            </>
+          </Box>
+        <Divider variant="middle" sx={{mb:4, mt: 2, ml: '15%', mr: '15%'}}/>
+          <Grid
+            container
+            spacing={2}
+            columns={14}
+            direction="row"
+            alignItems="center-top"
+          >
+            <Grid item xs={2}>
+              <ToolSelectionButtonGroup selectable={selectable} onClose={handleCloseToolSelectionMenu} />
+            </Grid>
+            <Grid item xs={10}>
+              <Paper
+                elevation={2}
+                sx={{
+                  p: 2
+                }}
               >
-                Upload File
-              </Typography>
-              <DropZoneArea
-                acceptedFiles={'.json,.xes,.bpmn,.csv'}
-                setSelectedLogFile={setSelectedLogFile}
-                extFiles={dropzoneFiles}
-                setExtFiles={setDropzoneFiles}/>
-            </Paper>
-          </Grid>
-          <Grid item xs={2}>
-            <Paper
-              elevation={2}
-              sx={{
-                p: 2
-              }}
-            >
-              <Typography
-                component="h1"
-                variant="h5"
-                align="center"
-                color="text.primary"
-                gutterBottom
+                <Typography
+                  component="h1"
+                  variant="h5"
+                  align="center"
+                  color="text.primary"
+                  gutterBottom
+                >
+                  Upload File
+                </Typography>
+                <DropZoneArea
+                  acceptedFiles={'.json,.xes,.bpmn,.csv'}
+                  setSelectedLogFile={setSelectedLogFile}
+                  extFiles={dropzoneFiles}
+                  setExtFiles={setDropzoneFiles}/>
+              </Paper>
+            </Grid>
+            <Grid item xs={2}>
+              <Paper
+                elevation={2}
+                sx={{
+                  p: 2
+                }}
               >
-                Select Tag
-              </Typography>
-              <Select
-                displayEmpty
-                sx={{ width: '100%'}}
-                labelId="demo-multiple-chip-label"
-                id="demo-multiple-chip"
-                value={tagValue}
-                onChange={handleCheckboxChange}
-                input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-                renderValue={(selected) => (
-                  <ThemeProvider theme={theme}>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                <Typography
+                  component="h1"
+                  variant="h5"
+                  align="center"
+                  color="text.primary"
+                  gutterBottom
+                >
+                  Select Tag
+                </Typography>
+                <Select
+                  displayEmpty
+                  sx={{ width: '100%'}}
+                  labelId="demo-multiple-chip-label"
+                  id="demo-multiple-chip"
+                  value={tagValue}
+                  onChange={handleCheckboxChange}
+                  input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+                  renderValue={(selected) => (
+                    <ThemeProvider theme={theme}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                         <Chip key={selected} label={selected} color={(colors as any)[selected]}/>
-                    </Box>
-                  </ThemeProvider>
-                )}
-                MenuProps={MenuProps}
-              >
-                {fileTags.map((name) => (
-                  <MenuItem
-                    key={name}
-                    value={name}
-                  >
-                    {name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </Paper>
+                      </Box>
+                    </ThemeProvider>
+                  )}
+                  MenuProps={MenuProps}
+                >
+                  {fileTags.map((name) => (
+                    <MenuItem
+                      key={name}
+                      value={name}
+                    >
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Paper>
+            </Grid>
           </Grid>
-        </Grid>
 
-        <Stack
-          sx={{ pt: 3 }}
-          direction="row"
-          spacing={2}
-          justifyContent="center"
-          useFlexGap
-          flexWrap="wrap"
-        >
-          <Button sx={{width: 400}} variant="contained" onClick={handleUploadFile}>Upload File</Button>
+          <Stack
+            sx={{ pt: 3 }}
+            direction="row"
+            spacing={2}
+            justifyContent="center"
+            useFlexGap
+            flexWrap="wrap"
+          >
+            <Button disabled={!selectedLogFile} sx={{width: 400}} variant="contained" onClick={handleUploadFile}>Upload File</Button>
 
-        </Stack>
+          </Stack>
       </Container>
-      <Typography
-        component="h1"
-        variant="h4"
-        align="center"
-        color="text.primary"
-      >
-        Project Files
-      </Typography>
 
-      <Container sx={{ py: 5, minWidth: '65%' }}>
-        <Grid container spacing={4}>
+      <Container sx={{ py: 3, minWidth: '75%' }}>
+        <Typography
+          component="h1"
+          variant="h4"
+          align="center"
+          color="text.primary"
+        >
+          Project Files
+        </Typography>
+        <Grid container spacing={4} columns={18} sx={{pt:2}}>
           {fList.map(({File, Tag}) => (
               <Grid item key={File.id} xs={3}>
                 <PFile
@@ -490,11 +525,6 @@ const ProjectPage = () => {
         title={createDialogTitle}
         type={"FILE"}
         value={fName}/>
-      < ToolSelectionMenu
-        anchorEl={anchorEl}
-        onClose={handleCloseToolSelectionMenu}
-        selectable={selectable}
-      />
       {snackMessage && <PixSnackBar
           message={snackMessage}
           severityLevel={snackColor}
