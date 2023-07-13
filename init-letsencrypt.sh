@@ -59,7 +59,7 @@ docker-compose run --rm --entrypoint "\
     -subj '/CN=localhost'" certbot
 echo
 
-# starting api because nginx.conf depends on it
+# starting api because local.conf depends on it
 echo "### Starting api ..."
 sudo docker-compose up -d pix_api
 sudo docker-compose up -d prosimos_api

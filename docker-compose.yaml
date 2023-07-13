@@ -11,6 +11,7 @@ services:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
   pix_client:
+    restart: unless-stopped
     build:
       context: ./combined_client
       dockerfile: Dockerfile
@@ -18,12 +19,15 @@ services:
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
     ports:
-      - '5173:80'
+      - "80:80"
+      - "443:443"
     depends_on:
       - pix_api
+      - prosimos_api
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
 
   pix_api:
+    restart: unless-stopped
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -34,7 +38,7 @@ services:
 
   db:
     image: postgres
-    restart: always
+    restart: unless-stopped
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -44,30 +48,18 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
 
-  nginx:
-    image: nginx
-    restart: always
-    ports:
-      - '80:80'
-    volumes:
-      - ./local.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - pix_client
-      - pix_api
-
   rabbit:
     hostname: rabbit
+    restart: unless-stopped
     image: rabbitmq:3-management
     container_name: prosimos-rabbitmq
-    # environment:
-    #     - RABBITMQ_DEFAULT_USER=myuser
-    #     - RABBITMQ_DEFAULT_PASS=mypassword
     ports:
       - 5672:5672 # port for the worker for tasks management
       - 15672:15672 # GUI port
 
   # worker deployment
   worker:
+    restart: unless-stopped
     build:
       context: ./prosimos-microservice
       dockerfile: Dockerfile.worker
@@ -84,6 +76,7 @@ services:
 
   # flask app deployment
   prosimos_api:
+    restart: unless-stopped
     build:
       context: ./prosimos-microservice
       dockerfile: Dockerfile.api
@@ -98,6 +91,7 @@ services:
       - FLASK_DEBUG=1
 
   redis:
+    restart: unless-stopped
     image: redis:6-alpine
     ports:
       - 6379:6379

@@ -1,3 +1,4 @@
+console.log(import.meta.env.VITE_REDIRECT_URI)
 export const authConfig = {
   authority: 'http://zitadel.cloud.ut.ee', //Replace with your issuer URL
   client_id: '221885342960123907@pix', //Replace with your client id
