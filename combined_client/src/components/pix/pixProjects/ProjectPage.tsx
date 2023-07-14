@@ -132,21 +132,16 @@ const ProjectPage = () => {
         return
       }
       for (const fileKey in selectedProjectFiles) {
-        getProjectFileForDownload(selectedProjectFiles[fileKey].path).then((_res: any)=> {
-          console.log(_res)
-          console.log(_res.data)
-          if (selectedProjectFiles[fileKey].tags === 'BPMN') {
-            // @ts-ignore
-            files.bpmn = new File([_res.data], selectedProjectFiles[fileKey].uuid + ".bpmn")
-          }
-          if (selectedProjectFiles[fileKey].tags === 'SIM_MODEL') {
-            // @ts-ignore
-            files.json = new File([_res.data], selectedProjectFiles[fileKey].uuid + ".json")
-          }
-        })
+        const response = getProjectFileForDownload(selectedProjectFiles[fileKey].path)
+        if (selectedProjectFiles[fileKey].tags === 'BPMN') {
+          // @ts-ignore
+          files.bpmn = new File([response.data], selectedProjectFiles[fileKey].uuid + ".bpmn")
+        }
+        if (selectedProjectFiles[fileKey].tags === 'SIM_MODEL') {
+          // @ts-ignore
+          files.json = new File([response.data], selectedProjectFiles[fileKey].uuid + ".json")
+        }
       }
-
-      console.log(files.bpmn)
       navigate(
         prosimos_paths.SIMULATOR_SCENARIO_PATH, {
           state: {
@@ -156,8 +151,7 @@ const ProjectPage = () => {
           }
         }
       )
-    }
-    else {
+    } else {
       setErrorMessage("You cannot go here yet. ");
     }
   };
