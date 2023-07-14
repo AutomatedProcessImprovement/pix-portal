@@ -12,7 +12,7 @@ origins = [
     "http://localhost:5173",
     "http://localhost",
     "http://localhost:80",
-    "http://pix.cloud.ut.ee",
+    "https://pix.cloud.ut.ee",
 ]
 
 app.add_middleware(
