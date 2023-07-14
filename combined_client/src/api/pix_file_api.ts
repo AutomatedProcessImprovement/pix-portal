@@ -1,13 +1,14 @@
 import {API_instance} from "../pix_axios";
 
-export const getProjectFileForDownload = async (fileId: number) => {
-  return await API_instance.get(
-    `/api/files/`, {
-      params: {
-        fileId: fileId
-      }
-    }
-  )
+export const getProjectFileForDownload = async (path: string) => {
+
+  // Make a GET request to the API endpoint with the file path as a parameter
+  return await API_instance.get('/api/files', {
+    params: {
+      file_path: path
+    },
+    responseType: 'blob' // Set the response type to 'blob' to handle binary data
+  })
 }
 export const editExistingFileTitle = async (fileId: string, name: string) => {
   const formData = new FormData()

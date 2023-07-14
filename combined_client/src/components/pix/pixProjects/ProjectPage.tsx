@@ -27,7 +27,12 @@ import paths from "../../../router/pix/pix_paths";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CreateProjectDialog from "../pixUpload/CreateProjectDialog";
 import {getProjectFiles} from "../../../api/pix_project_api";
-import {editExistingFileTitle, removeProjectFile, uploadFile} from "../../../api/pix_file_api";
+import {
+  editExistingFileTitle,
+  getProjectFileForDownload,
+  removeProjectFile,
+  uploadFile
+} from "../../../api/pix_file_api";
 import {theme} from "../../../themes/ChipTheme";
 import {MenuProps} from "../../../themes/MenuPropsProjectPage";
 import {colors, fileTags, Selectable, tValToActual} from "../../../helpers/mappers";
@@ -231,26 +236,19 @@ const ProjectPage = () => {
   }
 
   const handleDownloadFile = async (path: string, filename:any) => {
-    try {
-      // Make a GET request to the API endpoint with the file path as a parameter
-      const response = await API_instance.get('/api/files', {
-        params: {
-          file_path: path
-        },
-        responseType: 'blob' // Set the response type to 'blob' to handle binary data
-      });
-
+    getProjectFileForDownload(path).then((_res: any) => {
       // Create a temporary anchor element to download the file
-      const url = URL.createObjectURL(new Blob([response.data]));
+      console.log(_res)
+      const url = URL.createObjectURL(new Blob([_res.data]));
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', filename);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (error) {
-      console.error('Error downloading file:', error);
-    }
+    }).catch((err) => {
+      console.error('Error downloading file:', err);
+    })
   }
 
   const handleDownloadEntireProject = async () => {
