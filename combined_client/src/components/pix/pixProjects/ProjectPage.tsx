@@ -141,23 +141,21 @@ const ProjectPage = () => {
             // @ts-ignore
             files.json = new File([response.data], selectedProjectFiles[fileKey].uuid + ".json")
           }
-
-          navigate(
-            prosimos_paths.SIMULATOR_SCENARIO_PATH, {
-              state: {
-                'bpmnFile': files.bpmn,
-                'jsonFile': files.json,
-                'projectId': pid
-              }
-            }
-          )
         })
       }
+      navigate(
+        prosimos_paths.SIMULATOR_SCENARIO_PATH, {
+          state: {
+            'bpmnFile': files.bpmn,
+            'jsonFile': files.json,
+            'projectId': pid
+          }
+        }
+      )
     }
     else {
       setErrorMessage("You cannot go here yet. ");
     }
-
   };
 
   /** DIALOG HANDLING FUNCTIONS */
