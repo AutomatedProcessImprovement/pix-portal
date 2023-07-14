@@ -36,7 +36,6 @@ import {
 import {theme} from "../../../themes/ChipTheme";
 import {MenuProps} from "../../../themes/MenuPropsProjectPage";
 import {colors, fileTags, Selectable, tValToActual} from "../../../helpers/mappers";
-import {API_instance} from "../../../pix_axios";
 import prosimos_paths from "../../../router/prosimos/prosimos_paths";
 import ToolSelectionButtonGroup from "../pixToolSelectionButtonGroup/ToolSelectionButtonGroup";
 import JSZip from "jszip";
