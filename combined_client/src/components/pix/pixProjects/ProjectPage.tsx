@@ -40,6 +40,7 @@ import prosimos_paths from "../../../router/prosimos/prosimos_paths";
 import ToolSelectionButtonGroup from "../pixToolSelectionButtonGroup/ToolSelectionButtonGroup";
 import JSZip from "jszip";
 import FileSaver  from 'file-saver';
+import {API_instance} from "../../../pix_axios";
 
 interface ProjectProps {
   pid: string
@@ -132,7 +133,13 @@ const ProjectPage = () => {
         return
       }
       for (const fileKey in selectedProjectFiles) {
-        const response = getProjectFileForDownload(selectedProjectFiles[fileKey].path)
+        const response = await API_instance.get('/api/files/', {
+          params: {
+            file_path: selectedProjectFiles[fileKey].path
+          },
+          responseType: 'blob' // Set the response type to 'blob' to handle binary data
+        })
+        console.log(response)
         if (selectedProjectFiles[fileKey].tags === 'BPMN') {
           // @ts-ignore
           files.bpmn = new File([response.data], selectedProjectFiles[fileKey].uuid + ".bpmn")
@@ -142,6 +149,7 @@ const ProjectPage = () => {
           files.json = new File([response.data], selectedProjectFiles[fileKey].uuid + ".json")
         }
       }
+      console.log(files)
       navigate(
         prosimos_paths.SIMULATOR_SCENARIO_PATH, {
           state: {
