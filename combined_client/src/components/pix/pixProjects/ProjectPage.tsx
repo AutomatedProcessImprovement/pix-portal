@@ -133,6 +133,8 @@ const ProjectPage = () => {
       }
       for (const fileKey in selectedProjectFiles) {
         getProjectFileForDownload(selectedProjectFiles[fileKey].path).then((_res: any)=> {
+          console.log(_res)
+          console.log(_res.data)
           if (selectedProjectFiles[fileKey].tags === 'BPMN') {
             // @ts-ignore
             files.bpmn = new File([_res.data], selectedProjectFiles[fileKey].uuid + ".bpmn")
@@ -143,6 +145,8 @@ const ProjectPage = () => {
           }
         })
       }
+
+      console.log(files.bpmn)
       navigate(
         prosimos_paths.SIMULATOR_SCENARIO_PATH, {
           state: {

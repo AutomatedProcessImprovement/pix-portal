@@ -3,7 +3,6 @@ import {API_instance} from "../pix_axios";
 export const getProjectFileForDownload = async (path: string) => {
 
   // Make a GET request to the API endpoint with the file path as a parameter
-  console.log(import.meta.env.VITE_PIX_REACT_APP_BASE_URL)
   return await API_instance.get('/api/files/', {
     params: {
       file_path: path
