@@ -135,11 +135,11 @@ const ProjectPage = () => {
         getProjectFileForDownload(selectedProjectFiles[fileKey].path).then((_res: any)=> {
           if (selectedProjectFiles[fileKey].tags === 'BPMN') {
             // @ts-ignore
-            files.bpmn = new File([response.data], selectedProjectFiles[fileKey].uuid + ".bpmn")
+            files.bpmn = new File([_res.data], selectedProjectFiles[fileKey].uuid + ".bpmn")
           }
           if (selectedProjectFiles[fileKey].tags === 'SIM_MODEL') {
             // @ts-ignore
-            files.json = new File([response.data], selectedProjectFiles[fileKey].uuid + ".json")
+            files.json = new File([_res.data], selectedProjectFiles[fileKey].uuid + ".json")
           }
         })
       }
