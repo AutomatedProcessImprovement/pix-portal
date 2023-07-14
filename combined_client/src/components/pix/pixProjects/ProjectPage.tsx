@@ -133,32 +133,29 @@ const ProjectPage = () => {
         return
       }
       for (const fileKey in selectedProjectFiles) {
-
-        const response = await API_instance.get('/api/files', {
-          params: {
-            file_path: selectedProjectFiles[fileKey].path
-          },
-          responseType: 'blob' // Set the response type to 'blob' to handle binary data
-        });
-        if (selectedProjectFiles[fileKey].tags === 'BPMN') {
-          // @ts-ignore
-          files.bpmn = new File([response.data], selectedProjectFiles[fileKey].uuid + ".bpmn")
-        }
-        if (selectedProjectFiles[fileKey].tags === 'SIM_MODEL') {
-          // @ts-ignore
-          files.json = new File([response.data], selectedProjectFiles[fileKey].uuid + ".json")
-        }
-      }
-      navigate(
-        prosimos_paths.SIMULATOR_SCENARIO_PATH, {
-          state: {
-            'bpmnFile': files.bpmn,
-            'jsonFile': files.json,
-            'projectId': pid
+        getProjectFileForDownload(selectedProjectFiles[fileKey].path).then((_res: any)=> {
+          if (selectedProjectFiles[fileKey].tags === 'BPMN') {
+            // @ts-ignore
+            files.bpmn = new File([response.data], selectedProjectFiles[fileKey].uuid + ".bpmn")
           }
-        }
-      );
-    } else {
+          if (selectedProjectFiles[fileKey].tags === 'SIM_MODEL') {
+            // @ts-ignore
+            files.json = new File([response.data], selectedProjectFiles[fileKey].uuid + ".json")
+          }
+
+          navigate(
+            prosimos_paths.SIMULATOR_SCENARIO_PATH, {
+              state: {
+                'bpmnFile': files.bpmn,
+                'jsonFile': files.json,
+                'projectId': pid
+              }
+            }
+          )
+        })
+      }
+    }
+    else {
       setErrorMessage("You cannot go here yet. ");
     }
 
@@ -256,15 +253,12 @@ const ProjectPage = () => {
     let projectZip = zip.folder(`${projectName}`);
     for (const file in fList) {
       console.log(fList[file].File.path)
-      const response = await API_instance.get('/api/files', {
-        params: {
-          file_path: fList[file].File.path
-        },
-        responseType: 'blob' // Set the response type to 'blob' to handle binary data
-      });
-      let blob = new Blob([response.data], {type: response.data.contentType})
-      // @ts-ignore
-      projectZip.file(fList[file].File.name+"."+fList[file].File.extension, blob)
+      getProjectFileForDownload(fList[file].File.path).then((_res:any)=> {
+        let blob = new Blob([_res.data], {type: _res.data.contentType})
+        // @ts-ignore
+        projectZip.file(fList[file].File.name+"."+fList[file].File.extension, blob)
+      })
+
     }
     zip.generateAsync({type:'blob'})
       .then((res:any) => {
