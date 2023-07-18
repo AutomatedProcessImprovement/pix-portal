@@ -13,7 +13,7 @@ def init_db():
         models.Tag(value='SIM_MODEL'),
         models.Tag(value='CONS_MODEL'),
         models.Tag(value='EVENT_LOG'),
-        models.Tag(value='UNTAGGED')
+        models.Tag(value='RESULTS')
     ]
     print(objects)
     db.bulk_save_objects(objects)

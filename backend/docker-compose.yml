@@ -5,7 +5,7 @@ services:
     networks:
       - "zitadel"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./local.conf:/etc/nginx/local.conf
     ports:
       - "80:80"
     depends_on:

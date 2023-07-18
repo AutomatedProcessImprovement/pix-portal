@@ -1,5 +1,4 @@
 import http
-
 import jwt
 from pydantic import BaseModel
 from fastapi import Depends, HTTPException, Header
@@ -31,7 +30,7 @@ def get_token(
     print(token)
     # Simulate a database query to find a known token
     user_data = decode_user(token)
-    if user_data['azp'] != '221885342960123907@pix':
+    if user_data['azp'] != '222845807857041412@process-improvement-explorer-auth':
         raise HTTPException(
             status_code=http.HTTPStatus.FORBIDDEN,
             detail=UnauthorizedMessage().detail,

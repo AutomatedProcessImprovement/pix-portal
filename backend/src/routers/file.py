@@ -72,7 +72,7 @@ async def upload_file(
         db: Session = Depends(get_db)
 ):
     # Create new models.File object from UploadFile
-    _newfile = F(name=file.filename.split('.')[0], extension=file.filename.split(".")[-1])
+    _newfile = F(name='_'.join(file.filename.split('.')[:-1]), extension=file.filename.split(".")[-1])
 
     # Find TAG value in database
     _tag = T(value=tag)
