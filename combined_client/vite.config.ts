@@ -11,6 +11,7 @@ export default defineConfig({
       usePolling: true,
     },
     host: true, // needed for the Docker Container port mapping to work
+    port: 80,
   },
   optimizeDeps: {
     exclude: ['@files-ui/react', '@mui/icons-material/']
