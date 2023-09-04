@@ -53,7 +53,8 @@ const NavBar = ({authenticated, clearAuth, userManager}:any) => {
   };
 
   const handleNavigateAccount = () => {
-    window.location.href = 'http://zitadel.cloud.ut.ee/ui/console/users/me';
+    // TODO ENV VARIABLE
+    window.location.href = 'http://devzitadel.cloud.ut.ee/ui/console/users/me';
   }
 
   return (

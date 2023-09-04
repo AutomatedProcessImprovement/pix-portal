@@ -1,5 +1,9 @@
 import http
+import os
+
+import dotenv
 import jwt
+from dotenv import load_dotenv
 from pydantic import BaseModel
 from fastapi import Depends, HTTPException, Header
 from sqlalchemy.orm import Session
@@ -19,6 +23,7 @@ def decode_user(token: str):
     decoded_data = jwt.decode(jwt=token,
                               options={"verify_signature": False},
                               algorithms=["RS256"])
+    print(decoded_data)
 
     return decoded_data
 
@@ -30,7 +35,7 @@ def get_token(
     print(token)
     # Simulate a database query to find a known token
     user_data = decode_user(token)
-    if user_data['azp'] != '222845807857041412@process-improvement-explorer-auth':
+    if user_data['azp'] != os.getenv("ZITADEL_CLIENT_ID"):
         raise HTTPException(
             status_code=http.HTTPStatus.FORBIDDEN,
             detail=UnauthorizedMessage().detail,

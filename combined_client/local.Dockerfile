@@ -19,8 +19,7 @@ COPY index.html index.html
 
 # TODO CHOOSE WHICH .env YOU NEED.
 
-#COPY .env.production .env.production
-#COPY .env.development .env.development
+COPY .env.development .env.development
 COPY ./public/ ./public
 COPY ./src/ ./src
 
@@ -36,11 +35,10 @@ FROM nginx:1.21
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copy the Nginx configuration file to the container
-COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/local.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80 for the Nginx server
 EXPOSE 80
-EXPOSE 443
 
 # Start the Nginx server
 CMD ["nginx", "-g", "daemon off;"]
