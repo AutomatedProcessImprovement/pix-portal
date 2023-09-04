@@ -6,7 +6,7 @@ import Home from "../components/pix/pixIndex/Home";
 import Projects from "../components/pix/pixProjects/Projects";
 import ProjectPage from "../components/pix/pixProjects/ProjectPage";
 import Callback from "../components/pix/pixLoginCallback/Callback";
-import PrivateRoute from "./pix/ProtectedRoute";
+import PrivateRoute from "./ProtectedRoute";
 import Register from "../components/pix/pixLogin/Register";
 import BPMNModelViewer from "../components/prosimos/model/BPMNModelViewer";
 import SimulationParameters from "../components/prosimos/SimulationParameters";
@@ -49,7 +49,8 @@ const AppRouter = (props: RouterProps) => {
       />
 
       {/* PIX PROJECT ROUTING | PROTECTED */}
-      <Route path={"/home"} element={<Home auth={authenticated} handleLogin={authorize} />} />
+      <Route path={"/home"} element={<Home auth={authenticated} handleLogin={authorize}/>}/>
+
       <Route path={pix_paths.PROJECTS_PATH} element={<PrivateRoute auth={authenticated}/>}>
         <Route path={pix_paths.PROJECTS_PATH} element={<Projects auth={authenticated} userManager={userManager}/>}/>
       </Route>
@@ -61,7 +62,7 @@ const AppRouter = (props: RouterProps) => {
       <Route path={prosimos_paths.SIMULATOR_SCENARIO_PATH} element={<PrivateRoute auth={authenticated}/>}>
         <Route path={prosimos_paths.SIMULATOR_SCENARIO_PATH} element={<SimulationParameters/>} />
       </Route>
-      <Route path={prosimos_paths.MODEL_VIEWER} element={<PrivateRoute auth={authenticated}/>}>
+      <Route path={prosimos_paths.MODEL_VIEWER} element={<PrivateRoute auth={true}/>}>
         <Route path={prosimos_paths.MODEL_VIEWER} element={<BPMNModelViewer/>} />
       </Route>
 

@@ -18,7 +18,7 @@ const BPMNModelViewer = () => {
                 if (warnings.length === 0) {
                     const canvas = bpmnViewer.get('canvas')
                     canvas.zoom('fit-viewport')
-                } 
+                }
             };
 
             try {

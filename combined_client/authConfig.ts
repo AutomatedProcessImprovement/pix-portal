@@ -1,6 +1,6 @@
-console.log(import.meta.env.VITE_REDIRECT_URI)
-console.log(import.meta.env.VITE_ZITADEL_CLIENT_ID)
-console.log(import.meta.env.VITE_ZITADEL_USER_INFO_ENDPOINT)
+// console.log(import.meta.env.VITE_REDIRECT_URI)
+// console.log(import.meta.env.VITE_ZITADEL_CLIENT_ID)
+// console.log(import.meta.env.VITE_ZITADEL_USER_INFO_ENDPOINT)
 
 export const authConfig = {
   authority: import.meta.env.VITE_ZITADEL_BASE_URL, //Replace with your issuer URL
