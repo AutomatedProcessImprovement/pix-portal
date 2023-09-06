@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file combined_client/local.Dockerfile --tag pix-client:$(date +%s)
+      run: docker build ./combined_client --file combined_client/local.Dockerfile --tag pix-client:$(date +%s)
