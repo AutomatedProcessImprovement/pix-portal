@@ -1,4 +1,4 @@
-name: Docker Image CI - LOCAL deployment image
+name: Docker Image CI - LOCAL deployment image API
 
 on:
   push:
