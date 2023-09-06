@@ -1,21 +1,27 @@
-version: '3.8'
+version: "3.8"
+
 services:
   nginx:
-    image: nginx:latest
+    image: nginx
     networks:
       - "zitadel"
-    volumes:
-      - ./local.conf:/etc/nginx/local.conf
+    restart: always
     ports:
       - "80:80"
+    volumes:
+      - ./nginx/:/etc/nginx/conf.d/:ro
     depends_on:
       - zitadel
+    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
+
 
   zitadel:
     restart: "always"
+    container_name: zitadel
     networks:
       - "zitadel"
     image: "ghcr.io/zitadel/zitadel:stable"
+
     command: 'start-from-init --config /example-zitadel-config.yaml --config /example-zitadel-secrets.yaml --steps /example-zitadel-init-steps.yaml --masterkey "MasterkeyNeedsToHave32Characters" --tlsMode disabled'
     depends_on:
       certs:
@@ -30,7 +36,7 @@ services:
 
   certs:
     image: "cockroachdb/cockroach:v22.2.2"
-    entrypoint: [ "/bin/bash", "-c" ]
+    entrypoint: ["/bin/bash", "-c"]
     command:
       [
         "cp /certs/* /zitadel-certs/ && cockroach cert create-client --overwrite --certs-dir /zitadel-certs/ --ca-key /zitadel-certs/ca.key zitadel_user && chown 1000:1000 /zitadel-certs/*",
@@ -49,7 +55,7 @@ services:
     image: "cockroachdb/cockroach:v22.2.2"
     command: "start-single-node --advertise-addr my-cockroach-db"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/health?ready=1" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health?ready=1"]
       interval: "10s"
       timeout: "30s"
       retries: 5
