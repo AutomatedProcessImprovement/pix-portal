@@ -19,11 +19,9 @@ COPY index.html index.html
 
 # TODO CHOOSE WHICH .env YOU NEED.
 
-COPY .env.development .env.development
+COPY .env.development .env.production
 COPY ./public/ ./public
 COPY ./src/ ./src
-
-# Copy the project files to the container
 
 # Build the TypeScript code
 RUN npm run build

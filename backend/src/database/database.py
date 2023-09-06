@@ -1,3 +1,6 @@
+import time
+
+from psycopg2 import OperationalError
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.declarative import declarative_base
@@ -20,6 +23,7 @@ print(_url)
 engine = create_engine(
     _url, echo=True
 )
+
 SessionLocal = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
 
