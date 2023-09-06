@@ -19,5 +19,9 @@ COPY . .
 # Expose port 8000 for the application
 EXPOSE 8000
 
+# Run the init.py script to populate the database
 # Set the command to run your application with uvicorn
-CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/bin/bash", "-c", "python init.py; poetry run uvicorn main:app --host 0.0.0.0 --port 8000"]
+
+
+

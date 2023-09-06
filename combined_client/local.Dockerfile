@@ -23,22 +23,7 @@ COPY .env.development .env.development
 COPY ./public/ ./public
 COPY ./src/ ./src
 
-# Copy the project files to the container
-
-# Build the TypeScript code
-RUN npm run build
-
-# Stage 2: Create the production-ready Nginx server
-FROM nginx:1.21
-
-# Copy the built Vite files from the previous stage to the Nginx container
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Copy the Nginx configuration file to the container
-COPY nginx/local.conf /etc/nginx/conf.d/default.conf
-
-# Expose port 80 for the Nginx server
-EXPOSE 80
-
-# Start the Nginx server
-CMD ["nginx", "-g", "daemon off;"]
+# Install the npm packages
+CMD [ "npm", "install" ]
+# Run the container in DEV mode
+CMD [ "npm", "run", "dev" ]
