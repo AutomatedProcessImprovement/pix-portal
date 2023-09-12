@@ -8,8 +8,7 @@ Monolithical web server with background jobs and external services:
 
 ```mermaid
 flowchart LR
-    Frontend --> Gateway[API Gateway]
-    Gateway --> Controllers
+    Frontend --> Controllers
 
     subgraph backend[Backend]
         subgraph Web[Web Server]
@@ -79,8 +78,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    Frontend --> Gateway[API Gateway]
-    Gateway --> Controllers
+    Frontend --> Controllers
 
     subgraph Web[Web Server]
         Controllers
