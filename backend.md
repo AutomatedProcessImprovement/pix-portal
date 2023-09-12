@@ -100,8 +100,14 @@ flowchart LR
     end
 
     subgraph Processors[Topic Processors]
-        BPSDiscoveryRequestProcessor -- subscribes --> BPSDiscoveryRequestTopic
-        BPSDiscoveryRequestProcessor -- publishes --> BPSDiscoveryResultTopic
+        subgraph Group
+            BPSDiscoveryRequestProcessor1[[BPS Discovery Request Processor 1]]
+            BPSDiscoveryRequestProcessor2[[BPS Discovery Request Processor 2]]
+        end
+        BPSDiscoveryRequestProcessor1 -- subscribes --> BPSDiscoveryRequestTopic
+        BPSDiscoveryRequestProcessor1 -- publishes --> BPSDiscoveryResultTopic
+        BPSDiscoveryRequestProcessor2 -- subscribes --> BPSDiscoveryRequestTopic
+        BPSDiscoveryRequestProcessor2 -- publishes --> BPSDiscoveryResultTopic
         
         BPSDiscoveryResultProcessor -- subscribes --> BPSDiscoveryResultTopic
         BPSDiscoveryResultProcessor -- publishes --> NotificationRequestTopic
@@ -109,8 +115,10 @@ flowchart LR
         NotificationProcessor -- subscribes --> NotificationRequestTopic
     end
 
-    BPSDiscoveryRequestProcessor -- uses ---> Simod
-    BPSDiscoveryRequestProcessor -- uses ---> Assets
+    BPSDiscoveryRequestProcessor1 -- uses ---> Simod
+    BPSDiscoveryRequestProcessor1 -- uses ---> Assets
+    BPSDiscoveryRequestProcessor2 -- uses ---> Simod
+    BPSDiscoveryRequestProcessor2 -- uses ---> Assets
     BPSDiscoveryResultProcessor -- uses ---> Assets
     NotificationProcessor -- uses ---> Notifications
 
