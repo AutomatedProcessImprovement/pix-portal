@@ -1,13 +1,14 @@
-# Process Improvement eXplorer - PIX
+# PIX Portal
 
-![version](https://img.shields.io/github/v/tag/AutomatedProcessImprovement/process-improvement-explorer)
+![version](https://img.shields.io/github/v/tag/AutomatedProcessImprovement/pix-portal)
 
-[![Docker Image CI - CLIENT LOCAL deployment image](https://github.com/AutomatedProcessImprovement/pix/actions/workflows/docker-image-client-local.yml/badge.svg)](https://github.com/AutomatedProcessImprovement/pix/actions/workflows/docker-image-client-local.yml)
+The project is a suite of applications that provide a single point of entry for users to access the various services provided by the PIX platform:
 
-[![Docker Image CI - CLIENT PROD deployment image](https://github.com/AutomatedProcessImprovement/pix/actions/workflows/docker-image-client-production.yml/badge.svg)](https://github.com/AutomatedProcessImprovement/pix/actions/workflows/docker-image-client-production.yml)
+- Business process simulation model discovery
+- Simulation
+- Waiting time analysis
 
-[![Docker Image CI - API deployment image API](https://github.com/AutomatedProcessImprovement/pix/actions/workflows/docker-image-api.yml/badge.svg)](https://github.com/AutomatedProcessImprovement/pix/actions/workflows/docker-image-api.yml)
 
-http://pix.cloud.ut.ee
+## For developers
 
-http://zitadel.cloud.ut.ee
+- [Back-End Solution](backend.md)
