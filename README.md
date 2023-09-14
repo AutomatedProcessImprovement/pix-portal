@@ -7,8 +7,3 @@ The project is a suite of applications that provide a single point of entry for 
 - Business process simulation model discovery
 - Simulation
 - Waiting time analysis
-
-
-## For developers
-
-- [Back-End Solution](backend.md)
