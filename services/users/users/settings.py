@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import Field, PostgresDsn
+from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
