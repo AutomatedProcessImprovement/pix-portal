@@ -30,3 +30,8 @@ dist-ssr
 *.sln
 *.sw?
 
+**/.DS_Store
+**/__pycache__
+**/.venv
+**/.classpath
+**/.env
