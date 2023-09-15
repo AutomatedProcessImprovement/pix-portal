@@ -1,17 +1,13 @@
 import http
-import pathlib
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, UploadFile, status, File, Form, Header, HTTPException
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from src.auth.decrypt import check_if_user_exists
 from src.database.database import get_db
-from src.models.models import File as F, Tag as T, User as U, Project as P
+from src.models.models import File as F, Tag as T, Project as P
 from src.disk_storage.filestore import uploadFile, deleteFile
-from urllib.request import pathname2url
-from urllib.parse import urljoin
 from fastapi.responses import FileResponse
 
 router = APIRouter()
@@ -40,11 +36,11 @@ async def update_existing_file(authorization: Annotated[str | None, Header()],
 
     try:
         _file = db.query(F).filter(F.id == file_id, F.project_id == _project.id).update({F.name: name})
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=404, detail="Something went wrong.")
     db.commit()
 
-    return {'status': http.HTTPStatus.OK, 'message': f"File successfully renamed"}
+    return {'status': http.HTTPStatus.OK, 'message': "File successfully renamed"}
 
 
 @router.delete('/{file_id}', status_code=status.HTTP_200_OK)

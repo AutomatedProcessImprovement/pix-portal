@@ -1,9 +1,10 @@
-import aiofiles
-import shortuuid
 import os
 
+import aiofiles
+import shortuuid
+
 curr_dir_path = os.path.abspath(os.path.dirname(__file__))
-write_path = os.path.abspath(os.path.join(curr_dir_path, '../..', 'static/files'))
+write_path = os.path.abspath(os.path.join(curr_dir_path, "../..", "static/files"))
 
 
 async def uploadFile(file):
@@ -16,7 +17,7 @@ async def uploadFile(file):
 
     filepath = os.path.abspath(os.path.join(write_path, file_uuid + "." + file_ext))
 
-    async with aiofiles.open(filepath, 'wb') as f:
+    async with aiofiles.open(filepath, "wb") as f:
         await f.write(contents)
 
     return os.path.relpath(os.path.join(write_path, file_uuid + "." + file_ext))

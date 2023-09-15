@@ -2,7 +2,6 @@ import json
 import os
 
 import requests
-
 from src.helpers.generators import generateOTP
 
 
@@ -33,27 +32,26 @@ def send_registration_request(username, firstname, lastname, email):
     otp = generateOTP()
     # TODO REMOVE BEARER TOKEN AND MOVE TO ENV, REGENERATE TOKEN IN ZITADEL FOR PROD
     url = os.getenv("ZITADEL_REGISTER_API")
-    payload = json.dumps({
-        "userName": username,
-        "profile": {
-            "firstName": firstname,
-            "lastName": lastname,
-            "nickName": firstname,
-            "displayName": firstname + " " + lastname,
-            "preferredLanguage": "en"
-        },
-        "email": {
-            "email": email,
-            "isEmailVerified": True
-        },
-        "password": otp,
-        "passwordChangeRequired": True
-    })
+    payload = json.dumps(
+        {
+            "userName": username,
+            "profile": {
+                "firstName": firstname,
+                "lastName": lastname,
+                "nickName": firstname,
+                "displayName": firstname + " " + lastname,
+                "preferredLanguage": "en",
+            },
+            "email": {"email": email, "isEmailVerified": True},
+            "password": otp,
+            "passwordChangeRequired": True,
+        }
+    )
     print(payload)
     headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer ' + os.getenv("SERVICE_USER_BEARER")
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer " + os.getenv("SERVICE_USER_BEARER"),
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)

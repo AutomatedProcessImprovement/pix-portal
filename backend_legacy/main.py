@@ -1,11 +1,7 @@
-import os
-
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from src.routers import file, project, user
 
-from src.routers import project, file, user
-from dotenv import load_dotenv
 app = FastAPI()
 
 origins = [
@@ -24,10 +20,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(file.router, tags=['Files'], prefix="/api/files")
-app.include_router(user.router, tags=['Users'], prefix="/api/users")
-app.include_router(project.router, tags=['Projects'], prefix="/api/projects")
+app.include_router(file.router, tags=["Files"], prefix="/api/files")
+app.include_router(user.router, tags=["Users"], prefix="/api/users")
+app.include_router(project.router, tags=["Projects"], prefix="/api/projects")
 
-@app.get('/api/healthchecker')
+
+@app.get("/api/healthchecker")
 def root():
-    return {'message': 'Hello World'}
+    return {"message": "Hello World"}
