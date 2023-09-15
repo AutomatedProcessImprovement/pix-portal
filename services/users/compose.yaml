@@ -21,9 +21,9 @@ services:
       - 5432
     healthcheck:
       test: [ "CMD", "pg_isready" ]
-      interval: 10s
-      timeout: 1s
-      retries: 10
+      interval: 5s
+      timeout: 5s
+      retries: 5
 volumes:
   db-data:
 
