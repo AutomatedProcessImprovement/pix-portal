@@ -26,11 +26,14 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_forgot_password(
         self, user: User, token: str, request: Optional[Request] = None
     ):
+        # TODO: send email with a link to reset password, token is the reset password token
+        #   that can be used in the /auth/reset-password endpoint
         print(f"User {user.id} has forgot their password. Reset token: {token}")
 
     async def on_after_request_verify(
         self, user: User, token: str, request: Optional[Request] = None
     ):
+        # TODO: implement verification email sending
         print(f"Verification requested for user {user.id}. Verification token: {token}")
 
 

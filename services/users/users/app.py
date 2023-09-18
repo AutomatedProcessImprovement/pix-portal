@@ -7,10 +7,16 @@ from .init_db import migrate_to_latest
 from .schemas import UserCreate, UserRead, UserUpdate
 from .users import auth_backend, current_active_user, fastapi_users
 
-app = FastAPI()
+app = FastAPI(
+    title="PIX Portal Users",
+    description="Users service for PIX Portal",
+    # TODO: update version programmatically
+    version="0.2.0",
+)
 
 app.include_router(
-    fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"]
+    fastapi_users.get_auth_router(auth_backend),
+    prefix="/auth/jwt",
 )
 app.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
