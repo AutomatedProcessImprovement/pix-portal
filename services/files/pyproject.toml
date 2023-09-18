@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "files"
+version = "0.1.0"
+description = ""
+authors = ["Ihar Suvorau <ihar.suvorau@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+sqlalchemy = "^2.0.20"
+fastapi = "^0.103.1"
+pydantic = "^2.3.0"
+pydantic-settings = "^2.0.3"
+uvicorn = "^0.23.2"
+httpx = "^0.25.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.9.1"
+
+[tool.ruff]
+line-length = 120
+
+[tool.black]
+line-length = 120
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
