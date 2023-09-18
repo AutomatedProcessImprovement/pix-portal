@@ -1,7 +1,8 @@
 import uuid
-from typing import Optional
+from datetime import datetime
+from typing import Any, Dict, Optional
 
-from fastapi import Depends, Request
+from fastapi import Depends, Request, Response
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
@@ -21,7 +22,28 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     verification_token_secret = SECRET
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
-        print(f"User {user.id} has registered.")
+        timestamp = datetime.utcnow()
+        await self.user_db.update(user, {"creation_time": timestamp})
+
+    async def on_after_update(
+        self, user: User, update_dict: Dict[str, Any], request: Optional[Request] = None
+    ):
+        timestamp = datetime.utcnow()
+        await self.user_db.update(user, {"modification_time": timestamp})
+
+    async def on_after_login(
+        self,
+        user: User,
+        request: Optional[Request] = None,
+        response: Optional[Response] = None,
+    ):
+        print(f"User {user.id} has logged in.")
+        timestamp = datetime.utcnow()
+        await self.user_db.update(user, {"last_login_time": timestamp})
+
+    async def on_before_delete(self, user: User, request: Optional[Request] = None):
+        timestamp = datetime.utcnow()
+        await self.user_db.update(user, {"deletion_time": timestamp})
 
     async def on_after_forgot_password(
         self, user: User, token: str, request: Optional[Request] = None
