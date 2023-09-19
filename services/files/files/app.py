@@ -7,7 +7,7 @@ from .repositories.init_db import migrate_to_latest
 
 app = FastAPI(
     title="PIX Portal Files",
-    description="File service for PIX Portal",
+    description="File service for PIX Portal.",
     # TODO: update version programmatically
     version="0.1.0",
 )
