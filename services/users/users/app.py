@@ -11,7 +11,7 @@ from .users import auth_backend, current_active_user, fastapi_users
 
 app = FastAPI(
     title="PIX Portal Users",
-    description="Users service for PIX Portal",
+    description="Users service for PIX Portal.",
     # TODO: update version programmatically
     version="0.2.0",
 )
@@ -19,21 +19,27 @@ app = FastAPI(
 app.include_router(
     fastapi_users.get_auth_router(auth_backend),
     prefix="/auth/jwt",
+    tags=["auth"],
 )
 app.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
     prefix="/auth",
+    tags=["auth"],
 )
 app.include_router(
     fastapi_users.get_reset_password_router(),
     prefix="/auth",
+    tags=["auth"],
 )
 app.include_router(
     fastapi_users.get_verify_router(UserRead),
     prefix="/auth",
+    tags=["auth"],
 )
 app.include_router(
-    fastapi_users.get_users_router(UserRead, UserUpdate), prefix="/users"
+    fastapi_users.get_users_router(UserRead, UserUpdate),
+    prefix="/users",
+    tags=["users"],
 )
 
 
@@ -42,7 +48,9 @@ class TokenVerificationResponse(BaseModel):
     user: UserRead
 
 
-@app.post("/auth/jwt/verify-token", response_model=TokenVerificationResponse)
+@app.post(
+    "/auth/jwt/verify-token", response_model=TokenVerificationResponse, tags=["auth"]
+)
 async def verify_token(
     is_superuser: bool,
     user: User = Depends(current_active_user),
@@ -58,7 +66,7 @@ async def verify_token(
     return {"status": True, "user": user}
 
 
-@app.get("/authenticated-route")
+@app.get("/authenticated-route", tags=["demo"])
 async def authenticated_route(user: User = Depends(current_active_user)):
     """
     Example of an authenticated route.
