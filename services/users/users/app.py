@@ -1,7 +1,7 @@
 import threading
 
 from fastapi import Depends, FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi.responses import JSONResponse
 
 from .db import User
 from .init_db import migrate_to_latest
@@ -36,16 +36,11 @@ app.include_router(
 )
 
 
-class TokenVerificationResponse(BaseModel):
-    status: bool
-    user: User
-
-
 @app.post("/auth/jwt/verify-token")
 async def verify_token(
     is_superuser: bool,
     user: User = Depends(current_active_user),
-) -> TokenVerificationResponse:
+) -> JSONResponse:
     """
     Verifies a token in the authorization header. It is used by other services to authenticate users.
     If the is_superuser query parameter is set to true, the user must be a superuser.
@@ -54,8 +49,7 @@ async def verify_token(
         if not user.is_superuser:
             raise HTTPException(status_code=401, detail="Invalid authentication token")
 
-    response = TokenVerificationResponse(status=True, user=user)
-    return response
+    return {"status": True, "user": user}
 
 
 @app.get("/authenticated-route")
