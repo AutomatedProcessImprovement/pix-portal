@@ -7,9 +7,11 @@ services:
     env_file:
       - .env
     depends_on:
-      db:
+      users-db:
         condition: service_healthy
-  db:
+    networks:
+      - backend
+  users-db:
     image: postgres
     restart: on-failure
     user: postgres
@@ -26,6 +28,10 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
 volumes:
   db-data:
-
+networks:
+  backend:
+    name: pix_backend
