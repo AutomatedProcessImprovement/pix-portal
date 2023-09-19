@@ -1,7 +1,8 @@
 import threading
+from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException
-from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from .db import User
 from .init_db import migrate_to_latest
@@ -36,11 +37,16 @@ app.include_router(
 )
 
 
-@app.post("/auth/jwt/verify-token")
+class TokenVerificationResponse(BaseModel):
+    status: bool
+    user: UserRead
+
+
+@app.post("/auth/jwt/verify-token", response_model=TokenVerificationResponse)
 async def verify_token(
     is_superuser: bool,
     user: User = Depends(current_active_user),
-) -> JSONResponse:
+) -> Any:
     """
     Verifies a token in the authorization header. It is used by other services to authenticate users.
     If the is_superuser query parameter is set to true, the user must be a superuser.
