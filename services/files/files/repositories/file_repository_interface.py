@@ -1,3 +1,4 @@
+import uuid
 from abc import ABC, abstractmethod
 
 from .models import File
@@ -10,6 +11,14 @@ class FileRepositoryInterface(ABC):
 
     @abstractmethod
     def get_file(self, file_id: int) -> File:
+        pass
+
+    @abstractmethod
+    def get_file_by_hash(self, hash: str) -> File:
+        pass
+
+    @abstractmethod
+    def get_file_hash(self, file_id: uuid.UUID) -> str:
         pass
 
     @abstractmethod

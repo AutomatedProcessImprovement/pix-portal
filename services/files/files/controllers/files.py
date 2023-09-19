@@ -1,41 +1,46 @@
 import uuid
+from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, UploadFile
+from fastapi import APIRouter, Body, Depends, HTTPException, Response, UploadFile
 from fastapi.responses import FileResponse
 
-from ..repositories.models import File
 from ..services.auth import get_current_superuser, get_current_user
 from ..services.file import FileService, get_file_service
+from .schemas import FileOut, LocationOut
 
 router = APIRouter()
 
 
 @router.post("/")
 async def create_file(
-    file_bytes: bytes,
+    file_bytes: Annotated[bytes, Body()],
     file_service: FileService = Depends(get_file_service),
     user: dict = Depends(get_current_user),
-) -> File:
-    print(f"User {user['email']} is creating a file")
-    await file_service.save_file(file_bytes)
+    response_model=FileOut,
+) -> Any:
+    result = await file_service.save_file(file_bytes)
+    return FileOut.from_orm(result)
 
 
 @router.post("/upload")
 async def upload_file(
-    uploaded_file: UploadFile = File(...),
+    upload: UploadFile,
     file_service: FileService = Depends(get_file_service),
     user: dict = Depends(get_current_user),
-) -> File:
-    print(f"User {user['email']} is uploading a file")
-    await file_service.save_file(uploaded_file.file.read())
+    response_model=FileOut,
+) -> Any:
+    result = await file_service.save_file(upload.file.read())
+    return FileOut.from_orm(result)
 
 
 @router.get("/")
 async def get_files(
     file_service: FileService = Depends(get_file_service),
     user: dict = Depends(get_current_superuser),
-) -> list[File]:
-    return await file_service.get_files()
+    response_model=list[FileOut],
+) -> list[Any]:
+    result = await file_service.get_files()
+    return [FileOut.from_orm(file) for file in result]
 
 
 @router.get("/{file_id}")
@@ -43,17 +48,25 @@ async def get_file(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
     user: dict = Depends(get_current_user),
-) -> File:
-    return await file_service.get_file(file_id)
+    response_model=FileOut,
+) -> Any:
+    try:
+        result = await file_service.get_file(file_id)
+        return FileOut.from_orm(result)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="File not found")
 
 
-@router.delete("/{file_id}")
+@router.delete("/{file_id}", status_code=204)
 async def delete_file(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
     user: dict = Depends(get_current_user),
 ) -> None:
-    await file_service.delete_file(file_id)
+    try:
+        await file_service.delete_file(file_id)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="File not found")
 
 
 @router.get("/{file_id}/location")
@@ -61,8 +74,13 @@ async def get_file_location(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
     user: dict = Depends(get_current_user),
-) -> str:
-    return await file_service.get_file_url(file_id)
+    response_model=LocationOut,
+) -> Any:
+    try:
+        location = await file_service.get_file_url(file_id)
+        return LocationOut(location=location)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="File not found")
 
 
 @router.get("/{file_id}/content")
@@ -71,5 +89,8 @@ async def get_file_content(
     file_service: FileService = Depends(get_file_service),
     user: dict = Depends(get_current_user),
 ) -> FileResponse:
-    file_path = await file_service.get_file_path(file_id)
-    return FileResponse(file_path)
+    try:
+        file_path = await file_service.get_file_path(file_id)
+        return FileResponse(file_path)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="File not found")

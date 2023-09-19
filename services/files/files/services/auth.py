@@ -15,7 +15,7 @@ class TokenVerificationResponse(BaseModel):
 class AuthService:
     def __init__(self):
         self._client = httpx.AsyncClient()
-        self._jwt_verification_url = settings.jwt_verification_url
+        self._jwt_verification_url = settings.jwt_verification_url.unicode_string()
 
     async def verify_token(
         self, token: str, is_superuser: bool = False
@@ -25,6 +25,7 @@ class AuthService:
             self._jwt_verification_url,
             headers={"Authorization": f"Bearer {token}"},
             params=params,
+            follow_redirects=True,
         )
 
         if response.status_code != 200:
@@ -34,7 +35,7 @@ class AuthService:
         return response_data.status, response_data.user
 
 
-async def get_auth_service() -> AsyncGenerator[AuthService]:
+async def get_auth_service() -> AsyncGenerator[AuthService, None]:
     yield AuthService()
 
 

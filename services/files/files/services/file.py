@@ -16,19 +16,26 @@ class FileService:
         self.base_dir = settings.base_dir
         self.file_repository = file_repository
 
+        self.base_dir.mkdir(parents=True, exist_ok=True)
+
     async def save_file(self, file_bytes: bytes) -> File:
         hash = self._compute_sha256(file_bytes)
 
         if self._hash_exists_on_disk(hash):
-            return
-
-        file_path = self.base_dir / hash
-        with file_path.open("wb") as file:
-            file.write(file_bytes)
+            try:
+                file = await self.file_repository.get_file_by_hash(hash)
+                return file
+            except FileNotFoundError:
+                # File exists on disk but not in database, continue creating the database record
+                pass
+        else:
+            file_path = self.base_dir / hash
+            with file_path.open("wb") as file:
+                file.write(file_bytes)
 
         url = self._generate_url(hash)
 
-        await self.file_repository.create_file(hash, url)
+        return await self.file_repository.create_file(hash, url)
 
     async def get_files(self) -> list[File]:
         return await self.file_repository.get_files()
@@ -37,8 +44,9 @@ class FileService:
         return await self.file_repository.get_file(file_id)
 
     async def delete_file(self, file_id: uuid.UUID) -> None:
+        content_hash = await self.file_repository.get_file_hash(file_id)
         await self.file_repository.delete_file(file_id)
-        self._remove_file_from_disk(file_id)
+        self._remove_file_from_disk(content_hash)
 
     async def get_file_path(self, file_id: uuid.UUID) -> Path:
         file = await self.get_file(file_id)
@@ -57,7 +65,7 @@ class FileService:
 
     def _hash_exists_on_disk(self, hash: str) -> bool:
         file_path = self._file_path(hash)
-        return file_path.exists
+        return file_path.exists()
 
     @staticmethod
     def _generate_url(hash: str) -> str:
@@ -70,5 +78,5 @@ class FileService:
 
 async def get_file_service(
     file_repository: FileRepositoryInterface = Depends(get_file_repository),
-) -> AsyncGenerator[FileService]:
+) -> AsyncGenerator[FileService, None]:
     yield FileService(file_repository)
