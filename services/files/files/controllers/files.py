@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Response, UploadFile
+from fastapi import APIRouter, Body, Depends, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
 from ..services.auth import get_current_superuser, get_current_user
@@ -11,7 +11,7 @@ from .schemas import FileOut, LocationOut
 router = APIRouter()
 
 
-@router.post("/", response_model=FileOut)
+@router.post("/", response_model=FileOut, status_code=201)
 async def create_file(
     file_bytes: Annotated[bytes, Body()],
     file_service: FileService = Depends(get_file_service),
