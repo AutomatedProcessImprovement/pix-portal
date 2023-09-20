@@ -1,0 +1,38 @@
+GET http://localhost:8020/assets/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTIxNDQyMX0.dR6i-zisIpBcjnVzX1Q4meuQ1UoQC6D-09b-Gkknjok
+
+###
+
+POST http://localhost:8020/assets/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTIxNDQyMX0.dR6i-zisIpBcjnVzX1Q4meuQ1UoQC6D-09b-Gkknjok
+
+{
+    "name": "sample log",
+    "type": "event_log_csv",
+    "file_id": "b0417b51-bc53-4f47-a5e7-d68ee208718d",
+    "project_id": "b0417b51-bc53-4f47-a5e7-d68ee208718d"
+}
+
+###
+
+PATCH http://localhost:8020/assets/f00666bf-06c4-4ae5-98aa-6f4ad7bb40cf
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTIxNDQyMX0.dR6i-zisIpBcjnVzX1Q4meuQ1UoQC6D-09b-Gkknjok
+
+{
+    "name": "foo"
+}
+
+###
+
+GET http://localhost:8020/assets/f00666bf-06c4-4ae5-98aa-6f4ad7bb40cf/location
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTIxODE1NX0.YnZmNoLrQ15WCZZqRCVbjALNVYAdxchzFCU7zjzPfWg
+
+###
+
+POST http://localhost:8000/auth/jwt/login
+Content-Type: application/x-www-form-urlencoded
+
+username=foo@bar.com&password=1234
