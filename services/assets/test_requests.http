@@ -1,24 +1,28 @@
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTIxOTY0MX0.bTEMhdFtjdq-A1UpbdfTsbLJAjF5bQliiB1i5-uK8_M
+
+###
+
 GET http://localhost:8020/assets/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTIxNDQyMX0.dR6i-zisIpBcjnVzX1Q4meuQ1UoQC6D-09b-Gkknjok
+Authorization: Bearer {{token}}
 
 ###
 
 POST http://localhost:8020/assets/
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTIxNDQyMX0.dR6i-zisIpBcjnVzX1Q4meuQ1UoQC6D-09b-Gkknjok
+Authorization: Bearer {{token}}
 
 {
     "name": "sample log",
     "type": "event_log_csv",
-    "file_id": "b0417b51-bc53-4f47-a5e7-d68ee208718d",
-    "project_id": "b0417b51-bc53-4f47-a5e7-d68ee208718d"
+    "file_id": "b638947b-0225-45a9-abbe-8dacdfbf5d59",
+    "project_id": "b638947b-0225-45a9-abbe-8dacdfbf5d59"
 }
 
 ###
 
 PATCH http://localhost:8020/assets/f00666bf-06c4-4ae5-98aa-6f4ad7bb40cf
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTIxNDQyMX0.dR6i-zisIpBcjnVzX1Q4meuQ1UoQC6D-09b-Gkknjok
+Authorization: Bearer {{token}}
 
 {
     "name": "foo"
@@ -26,9 +30,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjN
 
 ###
 
-GET http://localhost:8020/assets/f00666bf-06c4-4ae5-98aa-6f4ad7bb40cf/location
+GET http://localhost:8020/assets/d44ab3ed-0516-4c86-9f9a-110542c96fb0/location
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTIxODE1NX0.YnZmNoLrQ15WCZZqRCVbjALNVYAdxchzFCU7zjzPfWg
+Authorization: Bearer {{token}}
 
 ###
 
