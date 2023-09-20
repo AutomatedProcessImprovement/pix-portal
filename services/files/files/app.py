@@ -1,6 +1,8 @@
 import threading
+import traceback
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
 from .controllers import blobs, files
 from .repositories.init_db import migrate_to_latest
@@ -19,6 +21,21 @@ app.include_router(
     prefix="/files",
     tags=["files"],
 )
+
+
+@app.exception_handler(Exception)
+async def exception_handler(request: Request, exc: Exception):
+    traceback_str = "".join(
+        traceback.format_exception(etype=type(exc), value=exc, tb=exc.__traceback__)
+    )
+    return JSONResponse(
+        status_code=500,
+        content={
+            "message": "Internal server error",
+            "detail": f"{exc}",
+            "traceback": traceback_str,
+        },
+    )
 
 
 @app.on_event("startup")
