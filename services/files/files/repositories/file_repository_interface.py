@@ -10,7 +10,7 @@ class FileRepositoryInterface(ABC):
         pass
 
     @abstractmethod
-    def get_file(self, file_id: int) -> File:
+    def get_file(self, file_id: uuid.UUID) -> File:
         pass
 
     @abstractmethod
