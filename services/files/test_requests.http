@@ -1,0 +1,21 @@
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTIxOTY0MX0.bTEMhdFtjdq-A1UpbdfTsbLJAjF5bQliiB1i5-uK8_M
+
+###
+
+GET http://localhost:8010/files/
+Authorization: Bearer foo
+
+###
+
+POST http://localhost:8010/files/
+Authorization: Bearer {{token}}
+Content-Type: application/octet-stream
+
+< ./requirements.txt
+
+###
+
+POST http://localhost:8000/auth/jwt/login
+Content-Type: application/x-www-form-urlencoded
+
+username=foo@bar.com&password=1234

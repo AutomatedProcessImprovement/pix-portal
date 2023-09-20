@@ -4,22 +4,21 @@ import traceback
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from .controllers import blobs, files
+from .controllers import assets
 from .repositories.init_db import migrate_to_latest
 
 app = FastAPI(
-    title="PIX Portal Files",
-    description="File service for PIX Portal.",
+    title="PIX Portal Assets",
+    description="Asset service for PIX Portal.",
     # TODO: update version programmatically
     version="0.1.0",
 )
 
 
-app.include_router(blobs.router, prefix="/blobs", tags=["blobs"])
 app.include_router(
-    files.router,
-    prefix="/files",
-    tags=["files"],
+    assets.router,
+    prefix="/assets",
+    tags=["assets"],
 )
 
 
