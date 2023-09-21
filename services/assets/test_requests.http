@@ -1,4 +1,4 @@
-@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTIxOTY0MX0.bTEMhdFtjdq-A1UpbdfTsbLJAjF5bQliiB1i5-uK8_M
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTMwNTAxMX0.8A6Wtuf1HRt6rj9QWbUKRBX2u3IpefwNx-UHTtsZz9o
 
 ###
 
@@ -12,10 +12,10 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "name": "sample log",
+    "name": "requirements.txt",
     "type": "event_log_csv",
-    "file_id": "b638947b-0225-45a9-abbe-8dacdfbf5d59",
-    "project_id": "b638947b-0225-45a9-abbe-8dacdfbf5d59"
+    "file_id": "411aac8c-a236-4248-b3f6-d80e6ee4c536",
+    "project_id": "6eb59a7b-a476-4a4b-a9a8-46963693c5e5"
 }
 
 ###

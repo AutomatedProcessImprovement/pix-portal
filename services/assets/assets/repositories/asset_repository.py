@@ -80,7 +80,6 @@ class AssetRepository(AssetRepositoryInterface):
         file_id: Optional[uuid.UUID] = None,
         project_id: Optional[uuid.UUID] = None,
         processing_requests_ids: Optional[list[uuid.UUID]] = None,
-        modification_time: Optional[datetime] = None,
     ) -> Asset:
         asset = await self.get_asset(asset_id)
         if name is not None:
@@ -95,8 +94,7 @@ class AssetRepository(AssetRepositoryInterface):
             asset.project_id = project_id
         if processing_requests_ids is not None:
             asset.processing_requests_ids = processing_requests_ids
-        if modification_time is not None:
-            asset.modification_time = modification_time
+        asset.modification_time = datetime.utcnow()
         await self.session.commit()
         return asset
 
