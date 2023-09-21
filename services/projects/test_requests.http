@@ -1,0 +1,55 @@
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTMwMzEwMX0.tHGEXItZ9MbS1GiadVAtvQZLtGUu0FLTe7kf_t6cdBo
+
+###
+
+GET http://localhost:8030/projects/
+Authorization: Bearer {{token}}
+
+
+###
+
+GET http://localhost:8030/projects/?user_id=48dd57c6-9d7d-45ff-9be0-21426eb0b32e
+Authorization: Bearer {{token}}
+
+###
+
+POST http://localhost:8030/projects/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "name": "project one"
+}
+
+###
+
+PATCH http://localhost:8030/projects/725c14d3-df43-4666-9c8d-f316546471d2
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "name": "foo"
+}
+
+###
+
+POST http://localhost:8030/projects/6eb59a7b-a476-4a4b-a9a8-46963693c5e5/assets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "asset_id": "fb97326a-b762-4e5a-932d-bdd4cca3db96"
+}
+
+###
+
+DELETE http://localhost:8030/projects/6eb59a7b-a476-4a4b-a9a8-46963693c5e5/assets/fb97326a-b762-4e5a-932d-bdd4cca3db96
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+
+POST http://localhost:8000/auth/jwt/login
+Content-Type: application/x-www-form-urlencoded
+
+username=foo@bar.com&password=1234
