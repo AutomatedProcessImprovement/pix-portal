@@ -29,7 +29,7 @@ class AssetOut(BaseModel):
     processing_requests_ids: list[uuid.UUID] = []
 
 
-class AssetUpdateIn(BaseModel):
+class AssetPatchIn(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     type: Optional[AssetType] = None

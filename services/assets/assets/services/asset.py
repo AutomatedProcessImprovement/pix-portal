@@ -62,7 +62,6 @@ class AssetService:
         processing_requests_ids: Optional[list[uuid.UUID]] = None,
         description: Optional[str] = None,
     ) -> Asset:
-        modification_time = datetime.utcnow()
         return await self.asset_repository.update_asset(
             asset_id,
             name=name,
@@ -71,7 +70,6 @@ class AssetService:
             project_id=project_id,
             processing_requests_ids=processing_requests_ids,
             description=description,
-            modification_time=modification_time,
         )
 
     async def delete_asset(self, asset_id: uuid.UUID, token: str) -> None:

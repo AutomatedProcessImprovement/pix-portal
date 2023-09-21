@@ -47,7 +47,6 @@ class AssetRepositoryInterface(ABC):
         file_id: Optional[UUID] = None,
         project_id: Optional[UUID] = None,
         processing_requests_ids: Optional[list[UUID]] = None,
-        modification_time: Optional[datetime] = None,
     ) -> Asset:
         pass
 

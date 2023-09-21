@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 from ..repositories.asset_repository import AssetNotFound
 from ..services.asset import AssetService, get_asset_service
 from ..services.auth import get_current_user
-from .schemas import AssetIn, AssetOut, AssetUpdateIn, LocationOut
+from .schemas import AssetIn, AssetOut, AssetPatchIn, LocationOut
 
 router = APIRouter()
 
@@ -16,17 +16,17 @@ router = APIRouter()
 @router.get("/", response_model=list[AssetOut])
 async def get_assets(
     asset_service: AssetService = Depends(get_asset_service),
-    by_project_id: Optional[uuid.UUID] = None,
-    by_processing_request_id: Optional[uuid.UUID] = None,
+    project_id: Optional[uuid.UUID] = None,
+    processing_request_id: Optional[uuid.UUID] = None,
     user: dict = Depends(get_current_user),
 ) -> list[Any]:
-    if by_project_id:
-        result = await asset_service.get_assets_by_project_id(by_project_id)
+    if project_id:
+        result = await asset_service.get_assets_by_project_id(project_id)
         return result
 
-    if by_processing_request_id:
+    if processing_request_id:
         result = await asset_service.get_assets_by_processing_request_id(
-            by_processing_request_id
+            processing_request_id
         )
         return result
 
@@ -59,15 +59,15 @@ async def get_asset(
 
 
 @router.patch("/{asset_id}", response_model=AssetOut)
-async def update_asset(
+async def patch_asset(
     asset_id: uuid.UUID,
-    asset_update_date: AssetUpdateIn,
+    asset_data: AssetPatchIn,
     asset_service: AssetService = Depends(get_asset_service),
     user: dict = Depends(get_current_user),
 ) -> Any:
     try:
         result = await asset_service.update_asset(
-            asset_id, **asset_update_date.model_dump()
+            asset_id, **asset_data.model_dump(exclude_none=True)
         )
         return result
     except AssetNotFound:
