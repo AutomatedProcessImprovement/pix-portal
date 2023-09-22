@@ -8,9 +8,7 @@ class Settings(BaseSettings):
     database_url: PostgresDsn
     secret_key: str
 
-    model_config = SettingsConfigDict(
-        env_file=Path(__file__).parent.parent / ".env", extra="allow"
-    )
+    model_config = SettingsConfigDict(env_file=Path(__file__).parent.parent / ".env", extra="allow")
 
 
 settings = Settings()

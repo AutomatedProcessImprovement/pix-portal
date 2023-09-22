@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator, Optional, Sequence
 
 from fastapi import Depends
 from sqlalchemy import select, update
@@ -23,23 +23,17 @@ class AssetRepository(AssetRepositoryInterface):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_assets(self) -> list[Asset]:
+    async def get_assets(self) -> Sequence[Asset]:
         result = await self.session.execute(select(Asset))
         return result.scalars().all()
 
-    async def get_assets_by_project_id(self, project_id: uuid.UUID) -> list[Asset]:
-        result = await self.session.execute(
-            select(Asset).where(Asset.project_id == project_id)
-        )
+    async def get_assets_by_project_id(self, project_id: uuid.UUID) -> Sequence[Asset]:
+        result = await self.session.execute(select(Asset).where(Asset.project_id == project_id))
         return result.scalars().all()
 
-    async def get_assets_by_processing_request_id(
-        self, processing_request_id: uuid.UUID
-    ) -> list[Asset]:
+    async def get_assets_by_processing_request_id(self, processing_request_id: uuid.UUID) -> Sequence[Asset]:
         result = await self.session.execute(
-            select(Asset).where(
-                Asset.processing_requests_ids.contains(processing_request_id)
-            )
+            select(Asset).where(Asset.processing_requests_ids.contains(processing_request_id))
         )
         return result.scalars().all()
 
@@ -99,11 +93,7 @@ class AssetRepository(AssetRepositoryInterface):
         return asset
 
     async def delete_asset(self, asset_id: uuid.UUID) -> None:
-        await self.session.execute(
-            update(Asset)
-            .where(Asset.id == asset_id)
-            .values(deletion_time=datetime.utcnow())
-        )
+        await self.session.execute(update(Asset).where(Asset.id == asset_id).values(deletion_time=datetime.utcnow()))
         await self.session.commit()
 
 

@@ -17,9 +17,7 @@ class FileService:
         Gets a file using the file service.
         """
         url = self._file_resource_url(file_id)
-        response = await self._client.get(
-            url, headers={"Authorization": f"Bearer {token}"}
-        )
+        response = await self._client.get(url, headers={"Authorization": f"Bearer {token}"})
         return response.json()
 
     async def delete_file(self, file_id: uuid.UUID, token: str) -> bool:
@@ -28,9 +26,7 @@ class FileService:
         Returns True if the file was deleted successfully.
         """
         url = self._file_resource_url(file_id)
-        response = await self._client.delete(
-            url, headers={"Authorization": f"Bearer {token}"}
-        )
+        response = await self._client.delete(url, headers={"Authorization": f"Bearer {token}"})
 
         if response.status_code == 204:
             return True

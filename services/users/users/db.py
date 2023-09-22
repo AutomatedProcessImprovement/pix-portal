@@ -24,12 +24,8 @@ class Base(AsyncAttrs, DeclarativeBase):
 class User(SQLAlchemyBaseUserTableUUID, Base):
     first_name: Mapped[str] = mapped_column(nullable=False)
     last_name: Mapped[str] = mapped_column(nullable=False)
-    creation_time: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.utcnow
-    )
-    modification_time: Mapped[Optional[datetime]] = mapped_column(
-        DateTime, nullable=True
-    )
+    creation_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    modification_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     deletion_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     last_login_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
@@ -48,5 +44,5 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-async def get_user_db(session: AsyncSession = Depends(get_async_session)):
+async def get_users_db(session: AsyncSession = Depends(get_async_session)):
     yield SQLAlchemyUserDatabase(session, User)

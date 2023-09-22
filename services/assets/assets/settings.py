@@ -9,9 +9,7 @@ class Settings(BaseSettings):
     jwt_verification_url: HttpUrl
     file_service_url: HttpUrl
 
-    model_config = SettingsConfigDict(
-        env_file=Path(__file__).parent.parent / ".env", extra="allow"
-    )
+    model_config = SettingsConfigDict(env_file=Path(__file__).parent.parent / ".env", extra="allow")
 
 
 settings = Settings()

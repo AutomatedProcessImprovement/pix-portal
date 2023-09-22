@@ -25,9 +25,7 @@ async def get_assets(
         return result
 
     if processing_request_id:
-        result = await asset_service.get_assets_by_processing_request_id(
-            processing_request_id
-        )
+        result = await asset_service.get_assets_by_processing_request_id(processing_request_id)
         return result
 
     return await asset_service.get_assets()
@@ -66,9 +64,7 @@ async def patch_asset(
     user: dict = Depends(get_current_user),
 ) -> Any:
     try:
-        result = await asset_service.update_asset(
-            asset_id, **asset_data.model_dump(exclude_none=True)
-        )
+        result = await asset_service.update_asset(asset_id, **asset_data.model_dump(exclude_none=True))
         return result
     except AssetNotFound:
         raise HTTPException(status_code=404, detail="Asset not found")

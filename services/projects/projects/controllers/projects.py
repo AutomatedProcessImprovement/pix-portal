@@ -3,6 +3,13 @@ from typing import Annotated, Any, Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException
 
+from .schemas import (
+    AddAssetToProjectIn,
+    AddUserToProjectIn,
+    ProjectIn,
+    ProjectOut,
+    ProjectPatchIn,
+)
 from ..repositories.models import Project
 from ..repositories.project_repository import ProjectNotFound
 from ..services.auth import get_current_user
@@ -11,13 +18,6 @@ from ..services.project import (
     ProjectService,
     UserNotFound,
     get_project_service,
-)
-from .schemas import (
-    AddAssetToProjectIn,
-    AddUserToProjectIn,
-    ProjectIn,
-    ProjectOut,
-    ProjectPatchIn,
 )
 
 router = APIRouter()
@@ -79,9 +79,7 @@ async def create_project(
     token: str = Depends(_get_token),
 ) -> Any:
     try:
-        return await project_service.create_project(
-            **project_data.model_dump(), token=token, current_user=user
-        )
+        return await project_service.create_project(**project_data.model_dump(), token=token, current_user=user)
     except AssetNotFound:
         raise AssetNotFoundHTTP()
     except UserNotFound:
@@ -112,9 +110,7 @@ async def patch_project(
     try:
         project = await project_service.get_project(project_id)
         _raise_for_no_access_to_project(project, user)
-        return await project_service.update_project(
-            project_id, **project_update_data.model_dump(exclude_none=True)
-        )
+        return await project_service.update_project(project_id, **project_update_data.model_dump(exclude_none=True))
     except ProjectNotFound:
         raise ProjectNotFoundHTTP()
 
@@ -163,18 +159,14 @@ async def add_user_to_project(
     try:
         project = await project_service.get_project(project_id)
         _raise_for_no_access_to_project(project, user)
-        return await project_service.add_user_to_project(
-            project_id, user_data.user_id, token=token
-        )
+        return await project_service.add_user_to_project(project_id, user_data.user_id, token=token)
     except ProjectNotFound:
         raise ProjectNotFoundHTTP()
     except UserNotFound:
         raise UserNotFoundHTTP()
 
 
-@router.delete(
-    "/{project_id}/users/{user_id}", response_model=ProjectOut, tags=["project_users"]
-)
+@router.delete("/{project_id}/users/{user_id}", response_model=ProjectOut, tags=["project_users"])
 async def remove_user_from_project(
     project_id: uuid.UUID,
     user_id: uuid.UUID,
@@ -185,9 +177,7 @@ async def remove_user_from_project(
     try:
         project = await project_service.get_project(project_id)
         _raise_for_no_access_to_project(project, user)
-        return await project_service.remove_user_from_project(
-            project_id, user_id, token=token
-        )
+        return await project_service.remove_user_from_project(project_id, user_id, token=token)
     except ProjectNotFound:
         raise ProjectNotFoundHTTP()
     except UserNotFound:
@@ -223,9 +213,7 @@ async def add_asset_to_project(
     try:
         project = await project_service.get_project(project_id)
         _raise_for_no_access_to_project(project, user)
-        return await project_service.add_asset_to_project(
-            project_id, asset_data.asset_id, token=token
-        )
+        return await project_service.add_asset_to_project(project_id, asset_data.asset_id, token=token)
     except ProjectNotFound:
         raise ProjectNotFoundHTTP()
     except AssetNotFound:
@@ -247,9 +235,7 @@ async def remove_asset_from_project(
     try:
         project = await project_service.get_project(project_id)
         _raise_for_no_access_to_project(project, user)
-        return await project_service.remove_asset_from_project(
-            project_id, asset_id, token=token
-        )
+        return await project_service.remove_asset_from_project(project_id, asset_id, token=token)
     except ProjectNotFound:
         raise ProjectNotFoundHTTP()
     except AssetNotFound:
@@ -257,6 +243,9 @@ async def remove_asset_from_project(
 
 
 def _raise_for_no_access_to_project(project: Project, user: dict) -> None:
+    if user["is_superuser"]:
+        return
+
     project_user_ids = [str(uid) for uid in project.users_ids]
     user_id = str(user["id"])
     if user_id not in project_user_ids:

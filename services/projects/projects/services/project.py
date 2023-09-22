@@ -3,11 +3,11 @@ from typing import AsyncGenerator, Optional
 
 from fastapi import Depends
 
-from ..repositories.models import Project
-from ..repositories.project_repository import get_project_repository
-from ..repositories.project_repository_interface import ProjectRepositoryInterface
 from .asset import AssetService, get_asset_service
 from .user import UserService, get_user_service
+from ..repositories.models import Project
+from ..repositories.project_repository import get_project_repository, ProjectRepository
+from ..repositories.project_repository_interface import ProjectRepositoryInterface
 
 
 class UserNotFound(Exception):
@@ -33,7 +33,7 @@ class ProjectHasNoUsers(Exception):
 class ProjectService:
     def __init__(
         self,
-        project_repository: ProjectRepositoryInterface,
+        project_repository: ProjectRepository,
         asset_service: AssetService,
         user_service: UserService,
     ) -> None:
@@ -90,9 +90,7 @@ class ProjectService:
 
     async def get_project_assets(self, project_id: uuid.UUID, token: str) -> list[dict]:
         project = await self._project_repository.get_project(project_id)
-        return await self._asset_service.get_assets_by_ids(
-            project.assets_ids, token=token
-        )
+        return await self._asset_service.get_assets_by_ids(project.assets_ids, token=token)
 
     async def update_project(
         self,
@@ -100,22 +98,16 @@ class ProjectService:
         name: Optional[str] = None,
         description: Optional[str] = None,
     ) -> Project:
-        return await self._project_repository.update_project(
-            project_id, name, description
-        )
+        return await self._project_repository.update_project(project_id, name, description)
 
-    async def add_user_to_project(
-        self, project_id: uuid.UUID, user_id: uuid.UUID, token: str
-    ) -> Project:
+    async def add_user_to_project(self, project_id: uuid.UUID, user_id: uuid.UUID, token: str) -> Project:
         ok = await self._user_service.does_user_exist(user_id, token)
         if not ok:
             raise UserNotFound()
 
         return await self._project_repository.add_user_to_project(project_id, user_id)
 
-    async def remove_user_from_project(
-        self, project_id: uuid.UUID, user_id: uuid.UUID, token: str
-    ) -> Project:
+    async def remove_user_from_project(self, project_id: uuid.UUID, user_id: uuid.UUID, token: str) -> Project:
         ok = await self._user_service.does_user_exist(user_id, token)
         if not ok:
             raise UserNotFound()
@@ -126,47 +118,35 @@ class ProjectService:
         elif len(project.users_ids) <= 0:
             raise ProjectHasNoUsers()
 
-        return await self._project_repository.remove_user_from_project(
-            project_id, user_id
-        )
+        return await self._project_repository.remove_user_from_project(project_id, user_id)
 
-    async def add_asset_to_project(
-        self, project_id: uuid.UUID, asset_id: uuid.UUID, token: str
-    ) -> Project:
+    async def add_asset_to_project(self, project_id: uuid.UUID, asset_id: uuid.UUID, token: str) -> Project:
         ok = await self._asset_service.does_asset_exist(asset_id, token)
         if not ok:
             raise AssetNotFound()
 
         return await self._project_repository.add_asset_to_project(project_id, asset_id)
 
-    async def remove_asset_from_project(
-        self, project_id: uuid.UUID, asset_id: uuid.UUID, token: str
-    ) -> Project:
+    async def remove_asset_from_project(self, project_id: uuid.UUID, asset_id: uuid.UUID, token: str) -> Project:
         ok = await self._asset_service.delete_asset(asset_id, token)
         if not ok:
             raise AssetDeletionFailed()
 
         # TODO: check if there are any processing requests with this asset
 
-        return await self._project_repository.remove_asset_from_project(
-            project_id, asset_id
-        )
+        return await self._project_repository.remove_asset_from_project(project_id, asset_id)
 
     async def add_processing_request_to_project(
         self, project_id: uuid.UUID, processing_request_id: uuid.UUID, token: str
     ) -> Project:
         # TODO: check if processing request exists
 
-        return await self._project_repository.add_processing_request_to_project(
-            project_id, processing_request_id
-        )
+        return await self._project_repository.add_processing_request_to_project(project_id, processing_request_id)
 
     async def delete_project(self, project_id: uuid.UUID, token: str) -> None:
         # TODO: cancel processing requests
 
-        assetes_deleted = await self._asset_service.delete_assets_by_project_id(
-            project_id, token
-        )
+        assetes_deleted = await self._asset_service.delete_assets_by_project_id(project_id, token)
         if not assetes_deleted:
             raise AssetDeletionFailed()
 
