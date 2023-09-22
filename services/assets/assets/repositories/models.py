@@ -28,12 +28,8 @@ class Asset(Base):
 
     # Timestamps
 
-    creation_time: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.utcnow
-    )
-    modification_time: Mapped[Optional[datetime]] = mapped_column(
-        DateTime, nullable=True
-    )
+    creation_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    modification_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     deletion_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     # Asset information
@@ -46,6 +42,4 @@ class Asset(Base):
 
     file_id: Mapped[Optional[uuid.UUID]] = mapped_column(Uuid, nullable=False)
     project_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
-    processing_requests_ids: Mapped[list[uuid.UUID]] = mapped_column(
-        ARRAY(Uuid), nullable=False, default=[]
-    )
+    processing_requests_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[])

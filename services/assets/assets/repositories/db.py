@@ -20,5 +20,5 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-async def get_files_db(session: AsyncSession = Depends(get_async_session)):
+async def get_assets_db(session: AsyncSession = Depends(get_async_session)):
     yield session

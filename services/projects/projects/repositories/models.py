@@ -19,15 +19,9 @@ class Project(Base):
 
     # Timestamps
 
-    creation_time: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.utcnow, index=True
-    )
-    modification_time: Mapped[Optional[datetime]] = mapped_column(
-        DateTime, nullable=True, index=True
-    )
-    deletion_time: Mapped[Optional[datetime]] = mapped_column(
-        DateTime, nullable=True, index=True
-    )
+    creation_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow, index=True)
+    modification_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, index=True)
+    deletion_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, index=True)
 
     # Project information
 
@@ -37,12 +31,8 @@ class Project(Base):
     # Implicit relationships to other microservices' tables
 
     # must have at least one user
-    users_ids: Mapped[list[uuid.UUID]] = mapped_column(
-        ARRAY(Uuid), nullable=False, default=[], index=True
-    )
-    assets_ids: Mapped[list[uuid.UUID]] = mapped_column(
-        ARRAY(Uuid), nullable=False, default=[], index=True
-    )
+    users_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[], index=True)
+    assets_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[], index=True)
     processing_requests_ids: Mapped[list[uuid.UUID]] = mapped_column(
         ARRAY(Uuid), nullable=False, default=[], index=True
     )

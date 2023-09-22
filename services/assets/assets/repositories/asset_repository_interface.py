@@ -16,9 +16,7 @@ class AssetRepositoryInterface(ABC):
         pass
 
     @abstractmethod
-    def get_assets_by_processing_request_id(
-        self, processing_request_id: UUID
-    ) -> list[Asset]:
+    def get_assets_by_processing_request_id(self, processing_request_id: UUID) -> list[Asset]:
         pass
 
     @abstractmethod

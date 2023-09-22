@@ -29,9 +29,7 @@ class ProjectRepository(ProjectRepositoryInterface):
         return result.scalars().all()
 
     async def get_projects_by_user_id(self, user_id: UUID) -> list[Project]:
-        result = await self.session.execute(
-            select(Project).where(Project.users_ids.contains([user_id]))
-        )
+        result = await self.session.execute(select(Project).where(Project.users_ids.contains([user_id])))
         return result.scalars().all()
 
     async def create_project(
@@ -54,9 +52,7 @@ class ProjectRepository(ProjectRepositoryInterface):
         return project
 
     async def get_project(self, project_id: uuid.UUID) -> Project:
-        result = await self.session.execute(
-            select(Project).where(Project.id == project_id)
-        )
+        result = await self.session.execute(select(Project).where(Project.id == project_id))
         project = result.scalar()
         if project is None:
             raise ProjectNotFound()
@@ -77,9 +73,7 @@ class ProjectRepository(ProjectRepositoryInterface):
         await self.session.commit()
         return project
 
-    async def add_user_to_project(
-        self, project_id: uuid.UUID, user_id: uuid.UUID
-    ) -> Project:
+    async def add_user_to_project(self, project_id: uuid.UUID, user_id: uuid.UUID) -> Project:
         project = await self.get_project(project_id)
 
         # NOTE: don't use "append" on arrays because it doesn't trigger SQLAlchemy to update the database
@@ -91,9 +85,7 @@ class ProjectRepository(ProjectRepositoryInterface):
         await self.session.commit()
         return project
 
-    async def remove_user_from_project(
-        self, project_id: uuid.UUID, user_id: uuid.UUID
-    ) -> Project:
+    async def remove_user_from_project(self, project_id: uuid.UUID, user_id: uuid.UUID) -> Project:
         project = await self.get_project(project_id)
 
         # NOTE: don't use "append" on arrays because it doesn't trigger SQLAlchemy to update the database
@@ -104,9 +96,7 @@ class ProjectRepository(ProjectRepositoryInterface):
         await self.session.commit()
         return project
 
-    async def add_asset_to_project(
-        self, project_id: uuid.UUID, asset_id: uuid.UUID
-    ) -> Project:
+    async def add_asset_to_project(self, project_id: uuid.UUID, asset_id: uuid.UUID) -> Project:
         project = await self.get_project(project_id)
 
         # NOTE: don't use "append" on arrays because it doesn't trigger SQLAlchemy to update the database
@@ -118,15 +108,11 @@ class ProjectRepository(ProjectRepositoryInterface):
         await self.session.commit()
         return project
 
-    async def remove_asset_from_project(
-        self, project_id: uuid.UUID, asset_id: uuid.UUID
-    ) -> Project:
+    async def remove_asset_from_project(self, project_id: uuid.UUID, asset_id: uuid.UUID) -> Project:
         project = await self.get_project(project_id)
 
         # NOTE: don't use "append" on arrays because it doesn't trigger SQLAlchemy to update the database
         #   https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#sqlalchemy.dialects.postgresql.ARRAY
-        print(f"project.assets_ids: {project.assets_ids}")
-        print(f"asset_id: {asset_id}")
         assets_ids = self._remove_item_from_list(project.assets_ids, asset_id)
         project.assets_ids = assets_ids
 
@@ -141,9 +127,7 @@ class ProjectRepository(ProjectRepositoryInterface):
 
         # NOTE: don't use "append" on arrays because it doesn't trigger SQLAlchemy to update the database
         #   https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#sqlalchemy.dialects.postgresql.ARRAY
-        processing_requests_ids = project.processing_requests_ids + [
-            processing_request_id
-        ]
+        processing_requests_ids = project.processing_requests_ids + [processing_request_id]
         project.processing_requests_ids = list(set(processing_requests_ids))
 
         project.modification_time = datetime.utcnow()
@@ -152,9 +136,7 @@ class ProjectRepository(ProjectRepositoryInterface):
 
     async def delete_project(self, project_id: uuid.UUID) -> None:
         await self.session.execute(
-            update(Project)
-            .where(Project.id == project_id)
-            .values(deletion_time=datetime.utcnow())
+            update(Project).where(Project.id == project_id).values(deletion_time=datetime.utcnow())
         )
         await self.session.commit()
 

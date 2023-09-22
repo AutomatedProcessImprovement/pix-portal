@@ -17,9 +17,7 @@ class AuthService:
         self._client = httpx.AsyncClient()
         self._jwt_verification_url = settings.jwt_verification_url.unicode_string()
 
-    async def verify_token(
-        self, token: str, is_superuser: bool = False
-    ) -> tuple[bool, Optional[dict]]:
+    async def verify_token(self, token: str, is_superuser: bool = False) -> tuple[bool, Optional[dict]]:
         params = {"is_superuser": is_superuser}
         response = await self._client.post(
             self._jwt_verification_url,

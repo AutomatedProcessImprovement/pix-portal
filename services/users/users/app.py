@@ -48,9 +48,7 @@ class TokenVerificationResponse(BaseModel):
     user: UserRead
 
 
-@app.post(
-    "/auth/jwt/verify-token", response_model=TokenVerificationResponse, tags=["auth"]
-)
+@app.post("/auth/jwt/verify-token", response_model=TokenVerificationResponse, tags=["auth"])
 async def verify_token(
     is_superuser: bool,
     user: User = Depends(current_active_user),

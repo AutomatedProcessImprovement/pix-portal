@@ -24,9 +24,7 @@ app.include_router(
 
 @app.exception_handler(Exception)
 async def exception_handler(request: Request, exc: Exception):
-    traceback_str = "".join(
-        traceback.format_exception(etype=type(exc), value=exc, tb=exc.__traceback__)
-    )
+    traceback_str = "".join(traceback.format_exception(etype=type(exc), value=exc, tb=exc.__traceback__))
     return JSONResponse(
         status_code=500,
         content={

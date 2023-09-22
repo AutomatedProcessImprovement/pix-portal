@@ -27,17 +27,13 @@ class FileRepository(FileRepositoryInterface):
         return file
 
     async def get_file_by_hash(self, hash: str) -> File:
-        result = await self.session.execute(
-            select(File).where(File.content_hash == hash)
-        )
+        result = await self.session.execute(select(File).where(File.content_hash == hash))
         file = result.scalar()
         if file is None:
             raise FileNotFoundError()
-    
+
     async def get_file_hash(self, file_id: uuid.UUID) -> str:
-        result = await self.session.execute(
-            select(File.content_hash).where(File.id == file_id)
-        )
+        result = await self.session.execute(select(File.content_hash).where(File.id == file_id))
         content_hash = result.scalar()
         if content_hash is None:
             raise FileNotFoundError()
@@ -50,11 +46,7 @@ class FileRepository(FileRepositoryInterface):
         return file
 
     async def delete_file(self, file_id: uuid.UUID) -> None:
-        await self.session.execute(
-            update(File)
-            .where(File.id == file_id)
-            .values(deletion_time=datetime.utcnow())
-        )
+        await self.session.execute(update(File).where(File.id == file_id).values(deletion_time=datetime.utcnow()))
         await self.session.commit()
 
 

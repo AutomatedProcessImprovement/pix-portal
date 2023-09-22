@@ -55,9 +55,7 @@ class ProjectRepositoryInterface(ABC):
         pass
 
     @abstractmethod
-    def add_processing_request_to_project(
-        self, project_id: UUID, processing_request_id: UUID
-    ) -> Project:
+    def add_processing_request_to_project(self, project_id: UUID, processing_request_id: UUID) -> Project:
         pass
 
     @abstractmethod

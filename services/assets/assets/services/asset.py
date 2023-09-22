@@ -11,9 +11,7 @@ from .file import FileService
 
 
 class AssetService:
-    def __init__(
-        self, asset_repository: AssetRepositoryInterface, file_service: FileService
-    ) -> None:
+    def __init__(self, asset_repository: AssetRepositoryInterface, file_service: FileService) -> None:
         self.asset_repository = asset_repository
         self.file_service = file_service
 
@@ -23,12 +21,8 @@ class AssetService:
     async def get_assets_by_project_id(self, project_id: uuid.UUID) -> list[Asset]:
         return await self.asset_repository.get_assets_by_project_id(project_id)
 
-    async def get_assets_by_processing_request_id(
-        self, processing_request_id: uuid.UUID
-    ) -> list[Asset]:
-        return await self.asset_repository.get_assets_by_processing_request_id(
-            processing_request_id
-        )
+    async def get_assets_by_processing_request_id(self, processing_request_id: uuid.UUID) -> list[Asset]:
+        return await self.asset_repository.get_assets_by_processing_request_id(processing_request_id)
 
     async def create_asset(
         self,

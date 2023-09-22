@@ -28,18 +28,12 @@ class AssetRepository(AssetRepositoryInterface):
         return result.scalars().all()
 
     async def get_assets_by_project_id(self, project_id: uuid.UUID) -> list[Asset]:
-        result = await self.session.execute(
-            select(Asset).where(Asset.project_id == project_id)
-        )
+        result = await self.session.execute(select(Asset).where(Asset.project_id == project_id))
         return result.scalars().all()
 
-    async def get_assets_by_processing_request_id(
-        self, processing_request_id: uuid.UUID
-    ) -> list[Asset]:
+    async def get_assets_by_processing_request_id(self, processing_request_id: uuid.UUID) -> list[Asset]:
         result = await self.session.execute(
-            select(Asset).where(
-                Asset.processing_requests_ids.contains(processing_request_id)
-            )
+            select(Asset).where(Asset.processing_requests_ids.contains(processing_request_id))
         )
         return result.scalars().all()
 
@@ -99,11 +93,7 @@ class AssetRepository(AssetRepositoryInterface):
         return asset
 
     async def delete_asset(self, asset_id: uuid.UUID) -> None:
-        await self.session.execute(
-            update(Asset)
-            .where(Asset.id == asset_id)
-            .values(deletion_time=datetime.utcnow())
-        )
+        await self.session.execute(update(Asset).where(Asset.id == asset_id).values(deletion_time=datetime.utcnow()))
         await self.session.commit()
 
 

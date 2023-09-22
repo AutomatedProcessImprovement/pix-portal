@@ -11,9 +11,7 @@ class Settings(BaseSettings):
     user_service_url: HttpUrl
     processing_request_service_url: HttpUrl
 
-    model_config = SettingsConfigDict(
-        env_file=Path(__file__).parent.parent / ".env", extra="allow"
-    )
+    model_config = SettingsConfigDict(env_file=Path(__file__).parent.parent / ".env", extra="allow")
 
 
 settings = Settings()

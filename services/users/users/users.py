@@ -11,7 +11,7 @@ from fastapi_users.authentication import (
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
 
-from .db import User, get_user_db
+from .db import User, get_users_db
 from .settings import settings
 
 SECRET = settings.secret_key
@@ -25,9 +25,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         timestamp = datetime.utcnow()
         await self.user_db.update(user, {"creation_time": timestamp})
 
-    async def on_after_update(
-        self, user: User, update_dict: Dict[str, Any], request: Optional[Request] = None
-    ):
+    async def on_after_update(self, user: User, update_dict: Dict[str, Any], request: Optional[Request] = None):
         timestamp = datetime.utcnow()
         await self.user_db.update(user, {"modification_time": timestamp})
 
@@ -45,21 +43,17 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         timestamp = datetime.utcnow()
         await self.user_db.update(user, {"deletion_time": timestamp})
 
-    async def on_after_forgot_password(
-        self, user: User, token: str, request: Optional[Request] = None
-    ):
+    async def on_after_forgot_password(self, user: User, token: str, request: Optional[Request] = None):
         # TODO: send email with a link to reset password, token is the reset password token
         #   that can be used in the /auth/reset-password endpoint
         print(f"User {user.id} has forgot their password. Reset token: {token}")
 
-    async def on_after_request_verify(
-        self, user: User, token: str, request: Optional[Request] = None
-    ):
+    async def on_after_request_verify(self, user: User, token: str, request: Optional[Request] = None):
         # TODO: implement verification email sending
         print(f"Verification requested for user {user.id}. Verification token: {token}")
 
 
-async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
+async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_users_db)):
     yield UserManager(user_db)
 
 
