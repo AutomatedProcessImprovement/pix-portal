@@ -1,0 +1,180 @@
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OGRkNTdjNi05ZDdkLTQ1ZmYtOWJlMC0yMTQyNmViMGIzMmUiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTY5NTM3ODQ0OX0.x9q7iqkwIBWr_jiYK7qDerHZLss3Fne9RggP2r44T-Y
+
+### Get a JWT
+
+POST http://localhost:8000/auth/jwt/login
+Content-Type: application/x-www-form-urlencoded
+
+username = foo@bar.com &
+password = 1234
+
+###
+### Projects
+###
+
+### List projects
+
+GET http://localhost:8030/projects/
+Authorization: Bearer {{token}}
+
+###
+
+GET http://localhost:8030/projects/?user_id=48dd57c6-9d7d-45ff-9be0-21426eb0b32e
+Authorization: Bearer {{token}}
+
+### Add a project
+
+POST http://localhost:8030/projects/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "project one"
+}
+
+###
+
+PATCH http://localhost:8030/projects/725c14d3-df43-4666-9c8d-f316546471d2
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "foo"
+}
+
+###
+
+POST http://localhost:8030/projects/6eb59a7b-a476-4a4b-a9a8-46963693c5e5/assets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "asset_id": "fb97326a-b762-4e5a-932d-bdd4cca3db96"
+}
+
+###
+
+DELETE http://localhost:8030/projects/6eb59a7b-a476-4a4b-a9a8-46963693c5e5/assets/fb97326a-b762-4e5a-932d-bdd4cca3db96
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+### Files
+###
+
+### Get files (Error)
+
+GET http://localhost:8010/files/
+Authorization: Bearer foo
+
+### Add a file
+
+POST http://localhost:8010/files/
+Authorization: Bearer {{token}}
+Content-Type: application/octet-stream
+
+< ./compose.yaml
+
+###
+### Assets
+###
+
+### List assets
+
+GET http://localhost:8020/assets/
+Authorization: Bearer {{token}}
+
+### Add an asset
+
+POST http://localhost:8020/assets/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "compose.yaml",
+  "type": "event_log_csv",
+  "file_id": "9e9eff03-11be-4c7d-9193-af2f6e766490",
+  "project_id": "62d937c9-b4b6-4985-9617-447495cacbc7"
+}
+
+###
+
+PATCH http://localhost:8020/assets/f00666bf-06c4-4ae5-98aa-6f4ad7bb40cf
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "foo"
+}
+
+###
+
+GET http://localhost:8020/assets/d44ab3ed-0516-4c86-9f9a-110542c96fb0/location
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+###
+### Processing Requests
+###
+
+### List all processing requests
+
+GET http://localhost:8040/processing-requests/
+Authorization: Bearer {{token}}
+
+
+### List all processing requests
+
+GET http://localhost:8040/processing-requests/?user_id=48dd57c6-9d7d-45ff-9be0-21426eb0b32e
+Authorization: Bearer {{token}}
+
+### Create a new processing request
+
+POST http://localhost:8040/processing-requests/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "type": "simulation_prosimos",
+  "project_id": "62d937c9-b4b6-4985-9617-447495cacbc7",
+  "input_assets_ids": [
+    "a4ff4b10-9927-40fe-a90f-6b157b8b9b0d"
+  ]
+}
+
+### Get input assets for a processing request
+
+GET http://localhost:8040/processing-requests/2a5b1abd-a122-4fc5-b5e7-5caa942dbc54/input-assets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Add an input asset to a processing request
+
+POST http://localhost:8040/processing-requests/2a5b1abd-a122-4fc5-b5e7-5caa942dbc54/input-assets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "asset_id": "d44ab3ed-0516-4c86-9f9a-110542c96fb0"
+}
+
+### Add an output asset to a processing request
+
+POST http://localhost:8040/processing-requests/2a5b1abd-a122-4fc5-b5e7-5caa942dbc54/output-assets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "asset_id": "d44ab3ed-0516-4c86-9f9a-110542c96fb0"
+}
+
+### Update a processing request
+
+PATCH http://localhost:8040/processing-requests/2a5b1abd-a122-4fc5-b5e7-5caa942dbc54
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "running"
+}

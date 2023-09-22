@@ -1,12 +1,182 @@
 services:
+  users:
+    build:
+      context: users
+    ports:
+      - 8000:8000
+    env_file:
+      - users/.env
+    depends_on:
+      - users-db
+    networks:
+      - backend
+  projects:
+    build:
+      context: projects
+    ports:
+      - 8030:8000
+    env_file:
+      - projects/.env
+    depends_on:
+      - projects-db
+      - assets
+    networks:
+      - backend
+  processing-requests:
+    build:
+      context: processing-requests
+    ports:
+      - 8040:8000
+    env_file:
+      - processing-requests/.env
+    depends_on:
+      - processing-requests-db
+      - projects
+      - users
+    networks:
+      - backend
+  assets:
+    build:
+      context: assets
+    ports:
+      - 8020:8000
+    env_file:
+      - assets/.env
+    depends_on:
+      - assets-db
+      - files
+    networks:
+      - backend
+  files:
+    build:
+      context: files
+    ports:
+      - 8010:8000
+    env_file:
+      - files/.env
+    depends_on:
+      - files-db
+    networks:
+      - backend
+    volumes:
+      - uploads:/var/tmp/uploads:rw
+  users-db:
+    image: postgres
+    restart: on-failure
+    user: postgres
+    volumes:
+      - users-db-data:/var/lib/postgresql/data
+    env_file:
+      - users/.env
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+  projects-db:
+    image: postgres
+    restart: on-failure
+    user: postgres
+    volumes:
+      - projects-db-data:/var/lib/postgresql/data
+    env_file:
+      - projects/.env
+    expose:
+      - 5432
+    ports:
+      - 5435:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+  processing-requests-db:
+    image: postgres
+    restart: on-failure
+    user: postgres
+    volumes:
+      - processing-requests-db-data:/var/lib/postgresql/data
+    env_file:
+      - processing-requests/.env
+    expose:
+      - 5432
+    ports:
+      - 5436:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+  files-db:
+    image: postgres
+    restart: on-failure
+    user: postgres
+    volumes:
+      - files-db-data:/var/lib/postgresql/data
+    env_file:
+      - files/.env
+    expose:
+      - 5432
+    ports:
+      - 5433:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+  assets-db:
+    image: postgres
+    restart: on-failure
+    user: postgres
+    volumes:
+      - assets-db-data:/var/lib/postgresql/data
+    env_file:
+      - assets/.env
+    expose:
+      - 5432
+    ports:
+      - 5434:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
   zipkin:
     image: openzipkin/zipkin
     ports:
-      - 9411:9411
+      - "9411:9411"
+    networks:
+      - backend
+  otel-collector:
+    image: otel/opentelemetry-collector
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"
     networks:
       - backend
 volumes:
-  db-data:
+  users-db-data:
+  files-db-data:
+  assets-db-data:
+  projects-db-data:
+  processing-requests-db-data:
+  uploads:
 networks:
   backend:
     name: pix_backend
