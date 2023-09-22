@@ -139,7 +139,7 @@ Authorization: Bearer {{token}}
   "type": "simulation_prosimos",
   "project_id": "62d937c9-b4b6-4985-9617-447495cacbc7",
   "input_assets_ids": [
-    "a4ff4b10-9927-40fe-a90f-6b157b8b9b0d"
+    "62478cf0-d067-4eaa-bb8e-5bbcdd6fb88b"
   ]
 }
 
