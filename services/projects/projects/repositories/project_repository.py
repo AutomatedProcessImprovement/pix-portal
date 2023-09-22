@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator, Optional, Sequence
 from uuid import UUID
 
 from fastapi import Depends
@@ -24,11 +24,11 @@ class ProjectRepository(ProjectRepositoryInterface):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_projects(self) -> list[Project]:
+    async def get_projects(self) -> Sequence[Project]:
         result = await self.session.execute(select(Project))
         return result.scalars().all()
 
-    async def get_projects_by_user_id(self, user_id: UUID) -> list[Project]:
+    async def get_projects_by_user_id(self, user_id: UUID) -> Sequence[Project]:
         result = await self.session.execute(select(Project).where(Project.users_ids.contains([user_id])))
         return result.scalars().all()
 

@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Sequence
 
 from fastapi import Depends
 from sqlalchemy import select, update
@@ -15,7 +15,7 @@ class FileRepository(FileRepositoryInterface):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_files(self) -> list[File]:
+    async def get_files(self) -> Sequence[File]:
         result = await self.session.execute(select(File))
         return result.scalars().all()
 
@@ -31,6 +31,7 @@ class FileRepository(FileRepositoryInterface):
         file = result.scalar()
         if file is None:
             raise FileNotFoundError()
+        return file
 
     async def get_file_hash(self, file_id: uuid.UUID) -> str:
         result = await self.session.execute(select(File.content_hash).where(File.id == file_id))
