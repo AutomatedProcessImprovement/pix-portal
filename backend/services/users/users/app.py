@@ -2,8 +2,10 @@ import threading
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException
+from pix_portal_lib.middleware.request_logging import RequestLoggingMiddleware
 from pix_portal_lib.open_telemetry_utils import instrument_app
 from pydantic import BaseModel
+
 from .db import User
 from .init_db import migrate_to_latest
 from .schemas import UserCreate, UserRead, UserUpdate
@@ -41,6 +43,8 @@ app.include_router(
     prefix="/users",
     tags=["users"],
 )
+
+app.add_middleware(RequestLoggingMiddleware)
 
 
 class TokenVerificationResponse(BaseModel):

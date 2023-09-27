@@ -1243,7 +1243,7 @@ description = ""
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "pix_portal_lib-0.1.0-py3-none-any.whl", hash = "sha256:40b46ba1b20f2dbb2f56bf03e7efbb2e16caea9bd47f7a3d8e93f1a5011a2590"},
+    {file = "pix_portal_lib-0.1.0-py3-none-any.whl", hash = "sha256:9e23d2d9c51e28d63ea8063ba6c99e745cf83424a29200f0fd6af04b234d3613"},
 ]
 
 [package.dependencies]

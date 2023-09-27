@@ -2,11 +2,11 @@ import uuid
 from typing import Annotated, Any, Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException
+from pix_portal_lib.services.auth import get_current_user
 
+from .schemas import AssetIn, AssetOut, AssetPatchIn, LocationOut
 from ..repositories.asset_repository import AssetNotFound
 from ..services.asset import AssetService, get_asset_service
-from ..services.auth import get_current_user
-from .schemas import AssetIn, AssetOut, AssetPatchIn, LocationOut
 
 router = APIRouter()
 

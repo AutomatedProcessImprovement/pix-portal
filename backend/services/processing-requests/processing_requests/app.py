@@ -1,18 +1,24 @@
+import logging
 import threading
 import traceback
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse
+from pix_portal_lib.middleware.request_logging import RequestLoggingMiddleware
 from pix_portal_lib.open_telemetry_utils import instrument_app
+from pix_portal_lib.services.auth import add_user_to_app_state_if_present
 
 from .controllers import processing_requests
 from .repositories.init_db import migrate_to_latest
+
+logger = logging.getLogger()
 
 app = FastAPI(
     title="PIX Portal Processing Requests",
     description="Processing request service for PIX Portal.",
     # TODO: update version programmatically
     version="0.1.0",
+    dependencies=[Depends(add_user_to_app_state_if_present)],
 )
 
 
@@ -20,6 +26,8 @@ app.include_router(
     processing_requests.router,
     prefix="/processing-requests",
 )
+
+app.add_middleware(RequestLoggingMiddleware)
 
 
 @app.exception_handler(Exception)

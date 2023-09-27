@@ -3,11 +3,11 @@ import uuid
 from typing import Annotated, Any, Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException
+from pix_portal_lib.services.auth import get_current_user
 
 from .schemas import ProcessingRequestOut, ProcessingRequestIn, PatchProcessingRequest, AssetIn, AssetsOut
 from ..repositories.models import ProcessingRequest
 from ..repositories.processing_requests_repository import ProcessingRequestNotFound
-from ..services.auth import get_current_user
 from ..services.processing_request import (
     ProcessingRequestService,
     get_processing_request_service,

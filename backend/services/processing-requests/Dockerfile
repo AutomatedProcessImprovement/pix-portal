@@ -50,4 +50,4 @@ COPY . .
 EXPOSE 8000
 
 # Run the application.
-CMD opentelemetry-instrument --log_level debug uvicorn processing_requests.app:app --host=0.0.0.0 --port=8000 --log-level=info --proxy-headers --workers 2
+CMD opentelemetry-instrument --log_level debug uvicorn processing_requests.app:app --lifespan on --host=0.0.0.0 --port=8000 --log-level=info --proxy-headers --workers 2

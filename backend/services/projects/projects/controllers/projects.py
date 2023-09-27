@@ -2,6 +2,7 @@ import uuid
 from typing import Annotated, Any, Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException
+from pix_portal_lib.services.auth import get_current_user
 
 from .schemas import (
     AddAssetToProjectIn,
@@ -12,7 +13,6 @@ from .schemas import (
 )
 from ..repositories.models import Project
 from ..repositories.project_repository import ProjectNotFound
-from ..services.auth import get_current_user
 from ..services.project import (
     AssetNotFound,
     ProjectService,
