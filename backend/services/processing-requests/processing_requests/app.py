@@ -3,8 +3,8 @@ import traceback
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-
 from pix_portal_lib.open_telemetry_utils import instrument_app
+
 from .controllers import processing_requests
 from .repositories.init_db import migrate_to_latest
 

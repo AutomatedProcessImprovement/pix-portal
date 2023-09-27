@@ -6,13 +6,34 @@ receivers:
   zipkin:
 processors:
   batch:
+  attributes:
+    actions:
+      - action: insert
+        key: loki.attribute.labels
+        value: event.domain
+  resource:
+    attributes:
+      - action: insert
+        key: loki.resource.labels
+        value: service.name
 exporters:
   logging:
+    loglevel: debug
   zipkin:
     endpoint: "http://zipkin:9411/api/v2/spans"
+  loki:
+    endpoint: "http://loki:3100/loki/api/v1/push"
 service:
   pipelines:
     traces:
       receivers: [ otlp ]
       processors: [ batch ]
       exporters: [ logging,zipkin ]
+    logs:
+      receivers: [ otlp ]
+      processors: [ attributes,resource ]
+      exporters: [ logging,loki ]
+    metrics:
+      receivers: [ otlp ]
+      processors: [ batch ]
+      exporters: [ logging ]

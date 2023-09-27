@@ -1,3 +1,4 @@
+import logging
 import uuid
 from typing import Annotated, Any, Optional
 
@@ -18,6 +19,8 @@ from ..services.processing_request import (
     NotEnoughPermissions,
     AssetAlreadyInOutputAssets,
 )
+
+logger = logging.getLogger()
 
 router = APIRouter()
 
@@ -98,6 +101,15 @@ async def get_processing_requests(
     """
     current_user_id = str(user["id"])
     requested_user_id = str(user_id) if user_id is not None else None
+
+    logger.info(
+        f"action=get_processing_requests "
+        f"user_id={current_user_id} "
+        f"project_id={project_id} "
+        f"asset_id={asset_id} "
+        f"input_asset_id={input_asset_id} "
+        f"output_asset_id={output_asset_id}"
+    )
 
     # Processing requests of other users can be accessed only by superusers
     if user_id is not None and current_user_id != requested_user_id:
