@@ -2,6 +2,7 @@ import threading
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException
+from pix_portal_lib.exceptions.fastapi_handlers import general_exception_handler, http_exception_handler
 from pix_portal_lib.middleware.request_logging import RequestLoggingMiddleware
 from pix_portal_lib.open_telemetry_utils import instrument_app
 from pydantic import BaseModel
@@ -45,6 +46,8 @@ app.include_router(
 )
 
 app.add_middleware(RequestLoggingMiddleware)
+app.add_exception_handler(Exception, general_exception_handler)
+app.add_exception_handler(HTTPException, http_exception_handler)
 
 
 class TokenVerificationResponse(BaseModel):

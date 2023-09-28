@@ -162,7 +162,8 @@ services:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
       - "4317:4317"
-      - "8888:8888"  # Prometheus' metrics for debugging
+      - "8888:8888"  # Prometheus metrics exposed by the collector
+      - "8889:8889"  # Prometheus exporter metrics
     depends_on:
       - zipkin
       - loki
@@ -207,6 +208,30 @@ services:
             url: http://loki:3100
         EOF
         /run.sh
+    networks:
+      - backend
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/prometheus
+        cat <<EOF > /etc/prometheus/prometheus.yml
+        scrape_configs:
+        - job_name: 'prometheus'
+          static_configs:
+            - targets: ['localhost:9090']
+        - job_name: 'otel-collector'
+          static_configs:
+            - targets: ['otel-collector:8888']
+        - job_name: 'otel-exporters'
+          static_configs:
+            - targets: ['otel-collector:8889']
+        EOF
+        /bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles
     networks:
       - backend
 volumes:

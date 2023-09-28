@@ -10,11 +10,12 @@ packages = [{ include = "pix_portal_lib" }]
 python = "^3.9"
 fastapi = "^0.103.1"
 opentelemetry-distro = "^0.41b0"
-opentelemetry-exporter-otlp = "^1.20.0"
 opentelemetry-instrumentation-fastapi = "^0.41b0"
 opentelemetry-instrumentation-httpx = "^0.41b0"
 opentelemetry-instrumentation-requests = "^0.41b0"
 opentelemetry-instrumentation-logging = "^0.41b0"
+opentelemetry-exporter-otlp = "^1.20.0"
+opentelemetry-exporter-prometheus = "^1.12.0rc1"
 httpx = "^0.25.0"
 requests = "^2.31.0"
 

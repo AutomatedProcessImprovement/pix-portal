@@ -1,7 +1,14 @@
 import uuid
 from typing import Annotated, Any, Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header
+from pix_portal_lib.exceptions.http_exceptions import (
+    AssetNotFoundHTTP,
+    InvalidAuthorizationHeader,
+    NotEnoughPermissionsHTTP,
+    ProjectNotFoundHTTP,
+    UserNotFoundHTTP,
+)
 from pix_portal_lib.services.auth import get_current_user
 
 from .schemas import (
@@ -21,31 +28,6 @@ from ..services.project import (
 )
 
 router = APIRouter()
-
-
-class NotEnoughPermissionsHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=403, detail="Not enough permissions")
-
-
-class ProjectNotFoundHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=404, detail="Project not found")
-
-
-class UserNotFoundHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=404, detail="User not found")
-
-
-class AssetNotFoundHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=404, detail="Asset not found")
-
-
-class InvalidAuthorizationHeader(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=400, detail="Invalid authorization header")
 
 
 def _get_token(authorization: Annotated[str, Header()]) -> str:

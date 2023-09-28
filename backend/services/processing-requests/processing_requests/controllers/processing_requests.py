@@ -1,8 +1,19 @@
-import logging
 import uuid
 from typing import Annotated, Any, Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header
+from pix_portal_lib.exceptions.http_exceptions import (
+    AssetAlreadyExistsHTTP,
+    AssetAlreadyInInputAssetsHTTP,
+    AssetAlreadyInOutputAssetsHTTP,
+    AssetDoesNotBelongToProjectHTTP,
+    AssetNotFoundHTTP,
+    InvalidAuthorizationHeader,
+    NotEnoughPermissionsHTTP,
+    ProcessingRequestNotFoundHTTP,
+    ProjectNotFoundHTTP,
+    UserNotFoundHTTP,
+)
 from pix_portal_lib.services.auth import get_current_user
 
 from .schemas import ProcessingRequestOut, ProcessingRequestIn, PatchProcessingRequest, AssetIn, AssetsOut
@@ -20,59 +31,7 @@ from ..services.processing_request import (
     AssetAlreadyInOutputAssets,
 )
 
-logger = logging.getLogger()
-
 router = APIRouter()
-
-
-class ProcessingRequestNotFoundHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=404, detail="Processing request not found")
-
-
-class NotEnoughPermissionsHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=403, detail="Not enough permissions")
-
-
-class ProjectNotFoundHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=404, detail="Project not found")
-
-
-class UserNotFoundHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=404, detail="User not found")
-
-
-class AssetNotFoundHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=404, detail="Asset not found")
-
-
-class AssetDoesNotBelongToProjectHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=400, detail="Asset does not belong to the project")
-
-
-class AssetAlreadyExistsHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=400, detail="Asset already exists in the processing request")
-
-
-class AssetAlreadyInInputAssetsHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=400, detail="Asset already in input assets")
-
-
-class AssetAlreadyInOutputAssetsHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=400, detail="Asset already in output assets")
-
-
-class InvalidAuthorizationHeader(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=400, detail="Invalid authorization header")
 
 
 def _get_token(authorization: Annotated[str, Header()]) -> str:
@@ -101,15 +60,6 @@ async def get_processing_requests(
     """
     current_user_id = str(user["id"])
     requested_user_id = str(user_id) if user_id is not None else None
-
-    logger.info(
-        f"action=get_processing_requests "
-        f"user_id={current_user_id} "
-        f"project_id={project_id} "
-        f"asset_id={asset_id} "
-        f"input_asset_id={input_asset_id} "
-        f"output_asset_id={output_asset_id}"
-    )
 
     # Processing requests of other users can be accessed only by superusers
     if user_id is not None and current_user_id != requested_user_id:
