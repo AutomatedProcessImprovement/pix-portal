@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Coroutine
+from collections.abc import Coroutine
+from typing import Optional
 from uuid import UUID
 
 from .models import Asset, AssetType

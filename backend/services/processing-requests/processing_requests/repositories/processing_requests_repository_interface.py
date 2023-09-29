@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from collections.abc import Coroutine
+from typing import Optional, Sequence
 from uuid import UUID
 
 from .models import ProcessingRequest, ProcessingRequestStatus, ProcessingRequestType
@@ -7,27 +8,27 @@ from .models import ProcessingRequest, ProcessingRequestStatus, ProcessingReques
 
 class ProcessingRequestRepositoryInterface(ABC):
     @abstractmethod
-    def get_processing_requests(self) -> list[ProcessingRequest]:
+    def get_processing_requests(self) -> Coroutine[Sequence[ProcessingRequest]]:
         pass
 
     @abstractmethod
-    def get_processing_requests_by_user_id(self, user_id: UUID) -> list[ProcessingRequest]:
+    def get_processing_requests_by_user_id(self, user_id: UUID) -> Coroutine[Sequence[ProcessingRequest]]:
         pass
 
     @abstractmethod
-    def get_processing_requests_by_project_id(self, user_id: UUID) -> list[ProcessingRequest]:
+    def get_processing_requests_by_project_id(self, user_id: UUID) -> Coroutine[Sequence[ProcessingRequest]]:
         pass
 
     @abstractmethod
-    def get_processing_requests_by_asset_id(self, user_id: UUID) -> list[ProcessingRequest]:
+    def get_processing_requests_by_asset_id(self, user_id: UUID) -> Coroutine[Sequence[ProcessingRequest]]:
         pass
 
     @abstractmethod
-    def get_processing_requests_by_input_asset_id(self, user_id: UUID) -> list[ProcessingRequest]:
+    def get_processing_requests_by_input_asset_id(self, user_id: UUID) -> Coroutine[Sequence[ProcessingRequest]]:
         pass
 
     @abstractmethod
-    def get_processing_requests_by_output_asset_id(self, user_id: UUID) -> list[ProcessingRequest]:
+    def get_processing_requests_by_output_asset_id(self, user_id: UUID) -> Coroutine[Sequence[ProcessingRequest]]:
         pass
 
     @abstractmethod
