@@ -234,6 +234,41 @@ services:
         /bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles
     networks:
       - backend
+  kafka:
+    image: docker.io/bitnami/kafka:3.5
+    ports:
+      - "9092:9092"
+      - "9094:9094"  # This port must be exposed if we move workers to other machines
+    volumes:
+      - kafka_data:/bitnami
+    environment:
+      # KRaft settings
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_KRAFT_CLUSTER_ID=5Bj9tBcqQBypjM7jJaNAXw
+      # Listeners
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094  # TODO: PLAINTEXT should be changed in production
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092,EXTERNAL://kafka:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      # Other
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+    networks:
+      - backend
+  kafka-ui:
+    depends_on:
+      - kafka
+    image: provectuslabs/kafka-ui
+    ports:
+      - "8080:8080"
+    environment:
+      # DYNAMIC_CONFIG_ENABLED: 'true'
+      KAFKA_CLUSTERS_0_NAME: "5Bj9tBcqQBypjM7jJaNAXw"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    networks:
+      - backend
 volumes:
   users-db-data:
   files-db-data:
@@ -241,6 +276,7 @@ volumes:
   projects-db-data:
   processing-requests-db-data:
   uploads:
+  kafka_data:
 networks:
   backend:
     name: pix_backend
