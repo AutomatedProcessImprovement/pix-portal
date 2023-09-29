@@ -33,6 +33,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         start = time.time()
         response = await call_next(request)
         end = time.time()
+        duration = end - start
 
         user_id = "anonymous"
         if hasattr(request.app.state, "user"):
@@ -49,8 +50,8 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             f"user_id={user_id} "
             f"status_code={response.status_code} "
             f"request_bytes={request.headers.get('content-length')} "
-            f"response_bytes={response.headers.get('content-length')}"
-            f"duration={end-start}"
+            f"response_bytes={response.headers.get('content-length')} "
+            f"duration={duration}"
         )
 
         requests_counter.add(
@@ -65,7 +66,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         )
 
         requests_duration_histogram.record(
-            end - start,
+            duration,
             {
                 "url": str(request.url),
                 "method": request.method,

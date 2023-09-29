@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
-from typing import Optional
+from typing import Optional, Coroutine
 from uuid import UUID
 
 from .models import Asset, AssetType
@@ -8,15 +7,15 @@ from .models import Asset, AssetType
 
 class AssetRepositoryInterface(ABC):
     @abstractmethod
-    def get_assets(self) -> list[Asset]:
+    def get_assets(self) -> Coroutine[list[Asset]]:
         pass
 
     @abstractmethod
-    def get_assets_by_project_id(self, project_id: UUID) -> list[Asset]:
+    def get_assets_by_project_id(self, project_id: UUID) -> Coroutine[list[Asset]]:
         pass
 
     @abstractmethod
-    def get_assets_by_processing_request_id(self, processing_request_id: UUID) -> list[Asset]:
+    def get_assets_by_processing_request_id(self, processing_request_id: UUID) -> Coroutine[list[Asset]]:
         pass
 
     @abstractmethod
@@ -28,11 +27,11 @@ class AssetRepositoryInterface(ABC):
         project_id: UUID,
         processing_requests_ids: list[UUID] = [],
         description: Optional[str] = None,
-    ) -> Asset:
+    ) -> Coroutine[Asset]:
         pass
 
     @abstractmethod
-    def get_asset(self, asset_id: UUID) -> Asset:
+    def get_asset(self, asset_id: UUID) -> Coroutine[Asset]:
         pass
 
     @abstractmethod
@@ -45,9 +44,9 @@ class AssetRepositoryInterface(ABC):
         file_id: Optional[UUID] = None,
         project_id: Optional[UUID] = None,
         processing_requests_ids: Optional[list[UUID]] = None,
-    ) -> Asset:
+    ) -> Coroutine[Asset]:
         pass
 
     @abstractmethod
-    def delete_asset(self, asset_id: int) -> None:
+    def delete_asset(self, asset_id: UUID) -> Coroutine[None]:
         pass
