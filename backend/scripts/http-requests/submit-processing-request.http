@@ -1,0 +1,63 @@
+### Get a JWT
+
+POST http://localhost:9999/api/v1/auth/jwt/login
+Content-Type: application/x-www-form-urlencoded
+
+username = baz@bar.com &
+password = 123
+
+### List projects
+
+GET http://localhost:9999/api/v1/projects/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Create a project
+
+POST http://localhost:9999/api/v1/projects/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "project one"
+}
+
+### Upload a file
+
+POST http://localhost:9999/api/v1/files/
+Authorization: Bearer {{token}}
+Content-Type: application/octet-stream
+
+< ./PurchasingExample.csv.gz
+
+### Create an asset
+
+POST http://localhost:9999/api/v1/assets/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "PurchasingExample.csv.gz",
+  "type": "event_log_csv",
+  "file_id": "39fd287d-3d0d-401a-ae61-d66a49544a26",
+  "project_id": "775eb3ef-350b-4445-9229-3ea57d9d09c6"
+}
+
+### Create a new processing request
+
+POST http://localhost:9999/api/v1/processing-requests/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "type": "process_model_optimization_simod",
+  "project_id": "775eb3ef-350b-4445-9229-3ea57d9d09c6",
+  "input_assets_ids": [
+    "b4fad2a9-2045-41fe-90a1-12ddd76cc5b6"
+  ]
+}
+
+### Get a processing request
+
+GET http://localhost:9999/api/v1/processing-requests/d0846ce5-c022-496c-9bc2-c25cec4de74b
+Authorization: Bearer {{token}}

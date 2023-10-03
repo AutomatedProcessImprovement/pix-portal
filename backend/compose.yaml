@@ -293,7 +293,7 @@ services:
     networks:
       - backend
     restart: on-failure
-  bps-discovery-simod-worker:
+  bps-discovery-simod:
     build:
       context: workers/bps-discovery-simod
     env_file:

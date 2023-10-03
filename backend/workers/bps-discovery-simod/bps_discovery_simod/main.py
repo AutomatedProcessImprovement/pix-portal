@@ -4,9 +4,12 @@ import uuid
 
 from kafka import KafkaConsumer
 
+import open_telemetry_utils
 import settings
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
+
+open_telemetry_utils.instrument_worker(service_name="bps-discovery-simod", httpx=True)
 
 consumer_id = f"{settings.settings.kafka_consumer_group_id}-{uuid.uuid4()}"
 # group_id should be the same for all parallel consumers that process the same topic

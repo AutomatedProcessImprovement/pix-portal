@@ -43,4 +43,4 @@ USER appuser
 COPY . .
 
 # Run the application.
-CMD opentelemetry-instrument --log_level debug python bps_discovery_simod/main.py
+CMD python bps_discovery_simod/main.py
