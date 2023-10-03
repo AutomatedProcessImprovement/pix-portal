@@ -10,6 +10,7 @@ services:
       - users-db
     networks:
       - backend
+    restart: on-failure
   projects:
     build:
       context: services/projects
@@ -22,6 +23,7 @@ services:
       - assets
     networks:
       - backend
+    restart: on-failure
   processing-requests:
     build:
       context: services/processing-requests
@@ -38,6 +40,7 @@ services:
       - kafka
     networks:
       - backend
+    restart: on-failure
   assets:
     build:
       context: services/assets
@@ -50,6 +53,7 @@ services:
       - files
     networks:
       - backend
+    restart: on-failure
   files:
     build:
       context: services/files
@@ -63,6 +67,7 @@ services:
       - backend
     volumes:
       - uploads:/var/tmp/uploads:rw
+    restart: on-failure
   users-db:
     image: postgres
     restart: on-failure
@@ -173,6 +178,7 @@ services:
       - prometheus
     networks:
       - backend
+    restart: on-failure
   zipkin:
     image: openzipkin/zipkin
     ports:
@@ -180,6 +186,7 @@ services:
     networks:
       - backend
     command: [ "--zipkin.ui.basepath=/admin/zipkin" ]
+    restart: on-failure
   loki:
     image: grafana/loki:latest
     ports:
@@ -189,6 +196,7 @@ services:
       - ./loki-local-config.yaml:/etc/loki/local-config.yaml
     networks:
       - backend
+    restart: on-failure
   grafana:
     image: grafana/grafana:latest
     environment:
@@ -221,6 +229,7 @@ services:
         /run.sh
     networks:
       - backend
+    restart: on-failure
   prometheus:
     image: prom/prometheus:latest
     ports:
@@ -242,9 +251,10 @@ services:
           static_configs:
             - targets: ['otel-collector:8889']
         EOF
-        /bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles
+        /bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles --web.external-url=/admin/prometheus/
     networks:
       - backend
+    restart: on-failure
   kafka:
     image: docker.io/bitnami/kafka:3.5
     ports:
@@ -268,6 +278,7 @@ services:
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
     networks:
       - backend
+    restart: on-failure
   kafka-ui:
     depends_on:
       - kafka
@@ -278,8 +289,10 @@ services:
       # DYNAMIC_CONFIG_ENABLED: 'true'
       KAFKA_CLUSTERS_0_NAME: "5Bj9tBcqQBypjM7jJaNAXw"
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      SERVER_SERVLET_CONTEXT_PATH: "/admin/kafka-ui"
     networks:
       - backend
+    restart: on-failure
   bps-discovery-simod-worker:
     build:
       context: workers/bps-discovery-simod
@@ -289,6 +302,7 @@ services:
       - kafka
     networks:
       - backend
+    restart: on-failure
   caddy:
     image: caddy
     ports:
@@ -299,6 +313,7 @@ services:
       - caddy_config:/config
     networks:
       - backend
+    restart: on-failure
 volumes:
   users-db-data:
   files-db-data:

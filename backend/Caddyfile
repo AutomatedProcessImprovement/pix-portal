@@ -43,3 +43,11 @@ handle /admin/zipkin/* {
   header X-Forwarded-For {remote}
   header X-Real-IP {remote}
 }
+
+handle /admin/kafka-ui/* {
+  reverse_proxy kafka-ui:8080
+}
+
+handle /admin/prometheus/* {
+  reverse_proxy prometheus:9090
+}

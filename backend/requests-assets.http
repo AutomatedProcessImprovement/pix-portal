@@ -1,11 +1,11 @@
 ### List assets
 
-GET http://localhost:8020/assets/
+GET http://localhost:9999/api/v1/assets/
 Authorization: Bearer {{token}}
 
 ### Add an asset
 
-POST http://localhost:8020/assets/
+POST http://localhost:9999/api/v1/assets/
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -18,7 +18,7 @@ Authorization: Bearer {{token}}
 
 ### Update an asset
 
-PATCH http://localhost:8020/assets/f00666bf-06c4-4ae5-98aa-6f4ad7bb40cf
+PATCH http://localhost:9999/api/v1/assets/f00666bf-06c4-4ae5-98aa-6f4ad7bb40cf
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -28,7 +28,7 @@ Authorization: Bearer {{token}}
 
 ### Get the asset's location
 
-GET http://localhost:8020/assets/d44ab3ed-0516-4c86-9f9a-110542c96fb0/location
+GET http://localhost:9999/api/v1/assets/d44ab3ed-0516-4c86-9f9a-110542c96fb0/location
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

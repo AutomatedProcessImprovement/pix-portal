@@ -1,11 +1,16 @@
 ### Get files (Error)
 
-GET http://localhost:8010/files/
+GET http://localhost:9999/api/v1/files/
 Authorization: Bearer foo
+
+### Get files
+
+GET http://localhost:9999/api/v1/files/
+Authorization: Bearer {{token}}
 
 ### Add a file
 
-POST http://localhost:8010/files/
+POST http://localhost:9999/api/v1/files/
 Authorization: Bearer {{token}}
 Content-Type: application/octet-stream
 
