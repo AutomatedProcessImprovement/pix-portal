@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "bps-discovery-simod-worker"
+version = "0.1.0"
+description = ""
+authors = ["Ihar Suvorau <ihar.suvorau@gmail.com>"]
+readme = "README.md"
+packages = [{ include = "bps_discovery_simod" }]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pydantic = "^2.3.0"
+pydantic-settings = "^2.0.3"
+requests = "^2.31.0"
+kafka-python = "^2.0.2"
+opentelemetry-distro = "^0.41b0"
+opentelemetry-exporter-otlp = "^1.20.0"
+opentelemetry-instrumentation-requests = "^0.41b0"
+opentelemetry-instrumentation-logging = "^0.41b0"
+opentelemetry-exporter-prometheus = "^1.12.0rc1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.9.1"
+
+[tool.ruff]
+line-length = 120
+
+[tool.black]
+line-length = 120
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
