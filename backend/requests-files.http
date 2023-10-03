@@ -1,0 +1,12 @@
+### Get files (Error)
+
+GET http://localhost:8010/files/
+Authorization: Bearer foo
+
+### Add a file
+
+POST http://localhost:8010/files/
+Authorization: Bearer {{token}}
+Content-Type: application/octet-stream
+
+< ./compose.yaml

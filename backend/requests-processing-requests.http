@@ -1,0 +1,59 @@
+### List all processing requests
+
+GET http://localhost:9999/api/v1/processing-requests/
+Authorization: Bearer {{token}}
+
+### List all processing requests
+
+GET http://localhost:9999/api/v1/processing-requests/?user_id=48dd57c6-9d7d-45ff-9be0-21426eb0b32e
+Authorization: Bearer {{token}}
+
+### Create a new processing request
+
+POST http://localhost:9999/api/v1/processing-requests/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "type": "simulation_prosimos",
+  "project_id": "62d937c9-b4b6-4985-9617-447495cacbc7",
+  "input_assets_ids": [
+    "62478cf0-d067-4eaa-bb8e-5bbcdd6fb88b"
+  ]
+}
+
+### Get input assets for a processing request
+
+GET http://localhost:9999/api/v1/processing-requests/2a5b1abd-a122-4fc5-b5e7-5caa942dbc54/input-assets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Add an input asset to a processing request
+
+POST http://localhost:9999/api/v1/processing-requests/2a5b1abd-a122-4fc5-b5e7-5caa942dbc54/input-assets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "asset_id": "d44ab3ed-0516-4c86-9f9a-110542c96fb0"
+}
+
+### Add an output asset to a processing request
+
+POST http://localhost:9999/api/v1/processing-requests/2a5b1abd-a122-4fc5-b5e7-5caa942dbc54/output-assets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "asset_id": "d44ab3ed-0516-4c86-9f9a-110542c96fb0"
+}
+
+### Update a processing request
+
+PATCH http://localhost:9999/api/v1/processing-requests/2a5b1abd-a122-4fc5-b5e7-5caa942dbc54
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "running"
+}

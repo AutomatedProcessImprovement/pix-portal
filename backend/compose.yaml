@@ -1,22 +1,22 @@
 services:
   users:
     build:
-      context: users
+      context: services/users
     ports:
       - 8000:8000
     env_file:
-      - users/.env
+      - services/users/.env
     depends_on:
       - users-db
     networks:
       - backend
   projects:
     build:
-      context: projects
+      context: services/projects
     ports:
       - 8030:8000
     env_file:
-      - projects/.env
+      - services/projects/.env
     depends_on:
       - projects-db
       - assets
@@ -24,24 +24,27 @@ services:
       - backend
   processing-requests:
     build:
-      context: processing-requests
+      context: services/processing-requests
     ports:
       - 8040:8000
     env_file:
-      - processing-requests/.env
+      - services/processing-requests/.env
     depends_on:
       - processing-requests-db
       - projects
       - users
+      - files
+      - assets
+      - kafka
     networks:
       - backend
   assets:
     build:
-      context: assets
+      context: services/assets
     ports:
       - 8020:8000
     env_file:
-      - assets/.env
+      - services/assets/.env
     depends_on:
       - assets-db
       - files
@@ -49,11 +52,11 @@ services:
       - backend
   files:
     build:
-      context: files
+      context: services/files
     ports:
       - 8010:8000
     env_file:
-      - files/.env
+      - services/files/.env
     depends_on:
       - files-db
     networks:
@@ -67,7 +70,7 @@ services:
     volumes:
       - users-db-data:/var/lib/postgresql/data
     env_file:
-      - users/.env
+      - services/users/.env
     expose:
       - 5432
     ports:
@@ -86,7 +89,7 @@ services:
     volumes:
       - projects-db-data:/var/lib/postgresql/data
     env_file:
-      - projects/.env
+      - services/projects/.env
     expose:
       - 5432
     ports:
@@ -105,7 +108,7 @@ services:
     volumes:
       - processing-requests-db-data:/var/lib/postgresql/data
     env_file:
-      - processing-requests/.env
+      - services/processing-requests/.env
     expose:
       - 5432
     ports:
@@ -124,7 +127,7 @@ services:
     volumes:
       - files-db-data:/var/lib/postgresql/data
     env_file:
-      - files/.env
+      - services/files/.env
     expose:
       - 5432
     ports:
@@ -143,7 +146,7 @@ services:
     volumes:
       - assets-db-data:/var/lib/postgresql/data
     env_file:
-      - assets/.env
+      - services/assets/.env
     expose:
       - 5432
     ports:
@@ -167,6 +170,7 @@ services:
     depends_on:
       - zipkin
       - loki
+      - prometheus
     networks:
       - backend
   zipkin:
@@ -175,6 +179,7 @@ services:
       - "9411:9411"
     networks:
       - backend
+    command: [ "--zipkin.ui.basepath=/admin/zipkin" ]
   loki:
     image: grafana/loki:latest
     ports:
@@ -190,6 +195,8 @@ services:
       - "GF_AUTH_DISABLE_LOGIN_FORM=true"
       - "GF_AUTH_ANONYMOUS_ENABLED=true"
       - "GF_AUTH_ANONYMOUS_ORG_ROLE=Admin"
+      - "GF_SERVER_ROOT_URL=http://localhost:9999/admin/grafana/"
+      - "GF_SERVER_SERVE_FROM_SUB_PATH=true"
     ports:
       - "3000:3000"
     depends_on:
@@ -206,6 +213,10 @@ services:
             type: loki
             access: proxy
             url: http://loki:3100
+          - name: Prometheus
+            type: prometheus
+            access: proxy
+            url: http://prometheus:9090
         EOF
         /run.sh
     networks:
@@ -269,6 +280,25 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
     networks:
       - backend
+  bps-discovery-simod-worker:
+    build:
+      context: workers/bps-discovery-simod
+    env_file:
+      - workers/bps-discovery-simod/.env
+    depends_on:
+      - kafka
+    networks:
+      - backend
+  caddy:
+    image: caddy
+    ports:
+      - "9999:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - backend
 volumes:
   users-db-data:
   files-db-data:
@@ -277,6 +307,8 @@ volumes:
   processing-requests-db-data:
   uploads:
   kafka_data:
+  caddy_data:
+  caddy_config:
 networks:
   backend:
     name: pix_backend
