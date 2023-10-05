@@ -3,6 +3,11 @@
 GET http://localhost:9999/api/v1/assets/
 Authorization: Bearer {{token}}
 
+### Get asset location
+
+GET http://localhost:9999/api/v1/assets/b4fad2a9-2045-41fe-90a1-12ddd76cc5b6/location
+Authorization: Bearer {{token}}
+
 ### Add an asset
 
 POST http://localhost:9999/api/v1/assets/

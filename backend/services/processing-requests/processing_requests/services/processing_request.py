@@ -153,6 +153,7 @@ class ProcessingRequestService:
                     "project_id": str(project_id),
                     "input_assets_ids": [str(aid) for aid in input_assets_ids],
                     "output_assets_ids": [str(aid) for aid in output_assets_ids],
+                    "jwt_token": token,
                 },
             )
         except KafkaTimeoutError as e:

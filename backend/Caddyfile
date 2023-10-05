@@ -1,4 +1,4 @@
-http://localhost
+http://localhost, http://caddy
 
 handle /api/v1/* {
   uri strip_prefix /api/v1

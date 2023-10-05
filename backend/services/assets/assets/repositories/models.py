@@ -11,6 +11,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 class AssetType(str, Enum):
     EVENT_LOG_CSV = "event_log_csv"
+    EVENT_LOG_CSV_GZ = "event_log_csv_gz"
     PROCESS_MODEL_BPMN = "process_model_bpmn"
     CONFIGURATION_SIMOD_YAML = "simod_configuration_yaml"
     SIMULATION_MODEL_PROSIMOS_JSON = "bps_model_prosimos_json"

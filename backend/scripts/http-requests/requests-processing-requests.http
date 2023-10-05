@@ -38,14 +38,20 @@ Authorization: Bearer {{token}}
   "asset_id": "d44ab3ed-0516-4c86-9f9a-110542c96fb0"
 }
 
+### List output assets for a processing request
+
+GET http://localhost:9999/api/v1/processing-requests/f4feb3d6-ca2c-4fe1-a6cb-e3477b29e929/output-assets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
 ### Add an output asset to a processing request
 
-POST http://localhost:9999/api/v1/processing-requests/2a5b1abd-a122-4fc5-b5e7-5caa942dbc54/output-assets
+POST http://localhost:9999/api/v1/processing-requests/8a2bd9b1-e7ee-4690-974d-3eb0868e47f0/output-assets
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "asset_id": "d44ab3ed-0516-4c86-9f9a-110542c96fb0"
+  "asset_id": "9cceb637-5886-42a3-b085-237d61b660c4"
 }
 
 ### Update a processing request

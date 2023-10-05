@@ -298,6 +298,8 @@ services:
       context: workers/bps-discovery-simod
     env_file:
       - workers/bps-discovery-simod/.env
+    volumes:
+      - bps-discovery-simod-data:/var/tmp/bps-discovery-simod:rw
     depends_on:
       - kafka
     networks:
@@ -324,6 +326,7 @@ volumes:
   kafka_data:
   caddy_data:
   caddy_config:
+  bps-discovery-simod-data:
 networks:
   backend:
     name: pix_backend

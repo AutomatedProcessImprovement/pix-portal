@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import uuid
@@ -6,6 +7,8 @@ from kafka import KafkaConsumer
 
 import open_telemetry_utils
 import settings
+from bps_discovery_simod.services.processing_request import ProcessingRequest
+from bps_discovery_simod.services.simod import SimodService
 
 logger = logging.getLogger()
 
@@ -24,10 +27,17 @@ consumer = KafkaConsumer(
     value_deserializer=lambda x: json.loads(x.decode("utf-8")),
 )
 
-logger.info(f"Kafka consumer connected: "
-            f"consumer_id={consumer_id}, "
-            f"group_id={group_id}, "
-            f"bootstrap_connected={consumer.bootstrap_connected()}")
+logger.info(
+    f"Kafka consumer connected: "
+    f"consumer_id={consumer_id}, "
+    f"group_id={group_id}, "
+    f"bootstrap_connected={consumer.bootstrap_connected()}"
+)
+
+simod_service = SimodService()
 
 for message in consumer:
-    logger.info(f"Received a message from Kafka: {message}")
+    logger.info(f"Kafka consumer {consumer_id} received a message from Kafka: {message}")
+    processing_request_payload = ProcessingRequest(**message.value)
+    asyncio.run(simod_service.process(processing_request_payload))
+    logger.info(f"Kafka consumer {consumer_id} finished processing the message: {message}")
