@@ -83,7 +83,12 @@ class AssetService(SelfAuthenticatingService):
         return AssetLocationResponse(**response.json()).location
 
     async def create_asset(
-        self, file_path: Path, asset_type: AssetType, project_id: str, token: Optional[str] = None
+        self,
+        file_path: Path,
+        asset_type: AssetType,
+        project_id: str,
+        processing_requests_ids: list[str],
+        token: Optional[str] = None,
     ) -> str:
         # upload file
         file_id = await self._file_service.upload_file(file_path, token=token)
@@ -97,11 +102,11 @@ class AssetService(SelfAuthenticatingService):
                 "type": asset_type,
                 "file_id": file_id,
                 "project_id": project_id,
+                "processing_requests_ids": processing_requests_ids,
             },
         )
         response.raise_for_status()
 
-        logger.info(f"Created asset status_code={response.status_code}, response={response.text}")
         data = response.json()
 
         return data["id"]

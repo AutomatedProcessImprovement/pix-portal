@@ -87,12 +87,16 @@ class SimodService:
             result_dir = result.output_dir
             bpmn_path, bps_model_path = self._find_simod_results_file_paths(result_dir, event_log_asset.local_disk_path)
             bpmn_asset_id = await self._asset_service.create_asset(
-                file_path=bpmn_path, project_id=processing_request.project_id, asset_type=AssetType.PROCESS_MODEL_BPMN
+                file_path=bpmn_path,
+                project_id=processing_request.project_id,
+                asset_type=AssetType.PROCESS_MODEL_BPMN,
+                processing_requests_ids=[processing_request.processing_request_id],
             )
             bps_model_asset_id = await self._asset_service.create_asset(
                 file_path=bps_model_path,
                 project_id=processing_request.project_id,
                 asset_type=AssetType.SIMULATION_MODEL_PROSIMOS_JSON,
+                processing_requests_ids=[processing_request.processing_request_id],
             )
 
             # update project assets

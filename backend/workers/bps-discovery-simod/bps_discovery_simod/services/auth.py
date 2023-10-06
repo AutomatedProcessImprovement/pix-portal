@@ -23,7 +23,6 @@ class AuthService:
         )
         response.raise_for_status()
 
-        logger.info(f"SYSTEM user logged in, status_code={response.status_code}, data={response.text}, url={url}")
         data = response.json()
 
         return data["access_token"]

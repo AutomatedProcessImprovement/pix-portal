@@ -61,9 +61,6 @@ class ProcessingRequestService(SelfAuthenticatingService):
     ) -> dict:
         url = urljoin(self._base_url, f"{processing_request_id}")
         headers = await self.request_headers(token)
-        logger.info(
-            f"Updating processing request status to {status.value} for processing request {processing_request_id}, headers={headers}"
-        )
         response = await self._client.patch(url, headers=headers, json={"status": status, "message": message})
         response.raise_for_status()
         return response.json()
