@@ -1,0 +1,271 @@
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" targetNamespace="http://www.omg.org/bpmn20" exporter="ProM. http://www.promtools.org/prom6" exporterVersion="6.3" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+  <process id="proc_133250414">
+    <startEvent id="node_b65f9a5a-cb1a-4866-8270-4d2e9dd06566" name=""/>
+    <endEvent id="node_5fdcc8e3-8ff9-4f97-85cf-e9902d00e39a" name=""/>
+    <task id="node_c180cff1-01d2-4d62-95f3-e8187cef1e8f" name="Analyze Request for Quotation">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_88350158-e962-406e-aac2-488ed1a0e1dd" name="Analyze Quotation Comparison Map">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_9bb72d1d-5af8-4025-98cd-e33c07cf266f" name="Create Quotation comparison Map">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_3a35b37a-51c7-4b01-b5dc-184016858344" name="Create Purchase Requisition">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_0e65cfa0-923b-4aef-9ba3-ebccbc71e447" name="Approve Purchase Order for payment">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_38430414-a619-44a8-bc61-554285aaf995" name="Send Invoice">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_7751a127-e109-4f08-9b03-8ddaaf200acc" name="Amend Request for Quotation">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_10e25fbe-1aeb-43eb-841d-be1bf9c43fcd" name="Settle Dispute With Supplier">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_a208b69d-9fab-4459-bcbc-655e5cb5e20f" name="Release Supplier's Invoice">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_279af507-c194-4b3f-b79c-279bdc688a66" name="Create Purchase Order">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_cd2bb480-06f9-4a98-ad5e-7b5b3e517f69" name="Amend Purchase Requisition">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_d556b336-25ee-4b38-a340-78c70b507390" name="Create Request for Quotation">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_4917ab8c-d3b5-49cd-a288-070437cac472" name="Deliver Goods Services">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_39dbc3d3-b6c7-4c6b-aae4-3f36628a2723" name="Authorize Supplier's Invoice payment">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_d75ff30d-90eb-49cd-8ea3-d6bba837f32e" name="Choose best option">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_28f1f4f9-9a96-4cd0-8152-fe614de5b113" name="Pay Invoice">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_52e3ca25-d02e-462e-b143-52c61a0352de" name="Release Purchase Order">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_5c67fa8d-5786-412d-ab15-40d666a2968c" name="Send Request for Quotation to Supplier">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_b89b16a6-439d-4fb9-9597-7ae77000d412" name="Settle Conditions With Supplier">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_441051f0-a674-42b0-bee0-861ef6d91720" name="Analyze Purchase Requisition">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <task id="node_5655cece-1811-47ec-9349-7ec51818f1e2" name="Confirm Purchase Order">
+      <standardLoopCharacteristics testBefore="false"/>
+    </task>
+    <exclusiveGateway id="node_bfe9ae1e-6c65-44d1-83ff-a155bf603581" name="" gatewayDirection="Diverging">
+      <incoming>
+node_51ea39dd-38f6-4784-888a-546e0cf426b4</incoming>
+      <outgoing>
+node_afc4c4a0-3019-4eb5-957b-d2241eb732cd</outgoing>
+      <outgoing>
+node_d4b321ad-74a7-441a-880b-3f1cc10fd02f</outgoing>
+    </exclusiveGateway>
+    <exclusiveGateway id="node_883ced00-cb39-48b0-956c-751f155df51f" name="" gatewayDirection="Diverging">
+      <incoming>
+node_a85c185d-6d84-4438-b042-36f9551f392a</incoming>
+      <outgoing>
+node_0f775dfc-86b2-44f3-b75d-a043f7f375bb</outgoing>
+      <outgoing>
+node_65405a4b-eeb2-44f2-a1f2-d3f6563b2e59</outgoing>
+    </exclusiveGateway>
+    <exclusiveGateway id="node_7cb4d14b-4029-4a1b-8f6b-16215760ac11" name="" gatewayDirection="Converging">
+      <incoming>
+node_91b0e7ef-db00-4c28-940c-26adf12e83e0</incoming>
+      <incoming>
+node_d4b321ad-74a7-441a-880b-3f1cc10fd02f</incoming>
+      <outgoing>
+node_4130b040-289c-4944-9279-aa8b0c6f6e91</outgoing>
+    </exclusiveGateway>
+    <exclusiveGateway id="node_0123986e-d7b9-4420-aa82-ac030deea2ea" name="" gatewayDirection="Converging">
+      <incoming>
+node_5e6a0503-31d2-4220-a1f1-eb4f61b83d4b</incoming>
+      <incoming>
+node_c4f9fffe-8c57-4b27-9630-0ff575ce4d38</incoming>
+      <outgoing>
+node_546d2bef-8fc4-4ad6-b3f4-803873bf9908</outgoing>
+    </exclusiveGateway>
+    <exclusiveGateway id="node_08990dad-e9fc-44a2-b0a8-4975de1ee45c" name="" gatewayDirection="Converging">
+      <incoming>
+node_a2df396b-4ba9-428c-a496-364cae369d57</incoming>
+      <incoming>
+node_68206afc-db7a-49b7-b007-a04ec1f2bd58</incoming>
+      <outgoing>
+node_5ec44679-735c-44d0-bc1d-9d8143c678d1</outgoing>
+    </exclusiveGateway>
+    <exclusiveGateway id="node_4ba1447e-82cc-4c4a-aafc-8e2aa2f381fb" name="" gatewayDirection="Diverging">
+      <incoming>
+node_a2106338-cf0f-48d1-924b-f3d83b47041f</incoming>
+      <outgoing>
+node_5e6a0503-31d2-4220-a1f1-eb4f61b83d4b</outgoing>
+      <outgoing>
+node_a9dbaa57-fbab-4fa6-8156-dcddef26ef20</outgoing>
+    </exclusiveGateway>
+    <sequenceFlow id="node_63dac9e8-4b2c-4ea1-9014-c5f13b530ead" name="" sourceRef="node_38430414-a619-44a8-bc61-554285aaf995" targetRef="Event_5fae6512-3ac7-4ac3-8c01-867603f0b136"/>
+    <sequenceFlow id="node_7da3915a-a090-418d-878f-ce0876b2064e" name="" sourceRef="node_28f1f4f9-9a96-4cd0-8152-fe614de5b113" targetRef="node_5fdcc8e3-8ff9-4f97-85cf-e9902d00e39a"/>
+    <sequenceFlow id="node_6c4e70c0-5729-4379-9479-1e5387459c48" name="" sourceRef="node_b89b16a6-439d-4fb9-9597-7ae77000d412" targetRef="Event_2721a47e-908b-4d89-bcfb-5bf069dc1f2e"/>
+    <sequenceFlow id="node_9b927092-50fd-459e-813b-302a7efaab0b" name="" sourceRef="node_5655cece-1811-47ec-9349-7ec51818f1e2" targetRef="Event_d441d8e4-8c33-4ba3-8aeb-bce251d37bc8"/>
+    <sequenceFlow id="node_fc4a6d1d-63a3-48be-8571-4fa2efbbc7df" name="" sourceRef="node_3a35b37a-51c7-4b01-b5dc-184016858344" targetRef="Event_b7d5c6b5-a516-4da9-bc38-dab72d5d107c"/>
+    <sequenceFlow id="node_1d212b43-581a-4cae-aa8d-1556d9fa28a8" name="" sourceRef="node_5c67fa8d-5786-412d-ab15-40d666a2968c" targetRef="Event_68b0ac6e-f44d-4ca7-8e25-6c9f1361ef2e"/>
+    <sequenceFlow id="node_55bd68bf-c356-41ca-aa62-d9e92a203b76" name="" sourceRef="node_4917ab8c-d3b5-49cd-a288-070437cac472" targetRef="Event_ed54c80f-59d0-4841-8e1f-5fc52d4889ca"/>
+    <sequenceFlow id="node_ca212ce5-c643-490c-88d5-d3103a08ca26" name="" sourceRef="node_b65f9a5a-cb1a-4866-8270-4d2e9dd06566" targetRef="node_3a35b37a-51c7-4b01-b5dc-184016858344"/>
+    <sequenceFlow id="node_434b3297-0382-4409-9f0b-e34b3db30cbf" name="" sourceRef="node_52e3ca25-d02e-462e-b143-52c61a0352de" targetRef="Event_6bd42aff-a827-492b-8fea-8f26d8460e26"/>
+    <sequenceFlow id="node_d8dc7265-ae59-4c50-bef9-b171aff6311d" name="" sourceRef="node_39dbc3d3-b6c7-4c6b-aae4-3f36628a2723" targetRef="Event_d002b6ab-e4cc-4fa7-a931-52ca70b61b50"/>
+    <sequenceFlow id="node_c7c0f97d-0780-4821-a7a5-2cb4864566c0" name="" sourceRef="node_9bb72d1d-5af8-4025-98cd-e33c07cf266f" targetRef="Event_25907ac7-d017-4965-9ad3-9eff4bb73666"/>
+    <sequenceFlow id="node_ff9ec742-c297-46c7-be6b-886aec90c282" name="" sourceRef="node_88350158-e962-406e-aac2-488ed1a0e1dd" targetRef="Event_5cb3a722-5ae2-4604-8787-e99768e1661e"/>
+    <sequenceFlow id="node_0da9bad0-8a92-40b5-993a-a515b0eacf89" name="" sourceRef="node_279af507-c194-4b3f-b79c-279bdc688a66" targetRef="Event_5a2e0711-8107-4139-916d-e0d5709336d0"/>
+    <sequenceFlow id="node_f94f8135-4923-4d8a-808b-0267b4bb46df" name="" sourceRef="node_d75ff30d-90eb-49cd-8ea3-d6bba837f32e" targetRef="Event_8ace1ec7-d341-4e40-9e62-90739824e32b"/>
+    <sequenceFlow id="node_72cb06a8-eb81-4f81-b0d9-aaaa0e11183b" name="" sourceRef="node_0e65cfa0-923b-4aef-9ba3-ebccbc71e447" targetRef="Event_749990ae-f4d8-4d7c-8843-3769f51a71db"/>
+    <sequenceFlow id="node_51ea39dd-38f6-4784-888a-546e0cf426b4" name="" sourceRef="node_441051f0-a674-42b0-bee0-861ef6d91720" targetRef="node_bfe9ae1e-6c65-44d1-83ff-a155bf603581"/>
+    <sequenceFlow id="node_afc4c4a0-3019-4eb5-957b-d2241eb732cd" name="" sourceRef="node_bfe9ae1e-6c65-44d1-83ff-a155bf603581" targetRef="Event_b386b105-339f-475a-b113-b84b52f5096a"/>
+    <sequenceFlow id="node_a85c185d-6d84-4438-b042-36f9551f392a" name="" sourceRef="node_c180cff1-01d2-4d62-95f3-e8187cef1e8f" targetRef="node_883ced00-cb39-48b0-956c-751f155df51f"/>
+    <sequenceFlow id="node_65405a4b-eeb2-44f2-a1f2-d3f6563b2e59" name="" sourceRef="node_883ced00-cb39-48b0-956c-751f155df51f" targetRef="Event_77b84eeb-773e-4685-9513-cefc3b27e1cb"/>
+    <sequenceFlow id="node_0f775dfc-86b2-44f3-b75d-a043f7f375bb" name="" sourceRef="node_883ced00-cb39-48b0-956c-751f155df51f" targetRef="Event_8567263f-6448-4c2b-ab3d-b8f13b1e9fff"/>
+    <sequenceFlow id="node_a2106338-cf0f-48d1-924b-f3d83b47041f" name="" sourceRef="node_a208b69d-9fab-4459-bcbc-655e5cb5e20f" targetRef="node_4ba1447e-82cc-4c4a-aafc-8e2aa2f381fb"/>
+    <sequenceFlow id="node_a9dbaa57-fbab-4fa6-8156-dcddef26ef20" name="" sourceRef="node_4ba1447e-82cc-4c4a-aafc-8e2aa2f381fb" targetRef="Event_fc778e68-2f82-4900-bfb9-1e4c6fbb2d10"/>
+    <sequenceFlow id="node_5ec44679-735c-44d0-bc1d-9d8143c678d1" name="" sourceRef="node_08990dad-e9fc-44a2-b0a8-4975de1ee45c" targetRef="Event_59e3338d-598d-41a8-aac0-91110ad2dccb"/>
+    <sequenceFlow id="node_a2df396b-4ba9-428c-a496-364cae369d57" name="" sourceRef="node_7751a127-e109-4f08-9b03-8ddaaf200acc" targetRef="node_08990dad-e9fc-44a2-b0a8-4975de1ee45c"/>
+    <sequenceFlow id="node_68206afc-db7a-49b7-b007-a04ec1f2bd58" name="" sourceRef="node_d556b336-25ee-4b38-a340-78c70b507390" targetRef="node_08990dad-e9fc-44a2-b0a8-4975de1ee45c"/>
+    <sequenceFlow id="node_4130b040-289c-4944-9279-aa8b0c6f6e91" name="" sourceRef="node_7cb4d14b-4029-4a1b-8f6b-16215760ac11" targetRef="Event_846b016c-8afb-4fd0-bb6d-6692cbbd9f5b"/>
+    <sequenceFlow id="node_d4b321ad-74a7-441a-880b-3f1cc10fd02f" name="" sourceRef="node_bfe9ae1e-6c65-44d1-83ff-a155bf603581" targetRef="node_7cb4d14b-4029-4a1b-8f6b-16215760ac11"/>
+    <sequenceFlow id="node_91b0e7ef-db00-4c28-940c-26adf12e83e0" name="" sourceRef="node_cd2bb480-06f9-4a98-ad5e-7b5b3e517f69" targetRef="node_7cb4d14b-4029-4a1b-8f6b-16215760ac11"/>
+    <sequenceFlow id="node_546d2bef-8fc4-4ad6-b3f4-803873bf9908" name="" sourceRef="node_0123986e-d7b9-4420-aa82-ac030deea2ea" targetRef="Event_09f460db-c68e-4422-9f7f-23c2c6642259"/>
+    <sequenceFlow id="node_5e6a0503-31d2-4220-a1f1-eb4f61b83d4b" name="" sourceRef="node_4ba1447e-82cc-4c4a-aafc-8e2aa2f381fb" targetRef="node_0123986e-d7b9-4420-aa82-ac030deea2ea"/>
+    <sequenceFlow id="node_c4f9fffe-8c57-4b27-9630-0ff575ce4d38" name="" sourceRef="node_10e25fbe-1aeb-43eb-841d-be1bf9c43fcd" targetRef="node_0123986e-d7b9-4420-aa82-ac030deea2ea"/>
+    <intermediateCatchEvent id="Event_59e3338d-598d-41a8-aac0-91110ad2dccb">
+      <incoming>node_5ec44679-735c-44d0-bc1d-9d8143c678d1</incoming>
+      <outgoing>Flow_0f862616-b342-4a52-8159-ca88704a9ea8</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_80f537db-16a8-4353-a353-7947b3d23f65"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_0f862616-b342-4a52-8159-ca88704a9ea8" sourceRef="Event_59e3338d-598d-41a8-aac0-91110ad2dccb" targetRef="node_c180cff1-01d2-4d62-95f3-e8187cef1e8f"/>
+    <intermediateCatchEvent id="Event_25907ac7-d017-4965-9ad3-9eff4bb73666">
+      <incoming>node_c7c0f97d-0780-4821-a7a5-2cb4864566c0</incoming>
+      <outgoing>Flow_0f76c039-ef03-4923-851e-575d8f1301ad</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_963642d1-16c6-42b8-9ca2-10b7423de0d9"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_0f76c039-ef03-4923-851e-575d8f1301ad" sourceRef="Event_25907ac7-d017-4965-9ad3-9eff4bb73666" targetRef="node_88350158-e962-406e-aac2-488ed1a0e1dd"/>
+    <intermediateCatchEvent id="Event_68b0ac6e-f44d-4ca7-8e25-6c9f1361ef2e">
+      <incoming>node_1d212b43-581a-4cae-aa8d-1556d9fa28a8</incoming>
+      <outgoing>Flow_21a91e37-a246-4e30-bcf1-0ef7848b2ac9</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_baa04482-bcb2-4d91-9c8c-ce6bb7b52d09"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_21a91e37-a246-4e30-bcf1-0ef7848b2ac9" sourceRef="Event_68b0ac6e-f44d-4ca7-8e25-6c9f1361ef2e" targetRef="node_9bb72d1d-5af8-4025-98cd-e33c07cf266f"/>
+    <intermediateCatchEvent id="Event_6bd42aff-a827-492b-8fea-8f26d8460e26">
+      <incoming>node_434b3297-0382-4409-9f0b-e34b3db30cbf</incoming>
+      <outgoing>Flow_ce49b6b8-acd4-4c8c-81d9-657114065a4f</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_510d33b0-4597-4527-b707-e802980cc11e"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_ce49b6b8-acd4-4c8c-81d9-657114065a4f" sourceRef="Event_6bd42aff-a827-492b-8fea-8f26d8460e26" targetRef="node_0e65cfa0-923b-4aef-9ba3-ebccbc71e447"/>
+    <intermediateCatchEvent id="Event_749990ae-f4d8-4d7c-8843-3769f51a71db">
+      <incoming>node_72cb06a8-eb81-4f81-b0d9-aaaa0e11183b</incoming>
+      <outgoing>Flow_73dac105-5dda-48c0-87bf-72f100ddc113</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_301c2484-a526-4915-8af1-f4353a9e1f47"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_73dac105-5dda-48c0-87bf-72f100ddc113" sourceRef="Event_749990ae-f4d8-4d7c-8843-3769f51a71db" targetRef="node_38430414-a619-44a8-bc61-554285aaf995"/>
+    <intermediateCatchEvent id="Event_8567263f-6448-4c2b-ab3d-b8f13b1e9fff">
+      <incoming>node_0f775dfc-86b2-44f3-b75d-a043f7f375bb</incoming>
+      <outgoing>Flow_29e1c2a5-26a5-41aa-8e45-ffd9124fb3f7</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_e0685114-b16e-4b03-9f78-5e719936a414"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_29e1c2a5-26a5-41aa-8e45-ffd9124fb3f7" sourceRef="Event_8567263f-6448-4c2b-ab3d-b8f13b1e9fff" targetRef="node_7751a127-e109-4f08-9b03-8ddaaf200acc"/>
+    <intermediateCatchEvent id="Event_fc778e68-2f82-4900-bfb9-1e4c6fbb2d10">
+      <incoming>node_a9dbaa57-fbab-4fa6-8156-dcddef26ef20</incoming>
+      <outgoing>Flow_720d8c10-ff78-4340-863a-1364a9cf9378</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_cbe34af9-f852-4fcf-b570-efff1e8a3a58"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_720d8c10-ff78-4340-863a-1364a9cf9378" sourceRef="Event_fc778e68-2f82-4900-bfb9-1e4c6fbb2d10" targetRef="node_10e25fbe-1aeb-43eb-841d-be1bf9c43fcd"/>
+    <intermediateCatchEvent id="Event_5fae6512-3ac7-4ac3-8c01-867603f0b136">
+      <incoming>node_63dac9e8-4b2c-4ea1-9014-c5f13b530ead</incoming>
+      <outgoing>Flow_1b8bc631-b316-4c03-aebf-9e0dd82f2857</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_88b5584d-96bc-49aa-a6cf-c75242a4b6f3"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_1b8bc631-b316-4c03-aebf-9e0dd82f2857" sourceRef="Event_5fae6512-3ac7-4ac3-8c01-867603f0b136" targetRef="node_a208b69d-9fab-4459-bcbc-655e5cb5e20f"/>
+    <intermediateCatchEvent id="Event_2721a47e-908b-4d89-bcfb-5bf069dc1f2e">
+      <incoming>node_6c4e70c0-5729-4379-9479-1e5387459c48</incoming>
+      <outgoing>Flow_9d24138d-fcdd-4c45-820d-310ce6636aaa</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_d695f545-0929-41ed-a198-0cd133d31cb0"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_9d24138d-fcdd-4c45-820d-310ce6636aaa" sourceRef="Event_2721a47e-908b-4d89-bcfb-5bf069dc1f2e" targetRef="node_279af507-c194-4b3f-b79c-279bdc688a66"/>
+    <intermediateCatchEvent id="Event_b386b105-339f-475a-b113-b84b52f5096a">
+      <incoming>node_afc4c4a0-3019-4eb5-957b-d2241eb732cd</incoming>
+      <outgoing>Flow_7c5c54f7-42a0-4df5-99b6-5f0b1085f55a</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_989a2c23-91c5-497e-a4ef-97155b9fbadb"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_7c5c54f7-42a0-4df5-99b6-5f0b1085f55a" sourceRef="Event_b386b105-339f-475a-b113-b84b52f5096a" targetRef="node_cd2bb480-06f9-4a98-ad5e-7b5b3e517f69"/>
+    <intermediateCatchEvent id="Event_846b016c-8afb-4fd0-bb6d-6692cbbd9f5b">
+      <incoming>node_4130b040-289c-4944-9279-aa8b0c6f6e91</incoming>
+      <outgoing>Flow_e6ae4ca9-2e4b-42c9-bce6-c1f8cf1af95d</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_a913ef86-f7de-4a3a-b739-cf52c933447e"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_e6ae4ca9-2e4b-42c9-bce6-c1f8cf1af95d" sourceRef="Event_846b016c-8afb-4fd0-bb6d-6692cbbd9f5b" targetRef="node_d556b336-25ee-4b38-a340-78c70b507390"/>
+    <intermediateCatchEvent id="Event_d441d8e4-8c33-4ba3-8aeb-bce251d37bc8">
+      <incoming>node_9b927092-50fd-459e-813b-302a7efaab0b</incoming>
+      <outgoing>Flow_fd5b376f-1f77-41f4-a337-084dcb34608c</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_2ae8585d-e887-4160-a5a8-51c8f40a84be"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_fd5b376f-1f77-41f4-a337-084dcb34608c" sourceRef="Event_d441d8e4-8c33-4ba3-8aeb-bce251d37bc8" targetRef="node_4917ab8c-d3b5-49cd-a288-070437cac472"/>
+    <intermediateCatchEvent id="Event_09f460db-c68e-4422-9f7f-23c2c6642259">
+      <incoming>node_546d2bef-8fc4-4ad6-b3f4-803873bf9908</incoming>
+      <outgoing>Flow_f5c9786d-50c8-4beb-ba37-bae733697b6d</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_ae0bb16f-6543-4ee6-ad2a-857c22950e48"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_f5c9786d-50c8-4beb-ba37-bae733697b6d" sourceRef="Event_09f460db-c68e-4422-9f7f-23c2c6642259" targetRef="node_39dbc3d3-b6c7-4c6b-aae4-3f36628a2723"/>
+    <intermediateCatchEvent id="Event_5cb3a722-5ae2-4604-8787-e99768e1661e">
+      <incoming>node_ff9ec742-c297-46c7-be6b-886aec90c282</incoming>
+      <outgoing>Flow_7c87a1cc-45f3-4e04-a12d-f2ef10e2af37</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_249acc65-a96d-42d1-b15d-ac1a53e64360"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_7c87a1cc-45f3-4e04-a12d-f2ef10e2af37" sourceRef="Event_5cb3a722-5ae2-4604-8787-e99768e1661e" targetRef="node_d75ff30d-90eb-49cd-8ea3-d6bba837f32e"/>
+    <intermediateCatchEvent id="Event_d002b6ab-e4cc-4fa7-a931-52ca70b61b50">
+      <incoming>node_d8dc7265-ae59-4c50-bef9-b171aff6311d</incoming>
+      <outgoing>Flow_14375a3f-0bd7-4014-a57e-994e9670856c</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_8f47ccbb-7758-4b9d-b92e-524a710dcee2"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_14375a3f-0bd7-4014-a57e-994e9670856c" sourceRef="Event_d002b6ab-e4cc-4fa7-a931-52ca70b61b50" targetRef="node_28f1f4f9-9a96-4cd0-8152-fe614de5b113"/>
+    <intermediateCatchEvent id="Event_ed54c80f-59d0-4841-8e1f-5fc52d4889ca">
+      <incoming>node_55bd68bf-c356-41ca-aa62-d9e92a203b76</incoming>
+      <outgoing>Flow_6b26be5f-a79b-4b5f-acd6-149d537884b2</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_fa869a4f-d6b2-4026-a466-b2a00c6aeeb3"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_6b26be5f-a79b-4b5f-acd6-149d537884b2" sourceRef="Event_ed54c80f-59d0-4841-8e1f-5fc52d4889ca" targetRef="node_52e3ca25-d02e-462e-b143-52c61a0352de"/>
+    <intermediateCatchEvent id="Event_77b84eeb-773e-4685-9513-cefc3b27e1cb">
+      <incoming>node_65405a4b-eeb2-44f2-a1f2-d3f6563b2e59</incoming>
+      <outgoing>Flow_d87feef1-0ddd-419e-a1f8-22afc23f1448</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_8ba72751-475e-4f43-bfa0-54807aef6d51"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_d87feef1-0ddd-419e-a1f8-22afc23f1448" sourceRef="Event_77b84eeb-773e-4685-9513-cefc3b27e1cb" targetRef="node_5c67fa8d-5786-412d-ab15-40d666a2968c"/>
+    <intermediateCatchEvent id="Event_8ace1ec7-d341-4e40-9e62-90739824e32b">
+      <incoming>node_f94f8135-4923-4d8a-808b-0267b4bb46df</incoming>
+      <outgoing>Flow_230ad215-d6ae-4339-ac80-21255bb8416d</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_c804409e-bee4-4f9d-badf-14373ba6b459"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_230ad215-d6ae-4339-ac80-21255bb8416d" sourceRef="Event_8ace1ec7-d341-4e40-9e62-90739824e32b" targetRef="node_b89b16a6-439d-4fb9-9597-7ae77000d412"/>
+    <intermediateCatchEvent id="Event_b7d5c6b5-a516-4da9-bc38-dab72d5d107c">
+      <incoming>node_fc4a6d1d-63a3-48be-8571-4fa2efbbc7df</incoming>
+      <outgoing>Flow_21f3031b-7c2b-4f3e-b137-2c22754e1eb9</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_90c3c48c-ae67-470a-a634-82aa85829ee5"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_21f3031b-7c2b-4f3e-b137-2c22754e1eb9" sourceRef="Event_b7d5c6b5-a516-4da9-bc38-dab72d5d107c" targetRef="node_441051f0-a674-42b0-bee0-861ef6d91720"/>
+    <intermediateCatchEvent id="Event_5a2e0711-8107-4139-916d-e0d5709336d0">
+      <incoming>node_0da9bad0-8a92-40b5-993a-a515b0eacf89</incoming>
+      <outgoing>Flow_0feeed11-c30a-4095-82d6-cbfe335d2003</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_401e6c92-d1ed-43cb-9078-62a8ba380002"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="Flow_0feeed11-c30a-4095-82d6-cbfe335d2003" sourceRef="Event_5a2e0711-8107-4139-916d-e0d5709336d0" targetRef="node_5655cece-1811-47ec-9349-7ec51818f1e2"/>
+  </process>
+  <bpmndi:BPMNDiagram id="id_1235898926">
+    <bpmndi:BPMNPlane bpmnElement="proc_133250414"/>
+  </bpmndi:BPMNDiagram>
+</definitions>

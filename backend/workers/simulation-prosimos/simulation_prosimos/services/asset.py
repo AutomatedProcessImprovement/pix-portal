@@ -6,9 +6,10 @@ from typing import Optional
 from urllib.parse import urljoin
 
 import httpx
-from bps_discovery_simod.services.file import FileService
-from bps_discovery_simod.services.self_authenticating_service import SelfAuthenticatingService
-from bps_discovery_simod.settings import settings
+from simulation_prosimos.settings import settings
+
+from .file import FileService
+from .self_authenticating_service import SelfAuthenticatingService
 
 logger = logging.getLogger()
 

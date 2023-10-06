@@ -47,7 +47,7 @@ class ProcessingRequest(Base):
     start_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, index=True)
     end_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, index=True)
 
-    # Project information
+    # Processing request information
 
     type: Mapped[ProcessingRequestType] = mapped_column(String, nullable=False, index=True)
     status: Mapped[ProcessingRequestStatus] = mapped_column(String, nullable=False, index=True)
