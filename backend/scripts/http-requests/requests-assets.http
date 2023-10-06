@@ -1,0 +1,39 @@
+### List assets
+
+GET http://localhost:9999/api/v1/assets/
+Authorization: Bearer {{token}}
+
+### Get asset location
+
+GET http://localhost:9999/api/v1/assets/b4fad2a9-2045-41fe-90a1-12ddd76cc5b6/location
+Authorization: Bearer {{token}}
+
+### Add an asset
+
+POST http://localhost:9999/api/v1/assets/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "compose.yaml",
+  "type": "event_log_csv",
+  "file_id": "9e9eff03-11be-4c7d-9193-af2f6e766490",
+  "project_id": "62d937c9-b4b6-4985-9617-447495cacbc7"
+}
+
+### Update an asset
+
+PATCH http://localhost:9999/api/v1/assets/f00666bf-06c4-4ae5-98aa-6f4ad7bb40cf
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "foo"
+}
+
+### Get the asset's location
+
+GET http://localhost:9999/api/v1/assets/d44ab3ed-0516-4c86-9f9a-110542c96fb0/location
+Content-Type: application/json
+Authorization: Bearer {{token}}
+

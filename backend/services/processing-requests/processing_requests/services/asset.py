@@ -47,6 +47,25 @@ class AssetService:
             await self.delete_asset(asset["id"], token)
         return True
 
+    async def add_processing_request_id_to_asset(self, asset_id: UUID, processing_request_id: UUID, token: str) -> bool:
+        asset = await self.get_asset(asset_id, token)
+        processing_request_ids = set(asset["processing_requests_ids"])
+        processing_request_ids.add(processing_request_id)
+        return await self.update_processing_request_ids_for_asset(asset_id, list(processing_request_ids), token)
+
+    async def update_processing_request_ids_for_asset(
+        self, asset_id: UUID, processing_request_ids: list[UUID], token: str
+    ) -> bool:
+        url = urljoin(self._base_url, f"{asset_id}")
+        response = await self._client.patch(
+            url,
+            json={"processing_requests_ids": [str(rid) for rid in processing_request_ids]},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        if response.status_code == 200:
+            return True
+        raise Exception(response.text)
+
 
 async def get_asset_service() -> AsyncGenerator[AssetService, None]:
     yield AssetService()
