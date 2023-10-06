@@ -144,9 +144,6 @@ class ProcessingRequestService:
             output_assets_ids,
         )
 
-        for asset_id in input_assets_ids + output_assets_ids:
-            await self._asset_service.add_processing_request_id_to_asset(asset_id, processing_request.id, token)
-
         try:
             self._kafka_service.send_message(
                 type,
