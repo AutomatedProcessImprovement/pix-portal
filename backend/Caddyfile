@@ -30,6 +30,10 @@ handle /api/v1/* {
   handle /files* {
     reverse_proxy files:8000
   }
+
+  handle /blobs* {
+    reverse_proxy files:8000
+  }
 }
 
 handle /admin/grafana/* {

@@ -36,15 +36,15 @@ POST http://localhost:9999/api/v1/files/
 Authorization: Bearer {{token}}
 Content-Type: application/octet-stream
 
-< ./PurchasingExample.csv.gz
+< ./configuration_prosimos.yml
 
-### Upload the configuration
+### Upload the simulation model
 
 POST http://localhost:9999/api/v1/files/
 Authorization: Bearer {{token}}
 Content-Type: application/octet-stream
 
-< ./configuration_one_shot.yml
+< ./PurchasingExampleSimulationModel.json
 
 ### Create an asset
 
@@ -53,9 +53,9 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "PurchasingExample.csv.gz",
-  "type": "event_log_csv_gz",
-  "file_id": "39fd287d-3d0d-401a-ae61-d66a49544a26",
+  "name": "configuration_prosimos.yml",
+  "type": "configuration_prosimos_yaml",
+  "file_id": "32642de3-33d7-415a-9693-42a3e245e6bf",
   "project_id": "775eb3ef-350b-4445-9229-3ea57d9d09c6"
 }
 
@@ -67,7 +67,7 @@ Authorization: Bearer {{token}}
 
 {
   "name": "configuration_one_shot.yml",
-  "type": "simod_configuration_yaml",
+  "type": "configuration_simod_yaml",
   "file_id": "f680742c-8409-4972-8bc8-c5069f0e28be",
   "project_id": "775eb3ef-350b-4445-9229-3ea57d9d09c6"
 }
@@ -84,15 +84,26 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "type": "process_model_optimization_simod",
+  "type": "simulation_prosimos",
   "project_id": "775eb3ef-350b-4445-9229-3ea57d9d09c6",
   "input_assets_ids": [
-    "59be29c7-0aef-4f2e-83b4-062cba9bd8fb",
-    "c54e046b-803c-47e3-82aa-0b07e2a75e38"
+    "f2f99fc7-e642-4950-a66c-91af4c2c94d5",
+    "e74364c0-546b-4172-b6a1-4f17c3588bc2",
+    "b6428878-3129-431f-ab58-c3a4f5ab9bf1"
   ]
 }
 
 ### Get a processing request
 
 GET http://localhost:9999/api/v1/processing-requests/d0846ce5-c022-496c-9bc2-c25cec4de74b
+Authorization: Bearer {{token}}
+
+### Get resulting asset
+
+GET http://localhost:9999/api/v1/assets/a4a67026-f188-4ec1-af8a-d40e6d69fa9f/location?is_internal=False
+Authorization: Bearer {{token}}
+
+###
+
+GET http://localhost:9999/api/v1/blobs/c09d64d3ab0281ba3c6fba5869dbabd12b0c3df5872af13cbe738640b9ed56cb
 Authorization: Bearer {{token}}

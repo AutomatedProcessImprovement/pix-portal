@@ -88,12 +88,13 @@ async def delete_asset(
 async def get_asset_location(
     asset_id: uuid.UUID,
     authorization: Annotated[str, Header()],
+    is_internal: bool = False,
     asset_service: AssetService = Depends(get_asset_service),
     user: dict = Depends(get_current_user),
 ) -> Any:
     token = authorization.split(" ")[1]
     try:
-        url = await asset_service.get_file_location(asset_id, token=token)
+        url = await asset_service.get_file_location(asset_id, is_internal=is_internal, token=token)
         return LocationOut(location=url)
     except AssetNotFound:
         raise HTTPException(status_code=404, detail="Asset not found")

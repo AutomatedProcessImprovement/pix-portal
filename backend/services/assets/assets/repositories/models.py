@@ -13,8 +13,9 @@ class AssetType(str, Enum):
     EVENT_LOG_CSV = "event_log_csv"
     EVENT_LOG_CSV_GZ = "event_log_csv_gz"
     PROCESS_MODEL_BPMN = "process_model_bpmn"
-    CONFIGURATION_SIMOD_YAML = "simod_configuration_yaml"
-    SIMULATION_MODEL_PROSIMOS_JSON = "bps_model_prosimos_json"
+    CONFIGURATION_SIMOD_YAML = "configuration_simod_yaml"
+    SIMULATION_MODEL_PROSIMOS_JSON = "simulation_model_prosimos_json"
+    CONFIGURATION_PROSIMOS_YAML = "configuration_prosimos_yaml"
     CONSTRAINTS_MODEL_OPTIMOS_JSON = "constraints_model_optimos_json"
 
 

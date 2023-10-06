@@ -1,13 +1,12 @@
 import uuid
-from datetime import datetime
 from typing import AsyncGenerator, Optional
 
 from fastapi import Depends
 
+from .file import FileService
 from ..repositories.asset_repository import get_asset_repository
 from ..repositories.asset_repository_interface import AssetRepositoryInterface
 from ..repositories.models import Asset, AssetType
-from .file import FileService
 
 
 class AssetService:
@@ -80,11 +79,12 @@ class AssetService:
     async def get_file(self, file_id: uuid.UUID, token: str) -> dict:
         return await self.file_service.get_file(file_id, token=token)
 
-    async def get_file_location(self, asset_id: uuid.UUID, token: str) -> str:
+    async def get_file_location(self, asset_id: uuid.UUID, is_internal: bool, token: str) -> str:
         asset = await self.get_asset(asset_id)
         file = await self.file_service.get_file(asset.file_id, token=token)
         relative_url = file["url"]
-        absolute_url = self.file_service.get_absolute_url(relative_url)
+        absolute_url = self.file_service.get_absolute_url(relative_url, is_internal)
+        print(f"absolute_url: {absolute_url}")
         return absolute_url
 
 

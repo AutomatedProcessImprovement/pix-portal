@@ -305,6 +305,18 @@ services:
     networks:
       - backend
     restart: on-failure
+  simulation-prosimos:
+    build:
+      context: workers/simulation-prosimos
+    env_file:
+      - workers/simulation-prosimos/.env
+    volumes:
+      - simulation-prosimos-data:/var/tmp/simulation-prosimos:rw
+    depends_on:
+      - kafka
+    networks:
+      - backend
+    restart: on-failure
   caddy:
     image: caddy
     ports:
@@ -327,6 +339,7 @@ volumes:
   caddy_data:
   caddy_config:
   bps-discovery-simod-data:
+  simulation-prosimos-data:
 networks:
   backend:
     name: pix_backend

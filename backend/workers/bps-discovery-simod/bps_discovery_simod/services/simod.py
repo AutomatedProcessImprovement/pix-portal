@@ -58,7 +58,7 @@ class SimodService:
 
             # download assets
             assets = [
-                await self._asset_service.download_asset(asset_id, self._assets_base_dir)
+                await self._asset_service.download_asset(asset_id, self._assets_base_dir, is_internal=True)
                 for asset_id in processing_request.input_assets_ids
             ]
 
@@ -123,7 +123,13 @@ class SimodService:
             )
         except Exception as e:
             trace = traceback.format_exc()
-            logger.error(f"Simod discovery failed: {e}, stdout={result_stdout}, stderr={result_stderr}, trace={trace}")
+            logger.error(
+                f"Simod discovery failed: {e}, "
+                f"processing_request_id={processing_request.processing_request_id}, "
+                f"stdout={result_stdout}, "
+                f"stderr={result_stderr}, "
+                f"trace={trace}"
+            )
 
             # update processing request status
             await self._processing_request_service.update_status(

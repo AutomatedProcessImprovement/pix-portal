@@ -11,6 +11,7 @@ class FileService:
     def __init__(self):
         self._client = httpx.AsyncClient()
         self._base_url = settings.file_service_url.unicode_string()
+        self._blobs_base_url = settings.blobs_base_url.unicode_string()
 
     async def get_file(self, file_id: uuid.UUID, token: str) -> dict:
         """
@@ -33,8 +34,12 @@ class FileService:
 
         return False
 
-    def get_absolute_url(self, relative_url: str) -> str:
-        return urljoin(self._base_url, relative_url)
+    def get_absolute_url(self, relative_url: str, is_internal: bool) -> str:
+        if is_internal:
+            return urljoin(self._base_url, relative_url)
+        else:
+            relative_url = relative_url.lstrip("/")
+            return urljoin(self._blobs_base_url, relative_url)
 
     def _file_resource_url(self, file_id: uuid.UUID) -> str:
         return urljoin(self._base_url, f"{file_id}")
