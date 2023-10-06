@@ -2,7 +2,6 @@ import uuid
 from typing import Annotated, Any, Optional
 
 from fastapi import APIRouter, Depends, Header
-from fastapi.exceptions import HTTPException
 from pix_portal_lib.exceptions.http_exceptions import (
     AssetAlreadyExistsHTTP,
     AssetAlreadyInInputAssetsHTTP,
@@ -30,7 +29,6 @@ from ..services.processing_request import (
     ProjectNotFound,
     NotEnoughPermissions,
     AssetAlreadyInOutputAssets,
-    QueueNotAvailable,
 )
 
 router = APIRouter()
@@ -114,8 +112,6 @@ async def create_processing_request(
         raise AssetNotFoundHTTP()
     except NotEnoughPermissions:
         raise NotEnoughPermissionsHTTP()
-    except QueueNotAvailable:
-        raise HTTPException(status_code=503, detail="Service Unavailable")
 
 
 @router.get("/{processing_request_id}", response_model=ProcessingRequestOut, tags=["processing_requests"])
