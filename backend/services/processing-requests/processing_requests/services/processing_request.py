@@ -1,13 +1,18 @@
+import logging
 import uuid
 from typing import AsyncGenerator, Optional, Sequence
 
 from fastapi import Depends
+from kafka.errors import KafkaTimeoutError
 
 from .asset import AssetService, get_asset_service
+from .kafka_producer import KafkaProducerService, get_kafka_service
 from .project import ProjectService, get_project_service
 from .user import UserService, get_user_service
 from ..repositories.models import ProcessingRequest, ProcessingRequestType, ProcessingRequestStatus
 from ..repositories.processing_requests_repository import get_processing_request_repository, ProcessingRequestRepository
+
+logger = logging.getLogger()
 
 
 class UserNotFound(Exception):
@@ -54,6 +59,10 @@ class NotEnoughPermissions(Exception):
     pass
 
 
+class QueueNotAvailable(Exception):
+    pass
+
+
 class ProcessingRequestService:
     def __init__(
         self,
@@ -61,11 +70,13 @@ class ProcessingRequestService:
         asset_service: AssetService,
         user_service: UserService,
         project_service: ProjectService,
+        kafka_service: KafkaProducerService,
     ) -> None:
         self._processing_request_repository = processing_request_repository
         self._asset_service = asset_service
         self._user_service = user_service
         self._project_service = project_service
+        self._kafka_service = kafka_service
 
     async def get_processing_requests(self) -> Sequence[ProcessingRequest]:
         return await self._processing_request_repository.get_processing_requests()
@@ -133,7 +144,33 @@ class ProcessingRequestService:
             output_assets_ids,
         )
 
-        # TODO: trigger execution of processing request or store it in a queue
+        for asset_id in input_assets_ids + output_assets_ids:
+            await self._asset_service.add_processing_request_id_to_asset(asset_id, processing_request.id, token)
+
+        try:
+            self._kafka_service.send_message(
+                type,
+                {
+                    "processing_request_id": str(processing_request.id),
+                    "user_id": str(user_id),
+                    "project_id": str(project_id),
+                    "input_assets_ids": [str(aid) for aid in input_assets_ids],
+                    "output_assets_ids": [str(aid) for aid in output_assets_ids],
+                    "jwt_token": token,
+                },
+            )
+        except KafkaTimeoutError as e:
+            logger.error(
+                f"Failed to send a message to Kafka. "
+                f"Details: "
+                f"type={type}, "
+                f"user_id={user_id}, "
+                f"project_id={project_id}, "
+                f"input_assets_ids={input_assets_ids}, "
+                f"output_assets_ids={output_assets_ids}, "
+                f"error: {e}"
+            )
+            raise QueueNotAvailable()
 
         return processing_request
 
@@ -210,5 +247,8 @@ async def get_processing_request_service(
     asset_service: AssetService = Depends(get_asset_service),
     user_service: UserService = Depends(get_user_service),
     project_service: ProjectService = Depends(get_project_service),
+    kafka_service: KafkaProducerService = Depends(get_kafka_service),
 ) -> AsyncGenerator[ProcessingRequestService, None]:
-    yield ProcessingRequestService(processing_request_repository, asset_service, user_service, project_service)
+    yield ProcessingRequestService(
+        processing_request_repository, asset_service, user_service, project_service, kafka_service
+    )
