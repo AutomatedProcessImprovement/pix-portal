@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 
-WHEEL_PATH=dist/pix_portal_lib-0.1.0-py3-none-any.whl
+WHEEL_PATH=""
 SERVICE_BASE_DIR=$(realpath ../services)
 
 function build() {
     printf "Building the library\n"
     echo "=============================="
     source .venv/bin/activate
+
+    WHEEL_PATH="dist/pix_portal_lib-$(poetry version -s)-py3-none-any.whl"
+    echo "Wheel path: $WHEEL_PATH"
+
     poetry build
 }
 
@@ -14,6 +18,7 @@ function update_service_deps() {
     cd $1
     printf "\nUpdating $1\n"
     echo "=============================="
+    source .venv/bin/activate
     poetry lock
     poetry install
     poetry export -f requirements.txt --output requirements.txt --without-hashes
