@@ -5,11 +5,11 @@ from typing import Optional
 
 import yaml
 from pix_portal_lib.services.asset import AssetService, AssetType, Asset
+from pix_portal_lib.services.project import ProjectService
 from prosimos.simulation_engine import run_simulation
 
 from simulation_prosimos.settings import settings
 from .processing_request import ProcessingRequestService, ProcessingRequest, ProcessingRequestStatus
-from .project import ProjectService
 
 logger = logging.getLogger()
 

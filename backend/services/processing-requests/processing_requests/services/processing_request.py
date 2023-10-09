@@ -8,7 +8,8 @@ from pix_portal_lib.services.asset import AssetService
 from pix_portal_lib.services.asset_fastapi_utils import get_asset_service
 
 from .kafka_producer import KafkaProducerService, get_kafka_service
-from .project import ProjectService, get_project_service
+from pix_portal_lib.services.project import ProjectService
+from pix_portal_lib.services.project_fastapi_utils import get_project_service
 from .user import UserService, get_user_service
 from ..repositories.models import ProcessingRequest, ProcessingRequestType, ProcessingRequestStatus
 from ..repositories.processing_requests_repository import get_processing_request_repository, ProcessingRequestRepository

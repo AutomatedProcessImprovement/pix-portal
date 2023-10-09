@@ -1,20 +1,30 @@
-from typing import AsyncGenerator
+import os
+from typing import Optional
 from urllib.parse import urljoin
 from uuid import UUID
 
 import httpx
 
-from ..settings import settings
+from .self_authenticating_service import SelfAuthenticatingService
+
+project_service_url = os.environ.get("PROJECT_SERVICE_URL")
 
 
 class ProjectNotFound(Exception):
     pass
 
 
-class ProjectService:
+class ProjectService(SelfAuthenticatingService):
     def __init__(self):
+        super().__init__()
         self._client = httpx.AsyncClient()
-        self._base_url = settings.project_service_url.unicode_string()
+        self._base_url = project_service_url
+
+    async def add_asset_to_project(self, project_id: str, asset_id: str, token: Optional[str] = None) -> dict:
+        url = urljoin(self._base_url, f"{project_id}/assets")
+        response = await self._client.post(url, headers=await self.request_headers(token), json={"asset_id": asset_id})
+        response.raise_for_status()
+        return response.json()
 
     async def get_project(self, project_id: UUID, token: str) -> dict:
         url = urljoin(self._base_url, str(project_id))
@@ -32,7 +42,3 @@ class ProjectService:
         current_user_id = str(user_id)
         project_user_id = [str(user_id) for user_id in project["user_ids"]]
         return current_user_id in project_user_id
-
-
-async def get_project_service() -> AsyncGenerator[ProjectService, None]:
-    yield ProjectService()
