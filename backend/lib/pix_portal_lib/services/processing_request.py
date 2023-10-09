@@ -1,4 +1,5 @@
 import logging
+import os
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
@@ -7,7 +8,7 @@ from urllib.parse import urljoin
 import httpx
 from pix_portal_lib.services.self_authenticating_service import SelfAuthenticatingService
 
-from bps_discovery_simod.settings import settings
+processing_request_service_url = os.environ.get("PROCESSING_REQUEST_SERVICE_URL")
 
 logger = logging.getLogger()
 
@@ -42,7 +43,9 @@ class ProcessingRequestService(SelfAuthenticatingService):
     def __init__(self):
         super().__init__()
         self._client = httpx.AsyncClient()
-        self._base_url = settings.processing_request_service_url.unicode_string()
+        self._base_url = processing_request_service_url
+        if self._base_url is None:
+            raise ValueError("PROCESSING_REQUEST_SERVICE_URL environment variable is not set")
 
     async def add_output_asset_to_processing_request(
         self, processing_request_id: str, asset_id: str, token: Optional[str] = None
