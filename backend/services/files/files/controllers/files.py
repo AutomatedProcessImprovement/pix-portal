@@ -3,7 +3,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Body, Depends, HTTPException, UploadFile
 from fastapi.responses import FileResponse
-from pix_portal_lib.service_clients.auth_fastapi_utils import get_current_superuser, get_current_user
+from pix_portal_lib.service_clients.fastapi import get_current_user
 
 from .schemas import FileOut, LocationOut
 from ..services.file import FileService, get_file_service
@@ -15,7 +15,7 @@ router = APIRouter()
 async def create_file(
     file_bytes: Annotated[bytes, Body()],
     file_service: FileService = Depends(get_file_service),
-    user: dict = Depends(get_current_user),
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> Any:
     result = await file_service.save_file(file_bytes)
     return result
@@ -25,7 +25,7 @@ async def create_file(
 async def upload_file(
     upload: UploadFile,
     file_service: FileService = Depends(get_file_service),
-    user: dict = Depends(get_current_user),
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> Any:
     result = await file_service.save_file(upload.file.read())
     return result
@@ -34,7 +34,7 @@ async def upload_file(
 @router.get("/", response_model=list[FileOut])
 async def get_files(
     file_service: FileService = Depends(get_file_service),
-    user: dict = Depends(get_current_superuser),
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> list[Any]:
     result = await file_service.get_files()
     return result
@@ -44,7 +44,7 @@ async def get_files(
 async def get_file(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
-    user: dict = Depends(get_current_user),
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> Any:
     try:
         result = await file_service.get_file(file_id)
@@ -57,7 +57,7 @@ async def get_file(
 async def delete_file(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
-    user: dict = Depends(get_current_user),
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> None:
     try:
         await file_service.delete_file(file_id)
@@ -69,7 +69,7 @@ async def delete_file(
 async def get_file_location(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
-    user: dict = Depends(get_current_user),
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> LocationOut:
     try:
         location = await file_service.get_file_url(file_id)
@@ -82,7 +82,7 @@ async def get_file_location(
 async def get_file_content(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
-    user: dict = Depends(get_current_user),
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> FileResponse:
     try:
         file_path = await file_service.get_file_path(file_id)

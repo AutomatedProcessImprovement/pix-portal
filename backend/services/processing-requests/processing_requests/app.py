@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from pix_portal_lib.exceptions.fastapi_handlers import general_exception_handler, http_exception_handler
 from pix_portal_lib.middleware.request_logging import RequestLoggingMiddleware
 from pix_portal_lib.open_telemetry_utils import instrument_app
-from pix_portal_lib.service_clients.auth_fastapi_utils import add_user_to_app_state_if_present
+from pix_portal_lib.service_clients.fastapi import add_user_to_app_state_if_present
 
 from .controllers import processing_requests
 from .repositories.init_db import migrate_to_latest

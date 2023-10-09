@@ -5,11 +5,13 @@ from typing import AsyncGenerator, Optional, Sequence
 from fastapi import Depends
 from kafka.errors import KafkaTimeoutError
 from pix_portal_lib.service_clients.asset import AssetServiceClient
-from pix_portal_lib.service_clients.asset_fastapi_utils import get_asset_service_client
+from pix_portal_lib.service_clients.fastapi import (
+    get_asset_service_client,
+    get_project_service_client,
+    get_user_service_client,
+)
 from pix_portal_lib.service_clients.project import ProjectServiceClient
-from pix_portal_lib.service_clients.project_fastapi_utils import get_project_service_client
 from pix_portal_lib.service_clients.user import UserServiceClient
-from pix_portal_lib.service_clients.user_fastapi_utils import get_user_service_client
 
 from .kafka_producer import KafkaProducerService, get_kafka_service
 from ..repositories.models import ProcessingRequest, ProcessingRequestType, ProcessingRequestStatus

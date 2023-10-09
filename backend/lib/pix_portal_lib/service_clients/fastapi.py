@@ -2,7 +2,25 @@ from typing import AsyncGenerator
 
 from fastapi import Depends, Header, HTTPException, Request
 
+from .asset import AssetServiceClient
 from .auth import AuthServiceClient
+from .project import ProjectServiceClient
+from .user import UserServiceClient
+
+
+async def get_asset_service_client() -> AsyncGenerator[AssetServiceClient, None]:
+    yield AssetServiceClient()
+
+
+async def get_project_service_client() -> AsyncGenerator[ProjectServiceClient, None]:
+    yield ProjectServiceClient()
+
+
+async def get_user_service_client() -> AsyncGenerator[UserServiceClient, None]:
+    yield UserServiceClient()
+
+
+# Auth utils
 
 
 async def get_auth_service_client() -> AsyncGenerator[AuthServiceClient, None]:

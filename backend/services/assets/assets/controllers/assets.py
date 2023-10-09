@@ -2,7 +2,7 @@ import uuid
 from typing import Annotated, Any, Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException
-from pix_portal_lib.service_clients.auth_fastapi_utils import get_current_user
+from pix_portal_lib.service_clients.fastapi import get_current_user
 
 from .schemas import AssetIn, AssetOut, AssetPatchIn, LocationOut
 from ..repositories.asset_repository import AssetNotFound
@@ -18,7 +18,7 @@ async def get_assets(
     asset_service: AssetService = Depends(get_asset_service),
     project_id: Optional[uuid.UUID] = None,
     processing_request_id: Optional[uuid.UUID] = None,
-    user: dict = Depends(get_current_user),
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> list[Any]:
     if project_id:
         result = await asset_service.get_assets_by_project_id(project_id)
@@ -35,7 +35,7 @@ async def get_assets(
 async def create_asset(
     asset_data: AssetIn,
     file_service: AssetService = Depends(get_asset_service),
-    user: dict = Depends(get_current_user),
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> Any:
     # TODO: assert file_id exists and not deleted
     # TODO: assert project_id exists and not deleted
@@ -47,7 +47,7 @@ async def create_asset(
 async def get_asset(
     asset_id: uuid.UUID,
     asset_service: AssetService = Depends(get_asset_service),
-    user: dict = Depends(get_current_user),
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> Any:
     try:
         result = await asset_service.get_asset(asset_id)
@@ -61,7 +61,7 @@ async def patch_asset(
     asset_id: uuid.UUID,
     asset_data: AssetPatchIn,
     asset_service: AssetService = Depends(get_asset_service),
-    user: dict = Depends(get_current_user),
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> Any:
     try:
         result = await asset_service.update_asset(asset_id, **asset_data.model_dump(exclude_none=True))
@@ -75,7 +75,7 @@ async def delete_asset(
     asset_id: uuid.UUID,
     authorization: Annotated[str, Header()],
     asset_service: AssetService = Depends(get_asset_service),
-    user: dict = Depends(get_current_user),
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> None:
     token = authorization.split(" ")[1]
     try:
@@ -90,7 +90,7 @@ async def get_asset_location(
     authorization: Annotated[str, Header()],
     is_internal: bool = False,
     asset_service: AssetService = Depends(get_asset_service),
-    user: dict = Depends(get_current_user),
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> Any:
     token = authorization.split(" ")[1]
     try:

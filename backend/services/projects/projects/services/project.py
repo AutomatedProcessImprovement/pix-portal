@@ -3,9 +3,8 @@ from typing import AsyncGenerator, Optional
 
 from fastapi import Depends
 from pix_portal_lib.service_clients.asset import AssetServiceClient
-from pix_portal_lib.service_clients.asset_fastapi_utils import get_asset_service_client
+from pix_portal_lib.service_clients.fastapi import get_asset_service_client, get_user_service_client
 from pix_portal_lib.service_clients.user import UserServiceClient
-from pix_portal_lib.service_clients.user_fastapi_utils import get_user_service_client
 
 from ..repositories.models import Project
 from ..repositories.project_repository import get_project_repository, ProjectRepository

@@ -1017,12 +1017,12 @@ files = [
 
 [[package]]
 name = "pix-portal-lib"
-version = "0.1.8"
+version = "0.1.9"
 description = ""
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "pix_portal_lib-0.1.8-py3-none-any.whl", hash = "sha256:a46f872509e2045fa58a946cc06047a5d45ad69a45a8453aa502bec59081b79e"},
+    {file = "pix_portal_lib-0.1.9-py3-none-any.whl", hash = "sha256:f360aeb97b9aa6661d34b4faa738dbaf63109e146ed6209080ac611b148837eb"},
 ]
 
 [package.dependencies]
@@ -1039,7 +1039,7 @@ requests = ">=2.31.0,<3.0.0"
 
 [package.source]
 type = "file"
-url = "lib/pix_portal_lib-0.1.8-py3-none-any.whl"
+url = "lib/pix_portal_lib-0.1.9-py3-none-any.whl"
 
 [[package]]
 name = "platformdirs"
@@ -1576,4 +1576,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "17ecee398c2f705d60a19d8c98ac9329b5b2c9fbd1c01fea6787e2a023aae66e"
+content-hash = "3d11bf90127fd04c1aa0637d0b6620f226f85aa52226f8539360602696af40bc"
