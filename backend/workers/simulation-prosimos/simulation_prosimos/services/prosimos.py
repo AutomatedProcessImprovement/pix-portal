@@ -4,13 +4,13 @@ from pathlib import Path
 from typing import Optional
 
 import yaml
-from pix_portal_lib.services.asset import AssetService, AssetType, Asset
-from pix_portal_lib.services.processing_request import (
-    ProcessingRequestService,
+from pix_portal_lib.service_clients.asset import AssetServiceClient, AssetType, Asset
+from pix_portal_lib.service_clients.processing_request import (
+    ProcessingRequestServiceClient,
     ProcessingRequest,
     ProcessingRequestStatus,
 )
-from pix_portal_lib.services.project import ProjectService
+from pix_portal_lib.service_clients.project import ProjectServiceClient
 from prosimos.simulation_engine import run_simulation
 from simulation_prosimos.settings import settings
 
@@ -29,9 +29,9 @@ class ProsimosService:
     def __init__(self):
         self._assets_base_dir = settings.asset_base_dir
         self._prosimos_results_base_dir = settings.prosimos_results_base_dir
-        self._asset_service = AssetService()
-        self._processing_request_service = ProcessingRequestService()
-        self._project_service = ProjectService()
+        self._asset_service_client = AssetServiceClient()
+        self._processing_request_service_client = ProcessingRequestServiceClient()
+        self._project_service_client = ProjectServiceClient()
 
         self._assets_base_dir.mkdir(parents=True, exist_ok=True)
         self._prosimos_results_base_dir.mkdir(parents=True, exist_ok=True)
@@ -43,13 +43,13 @@ class ProsimosService:
         """
         try:
             # update processing request status
-            await self._processing_request_service.update_status(
+            await self._processing_request_service_client.update_status(
                 processing_request_id=processing_request.processing_request_id, status=ProcessingRequestStatus.RUNNING
             )
 
             # download assets
             assets = [
-                await self._asset_service.download_asset(asset_id, self._assets_base_dir, is_internal=True)
+                await self._asset_service_client.download_asset(asset_id, self._assets_base_dir, is_internal=True)
                 for asset_id in processing_request.input_assets_ids
             ]
 
@@ -70,7 +70,7 @@ class ProsimosService:
             )
 
             # upload results and create corresponding assets
-            synthetic_event_log_asset_id = await self._asset_service.create_asset(
+            synthetic_event_log_asset_id = await self._asset_service_client.create_asset(
                 file_path=output_path,
                 project_id=processing_request.project_id,
                 asset_type=AssetType.EVENT_LOG_CSV,
@@ -79,19 +79,19 @@ class ProsimosService:
             # update project assets
             # NOTE: assets must be added to the project first before adding them to the processing request,
             #   because the processing request service checks if the assets belong to the project
-            await self._project_service.add_asset_to_project(
+            await self._project_service_client.add_asset_to_project(
                 project_id=processing_request.project_id,
                 asset_id=synthetic_event_log_asset_id,
             )
 
             # update output assets in the processing request
-            await self._processing_request_service.add_output_asset_to_processing_request(
+            await self._processing_request_service_client.add_output_asset_to_processing_request(
                 processing_request_id=processing_request.processing_request_id,
                 asset_id=synthetic_event_log_asset_id,
             )
 
             # update processing request status
-            await self._processing_request_service.update_status(
+            await self._processing_request_service_client.update_status(
                 processing_request_id=processing_request.processing_request_id, status=ProcessingRequestStatus.FINISHED
             )
         except Exception as e:
@@ -103,17 +103,17 @@ class ProsimosService:
             )
 
             # update processing request status
-            await self._processing_request_service.update_status(
+            await self._processing_request_service_client.update_status(
                 processing_request_id=processing_request.processing_request_id,
                 status=ProcessingRequestStatus.FAILED,
                 message=str(e),
             )
 
         # set token to None to force re-authentication, because the token might have expired
-        self._asset_service.nullify_token()
-        self._asset_service._file_service.nullify_token()
-        self._project_service.nullify_token()
-        self._processing_request_service.nullify_token()
+        self._asset_service_client.nullify_token()
+        self._asset_service_client._file_service.nullify_token()
+        self._project_service_client.nullify_token()
+        self._processing_request_service_client.nullify_token()
 
     @staticmethod
     def _find_asset_by_type(assets: list[Asset], asset_type: AssetType) -> Optional[Asset]:

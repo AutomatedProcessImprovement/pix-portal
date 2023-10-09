@@ -9,7 +9,7 @@ from pix_portal_lib.exceptions.http_exceptions import (
     ProjectNotFoundHTTP,
     UserNotFoundHTTP,
 )
-from pix_portal_lib.services.auth_fastapi_utils import get_current_user
+from pix_portal_lib.service_clients.auth_fastapi_utils import get_current_user
 
 from .schemas import (
     AddAssetToProjectIn,

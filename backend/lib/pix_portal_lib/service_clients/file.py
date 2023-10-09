@@ -6,16 +6,16 @@ from urllib.parse import urljoin
 
 import httpx
 
-from .self_authenticating_service import SelfAuthenticatingService
+from .self_authenticating_client import SelfAuthenticatingClient
 
 file_service_url = os.environ.get("FILE_SERVICE_URL")
 blobs_base_url = os.environ.get("BLOBS_BASE_URL")
 
 
 # some of the services that use this class could have access to an expired token,
-# in that case, the service has to be able to authenticate itself, SelfAuthenticatingService provides
+# in that case, the service has to be able to authenticate itself, SelfAuthenticatingClient provides
 # the self.token property that calls the auth service to get a new token if the current one is None
-class FileService(SelfAuthenticatingService):
+class FileServiceClient(SelfAuthenticatingClient):
     def __init__(self):
         super().__init__()
         self._client = httpx.AsyncClient()

@@ -21,7 +21,7 @@ class TokenVerificationResponse(BaseModel):
     user: dict
 
 
-class AuthService:
+class AuthServiceClient:
     def __init__(self):
         self._client = httpx.AsyncClient()
         self._base_url = auth_service_url

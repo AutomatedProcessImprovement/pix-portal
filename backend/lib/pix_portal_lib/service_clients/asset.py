@@ -8,8 +8,9 @@ from urllib.parse import urljoin
 from uuid import UUID
 
 import httpx
-from pix_portal_lib.services.file import FileService
-from pix_portal_lib.services.self_authenticating_service import SelfAuthenticatingService
+
+from .file import FileServiceClient
+from .self_authenticating_client import SelfAuthenticatingClient
 
 logger = logging.getLogger()
 
@@ -48,12 +49,12 @@ class AssetLocationResponse:
     location: str
 
 
-class AssetService(SelfAuthenticatingService):
+class AssetServiceClient(SelfAuthenticatingClient):
     def __init__(self):
         super().__init__()
         self._base_url = asset_service_url
         self._http_client = httpx.AsyncClient()
-        self._file_service = FileService()
+        self._file_service = FileServiceClient()
 
         if self._base_url is None:
             raise ValueError("ASSET_SERVICE_URL environment variable is not set")

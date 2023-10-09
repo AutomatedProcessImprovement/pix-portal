@@ -2,16 +2,16 @@ from typing import AsyncGenerator
 
 from fastapi import Depends, Header, HTTPException, Request
 
-from .auth import AuthService
+from .auth import AuthServiceClient
 
 
-async def get_auth_service() -> AsyncGenerator[AuthService, None]:
-    yield AuthService()
+async def get_auth_service_client() -> AsyncGenerator[AuthServiceClient, None]:
+    yield AuthServiceClient()
 
 
 async def get_current_user(
     request: Request,
-    auth_service: AuthService = Depends(get_auth_service),
+    auth_service: AuthServiceClient = Depends(get_auth_service_client),
     authorization: str = Header(...),
 ) -> dict:
     # check if user is already in app state
@@ -28,7 +28,7 @@ async def get_current_user(
 
 async def add_user_to_app_state_if_present(
     request: Request,
-    auth_service: AuthService = Depends(get_auth_service),
+    auth_service: AuthServiceClient = Depends(get_auth_service_client),
     authorization: str = Header(...),
 ):
     token = authorization.split(" ")[1]
@@ -39,7 +39,7 @@ async def add_user_to_app_state_if_present(
 
 
 async def get_current_superuser(
-    auth_service: AuthService = Depends(get_auth_service),
+    auth_service: AuthServiceClient = Depends(get_auth_service_client),
     authorization: str = Header(...),
 ) -> dict:
     token = authorization.split(" ")[1]

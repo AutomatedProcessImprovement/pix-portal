@@ -1,18 +1,18 @@
 import logging
 from typing import Optional
 
-from .auth import AuthService
+from .auth import AuthServiceClient
 
 logger = logging.getLogger()
 
 
-class SelfAuthenticatingService:
+class SelfAuthenticatingClient:
     """
-    A service that can authenticate itself using the system JWT token if no token is provided.
+    A client that can authenticate itself using the system JWT token if no token is provided.
     """
 
     def __init__(self):
-        self._auth_service = AuthService()
+        self._auth_service = AuthServiceClient()
         self._token = None
 
     @property

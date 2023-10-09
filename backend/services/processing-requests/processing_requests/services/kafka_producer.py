@@ -21,7 +21,7 @@ class KafkaProducerService:
 
     def __init__(self):
         # We use lazy initialization of the producer, because the KafkaProducerService is created for each request,
-        # where the ProcessingRequestService is used. During initialization of the ProcessingRequestService,
+        # where the ProcessingRequestServiceClient is used. During initialization of the ProcessingRequestServiceClient,
         # KafkaProducer establishes a connection to Kafka, which is not necessary if we don't send any messages.
         self._producer: Optional[KafkaProducer] = None
 

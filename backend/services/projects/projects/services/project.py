@@ -2,8 +2,8 @@ import uuid
 from typing import AsyncGenerator, Optional
 
 from fastapi import Depends
-from pix_portal_lib.services.asset import AssetService
-from pix_portal_lib.services.asset_fastapi_utils import get_asset_service
+from pix_portal_lib.service_clients.asset import AssetServiceClient
+from pix_portal_lib.service_clients.asset_fastapi_utils import get_asset_service_client
 
 from .user import UserService, get_user_service
 from ..repositories.models import Project
@@ -35,11 +35,11 @@ class ProjectService:
     def __init__(
         self,
         project_repository: ProjectRepository,
-        asset_service: AssetService,
+        asset_service_client: AssetServiceClient,
         user_service: UserService,
     ) -> None:
         self._project_repository = project_repository
-        self._asset_service = asset_service
+        self._asset_service = asset_service_client
         self._user_service = user_service
 
     async def get_projects(self) -> list[Project]:
@@ -156,7 +156,7 @@ class ProjectService:
 
 async def get_project_service(
     project_repository: ProjectRepositoryInterface = Depends(get_project_repository),
-    asset_service: AssetService = Depends(get_asset_service),
+    asset_service: AssetServiceClient = Depends(get_asset_service_client),
     user_service: UserService = Depends(get_user_service),
 ) -> AsyncGenerator[ProjectService, None]:
     yield ProjectService(project_repository, asset_service, user_service)

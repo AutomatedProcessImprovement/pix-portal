@@ -6,7 +6,8 @@ from typing import Optional
 from urllib.parse import urljoin
 
 import httpx
-from pix_portal_lib.services.self_authenticating_service import SelfAuthenticatingService
+
+from .self_authenticating_client import SelfAuthenticatingClient
 
 processing_request_service_url = os.environ.get("PROCESSING_REQUEST_SERVICE_URL")
 
@@ -39,7 +40,7 @@ class ProcessingRequestStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
-class ProcessingRequestService(SelfAuthenticatingService):
+class ProcessingRequestServiceClient(SelfAuthenticatingClient):
     def __init__(self):
         super().__init__()
         self._client = httpx.AsyncClient()

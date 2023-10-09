@@ -6,14 +6,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from bps_discovery_simod.settings import settings
-from pix_portal_lib.services.asset import AssetService, Asset, AssetType
-from pix_portal_lib.services.processing_request import (
-    ProcessingRequestService,
+from pix_portal_lib.service_clients.asset import AssetServiceClient, Asset, AssetType
+from pix_portal_lib.service_clients.processing_request import (
+    ProcessingRequestServiceClient,
     ProcessingRequest,
     ProcessingRequestStatus,
 )
-from pix_portal_lib.services.project import ProjectService
+from pix_portal_lib.service_clients.project import ProjectServiceClient
+
+from bps_discovery_simod.settings import settings
 
 logger = logging.getLogger()
 
@@ -33,9 +34,9 @@ class SimodService:
     def __init__(self):
         self._assets_base_dir = settings.asset_base_dir
         self._simod_results_base_dir = settings.simod_results_base_dir
-        self._asset_service = AssetService()
-        self._processing_request_service = ProcessingRequestService()
-        self._project_service = ProjectService()
+        self._asset_service_client = AssetServiceClient()
+        self._processing_request_service_client = ProcessingRequestServiceClient()
+        self._project_service_client = ProjectServiceClient()
 
         self._assets_base_dir.mkdir(parents=True, exist_ok=True)
         self._simod_results_base_dir.mkdir(parents=True, exist_ok=True)
@@ -52,13 +53,13 @@ class SimodService:
 
         try:
             # update processing request status
-            await self._processing_request_service.update_status(
+            await self._processing_request_service_client.update_status(
                 processing_request_id=processing_request.processing_request_id, status=ProcessingRequestStatus.RUNNING
             )
 
             # download assets
             assets = [
-                await self._asset_service.download_asset(asset_id, self._assets_base_dir, is_internal=True)
+                await self._asset_service_client.download_asset(asset_id, self._assets_base_dir, is_internal=True)
                 for asset_id in processing_request.input_assets_ids
             ]
 
@@ -86,10 +87,10 @@ class SimodService:
             # upload results and create corresponding assets
             result_dir = result.output_dir
             bpmn_path, bps_model_path = self._find_simod_results_file_paths(result_dir, event_log_asset.local_disk_path)
-            bpmn_asset_id = await self._asset_service.create_asset(
+            bpmn_asset_id = await self._asset_service_client.create_asset(
                 file_path=bpmn_path, project_id=processing_request.project_id, asset_type=AssetType.PROCESS_MODEL_BPMN
             )
-            bps_model_asset_id = await self._asset_service.create_asset(
+            bps_model_asset_id = await self._asset_service_client.create_asset(
                 file_path=bps_model_path,
                 project_id=processing_request.project_id,
                 asset_type=AssetType.SIMULATION_MODEL_PROSIMOS_JSON,
@@ -98,27 +99,27 @@ class SimodService:
             # update project assets
             # NOTE: assets must be added to the project first before adding them to the processing request,
             #   because the processing request service checks if the assets belong to the project
-            await self._project_service.add_asset_to_project(
+            await self._project_service_client.add_asset_to_project(
                 project_id=processing_request.project_id,
                 asset_id=bpmn_asset_id,
             )
-            await self._project_service.add_asset_to_project(
+            await self._project_service_client.add_asset_to_project(
                 project_id=processing_request.project_id,
                 asset_id=bps_model_asset_id,
             )
 
             # update output assets in the processing request
-            await self._processing_request_service.add_output_asset_to_processing_request(
+            await self._processing_request_service_client.add_output_asset_to_processing_request(
                 processing_request_id=processing_request.processing_request_id,
                 asset_id=bpmn_asset_id,
             )
-            await self._processing_request_service.add_output_asset_to_processing_request(
+            await self._processing_request_service_client.add_output_asset_to_processing_request(
                 processing_request_id=processing_request.processing_request_id,
                 asset_id=bps_model_asset_id,
             )
 
             # update processing request status
-            await self._processing_request_service.update_status(
+            await self._processing_request_service_client.update_status(
                 processing_request_id=processing_request.processing_request_id, status=ProcessingRequestStatus.FINISHED
             )
         except Exception as e:
@@ -132,17 +133,17 @@ class SimodService:
             )
 
             # update processing request status
-            await self._processing_request_service.update_status(
+            await self._processing_request_service_client.update_status(
                 processing_request_id=processing_request.processing_request_id,
                 status=ProcessingRequestStatus.FAILED,
                 message=str(e),
             )
 
         # set token to None to force re-authentication, because the token might have expired
-        self._asset_service.nullify_token()
-        self._asset_service._file_service.nullify_token()
-        self._project_service.nullify_token()
-        self._processing_request_service.nullify_token()
+        self._asset_service_client.nullify_token()
+        self._asset_service_client._file_service.nullify_token()
+        self._project_service_client.nullify_token()
+        self._processing_request_service_client.nullify_token()
 
     @staticmethod
     def _find_asset_by_type(assets: list[Asset], asset_type: AssetType) -> Optional[Asset]:

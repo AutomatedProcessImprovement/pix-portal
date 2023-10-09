@@ -4,12 +4,12 @@ from typing import AsyncGenerator, Optional, Sequence
 
 from fastapi import Depends
 from kafka.errors import KafkaTimeoutError
-from pix_portal_lib.services.asset import AssetService
-from pix_portal_lib.services.asset_fastapi_utils import get_asset_service
+from pix_portal_lib.service_clients.asset import AssetServiceClient
+from pix_portal_lib.service_clients.asset_fastapi_utils import get_asset_service_client
+from pix_portal_lib.service_clients.project import ProjectServiceClient
+from pix_portal_lib.service_clients.project_fastapi_utils import get_project_service_client
 
 from .kafka_producer import KafkaProducerService, get_kafka_service
-from pix_portal_lib.services.project import ProjectService
-from pix_portal_lib.services.project_fastapi_utils import get_project_service
 from .user import UserService, get_user_service
 from ..repositories.models import ProcessingRequest, ProcessingRequestType, ProcessingRequestStatus
 from ..repositories.processing_requests_repository import get_processing_request_repository, ProcessingRequestRepository
@@ -69,15 +69,15 @@ class ProcessingRequestService:
     def __init__(
         self,
         processing_request_repository: ProcessingRequestRepository,
-        asset_service: AssetService,
+        asset_service_client: AssetServiceClient,
         user_service: UserService,
-        project_service: ProjectService,
+        project_service_client: ProjectServiceClient,
         kafka_service: KafkaProducerService,
     ) -> None:
         self._processing_request_repository = processing_request_repository
-        self._asset_service = asset_service
+        self._asset_service_client = asset_service_client
         self._user_service = user_service
-        self._project_service = project_service
+        self._project_service_client = project_service_client
         self._kafka_service = kafka_service
 
     async def get_processing_requests(self) -> Sequence[ProcessingRequest]:
@@ -105,7 +105,7 @@ class ProcessingRequestService:
     async def does_user_have_access_to_project(self, user: dict, project_id: uuid.UUID, token: str) -> bool:
         if user["is_superuser"]:
             return True
-        return await self._project_service.does_user_have_access_to_project(user["id"], project_id, token)
+        return await self._project_service_client.does_user_have_access_to_project(user["id"], project_id, token)
 
     async def create_processing_request(
         self,
@@ -121,17 +121,17 @@ class ProcessingRequestService:
         if not ok:
             raise UserNotFound()
 
-        ok = await self._project_service.does_project_exist(project_id, token)
+        ok = await self._project_service_client.does_project_exist(project_id, token)
         if not ok:
             raise ProjectNotFound()
 
         for asset_id in input_assets_ids:
-            ok = await self._asset_service.does_asset_exist(asset_id, token)
+            ok = await self._asset_service_client.does_asset_exist(asset_id, token)
             if not ok:
                 raise AssetNotFound()
 
         for asset_id in output_assets_ids:
-            ok = await self._asset_service.does_asset_exist(asset_id, token)
+            ok = await self._asset_service_client.does_asset_exist(asset_id, token)
             if not ok:
                 raise AssetNotFound()
 
@@ -189,7 +189,7 @@ class ProcessingRequestService:
     async def add_input_asset_to_processing_request(
         self, processing_request_id: uuid.UUID, asset_id: uuid.UUID, token: str
     ) -> ProcessingRequest:
-        if not await self._asset_service.does_asset_exist(asset_id, token):
+        if not await self._asset_service_client.does_asset_exist(asset_id, token):
             raise AssetNotFound()
 
         if not await self.does_asset_belong_to_project(processing_request_id, asset_id, token):
@@ -212,7 +212,7 @@ class ProcessingRequestService:
     async def add_output_asset_to_processing_request(
         self, processing_request_id: uuid.UUID, asset_id: uuid.UUID, token: str
     ) -> ProcessingRequest:
-        if not await self._asset_service.does_asset_exist(asset_id, token):
+        if not await self._asset_service_client.does_asset_exist(asset_id, token):
             raise AssetNotFound()
 
         if not await self.does_asset_belong_to_project(processing_request_id, asset_id, token):
@@ -236,16 +236,16 @@ class ProcessingRequestService:
         self, processing_request_id: uuid.UUID, asset_id: uuid.UUID, token: str
     ) -> bool:
         processing_request = await self._processing_request_repository.get_processing_request(processing_request_id)
-        project = await self._project_service.get_project(processing_request.project_id, token=token)
+        project = await self._project_service_client.get_project(processing_request.project_id, token=token)
         project_assets_ids = [str(pid) for pid in project["assets_ids"]]
         return str(asset_id) in project_assets_ids
 
 
 async def get_processing_request_service(
     processing_request_repository: ProcessingRequestRepository = Depends(get_processing_request_repository),
-    asset_service: AssetService = Depends(get_asset_service),
+    asset_service: AssetServiceClient = Depends(get_asset_service_client),
     user_service: UserService = Depends(get_user_service),
-    project_service: ProjectService = Depends(get_project_service),
+    project_service: ProjectServiceClient = Depends(get_project_service_client),
     kafka_service: KafkaProducerService = Depends(get_kafka_service),
 ) -> AsyncGenerator[ProcessingRequestService, None]:
     yield ProcessingRequestService(

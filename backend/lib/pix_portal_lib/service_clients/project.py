@@ -5,7 +5,7 @@ from uuid import UUID
 
 import httpx
 
-from .self_authenticating_service import SelfAuthenticatingService
+from .self_authenticating_client import SelfAuthenticatingClient
 
 project_service_url = os.environ.get("PROJECT_SERVICE_URL")
 
@@ -14,7 +14,7 @@ class ProjectNotFound(Exception):
     pass
 
 
-class ProjectService(SelfAuthenticatingService):
+class ProjectServiceClient(SelfAuthenticatingClient):
     def __init__(self):
         super().__init__()
         self._client = httpx.AsyncClient()
