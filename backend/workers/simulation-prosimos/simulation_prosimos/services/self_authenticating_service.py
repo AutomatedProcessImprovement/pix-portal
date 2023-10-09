@@ -2,8 +2,7 @@ import logging
 from typing import Optional
 
 import httpx
-
-from .auth import AuthService
+from pix_portal_lib.services.auth_fastapi_utils import AuthService
 
 logger = logging.getLogger()
 

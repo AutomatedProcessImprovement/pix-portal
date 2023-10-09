@@ -3,7 +3,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Body, Depends, HTTPException, UploadFile
 from fastapi.responses import FileResponse
-from pix_portal_lib.services.auth import get_current_superuser, get_current_user
+from pix_portal_lib.services.auth_fastapi_utils import get_current_superuser, get_current_user
 
 from .schemas import FileOut, LocationOut
 from ..services.file import FileService, get_file_service

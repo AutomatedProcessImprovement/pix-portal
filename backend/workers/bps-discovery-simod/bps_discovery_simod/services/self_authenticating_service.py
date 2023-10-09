@@ -2,8 +2,7 @@ import logging
 from typing import Optional
 
 import httpx
-
-from bps_discovery_simod.services.auth import AuthService
+from pix_portal_lib.services.auth import AuthService
 
 logger = logging.getLogger()
 

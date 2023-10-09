@@ -2,7 +2,7 @@ import uuid
 from typing import Annotated, Any, Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException
-from pix_portal_lib.services.auth import get_current_user
+from pix_portal_lib.services.auth_fastapi_utils import get_current_user
 
 from .schemas import AssetIn, AssetOut, AssetPatchIn, LocationOut
 from ..repositories.asset_repository import AssetNotFound

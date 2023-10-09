@@ -2,6 +2,8 @@
 
 WHEEL_PATH=""
 SERVICE_BASE_DIR=$(realpath ../services)
+WORKER_BASE_DIR=$(realpath ../workers)
+CWD=$(pwd)
 
 function build() {
     printf "Building the library\n"
@@ -14,7 +16,7 @@ function build() {
     poetry build
 }
 
-function update_service_deps() {
+function update_poetry() {
     cd $1
     printf "\nUpdating $1\n"
     echo "=============================="
@@ -31,6 +33,8 @@ function update_service_deps() {
 
 build
 
+printf "\nCopying lib to services $1\n"
+echo "=============================="
 for service in $(ls $SERVICE_BASE_DIR); do
     if [[ -d $SERVICE_BASE_DIR/$service/lib ]]; then
         echo "Copying lib to $service"
@@ -41,6 +45,24 @@ done
 for service in $(ls $SERVICE_BASE_DIR); do
     cd $SERVICE_BASE_DIR
     if [[ -d $service ]]; then
-        update_service_deps $service || true
+        update_poetry $service || true
     fi
+    cd $CWD
+done
+
+printf "\nCopying lib to workers $1\n"
+echo "=============================="
+for worker in $(ls $WORKER_BASE_DIR); do
+    if [[ -d $WORKER_BASE_DIR/$worker/lib ]]; then
+        echo "Copying lib to $worker"
+        cp $WHEEL_PATH $WORKER_BASE_DIR/$worker/lib/
+    fi
+done
+
+for worker in $(ls $WORKER_BASE_DIR); do
+    cd $WORKER_BASE_DIR
+    if [[ -d $worker ]]; then
+        update_poetry $worker || true
+    fi
+    cd $CWD
 done

@@ -15,7 +15,7 @@ from pix_portal_lib.exceptions.http_exceptions import (
     ProjectNotFoundHTTP,
     UserNotFoundHTTP,
 )
-from pix_portal_lib.services.auth import get_current_user
+from pix_portal_lib.services.auth_fastapi_utils import get_current_user
 
 from .schemas import ProcessingRequestOut, ProcessingRequestIn, PatchProcessingRequest, AssetIn, AssetsOut
 from ..repositories.models import ProcessingRequest

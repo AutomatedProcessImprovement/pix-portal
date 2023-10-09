@@ -1,15 +1,19 @@
 """
 Commonly used authentication service for user authentication and authorization.
 """
-
+import logging
 import os
-from typing import AsyncGenerator, Optional
+from typing import Optional
+from urllib.parse import urljoin
 
 import httpx
-from fastapi import Depends, Header, HTTPException, Request
 from pydantic import BaseModel
 
-jwt_verification_url = os.environ.get("JWT_VERIFICATION_URL")
+logger = logging.getLogger()
+
+auth_service_url = os.environ.get("AUTH_SERVICE_URL")
+system_username = os.environ.get("SYSTEM_USERNAME")
+system_password = os.environ.get("SYSTEM_PASSWORD")
 
 
 class TokenVerificationResponse(BaseModel):
@@ -20,12 +24,19 @@ class TokenVerificationResponse(BaseModel):
 class AuthService:
     def __init__(self):
         self._client = httpx.AsyncClient()
-        self._jwt_verification_url = jwt_verification_url
+        self._base_url = auth_service_url
+
+        if self._base_url is None:
+            raise ValueError("AUTH_SERVICE_URL must be set in the environment")
 
     async def verify_token(self, token: str, is_superuser: bool = False) -> tuple[bool, Optional[dict]]:
+        """
+        Verifies a JWT token and returns a tuple of (status, user).
+        """
+        url = urljoin(self._base_url, "jwt/verify-token")
         params = {"is_superuser": is_superuser}
         response = await self._client.post(
-            self._jwt_verification_url,
+            url,
             headers={"Authorization": f"Bearer {token}"},
             params=params,
             follow_redirects=True,
@@ -37,46 +48,23 @@ class AuthService:
         response_data = TokenVerificationResponse(**response.json())
         return response_data.status, response_data.user
 
+    async def get_system_jwt_token(self) -> str:
+        """
+        Get a JWT token for the system user. Used by other services to authenticate themselves.
+        """
+        if system_username is None or system_password is None:
+            raise ValueError("SYSTEM_USERNAME and SYSTEM_PASSWORD must be set in the environment")
 
-async def get_auth_service() -> AsyncGenerator[AuthService, None]:
-    yield AuthService()
+        url = urljoin(self._base_url, "jwt/login")
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        response = await self._client.post(
+            url,
+            headers=headers,
+            data={"username": system_username, "password": system_password},
+        )
+        response.raise_for_status()
 
+        logger.info(f"SYSTEM user logged in, status_code={response.status_code}, data={response.text}, url={url}")
+        data = response.json()
 
-async def get_current_user(
-    request: Request,
-    auth_service: AuthService = Depends(get_auth_service),
-    authorization: str = Header(...),
-) -> dict:
-    # check if user is already in app state
-    if hasattr(request.app.state, "user") and request.app.state.user is not None:
-        return request.app.state.user
-
-    # otherwise, make a request to Auth Service to verify the token
-    token = authorization.split(" ")[1]
-    ok, user = await auth_service.verify_token(token)
-    if not ok:
-        raise HTTPException(status_code=401, detail="Invalid authentication token")
-    return user
-
-
-async def add_user_to_app_state_if_present(
-    request: Request,
-    auth_service: AuthService = Depends(get_auth_service),
-    authorization: str = Header(...),
-):
-    token = authorization.split(" ")[1]
-    ok, user = await auth_service.verify_token(token)
-    if not ok:
-        user = None
-    request.app.state.user = user
-
-
-async def get_current_superuser(
-    auth_service: AuthService = Depends(get_auth_service),
-    authorization: str = Header(...),
-) -> dict:
-    token = authorization.split(" ")[1]
-    ok, user = await auth_service.verify_token(token, is_superuser=True)
-    if not ok:
-        raise HTTPException(status_code=401, detail="Invalid authentication token")
-    return user
+        return data["access_token"]
