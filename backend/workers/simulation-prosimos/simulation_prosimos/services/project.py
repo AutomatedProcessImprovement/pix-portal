@@ -2,9 +2,9 @@ from typing import Optional
 from urllib.parse import urljoin
 
 import httpx
+from pix_portal_lib.services.self_authenticating_service import SelfAuthenticatingService
 
 from simulation_prosimos.settings import settings
-from .self_authenticating_service import SelfAuthenticatingService
 
 
 class ProjectService(SelfAuthenticatingService):

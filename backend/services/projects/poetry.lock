@@ -1022,7 +1022,7 @@ description = ""
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "pix_portal_lib-0.1.1-py3-none-any.whl", hash = "sha256:fb5ae866dbc77095170fd5dcf3bc5a8f46d307f76440f17dd88d7f9ccf57c1a7"},
+    {file = "pix_portal_lib-0.1.1-py3-none-any.whl", hash = "sha256:802d09fc2f30fed27df38f4a6115ed5aa0b10294f70f3cf10685d94e558f6cfe"},
 ]
 
 [package.dependencies]

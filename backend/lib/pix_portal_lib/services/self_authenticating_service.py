@@ -1,8 +1,7 @@
 import logging
 from typing import Optional
 
-import httpx
-from pix_portal_lib.services.auth_fastapi_utils import AuthService
+from .auth import AuthService
 
 logger = logging.getLogger()
 
@@ -13,15 +12,14 @@ class SelfAuthenticatingService:
     """
 
     def __init__(self):
-        self._http_client = httpx.AsyncClient()
-        self._auth_client = AuthService()
+        self._auth_service = AuthService()
         self._token = None
 
     @property
     async def token(self) -> str:
         if self._token is None:
             try:
-                self._token = await self._auth_client.get_system_jwt_token()
+                self._token = await self._auth_service.get_system_jwt_token()
             except Exception as e:
                 logger.error(f"Error getting system JWT token: {e}")
                 raise e

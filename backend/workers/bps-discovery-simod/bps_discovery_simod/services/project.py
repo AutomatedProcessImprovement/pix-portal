@@ -2,8 +2,8 @@ from typing import Optional
 from urllib.parse import urljoin
 
 import httpx
+from pix_portal_lib.services.self_authenticating_service import SelfAuthenticatingService
 
-from bps_discovery_simod.services.self_authenticating_service import SelfAuthenticatingService
 from bps_discovery_simod.settings import settings
 
 
