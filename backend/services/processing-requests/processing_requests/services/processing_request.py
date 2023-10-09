@@ -8,9 +8,10 @@ from pix_portal_lib.service_clients.asset import AssetServiceClient
 from pix_portal_lib.service_clients.asset_fastapi_utils import get_asset_service_client
 from pix_portal_lib.service_clients.project import ProjectServiceClient
 from pix_portal_lib.service_clients.project_fastapi_utils import get_project_service_client
+from pix_portal_lib.service_clients.user import UserServiceClient
+from pix_portal_lib.service_clients.user_fastapi_utils import get_user_service_client
 
 from .kafka_producer import KafkaProducerService, get_kafka_service
-from .user import UserService, get_user_service
 from ..repositories.models import ProcessingRequest, ProcessingRequestType, ProcessingRequestStatus
 from ..repositories.processing_requests_repository import get_processing_request_repository, ProcessingRequestRepository
 
@@ -70,13 +71,13 @@ class ProcessingRequestService:
         self,
         processing_request_repository: ProcessingRequestRepository,
         asset_service_client: AssetServiceClient,
-        user_service: UserService,
+        user_service_client: UserServiceClient,
         project_service_client: ProjectServiceClient,
         kafka_service: KafkaProducerService,
     ) -> None:
         self._processing_request_repository = processing_request_repository
         self._asset_service_client = asset_service_client
-        self._user_service = user_service
+        self._user_service = user_service_client
         self._project_service_client = project_service_client
         self._kafka_service = kafka_service
 
@@ -243,11 +244,11 @@ class ProcessingRequestService:
 
 async def get_processing_request_service(
     processing_request_repository: ProcessingRequestRepository = Depends(get_processing_request_repository),
-    asset_service: AssetServiceClient = Depends(get_asset_service_client),
-    user_service: UserService = Depends(get_user_service),
-    project_service: ProjectServiceClient = Depends(get_project_service_client),
+    asset_service_client: AssetServiceClient = Depends(get_asset_service_client),
+    user_service_client: UserServiceClient = Depends(get_user_service_client),
+    project_service_client: ProjectServiceClient = Depends(get_project_service_client),
     kafka_service: KafkaProducerService = Depends(get_kafka_service),
 ) -> AsyncGenerator[ProcessingRequestService, None]:
     yield ProcessingRequestService(
-        processing_request_repository, asset_service, user_service, project_service, kafka_service
+        processing_request_repository, asset_service_client, user_service_client, project_service_client, kafka_service
     )
