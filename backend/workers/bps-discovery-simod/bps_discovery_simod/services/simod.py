@@ -6,7 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from bps_discovery_simod.services.asset import AssetService, Asset, AssetType
+from pix_portal_lib.services.asset import AssetService, Asset, AssetType
+
 from bps_discovery_simod.services.processing_request import (
     ProcessingRequestService,
     ProcessingRequest,

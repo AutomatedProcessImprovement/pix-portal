@@ -4,10 +4,10 @@ from pathlib import Path
 from typing import Optional
 
 import yaml
+from pix_portal_lib.services.asset import AssetService, AssetType, Asset
 from prosimos.simulation_engine import run_simulation
-from simulation_prosimos.settings import settings
 
-from .asset import AssetService, AssetType, Asset
+from simulation_prosimos.settings import settings
 from .processing_request import ProcessingRequestService, ProcessingRequest, ProcessingRequestStatus
 from .project import ProjectService
 

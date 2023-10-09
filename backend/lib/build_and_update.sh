@@ -37,6 +37,8 @@ printf "\nCopying lib to services $1\n"
 echo "=============================="
 for service in $(ls $SERVICE_BASE_DIR); do
     if [[ -d $SERVICE_BASE_DIR/$service/lib ]]; then
+        echo "Removing old lib from $service"
+        rm $SERVICE_BASE_DIR/$service/lib/pix_portal_lib-*.whl
         echo "Copying lib to $service"
         cp $WHEEL_PATH $SERVICE_BASE_DIR/$service/lib/
     fi
@@ -54,6 +56,8 @@ printf "\nCopying lib to workers $1\n"
 echo "=============================="
 for worker in $(ls $WORKER_BASE_DIR); do
     if [[ -d $WORKER_BASE_DIR/$worker/lib ]]; then
+        echo "Removing old lib from $worker"
+        rm $WORKER_BASE_DIR/$worker/lib/pix_portal_lib-*.whl
         echo "Copying lib to $worker"
         cp $WHEEL_PATH $WORKER_BASE_DIR/$worker/lib/
     fi

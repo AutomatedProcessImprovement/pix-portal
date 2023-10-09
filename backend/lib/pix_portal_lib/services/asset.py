@@ -1,17 +1,20 @@
 import logging
+import os
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 from urllib.parse import urljoin
+from uuid import UUID
 
 import httpx
 from pix_portal_lib.services.file import FileService
 from pix_portal_lib.services.self_authenticating_service import SelfAuthenticatingService
 
-from bps_discovery_simod.settings import settings
-
 logger = logging.getLogger()
+
+
+asset_service_url = os.environ.get("ASSET_SERVICE_URL")
 
 
 class AssetType(str, Enum):
@@ -48,9 +51,12 @@ class AssetLocationResponse:
 class AssetService(SelfAuthenticatingService):
     def __init__(self):
         super().__init__()
-        self._asset_service_url = settings.asset_service_url.unicode_string()
+        self._base_url = asset_service_url
         self._http_client = httpx.AsyncClient()
         self._file_service = FileService()
+
+        if self._base_url is None:
+            raise ValueError("ASSET_SERVICE_URL environment variable is not set")
 
     async def download_asset(
         self, asset_id: str, output_dir: Path, is_internal: bool, token: Optional[str] = None
@@ -73,14 +79,31 @@ class AssetService(SelfAuthenticatingService):
 
         return asset
 
-    async def get_asset(self, asset_id: str, token: Optional[str] = None) -> Asset:
-        url = urljoin(self._asset_service_url, f"{asset_id}")
+    async def get_asset(self, asset_id: Union[str, UUID], token: Optional[str] = None) -> Asset:
+        url = urljoin(self._base_url, f"{asset_id}")
         response = await self._http_client.get(url, headers=await self.request_headers(token))
         response.raise_for_status()
         return Asset(**response.json())
 
+    async def get_assets_by_ids(self, assets_ids: list[UUID], token: str) -> list[Asset]:
+        return [await self.get_asset(asset_id, token) for asset_id in assets_ids]
+
+    async def get_assets_by_project_id(self, project_id: UUID, token: str) -> list[dict]:
+        response = await self._http_client.get(
+            self._base_url,
+            params={"project_id": str(project_id)},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        return response.json()
+
+    async def does_asset_exist(self, asset_id: UUID, token: str) -> bool:
+        url = urljoin(self._base_url, str(asset_id))
+        response = await self._http_client.get(url, headers={"Authorization": f"Bearer {token}"})
+        # TODO: check if the asset is deleted
+        return response.status_code == 200
+
     async def get_asset_location(self, asset_id: str, is_internal: bool = True, token: Optional[str] = None) -> str:
-        url = urljoin(self._asset_service_url, f"{asset_id}/location")
+        url = urljoin(self._base_url, f"{asset_id}/location")
         response = await self._http_client.get(
             url, headers=await self.request_headers(token), params={"is_internal": is_internal}
         )
@@ -95,7 +118,7 @@ class AssetService(SelfAuthenticatingService):
 
         # create asset
         response = await self._http_client.post(
-            self._asset_service_url,
+            self._base_url,
             headers=await self.request_headers(token),
             json={
                 "name": file_path.name,
@@ -110,3 +133,16 @@ class AssetService(SelfAuthenticatingService):
         data = response.json()
 
         return data["id"]
+
+    async def delete_asset(self, asset_id: UUID, token: str) -> bool:
+        url = urljoin(self._base_url, str(asset_id))
+        response = await self._http_client.delete(url, headers={"Authorization": f"Bearer {token}"})
+        if response.status_code == 204:
+            return True
+        raise Exception(response.text)
+
+    async def delete_assets_by_project_id(self, project_id: UUID, token: str) -> bool:
+        assets = await self.get_assets_by_project_id(project_id, token)
+        for asset in assets:
+            await self.delete_asset(asset["id"], token)
+        return True

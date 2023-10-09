@@ -4,8 +4,9 @@ from typing import AsyncGenerator, Optional, Sequence
 
 from fastapi import Depends
 from kafka.errors import KafkaTimeoutError
+from pix_portal_lib.services.asset import AssetService
+from pix_portal_lib.services.asset_fastapi_utils import get_asset_service
 
-from .asset import AssetService, get_asset_service
 from .kafka_producer import KafkaProducerService, get_kafka_service
 from .project import ProjectService, get_project_service
 from .user import UserService, get_user_service

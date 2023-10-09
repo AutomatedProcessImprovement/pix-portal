@@ -2,8 +2,9 @@ import uuid
 from typing import AsyncGenerator, Optional
 
 from fastapi import Depends
+from pix_portal_lib.services.asset import AssetService
+from pix_portal_lib.services.asset_fastapi_utils import get_asset_service
 
-from .asset import AssetService, get_asset_service
 from .user import UserService, get_user_service
 from ..repositories.models import Project
 from ..repositories.project_repository import get_project_repository, ProjectRepository
