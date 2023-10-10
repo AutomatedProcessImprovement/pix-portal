@@ -1,10 +1,11 @@
-import os
 from urllib.parse import urljoin
 from uuid import UUID
 
 import httpx
 
-user_service_url = os.environ.get("USER_SERVICE_URL")
+from .utils import get_env
+
+user_service_url = get_env("USER_SERVICE_URL")
 
 
 class UserServiceClient:

@@ -110,8 +110,8 @@ async def create_processing_request(
         raise UserNotFoundHTTP()
     except ProjectNotFound:
         raise ProjectNotFoundHTTP()
-    except AssetNotFound:
-        raise AssetNotFoundHTTP()
+    except AssetNotFound as e:
+        raise AssetNotFoundHTTP(f"Asset not found: {e.asset_id}")
     except NotEnoughPermissions:
         raise NotEnoughPermissionsHTTP()
     except QueueNotAvailable:
@@ -201,8 +201,8 @@ async def add_input_asset_to_processing_request(
             asset_id=input_asset_data.asset_id,
             token=token,
         )
-    except AssetNotFound:
-        raise AssetNotFoundHTTP()
+    except AssetNotFound as e:
+        raise AssetNotFoundHTTP(f"Asset not found: {e.asset_id}")
     except AssetDoesNotBelongToProject:
         raise AssetDoesNotBelongToProjectHTTP()
     except AssetAlreadyExists:
@@ -253,8 +253,8 @@ async def add_output_asset_to_processing_request(
             asset_id=output_asset_data.asset_id,
             token=token,
         )
-    except AssetNotFound:
-        raise AssetNotFoundHTTP()
+    except AssetNotFound as e:
+        raise AssetNotFoundHTTP(f"Asset not found: {e.asset_id}")
     except AssetDoesNotBelongToProject:
         raise AssetDoesNotBelongToProjectHTTP()
     except AssetAlreadyExists:

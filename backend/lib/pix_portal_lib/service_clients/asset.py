@@ -1,5 +1,4 @@
 import logging
-import os
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -11,11 +10,12 @@ import httpx
 
 from .file import FileServiceClient
 from .self_authenticating_client import SelfAuthenticatingClient
+from .utils import get_env
 
 logger = logging.getLogger()
 
 
-asset_service_url = os.environ.get("ASSET_SERVICE_URL")
+asset_service_url = get_env("ASSET_SERVICE_URL")
 
 
 class AssetType(str, Enum):
@@ -55,9 +55,6 @@ class AssetServiceClient(SelfAuthenticatingClient):
         self._base_url = asset_service_url
         self._http_client = httpx.AsyncClient()
         self._file_service = FileServiceClient()
-
-        if self._base_url is None:
-            raise ValueError("ASSET_SERVICE_URL environment variable is not set")
 
     async def download_asset(
         self, asset_id: str, output_dir: Path, is_internal: bool, token: Optional[str] = None

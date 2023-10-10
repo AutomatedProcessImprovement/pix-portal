@@ -11,6 +11,12 @@ from ..repositories.models import File
 from ..settings import settings
 
 
+class FileExists(Exception):
+    def __init__(self, file: File) -> None:
+        super().__init__(f"File with hash {file.content_hash} already exists: {file.id}")
+        self.file = file
+
+
 class FileService:
     def __init__(self, file_repository: FileRepositoryInterface) -> None:
         self.base_dir = settings.base_dir
@@ -24,7 +30,7 @@ class FileService:
         if self._hash_exists_on_disk(hash):
             try:
                 file = await self.file_repository.get_file_by_hash(hash)
-                return file
+                raise FileExists(file)
             except FileNotFoundError:
                 # File exists on disk but not in database, continue creating the database record
                 pass

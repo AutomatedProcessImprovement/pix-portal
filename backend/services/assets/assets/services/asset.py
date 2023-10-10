@@ -84,7 +84,6 @@ class AssetService:
         file = await self.file_service_client.get_file(asset.file_id, token=token)
         relative_url = file["url"]
         absolute_url = self.file_service_client.get_absolute_url(relative_url, is_internal)
-        print(f"absolute_url: {absolute_url}")
         return absolute_url
 
 

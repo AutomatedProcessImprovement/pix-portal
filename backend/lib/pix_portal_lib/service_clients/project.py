@@ -1,4 +1,3 @@
-import os
 from typing import Optional
 from urllib.parse import urljoin
 from uuid import UUID
@@ -6,8 +5,9 @@ from uuid import UUID
 import httpx
 
 from .self_authenticating_client import SelfAuthenticatingClient
+from .utils import get_env
 
-project_service_url = os.environ.get("PROJECT_SERVICE_URL")
+project_service_url = get_env("PROJECT_SERVICE_URL")
 
 
 class ProjectNotFound(Exception):

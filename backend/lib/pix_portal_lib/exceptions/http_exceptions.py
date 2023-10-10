@@ -22,8 +22,8 @@ class UserNotFoundHTTP(HTTPException):
 
 
 class AssetNotFoundHTTP(HTTPException):
-    def __init__(self) -> None:
-        super().__init__(status_code=404, detail="Asset not found")
+    def __init__(self, message: str = "Asset not found") -> None:
+        super().__init__(status_code=404, detail=message)
 
 
 class AssetDoesNotBelongToProjectHTTP(HTTPException):

@@ -1,12 +1,12 @@
 import uuid
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Body, Depends, HTTPException, UploadFile
+from fastapi import APIRouter, Body, Depends, HTTPException, UploadFile, Response
 from fastapi.responses import FileResponse
 from pix_portal_lib.service_clients.fastapi import get_current_user
 
 from .schemas import FileOut, LocationOut
-from ..services.file import FileService, get_file_service
+from ..services.file import FileService, get_file_service, FileExists
 
 router = APIRouter()
 
@@ -14,20 +14,32 @@ router = APIRouter()
 @router.post("/", response_model=FileOut, status_code=201)
 async def create_file(
     file_bytes: Annotated[bytes, Body()],
+    response: Response,
     file_service: FileService = Depends(get_file_service),
-    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated,
 ) -> Any:
-    result = await file_service.save_file(file_bytes)
+    try:
+        result = await file_service.save_file(file_bytes)
+        response.status_code = 201
+    except FileExists as e:
+        result = e.file
+        response.status_code = 200
     return result
 
 
 @router.post("/upload", response_model=FileOut)
 async def upload_file(
     upload: UploadFile,
+    response: Response,
     file_service: FileService = Depends(get_file_service),
     _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> Any:
-    result = await file_service.save_file(upload.file.read())
+    try:
+        result = await file_service.save_file(upload.file.read())
+        response.status_code = 201
+    except FileExists as e:
+        result = e.file
+        response.status_code = 200
     return result
 
 

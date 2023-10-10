@@ -1,4 +1,3 @@
-import os
 import uuid
 from pathlib import Path
 from typing import Optional
@@ -7,9 +6,11 @@ from urllib.parse import urljoin
 import httpx
 
 from .self_authenticating_client import SelfAuthenticatingClient
+from .utils import get_env
 
-file_service_url = os.environ.get("FILE_SERVICE_URL")
-blobs_base_url = os.environ.get("BLOBS_BASE_URL")
+file_service_url = get_env("FILE_SERVICE_URL")
+blobs_base_public_url = get_env("BLOBS_BASE_PUBLIC_URL")
+blobs_base_internal_url = get_env("BLOBS_BASE_INTERNAL_URL")
 
 
 # some of the services that use this class could have access to an expired token,
@@ -20,12 +21,8 @@ class FileServiceClient(SelfAuthenticatingClient):
         super().__init__()
         self._client = httpx.AsyncClient()
         self._base_url = file_service_url
-        self._blobs_base_url = blobs_base_url
-
-        if file_service_url is None:
-            raise ValueError("FILE_SERVICE_URL environment variable is not set")
-        if blobs_base_url is None:
-            raise ValueError("BLOBS_BASE_URL environment variable is not set")
+        self._blobs_base_public_url = blobs_base_public_url
+        self._blobs_base_internal_url = blobs_base_internal_url
 
     async def get_file(self, file_id: uuid.UUID, token: str) -> dict:
         """
@@ -49,11 +46,9 @@ class FileServiceClient(SelfAuthenticatingClient):
         return False
 
     def get_absolute_url(self, relative_url: str, is_internal: bool) -> str:
-        if is_internal:
-            return urljoin(self._base_url, relative_url)
-        else:
-            relative_url = relative_url.lstrip("/")
-            return urljoin(self._blobs_base_url, relative_url)
+        base = self._blobs_base_internal_url if is_internal else self._blobs_base_public_url
+        relative_url = relative_url.lstrip("/blobs/")
+        return urljoin(base, relative_url)
 
     async def upload_file(self, file_path: Path, token: Optional[str] = None) -> str:
         """

@@ -4,10 +4,10 @@ import logging
 import uuid
 
 from kafka import KafkaConsumer
+from pix_portal_lib.service_clients.processing_request import ProcessingRequest
 
 import open_telemetry_utils
 import settings
-from bps_discovery_simod.services.processing_request import ProcessingRequest
 from bps_discovery_simod.services.simod import SimodService
 
 logger = logging.getLogger()

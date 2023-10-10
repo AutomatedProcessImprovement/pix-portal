@@ -28,23 +28,14 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-# Install the local dependencies
-ADD lib /app/lib
-RUN python -m pip install /app/lib/pix_portal_lib-0.1.0-py3-none-any.whl
+# Copy the source code into the container.
+COPY . .
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
-# Leverage a bind mount to requirements.txt to avoid having to copy them into
-# into this layer.
-RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    python -m pip install -r requirements.txt
+# Install the local dependencies
+RUN python -m pip install .
 
 # Switch to the non-privileged user to run the application.
 USER appuser
-
-# Copy the source code into the container.
-COPY . .
 
 # Folder for uploaded files.
 ARG UPLOADS_DIR=/var/tmp/uploads

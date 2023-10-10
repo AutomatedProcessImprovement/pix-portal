@@ -29,7 +29,9 @@ class ProjectNotFound(Exception):
 
 
 class AssetNotFound(Exception):
-    pass
+    def __init__(self, asset_id: uuid.UUID) -> None:
+        super().__init__(f"Asset not found: {asset_id}")
+        self.asset_id = asset_id
 
 
 class AssetDoesNotBelongToProject(Exception):
@@ -131,12 +133,12 @@ class ProcessingRequestService:
         for asset_id in input_assets_ids:
             ok = await self._asset_service_client.does_asset_exist(asset_id, token)
             if not ok:
-                raise AssetNotFound()
+                raise AssetNotFound(asset_id=asset_id)
 
         for asset_id in output_assets_ids:
             ok = await self._asset_service_client.does_asset_exist(asset_id, token)
             if not ok:
-                raise AssetNotFound()
+                raise AssetNotFound(asset_id=asset_id)
 
         if not await self.does_user_have_access_to_project(current_user, project_id, token):
             raise NotEnoughPermissions()
@@ -193,7 +195,7 @@ class ProcessingRequestService:
         self, processing_request_id: uuid.UUID, asset_id: uuid.UUID, token: str
     ) -> ProcessingRequest:
         if not await self._asset_service_client.does_asset_exist(asset_id, token):
-            raise AssetNotFound()
+            raise AssetNotFound(asset_id=asset_id)
 
         if not await self.does_asset_belong_to_project(processing_request_id, asset_id, token):
             raise AssetDoesNotBelongToProject()
@@ -216,7 +218,7 @@ class ProcessingRequestService:
         self, processing_request_id: uuid.UUID, asset_id: uuid.UUID, token: str
     ) -> ProcessingRequest:
         if not await self._asset_service_client.does_asset_exist(asset_id, token):
-            raise AssetNotFound()
+            raise AssetNotFound(asset_id=asset_id)
 
         if not await self.does_asset_belong_to_project(processing_request_id, asset_id, token):
             raise AssetDoesNotBelongToProject()

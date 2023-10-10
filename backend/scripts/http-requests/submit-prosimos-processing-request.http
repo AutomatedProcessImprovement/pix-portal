@@ -38,6 +38,11 @@ Content-Type: application/octet-stream
 
 < ./configuration_prosimos.yml
 
+### List files
+
+GET http://localhost:9999/api/v1/files/
+Authorization: Bearer {{token}}
+
 ### Upload the simulation model
 
 POST http://localhost:9999/api/v1/files/
@@ -72,6 +77,11 @@ Authorization: Bearer {{token}}
   "project_id": "775eb3ef-350b-4445-9229-3ea57d9d09c6"
 }
 
+### Get an asset
+
+GET http://localhost:9999/api/v1/assets/b6428878-3129-431f-ab58-c3a4f5ab9bf1/location?is_internal=true
+Authorization: Bearer {{token}}
+
 ### List assets
 
 GET http://localhost:9999/api/v1/assets/
@@ -88,22 +98,22 @@ Authorization: Bearer {{token}}
   "project_id": "775eb3ef-350b-4445-9229-3ea57d9d09c6",
   "input_assets_ids": [
     "f2f99fc7-e642-4950-a66c-91af4c2c94d5",
-    "e74364c0-546b-4172-b6a1-4f17c3588bc2",
-    "b6428878-3129-431f-ab58-c3a4f5ab9bf1"
+    "b6428878-3129-431f-ab58-c3a4f5ab9bf1",
+    "e74364c0-546b-4172-b6a1-4f17c3588bc2"
   ]
 }
 
 ### Get a processing request
 
-GET http://localhost:9999/api/v1/processing-requests/d0846ce5-c022-496c-9bc2-c25cec4de74b
+GET http://localhost:9999/api/v1/processing-requests/c4b1355d-8551-4a7a-9f37-06e11daa4f38
 Authorization: Bearer {{token}}
 
 ### Get resulting asset
 
-GET http://localhost:9999/api/v1/assets/a4a67026-f188-4ec1-af8a-d40e6d69fa9f/location?is_internal=False
+GET http://localhost:9999/api/v1/assets/9f0a9d24-9fec-4824-850c-f8555cb7d79e/location?is_internal=false
 Authorization: Bearer {{token}}
 
-###
+### Get the blob
 
-GET http://localhost:9999/api/v1/blobs/c09d64d3ab0281ba3c6fba5869dbabd12b0c3df5872af13cbe738640b9ed56cb
+GET http://localhost:9999/api/v1/blobs/c5134a3dd63bb722dbe6741509a559aedbf6a965fb2bf102df3d982072a6d742
 Authorization: Bearer {{token}}

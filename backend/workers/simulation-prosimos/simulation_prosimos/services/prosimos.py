@@ -12,6 +12,7 @@ from pix_portal_lib.service_clients.processing_request import (
 )
 from pix_portal_lib.service_clients.project import ProjectServiceClient
 from prosimos.simulation_engine import run_simulation
+
 from simulation_prosimos.settings import settings
 
 logger = logging.getLogger()
@@ -57,8 +58,21 @@ class ProsimosService:
             config_asset = self._find_asset_by_type(assets, AssetType.CONFIGURATION_PROSIMOS_YAML)
             bpmn_asset = self._find_asset_by_type(assets, AssetType.PROCESS_MODEL_BPMN)
             simulation_model_asset = self._find_asset_by_type(assets, AssetType.SIMULATION_MODEL_PROSIMOS_JSON)
-            if config_asset is None or bpmn_asset is None:
+            if config_asset is None or bpmn_asset is None or simulation_model_asset is None:
                 raise InputAssetMissing()
+            if (
+                not config_asset.local_disk_path.exists()
+                or not bpmn_asset.local_disk_path.exists()
+                or not simulation_model_asset.local_disk_path.exists()
+            ):
+                raise InputAssetMissing()
+            logger.info(
+                f"Running Prosimos simulation, "
+                f"processing_request_id={processing_request.processing_request_id}, "
+                f"config_asset={config_asset}, "
+                f"bpmn_asset={bpmn_asset}, "
+                f"simulation_model_asset={simulation_model_asset}"
+            )
 
             # run Prosimos, it can take time
             output_path = self._prosimos_results_base_dir / f"{processing_request.processing_request_id}.csv"
@@ -130,6 +144,7 @@ class ProsimosService:
         output_path: Path,
     ):
         config = yaml.load(config_path.read_bytes(), Loader=yaml.FullLoader)
+        logger.info(f"Running Prosimos simulation with configuration: {config}")
         total_cases = config["total_cases"]
         starting_at = config["starting_at"]
         is_event_added_to_log = config["is_event_added_to_log"]

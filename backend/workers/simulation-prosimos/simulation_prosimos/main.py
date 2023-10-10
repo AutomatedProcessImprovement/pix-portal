@@ -4,10 +4,10 @@ import logging
 import uuid
 
 from kafka import KafkaConsumer
+from pix_portal_lib.service_clients.processing_request import ProcessingRequest
 
 import open_telemetry_utils
 import settings
-from simulation_prosimos.services.processing_request import ProcessingRequest
 from simulation_prosimos.services.prosimos import ProsimosService
 
 logger = logging.getLogger()

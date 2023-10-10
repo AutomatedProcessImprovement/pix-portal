@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     database_url: PostgresDsn
-    jwt_verification_url: HttpUrl
+    auth_service_url: HttpUrl
     asset_service_url: HttpUrl
     user_service_url: HttpUrl
     processing_request_service_url: HttpUrl

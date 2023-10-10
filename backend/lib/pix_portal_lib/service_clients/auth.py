@@ -2,18 +2,19 @@
 Commonly used authentication service for user authentication and authorization.
 """
 import logging
-import os
 from typing import Optional
 from urllib.parse import urljoin
 
 import httpx
 from pydantic import BaseModel
 
+from .utils import get_env
+
 logger = logging.getLogger()
 
-auth_service_url = os.environ.get("AUTH_SERVICE_URL")
-system_username = os.environ.get("SYSTEM_USERNAME")
-system_password = os.environ.get("SYSTEM_PASSWORD")
+auth_service_url = get_env("AUTH_SERVICE_URL")
+system_username = get_env("SYSTEM_USERNAME")
+system_password = get_env("SYSTEM_PASSWORD")
 
 
 class TokenVerificationResponse(BaseModel):
