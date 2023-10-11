@@ -8,7 +8,7 @@ from pix_portal_lib.persistence.sqlalchemy import get_async_session
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .models import Project
+from .model import Project
 
 
 class ProjectNotFound(Exception):

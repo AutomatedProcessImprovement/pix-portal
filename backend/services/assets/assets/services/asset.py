@@ -5,7 +5,7 @@ from fastapi import Depends
 from pix_portal_lib.service_clients.file import FileServiceClient
 
 from ..persistence.asset_repository import get_asset_repository, AssetRepository
-from ..persistence.models import Asset, AssetType
+from ..persistence.model import Asset, AssetType
 
 
 class AssetService:

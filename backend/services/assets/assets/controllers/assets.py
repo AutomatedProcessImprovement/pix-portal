@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 from pix_portal_lib.service_clients.fastapi import get_current_user
 
 from .schemas import AssetIn, AssetOut, AssetPatchIn, LocationOut
-from ..repositories.asset_repository import AssetNotFound
+from ..persistence.asset_repository import AssetNotFound
 from ..services.asset import AssetService, get_asset_service
 
 router = APIRouter()
