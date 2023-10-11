@@ -14,6 +14,7 @@ function build() {
     echo "Wheel path: $WHEEL_PATH"
 
     poetry build
+    poetry export -f requirements.txt --output requirements.txt --without-hashes
 }
 
 function update_poetry() {

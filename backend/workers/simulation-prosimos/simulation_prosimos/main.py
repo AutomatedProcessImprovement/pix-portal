@@ -3,10 +3,10 @@ import json
 import logging
 import uuid
 
+import pix_portal_lib.open_telemetry_utils as open_telemetry_utils
 from kafka import KafkaConsumer
 from pix_portal_lib.service_clients.processing_request import ProcessingRequest
 
-import open_telemetry_utils
 import settings
 from .prosimos import ProsimosService
 
