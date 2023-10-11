@@ -13,7 +13,8 @@ from fastapi_users.authentication import (
 from fastapi_users.db import SQLAlchemyUserDatabase
 from opentelemetry import metrics
 
-from .db import User, get_users_db
+from model import User
+from .db import get_users_db
 from .settings import settings
 
 SECRET = settings.secret_key

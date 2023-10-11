@@ -5,8 +5,8 @@ from typing import AsyncGenerator, Sequence
 
 from fastapi import Depends
 
-from ..persistence.file_repository import get_file_repository, FileRepository
 from ..persistence.model import File
+from ..persistence.repository import get_file_repository, FileRepository
 from ..settings import settings
 
 

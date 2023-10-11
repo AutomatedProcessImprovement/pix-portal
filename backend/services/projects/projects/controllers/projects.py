@@ -19,7 +19,7 @@ from .schemas import (
     ProjectPatchIn,
 )
 from ..persistence.model import Project
-from ..persistence.project_repository import ProjectNotFound
+from ..persistence.repository import ProjectNotFound
 from ..services.project import (
     AssetNotFound,
     ProjectService,

@@ -7,7 +7,7 @@ from pix_portal_lib.service_clients.fastapi import get_asset_service_client, get
 from pix_portal_lib.service_clients.user import UserServiceClient
 
 from ..persistence.model import Project
-from ..persistence.project_repository import get_project_repository, ProjectRepository
+from ..persistence.repository import get_project_repository, ProjectRepository
 
 
 class UserNotFound(Exception):

@@ -19,7 +19,7 @@ from pix_portal_lib.service_clients.fastapi import get_current_user
 
 from .schemas import ProcessingRequestOut, ProcessingRequestIn, PatchProcessingRequest, AssetIn, AssetsOut
 from ..persistence.model import ProcessingRequest
-from ..persistence.processing_requests_repository import ProcessingRequestNotFound
+from ..persistence.repository import ProcessingRequestNotFound
 from ..services.processing_request import (
     ProcessingRequestService,
     get_processing_request_service,

@@ -9,7 +9,7 @@ from pix_portal_lib.open_telemetry_utils import instrument_app
 from pix_portal_lib.persistence.alembic import migrate_to_latest
 from pydantic import BaseModel
 
-from .db import User
+from model import User
 from .schemas import UserCreate, UserRead, UserUpdate
 from .users import auth_backend, current_active_user, fastapi_users
 

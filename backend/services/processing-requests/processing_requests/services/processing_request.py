@@ -15,7 +15,7 @@ from pix_portal_lib.service_clients.user import UserServiceClient
 
 from .kafka_producer import KafkaProducerService, get_kafka_service
 from ..persistence.model import ProcessingRequest, ProcessingRequestType, ProcessingRequestStatus
-from ..persistence.processing_requests_repository import get_processing_request_repository, ProcessingRequestRepository
+from ..persistence.repository import get_processing_request_repository, ProcessingRequestRepository
 
 logger = logging.getLogger()
 

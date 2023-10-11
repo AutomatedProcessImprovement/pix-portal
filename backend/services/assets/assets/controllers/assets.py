@@ -1,11 +1,12 @@
 import uuid
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any, Optional, Sequence
 
 from fastapi import APIRouter, Depends, Header, HTTPException
 from pix_portal_lib.service_clients.fastapi import get_current_user
 
 from .schemas import AssetIn, AssetOut, AssetPatchIn, LocationOut
-from ..persistence.asset_repository import AssetNotFound
+from ..persistence.model import Asset
+from ..persistence.repository import AssetNotFound
 from ..services.asset import AssetService, get_asset_service
 
 router = APIRouter()
@@ -19,7 +20,7 @@ async def get_assets(
     project_id: Optional[uuid.UUID] = None,
     processing_request_id: Optional[uuid.UUID] = None,
     _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
-) -> list[Any]:
+) -> Sequence[Asset]:
     if project_id:
         result = await asset_service.get_assets_by_project_id(project_id)
         return result
