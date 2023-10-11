@@ -8,7 +8,7 @@ from pix_portal_lib.service_clients.processing_request import ProcessingRequest
 
 import open_telemetry_utils
 import settings
-from simulation_prosimos.services.prosimos import ProsimosService
+from .prosimos import ProsimosService
 
 logger = logging.getLogger()
 
