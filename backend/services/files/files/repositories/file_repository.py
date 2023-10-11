@@ -3,10 +3,10 @@ from datetime import datetime
 from typing import AsyncGenerator, Sequence
 
 from fastapi import Depends
+from pix_portal_lib.persistence.sqlalchemy import get_async_session
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .db import get_async_session
 from .file_repository_interface import FileRepositoryInterface
 from .models import File
 

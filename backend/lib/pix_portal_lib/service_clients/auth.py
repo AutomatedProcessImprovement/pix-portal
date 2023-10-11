@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 import httpx
 from pydantic import BaseModel
 
-from .utils import get_env
+from ..utils import get_env
 
 logger = logging.getLogger()
 

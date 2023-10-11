@@ -10,7 +10,7 @@ import httpx
 
 from .file import FileServiceClient
 from .self_authenticating_client import SelfAuthenticatingClient
-from .utils import get_env
+from ..utils import get_env
 
 logger = logging.getLogger()
 

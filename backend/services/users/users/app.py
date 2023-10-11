@@ -1,14 +1,15 @@
 import threading
+from pathlib import Path
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException
 from pix_portal_lib.exceptions.fastapi_handlers import general_exception_handler, http_exception_handler
 from pix_portal_lib.middleware.request_logging import RequestLoggingMiddleware
 from pix_portal_lib.open_telemetry_utils import instrument_app
+from pix_portal_lib.persistence.alembic import migrate_to_latest
 from pydantic import BaseModel
 
 from .db import User
-from .init_db import migrate_to_latest
 from .schemas import UserCreate, UserRead, UserUpdate
 from .users import auth_backend, current_active_user, fastapi_users
 
@@ -82,11 +83,13 @@ async def authenticated_route(user: User = Depends(current_active_user)):
 @app.on_event("startup")
 async def on_startup():
     try:
+        config_path = Path(__file__).parent.parent / "alembic.ini"
+        alembic_root = Path(__file__).parent.parent / "alembic"
         # We need the lock to avoid the warning because of concurrent run.
         # See more at https://stackoverflow.com/questions/54351783/duplicate-key-value-violates-unique-constraint-postgres-error-when-trying-to-c
         lock = threading.Lock()
         with lock:
-            await migrate_to_latest()
+            await migrate_to_latest(alembic_config_path=config_path, alembic_root_path=alembic_root)
     except Exception as e:
         print(e)
 

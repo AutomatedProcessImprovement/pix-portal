@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 import httpx
 
 from .self_authenticating_client import SelfAuthenticatingClient
-from .utils import get_env
+from ..utils import get_env
 
 processing_request_service_url = get_env("PROCESSING_REQUEST_SERVICE_URL")
 

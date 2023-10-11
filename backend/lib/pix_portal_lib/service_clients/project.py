@@ -5,7 +5,7 @@ from uuid import UUID
 import httpx
 
 from .self_authenticating_client import SelfAuthenticatingClient
-from .utils import get_env
+from ..utils import get_env
 
 project_service_url = get_env("PROJECT_SERVICE_URL")
 
