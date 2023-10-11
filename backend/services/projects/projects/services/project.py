@@ -6,8 +6,8 @@ from pix_portal_lib.service_clients.asset import AssetServiceClient, Asset
 from pix_portal_lib.service_clients.fastapi import get_asset_service_client, get_user_service_client
 from pix_portal_lib.service_clients.user import UserServiceClient
 
-from ..repositories.models import Project
-from ..repositories.project_repository import get_project_repository, ProjectRepository
+from ..persistence.models import Project
+from ..persistence.project_repository import get_project_repository, ProjectRepository
 
 
 class UserNotFound(Exception):

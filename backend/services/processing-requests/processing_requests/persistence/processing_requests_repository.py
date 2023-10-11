@@ -8,16 +8,13 @@ from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import ProcessingRequest, ProcessingRequestStatus
-from .processing_requests_repository_interface import (
-    ProcessingRequestRepositoryInterface,
-)
 
 
 class ProcessingRequestNotFound(Exception):
     pass
 
 
-class ProcessingRequestRepository(ProcessingRequestRepositoryInterface):
+class ProcessingRequestRepository:
     """
     Database repository for processing requests.
     """

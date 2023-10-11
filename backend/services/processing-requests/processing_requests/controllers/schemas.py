@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from ..repositories.models import ProcessingRequestType, ProcessingRequestStatus
+from ..persistence.models import ProcessingRequestType, ProcessingRequestStatus
 
 
 class ProcessingRequestIn(BaseModel):

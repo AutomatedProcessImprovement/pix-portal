@@ -4,7 +4,7 @@ from alembic import command, script
 from alembic.config import Config
 from alembic.runtime import migration
 
-from .db import engine
+from .sqlalchemy import engine
 
 
 async def migrate_to_latest(alembic_config_path: Path, alembic_root_path: Path):

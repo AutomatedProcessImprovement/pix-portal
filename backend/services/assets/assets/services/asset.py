@@ -1,26 +1,25 @@
 import uuid
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator, Optional, Sequence
 
 from fastapi import Depends
 from pix_portal_lib.service_clients.file import FileServiceClient
 
-from ..repositories.asset_repository import get_asset_repository
-from ..repositories.asset_repository_interface import AssetRepositoryInterface
-from ..repositories.models import Asset, AssetType
+from ..persistence.asset_repository import get_asset_repository, AssetRepository
+from ..persistence.models import Asset, AssetType
 
 
 class AssetService:
-    def __init__(self, asset_repository: AssetRepositoryInterface, file_service_client: FileServiceClient) -> None:
+    def __init__(self, asset_repository: AssetRepository, file_service_client: FileServiceClient) -> None:
         self.asset_repository = asset_repository
         self.file_service_client = file_service_client
 
-    async def get_assets(self) -> list[Asset]:
+    async def get_assets(self) -> Sequence[Asset]:
         return await self.asset_repository.get_assets()
 
-    async def get_assets_by_project_id(self, project_id: uuid.UUID) -> list[Asset]:
+    async def get_assets_by_project_id(self, project_id: uuid.UUID) -> Sequence[Asset]:
         return await self.asset_repository.get_assets_by_project_id(project_id)
 
-    async def get_assets_by_processing_request_id(self, processing_request_id: uuid.UUID) -> list[Asset]:
+    async def get_assets_by_processing_request_id(self, processing_request_id: uuid.UUID) -> Sequence[Asset]:
         return await self.asset_repository.get_assets_by_processing_request_id(processing_request_id)
 
     async def create_asset(
@@ -88,7 +87,7 @@ class AssetService:
 
 
 async def get_asset_service(
-    asset_repository: AssetRepositoryInterface = Depends(get_asset_repository),
+    asset_repository: AssetRepository = Depends(get_asset_repository),
     file_service_client: FileServiceClient = Depends(FileServiceClient),
 ) -> AsyncGenerator[AssetService, None]:
     yield AssetService(asset_repository, file_service_client)

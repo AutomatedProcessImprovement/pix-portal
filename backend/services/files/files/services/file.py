@@ -1,13 +1,12 @@
 import hashlib
 import uuid
 from pathlib import Path
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Sequence
 
 from fastapi import Depends
 
-from ..repositories.file_repository import get_file_repository
-from ..repositories.file_repository_interface import FileRepositoryInterface
-from ..repositories.models import File
+from ..persistence.file_repository import get_file_repository, FileRepository
+from ..persistence.models import File
 from ..settings import settings
 
 
@@ -18,7 +17,7 @@ class FileExists(Exception):
 
 
 class FileService:
-    def __init__(self, file_repository: FileRepositoryInterface) -> None:
+    def __init__(self, file_repository: FileRepository) -> None:
         self.base_dir = settings.base_dir
         self.file_repository = file_repository
 
@@ -43,7 +42,7 @@ class FileService:
 
         return await self.file_repository.create_file(hash, url)
 
-    async def get_files(self) -> list[File]:
+    async def get_files(self) -> Sequence[File]:
         return await self.file_repository.get_files()
 
     async def get_file(self, file_id: uuid.UUID) -> File:
@@ -83,6 +82,6 @@ class FileService:
 
 
 async def get_file_service(
-    file_repository: FileRepositoryInterface = Depends(get_file_repository),
+    file_repository: FileRepository = Depends(get_file_repository),
 ) -> AsyncGenerator[FileService, None]:
     yield FileService(file_repository)

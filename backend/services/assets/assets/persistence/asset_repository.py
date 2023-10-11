@@ -7,7 +7,6 @@ from pix_portal_lib.persistence.sqlalchemy import get_async_session
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .asset_repository_interface import AssetRepositoryInterface
 from .models import Asset, AssetType
 
 
@@ -15,7 +14,7 @@ class AssetNotFound(Exception):
     pass
 
 
-class AssetRepository(AssetRepositoryInterface):
+class AssetRepository:
     """
     Database repository for assets.
     """

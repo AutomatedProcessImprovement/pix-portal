@@ -7,11 +7,10 @@ from pix_portal_lib.persistence.sqlalchemy import get_async_session
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .file_repository_interface import FileRepositoryInterface
 from .models import File
 
 
-class FileRepository(FileRepositoryInterface):
+class FileRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
