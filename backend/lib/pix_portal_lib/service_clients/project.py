@@ -3,9 +3,9 @@ from urllib.parse import urljoin
 from uuid import UUID
 
 import httpx
+from pix_portal_lib.utils import get_env
 
 from .self_authenticating_client import SelfAuthenticatingClient
-from .utils import get_env
 
 project_service_url = get_env("PROJECT_SERVICE_URL")
 

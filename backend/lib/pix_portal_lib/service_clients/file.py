@@ -4,9 +4,9 @@ from typing import Optional
 from urllib.parse import urljoin
 
 import httpx
+from pix_portal_lib.utils import get_env
 
 from .self_authenticating_client import SelfAuthenticatingClient
-from .utils import get_env
 
 file_service_url = get_env("FILE_SERVICE_URL")
 blobs_base_public_url = get_env("BLOBS_BASE_PUBLIC_URL")

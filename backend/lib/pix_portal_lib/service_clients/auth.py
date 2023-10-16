@@ -6,9 +6,8 @@ from typing import Optional
 from urllib.parse import urljoin
 
 import httpx
+from pix_portal_lib.utils import get_env
 from pydantic import BaseModel
-
-from .utils import get_env
 
 logger = logging.getLogger()
 

@@ -2,6 +2,7 @@ from urllib.parse import urljoin
 from uuid import UUID
 
 import httpx
+from pix_portal_lib.utils import get_env
 
 from .utils import get_env
 
