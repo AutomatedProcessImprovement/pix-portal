@@ -23,10 +23,6 @@ function update_poetry() {
     source .venv/bin/activate
     poetry lock
     poetry install
-    poetry export -f requirements.txt --output requirements.txt --without-hashes
-    # remove the line containing "pix-portal-lib" from requirements.txt,
-    # because it will be installed from the wheel file
-    sed -i '' '/pix-portal-lib/d' requirements.txt
 }
 
 # main loop
