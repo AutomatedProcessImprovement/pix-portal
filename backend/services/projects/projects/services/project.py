@@ -1,5 +1,5 @@
 import uuid
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator, Optional, Sequence
 
 from fastapi import Depends
 from pix_portal_lib.service_clients.asset import AssetServiceClient
@@ -42,10 +42,10 @@ class ProjectService:
         self._asset_service_client = asset_service_client
         self._user_service_client = user_service_client
 
-    async def get_projects(self) -> list[Project]:
+    async def get_projects(self) -> Sequence[Project]:
         return await self._project_repository.get_projects()
 
-    async def get_projects_by_user_id(self, user_id: uuid.UUID) -> list[Project]:
+    async def get_projects_by_user_id(self, user_id: uuid.UUID) -> Sequence[Project]:
         return await self._project_repository.get_projects_by_user_id(user_id)
 
     async def create_project(
