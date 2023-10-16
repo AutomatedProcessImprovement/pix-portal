@@ -14,6 +14,7 @@ class EmailNotificationRequest:
     Email notification request from Kafka.
     """
 
+    processing_request_id: str
     to_addrs: list[str]
     subject: str
     body: str
