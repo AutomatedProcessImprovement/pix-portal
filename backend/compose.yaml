@@ -328,6 +328,22 @@ services:
     networks:
       - backend
     restart: on-failure
+  mail:
+    build:
+      context: workers/mail
+    env_file:
+      - workers/mail/.env
+    depends_on:
+      - kafka
+    networks:
+      - backend
+    restart: on-failure
+    environment:
+      - GMAIL_USERNAME=/run/secrets/mail_gmail_username
+      - GMAIL_APP_PASSWORD=/run/secrets/mail_gmail_password
+    secrets:
+      - mail_gmail_username
+      - mail_gmail_password
 volumes:
   users-db-data:
   files-db-data:
@@ -343,3 +359,8 @@ volumes:
 networks:
   backend:
     name: pix_backend
+secrets:
+  mail_gmail_username:
+    file: ./workers/mail/.secret_gmail_username
+  mail_gmail_password:
+    file: ./workers/mail/.secret_gmail_app_password
