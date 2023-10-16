@@ -5,7 +5,7 @@ from typing import Optional
 from uuid import UUID
 
 import yaml
-from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer
+from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
 from pix_portal_lib.service_clients.asset import AssetServiceClient, AssetType, Asset
 from pix_portal_lib.service_clients.processing_request import (
     ProcessingRequestServiceClient,
@@ -16,7 +16,6 @@ from pix_portal_lib.service_clients.project import ProjectServiceClient
 from pix_portal_lib.service_clients.user import UserServiceClient
 from prosimos.simulation_engine import run_simulation
 
-from kafka_clients.email_producer import EmailNotificationRequest
 from simulation_prosimos.settings import settings
 
 logger = logging.getLogger()
