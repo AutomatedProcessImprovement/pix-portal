@@ -119,6 +119,7 @@ class ProcessingRequestService:
         project_id: uuid.UUID,
         input_assets_ids: list[uuid.UUID],
         output_assets_ids: list[uuid.UUID],
+        should_notify: bool,
         token: str,
         current_user: dict,
     ) -> ProcessingRequest:
@@ -149,6 +150,7 @@ class ProcessingRequestService:
             project_id,
             input_assets_ids,
             output_assets_ids,
+            should_notify,
         )
 
         try:
@@ -186,9 +188,10 @@ class ProcessingRequestService:
         processing_request_id: uuid.UUID,
         status: Optional[ProcessingRequestStatus] = None,
         message: Optional[str] = None,
+        should_notify: Optional[bool] = None,
     ) -> ProcessingRequest:
         return await self._processing_request_repository.update_processing_request(
-            processing_request_id, status, message
+            processing_request_id, status, message, should_notify
         )
 
     async def add_input_asset_to_processing_request(

@@ -26,6 +26,7 @@ class ProcessingRequest:
     input_assets_ids: list[str]
     output_assets_ids: list[str]
     jwt_token: str
+    should_notify: bool
 
 
 class ProcessingRequestStatus(str, Enum):
