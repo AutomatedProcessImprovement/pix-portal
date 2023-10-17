@@ -57,14 +57,18 @@ class AuthServiceClient:
 
         url = urljoin(self._base_url, "jwt/login")
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        response = await self._client.post(
-            url,
-            headers=headers,
-            data={"username": system_username, "password": system_password},
-        )
-        response.raise_for_status()
+        request_payload = {"username": system_username, "password": system_password}
+        try:
+            response = await self._client.post(
+                url,
+                headers=headers,
+                data=request_payload,
+            )
+            response.raise_for_status()
 
-        logger.info(f"SYSTEM user logged in, status_code={response.status_code}, data={response.text}, url={url}")
-        data = response.json()
-
-        return data["access_token"]
+            logger.info(f"SYSTEM user logged in, status_code={response.status_code}, data={response.text}, url={url}")
+            data = response.json()
+            return data["access_token"]
+        except Exception as e:
+            logger.error(f"SYSTEM user login failed, error={e}, url={url}, request_payload={request_payload}")
+            raise e

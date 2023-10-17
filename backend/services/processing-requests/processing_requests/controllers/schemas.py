@@ -11,7 +11,6 @@ class ProcessingRequestIn(BaseModel):
     type: ProcessingRequestType
     project_id: uuid.UUID
     input_assets_ids: list[uuid.UUID] = []
-    output_assets_ids: list[uuid.UUID] = []
     should_notify: bool = False
 
 

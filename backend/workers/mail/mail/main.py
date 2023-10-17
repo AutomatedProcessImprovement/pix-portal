@@ -4,10 +4,10 @@ import logging
 import uuid
 
 from kafka import KafkaConsumer
-
-import open_telemetry_utils
 from mail.services.mail import EmailNotificationRequest, send_email
 from mail.settings import settings
+
+import open_telemetry_utils
 
 logger = logging.getLogger()
 
@@ -30,7 +30,8 @@ logger.info(
     f"Kafka consumer connected: "
     f"consumer_id={consumer_id}, "
     f"group_id={group_id}, "
-    f"bootstrap_connected={consumer.bootstrap_connected()}"
+    f"bootstrap_connected={consumer.bootstrap_connected()} "
+    f"settings={settings}"
 )
 
 

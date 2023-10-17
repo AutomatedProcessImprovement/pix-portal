@@ -40,5 +40,5 @@ class ProjectServiceClient(SelfAuthenticatingClient):
     async def does_user_have_access_to_project(self, user_id: UUID, project_id: UUID, token: str) -> bool:
         project = await self.get_project(project_id, token)
         current_user_id = str(user_id)
-        project_user_id = [str(user_id) for user_id in project["user_ids"]]
+        project_user_id = [str(user_id) for user_id in project["users_ids"]]
         return current_user_id in project_user_id

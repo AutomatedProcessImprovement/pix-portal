@@ -3,12 +3,12 @@ import json
 import logging
 import uuid
 
+from bps_discovery_simod.services.simod import SimodService
+from bps_discovery_simod.settings import settings
 from kafka import KafkaConsumer
 from pix_portal_lib.service_clients.processing_request import ProcessingRequest
 
 import open_telemetry_utils
-from bps_discovery_simod.services.simod import SimodService
-from bps_discovery_simod.settings import settings
 
 logger = logging.getLogger()
 
@@ -36,8 +36,20 @@ logger.info(
 
 simod_service = SimodService()
 
-for message in consumer:
+
+async def process_message(message):
     logger.info(f"Kafka consumer {consumer_id} received a message from Kafka: {message}")
-    processing_request_payload = ProcessingRequest(**message.value)
-    asyncio.run(simod_service.process(processing_request_payload))
-    logger.info(f"Kafka consumer {consumer_id} finished processing the message: {message}")
+    request = ProcessingRequest(**message.value)
+    try:
+        await simod_service.process(request)
+        logger.info(f"Kafka consumer {consumer_id} finished processing the message: {message}")
+    except Exception as e:
+        logger.exception(f"Kafka consumer {consumer_id} failed to process the message: {message}, error: {e}")
+
+
+async def main():
+    for message in consumer:
+        await asyncio.create_task(process_message(message))
+
+
+asyncio.run(main())

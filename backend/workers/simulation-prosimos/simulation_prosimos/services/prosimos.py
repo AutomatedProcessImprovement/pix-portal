@@ -171,7 +171,7 @@ class ProsimosService:
         )
 
     async def _send_email_notification(self, processing_request: ProcessingRequest, is_success: bool):
-        email_notification_producer = EmailNotificationProducer()
+        email_notification_producer = EmailNotificationProducer(client_id="simulation-prosimos")
         user = await self._user_service_client.get_user(user_id=UUID(processing_request.user_id))
         user_email = str(user["email"])
         if is_success:

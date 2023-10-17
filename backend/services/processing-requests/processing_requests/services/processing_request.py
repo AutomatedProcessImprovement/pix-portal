@@ -118,12 +118,11 @@ class ProcessingRequestService:
         user_id: uuid.UUID,
         project_id: uuid.UUID,
         input_assets_ids: list[uuid.UUID],
-        output_assets_ids: list[uuid.UUID],
         should_notify: bool,
         token: str,
         current_user: dict,
     ) -> ProcessingRequest:
-        ok = await self._user_service.does_user_exist(user_id, token)
+        ok = await self._user_service.does_user_exist(user_id)
         if not ok:
             raise UserNotFound()
 
@@ -136,11 +135,6 @@ class ProcessingRequestService:
             if not ok:
                 raise AssetNotFound(asset_id=asset_id)
 
-        for asset_id in output_assets_ids:
-            ok = await self._asset_service_client.does_asset_exist(asset_id, token)
-            if not ok:
-                raise AssetNotFound(asset_id=asset_id)
-
         if not await self.does_user_have_access_to_project(current_user, project_id, token):
             raise NotEnoughPermissions()
 
@@ -149,7 +143,6 @@ class ProcessingRequestService:
             user_id,
             project_id,
             input_assets_ids,
-            output_assets_ids,
             should_notify,
         )
 
@@ -161,7 +154,8 @@ class ProcessingRequestService:
                     "user_id": str(user_id),
                     "project_id": str(project_id),
                     "input_assets_ids": [str(aid) for aid in input_assets_ids],
-                    "output_assets_ids": [str(aid) for aid in output_assets_ids],
+                    "output_assets_ids": [],
+                    "should_notify": should_notify,
                     "jwt_token": token,
                 },
             )
@@ -173,7 +167,8 @@ class ProcessingRequestService:
                 f"user_id={user_id}, "
                 f"project_id={project_id}, "
                 f"input_assets_ids={input_assets_ids}, "
-                f"output_assets_ids={output_assets_ids}, "
+                f"output_assets_ids={[]}, "
+                f"should_notify={should_notify}, "
                 f"error: {e}"
             )
             raise QueueNotAvailable()

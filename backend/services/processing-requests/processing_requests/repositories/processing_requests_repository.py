@@ -75,7 +75,6 @@ class ProcessingRequestRepository:
         user_id: UUID,
         project_id: UUID,
         input_assets_ids: list[UUID],
-        output_assets_ids: list[UUID],
         should_notify: bool,
     ) -> ProcessingRequest:
         processing_request = ProcessingRequest(
@@ -84,7 +83,7 @@ class ProcessingRequestRepository:
             user_id=user_id,
             project_id=project_id,
             input_assets_ids=input_assets_ids,
-            output_assets_ids=output_assets_ids,
+            output_assets_ids=[],
             should_notify=should_notify,
         )
         self.session.add(processing_request)
