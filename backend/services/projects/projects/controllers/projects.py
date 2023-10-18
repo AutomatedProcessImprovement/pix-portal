@@ -18,8 +18,8 @@ from .schemas import (
     ProjectOut,
     ProjectPatchIn,
 )
-from ..repositories.models import Project
-from ..repositories.project_repository import ProjectNotFound
+from ..persistence.model import Project
+from ..persistence.repository import ProjectNotFound
 from ..services.project import (
     AssetNotFound,
     ProjectService,

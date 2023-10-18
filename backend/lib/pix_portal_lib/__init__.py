@@ -1,6 +1,7 @@
 from . import exceptions
 from . import middleware
 from . import open_telemetry_utils
+from . import persistence
 from . import service_clients
 from . import utils
 
@@ -10,4 +11,5 @@ __all__ = [
     "middleware",
     "service_clients",
     "utils",
+    "persistence",
 ]

@@ -3,12 +3,12 @@ import json
 import logging
 import uuid
 
+import pix_portal_lib.open_telemetry_utils as open_telemetry_utils
 from kafka import KafkaConsumer
 from pix_portal_lib.service_clients.processing_request import ProcessingRequest
 
-import open_telemetry_utils
-from bps_discovery_simod.services.simod import SimodService
 from bps_discovery_simod.settings import settings
+from bps_discovery_simod.simod import SimodService
 
 logger = logging.getLogger()
 

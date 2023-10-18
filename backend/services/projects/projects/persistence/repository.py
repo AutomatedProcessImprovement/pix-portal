@@ -4,19 +4,18 @@ from typing import AsyncGenerator, Optional, Sequence
 from uuid import UUID
 
 from fastapi import Depends
+from pix_portal_lib.persistence.sqlalchemy import get_async_session
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .db import get_async_session
-from .models import Project
-from .project_repository_interface import ProjectRepositoryInterface
+from .model import Project
 
 
 class ProjectNotFound(Exception):
     pass
 
 
-class ProjectRepository(ProjectRepositoryInterface):
+class ProjectRepository:
     """
     Database repository for projects.
     """

@@ -3,11 +3,11 @@ import json
 import logging
 import uuid
 
+import pix_portal_lib.open_telemetry_utils as open_telemetry_utils
 from kafka import KafkaConsumer
 from pix_portal_lib.service_clients.processing_request import ProcessingRequest
 
-import open_telemetry_utils
-from simulation_prosimos.services.prosimos import ProsimosService
+from simulation_prosimos.prosimos_service import ProsimosService
 from simulation_prosimos.settings import settings
 
 logger = logging.getLogger()
@@ -47,18 +47,11 @@ async def process_message(message):
         logger.exception(f"Kafka consumer {consumer_id} failed to process the message: {message}, error: {e}")
 
 
-max_parallel_tasks = 10
-
-
 async def main():
-    background_tasks = set()
     for message in consumer:
-        if len(background_tasks) >= max_parallel_tasks:
-            done, pending = await asyncio.wait(background_tasks, return_when=asyncio.FIRST_COMPLETED)
-            background_tasks = pending
-        task = asyncio.create_task(process_message(message))
-        task.add_done_callback(background_tasks.discard)
-        background_tasks.add(task)
+        if asyncio.get_event_loop().is_closed():
+            asyncio.set_event_loop(asyncio.new_event_loop())
+        await asyncio.create_task(process_message(message))
 
 
 asyncio.run(main())

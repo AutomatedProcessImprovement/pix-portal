@@ -4,7 +4,7 @@ from typing import AsyncGenerator, Optional
 
 from kafka import KafkaProducer
 
-from ..repositories.models import ProcessingRequestType
+from ..persistence.model import ProcessingRequestType
 from ..settings import settings
 
 logger = logging.getLogger()

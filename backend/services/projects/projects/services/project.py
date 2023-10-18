@@ -2,13 +2,12 @@ import uuid
 from typing import AsyncGenerator, Optional, Sequence
 
 from fastapi import Depends
-from pix_portal_lib.service_clients.asset import AssetServiceClient
+from pix_portal_lib.service_clients.asset import AssetServiceClient, Asset
 from pix_portal_lib.service_clients.fastapi import get_asset_service_client, get_user_service_client
 from pix_portal_lib.service_clients.user import UserServiceClient
 
-from ..repositories.models import Project
-from ..repositories.project_repository import get_project_repository, ProjectRepository
-from ..repositories.project_repository_interface import ProjectRepositoryInterface
+from ..persistence.model import Project
+from ..persistence.repository import get_project_repository, ProjectRepository
 
 
 class UserNotFound(Exception):
@@ -91,7 +90,7 @@ class ProjectService:
         project = await self._project_repository.get_project(project_id)
         return await self._user_service_client.get_users_by_ids(project.users_ids, token=token)
 
-    async def get_project_assets(self, project_id: uuid.UUID, token: str) -> list[dict]:
+    async def get_project_assets(self, project_id: uuid.UUID, token: str) -> list[Asset]:
         project = await self._project_repository.get_project(project_id)
         return await self._asset_service_client.get_assets_by_ids(project.assets_ids, token=token)
 
@@ -157,7 +156,7 @@ class ProjectService:
 
 
 async def get_project_service(
-    project_repository: ProjectRepositoryInterface = Depends(get_project_repository),
+    project_repository: ProjectRepository = Depends(get_project_repository),
     asset_service_client: AssetServiceClient = Depends(get_asset_service_client),
     user_service_client: UserServiceClient = Depends(get_user_service_client),
 ) -> AsyncGenerator[ProjectService, None]:
