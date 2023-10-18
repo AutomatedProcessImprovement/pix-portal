@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Optional
 from uuid import UUID
 
-from bps_discovery_simod.settings import settings
 from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
 from pix_portal_lib.service_clients.asset import AssetServiceClient, Asset, AssetType
 from pix_portal_lib.service_clients.processing_request import (
@@ -18,15 +17,19 @@ from pix_portal_lib.service_clients.processing_request import (
 from pix_portal_lib.service_clients.project import ProjectServiceClient
 from pix_portal_lib.service_clients.user import UserServiceClient
 
+from bps_discovery_simod.settings import settings
+
 logger = logging.getLogger()
 
 
 class InputAssetMissing(Exception):
-    pass
+    def __init__(self):
+        super().__init__("Simod discovery failed. Input asset not found.")
 
 
 class SimodDiscoveryFailed(Exception):
-    pass
+    def __init__(self):
+        super().__init__("Simod discovery failed.")
 
 
 class SimodService:
@@ -148,7 +151,7 @@ class SimodService:
 
             # send email notification to queue
             if processing_request.should_notify:
-                await self._send_email_notification(processing_request, is_success=False)
+                await self._send_email_notification(processing_request, is_success=False, message=e.__str__())
 
         # set token to None to force re-authentication, because the token might have expired
         self._asset_service_client.nullify_token()
@@ -198,7 +201,9 @@ class SimodService:
 
         return bpmn_path, bps_model_path
 
-    async def _send_email_notification(self, processing_request: ProcessingRequest, is_success: bool):
+    async def _send_email_notification(
+        self, processing_request: ProcessingRequest, is_success: bool, message: str = ""
+    ):
         email_notification_producer = EmailNotificationProducer(client_id="bps-discovery-simod")
         user = await self._user_service_client.get_user(user_id=UUID(processing_request.user_id))
         user_email = str(user["email"])
@@ -216,6 +221,8 @@ class SimodService:
                 subject="[PIX Notification] BPS discovery and optimization with Simod has failed",
                 body=f"Processing request {processing_request.processing_request_id} has failed.",
             )
+        if message:
+            msg.body += f"\n\nDetails:\n{message}"
         email_notification_producer.send_message(msg)
 
 
