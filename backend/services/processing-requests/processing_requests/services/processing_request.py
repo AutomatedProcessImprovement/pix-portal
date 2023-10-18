@@ -1,6 +1,6 @@
 import logging
 import uuid
-from typing import AsyncGenerator, Optional, Sequence
+from typing import AsyncGenerator, Optional, Sequence, Union
 
 from fastapi import Depends
 from kafka.errors import KafkaTimeoutError
@@ -35,7 +35,12 @@ class AssetNotFound(Exception):
 
 
 class AssetDoesNotBelongToProject(Exception):
-    pass
+    def __init__(self, asset_id: Union[uuid.UUID, str, None] = None) -> None:
+        if asset_id:
+            super().__init__(f"Asset does not belong to project: {asset_id}")
+        else:
+            super().__init__(f"Asset does not belong to project")
+        self.asset_id = asset_id
 
 
 class AssetAlreadyExists(Exception):
@@ -137,6 +142,8 @@ class ProcessingRequestService:
 
         if not await self.does_user_have_access_to_project(current_user, project_id, token):
             raise NotEnoughPermissions()
+
+        await self._raise_for_assets_not_in_project(project_id, input_assets_ids, token)
 
         processing_request = await self._processing_request_repository.create_processing_request(
             type,
@@ -242,6 +249,18 @@ class ProcessingRequestService:
         project = await self._project_service_client.get_project(processing_request.project_id, token=token)
         project_assets_ids = [str(pid) for pid in project["assets_ids"]]
         return str(asset_id) in project_assets_ids
+
+    async def _raise_for_assets_not_in_project(
+        self, project_id: uuid.UUID, assets_ids: list[uuid.UUID], token: str
+    ) -> None:
+        """
+        Check if all assets belong to the project.
+        """
+        project = await self._project_service_client.get_project(project_id, token=token)
+        project_assets_ids = [str(pid) for pid in project["assets_ids"]]
+        for asset_id in assets_ids:
+            if str(asset_id) not in project_assets_ids:
+                raise AssetDoesNotBelongToProject(asset_id=asset_id)
 
 
 async def get_processing_request_service(
