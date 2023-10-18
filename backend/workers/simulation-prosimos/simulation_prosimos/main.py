@@ -47,9 +47,18 @@ async def process_message(message):
         logger.exception(f"Kafka consumer {consumer_id} failed to process the message: {message}, error: {e}")
 
 
+max_parallel_tasks = 10
+
+
 async def main():
+    background_tasks = set()
     for message in consumer:
-        await asyncio.create_task(process_message(message))
+        if len(background_tasks) >= max_parallel_tasks:
+            done, pending = await asyncio.wait(background_tasks, return_when=asyncio.FIRST_COMPLETED)
+            background_tasks = pending
+        task = asyncio.create_task(process_message(message))
+        task.add_done_callback(background_tasks.discard)
+        background_tasks.add(task)
 
 
 asyncio.run(main())
