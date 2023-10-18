@@ -102,7 +102,7 @@ async def create_processing_request(
             user_id=user["id"],
             project_id=processing_request_data.project_id,
             input_assets_ids=processing_request_data.input_assets_ids,
-            output_assets_ids=processing_request_data.output_assets_ids,
+            should_notify=processing_request_data.should_notify,
             token=token,
             current_user=user,
         )

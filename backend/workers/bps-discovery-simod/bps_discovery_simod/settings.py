@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     kafka_topic_requests: str
     kafka_topic_results: str
     kafka_consumer_group_id: str
+    kafka_topic_email_notifications: str
     asset_service_url: HttpUrl
     asset_base_dir: Path
     simod_results_base_dir: Path

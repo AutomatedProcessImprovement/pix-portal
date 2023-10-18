@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from sqlalchemy import DateTime, String, Uuid
+from sqlalchemy import DateTime, String, Uuid, Boolean
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -52,6 +52,7 @@ class ProcessingRequest(Base):
     type: Mapped[ProcessingRequestType] = mapped_column(String, nullable=False, index=True)
     status: Mapped[ProcessingRequestStatus] = mapped_column(String, nullable=False, index=True)
     message: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    should_notify: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     # Implicit relationships to other microservices' tables
 

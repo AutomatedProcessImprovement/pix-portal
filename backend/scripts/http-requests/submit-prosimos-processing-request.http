@@ -3,7 +3,7 @@
 POST http://localhost:9999/api/v1/auth/jwt/login
 Content-Type: application/x-www-form-urlencoded
 
-username = baz@bar.com &
+username = ihar.suvorau@gmail.com &
 password = 123
 
 ### Get a JWT
@@ -16,7 +16,7 @@ password = system
 
 ### List projects
 
-GET http://localhost:9999/api/v1/projects/
+GET http://localhost:9999/api/v1/projects/?user_id=e431ca4d-4df3-42f4-b011-27d40ffa40ff
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -58,10 +58,10 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "configuration_prosimos.yml",
-  "type": "configuration_prosimos_yaml",
-  "file_id": "32642de3-33d7-415a-9693-42a3e245e6bf",
-  "project_id": "775eb3ef-350b-4445-9229-3ea57d9d09c6"
+  "name": "PurchasingExample.bpmn",
+  "type": "process_model_bpmn",
+  "file_id": "9df58316-cfcb-4f06-8c47-f2102648a4db",
+  "project_id": "536b9d58-83b9-4251-ba87-5432ec9f0a8b"
 }
 
 ### Create the configuration asset
@@ -84,7 +84,7 @@ Authorization: Bearer {{token}}
 
 ### List assets
 
-GET http://localhost:9999/api/v1/assets/
+GET http://localhost:9999/api/v1/assets/?project_id=536b9d58-83b9-4251-ba87-5432ec9f0a8b
 Authorization: Bearer {{token}}
 
 ### Create a new processing request
@@ -95,12 +95,13 @@ Authorization: Bearer {{token}}
 
 {
   "type": "simulation_prosimos",
-  "project_id": "775eb3ef-350b-4445-9229-3ea57d9d09c6",
+  "project_id": "536b9d58-83b9-4251-ba87-5432ec9f0a8b",
   "input_assets_ids": [
-    "f2f99fc7-e642-4950-a66c-91af4c2c94d5",
-    "b6428878-3129-431f-ab58-c3a4f5ab9bf1",
-    "e74364c0-546b-4172-b6a1-4f17c3588bc2"
-  ]
+    "72ecc773-4235-4f7b-adf6-f8a5cd7094a5",
+    "da60e574-a4eb-43c0-a706-26034a97ebbb",
+    "e33199c1-6bca-4fee-a47f-aa42d571a7a3"
+  ],
+  "should_notify": true
 }
 
 ### Get a processing request

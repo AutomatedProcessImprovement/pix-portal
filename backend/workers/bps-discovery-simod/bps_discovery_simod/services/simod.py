@@ -5,7 +5,9 @@ import traceback
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
+from uuid import UUID
 
+from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
 from pix_portal_lib.service_clients.asset import AssetServiceClient, Asset, AssetType
 from pix_portal_lib.service_clients.processing_request import (
     ProcessingRequestServiceClient,
@@ -13,6 +15,7 @@ from pix_portal_lib.service_clients.processing_request import (
     ProcessingRequestStatus,
 )
 from pix_portal_lib.service_clients.project import ProjectServiceClient
+from pix_portal_lib.service_clients.user import UserServiceClient
 
 from bps_discovery_simod.settings import settings
 
@@ -20,11 +23,13 @@ logger = logging.getLogger()
 
 
 class InputAssetMissing(Exception):
-    pass
+    def __init__(self):
+        super().__init__("Simod discovery failed. Input asset not found.")
 
 
 class SimodDiscoveryFailed(Exception):
-    pass
+    def __init__(self):
+        super().__init__("Simod discovery failed.")
 
 
 class SimodService:
@@ -37,6 +42,7 @@ class SimodService:
         self._asset_service_client = AssetServiceClient()
         self._processing_request_service_client = ProcessingRequestServiceClient()
         self._project_service_client = ProjectServiceClient()
+        self._user_service_client = UserServiceClient()
 
         self._assets_base_dir.mkdir(parents=True, exist_ok=True)
         self._simod_results_base_dir.mkdir(parents=True, exist_ok=True)
@@ -122,6 +128,10 @@ class SimodService:
             await self._processing_request_service_client.update_status(
                 processing_request_id=processing_request.processing_request_id, status=ProcessingRequestStatus.FINISHED
             )
+
+            # send email notification to queue
+            if processing_request.should_notify:
+                await self._send_email_notification(processing_request, is_success=True)
         except Exception as e:
             trace = traceback.format_exc()
             logger.error(
@@ -138,6 +148,10 @@ class SimodService:
                 status=ProcessingRequestStatus.FAILED,
                 message=str(e),
             )
+
+            # send email notification to queue
+            if processing_request.should_notify:
+                await self._send_email_notification(processing_request, is_success=False, message=e.__str__())
 
         # set token to None to force re-authentication, because the token might have expired
         self._asset_service_client.nullify_token()
@@ -186,6 +200,30 @@ class SimodService:
             raise SimodDiscoveryFailed(f"Simod discovery failed. BPS model file not found: {bps_model_path}")
 
         return bpmn_path, bps_model_path
+
+    async def _send_email_notification(
+        self, processing_request: ProcessingRequest, is_success: bool, message: str = ""
+    ):
+        email_notification_producer = EmailNotificationProducer(client_id="bps-discovery-simod")
+        user = await self._user_service_client.get_user(user_id=UUID(processing_request.user_id))
+        user_email = str(user["email"])
+        if is_success:
+            msg = EmailNotificationRequest(
+                processing_request_id=processing_request.processing_request_id,
+                to_addrs=[user_email],
+                subject="[PIX Notification] BPS discovery and optimization with Simod has finished",
+                body=f"Processing request {processing_request.processing_request_id} has finished successfully.",
+            )
+        else:
+            msg = EmailNotificationRequest(
+                processing_request_id=processing_request.processing_request_id,
+                to_addrs=[user_email],
+                subject="[PIX Notification] BPS discovery and optimization with Simod has failed",
+                body=f"Processing request {processing_request.processing_request_id} has failed.",
+            )
+        if message:
+            msg.body += f"\n\nDetails:\n{message}"
+        email_notification_producer.send_message(msg)
 
 
 def _remove_all_suffixes(path: Path) -> Path:

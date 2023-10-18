@@ -8,16 +8,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import get_async_session
 from .models import ProcessingRequest, ProcessingRequestStatus
-from .processing_requests_repository_interface import (
-    ProcessingRequestRepositoryInterface,
-)
 
 
 class ProcessingRequestNotFound(Exception):
     pass
 
 
-class ProcessingRequestRepository(ProcessingRequestRepositoryInterface):
+class ProcessingRequestRepository:
     """
     Database repository for processing requests.
     """
@@ -78,7 +75,7 @@ class ProcessingRequestRepository(ProcessingRequestRepositoryInterface):
         user_id: UUID,
         project_id: UUID,
         input_assets_ids: list[UUID],
-        output_assets_ids: list[UUID],
+        should_notify: bool,
     ) -> ProcessingRequest:
         processing_request = ProcessingRequest(
             type=type,
@@ -86,7 +83,8 @@ class ProcessingRequestRepository(ProcessingRequestRepositoryInterface):
             user_id=user_id,
             project_id=project_id,
             input_assets_ids=input_assets_ids,
-            output_assets_ids=output_assets_ids,
+            output_assets_ids=[],
+            should_notify=should_notify,
         )
         self.session.add(processing_request)
         await self.session.commit()
@@ -106,12 +104,15 @@ class ProcessingRequestRepository(ProcessingRequestRepositoryInterface):
         processing_request_id: UUID,
         status: Optional[ProcessingRequestStatus] = None,
         message: Optional[str] = None,
+        should_notify: Optional[bool] = None,
     ) -> ProcessingRequest:
         processing_request = await self.get_processing_request(processing_request_id)
         if status is not None:
             processing_request.status = status
         if message is not None:
             processing_request.message = message
+        if should_notify is not None:
+            processing_request.should_notify = should_notify
         processing_request.modification_time = datetime.utcnow()
         await self.session.commit()
         return processing_request

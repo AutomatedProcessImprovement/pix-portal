@@ -3,9 +3,9 @@ from urllib.parse import urljoin
 from uuid import UUID
 
 import httpx
+from pix_portal_lib.utils import get_env
 
 from .self_authenticating_client import SelfAuthenticatingClient
-from .utils import get_env
 
 project_service_url = get_env("PROJECT_SERVICE_URL")
 
@@ -40,5 +40,5 @@ class ProjectServiceClient(SelfAuthenticatingClient):
     async def does_user_have_access_to_project(self, user_id: UUID, project_id: UUID, token: str) -> bool:
         project = await self.get_project(project_id, token)
         current_user_id = str(user_id)
-        project_user_id = [str(user_id) for user_id in project["user_ids"]]
+        project_user_id = [str(user_id) for user_id in project["users_ids"]]
         return current_user_id in project_user_id

@@ -1,5 +1,5 @@
 import uuid
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator, Optional, Sequence
 
 from fastapi import Depends
 from pix_portal_lib.service_clients.asset import AssetServiceClient
@@ -42,10 +42,10 @@ class ProjectService:
         self._asset_service_client = asset_service_client
         self._user_service_client = user_service_client
 
-    async def get_projects(self) -> list[Project]:
+    async def get_projects(self) -> Sequence[Project]:
         return await self._project_repository.get_projects()
 
-    async def get_projects_by_user_id(self, user_id: uuid.UUID) -> list[Project]:
+    async def get_projects_by_user_id(self, user_id: uuid.UUID) -> Sequence[Project]:
         return await self._project_repository.get_projects_by_user_id(user_id)
 
     async def create_project(
@@ -62,7 +62,9 @@ class ProjectService:
             users_ids.insert(0, current_user["id"])
 
         for user_id in users_ids:
-            ok = await self._user_service_client.does_user_exist(user_id, token)
+            # don't provide token to use the SYSTEM user,
+            # the actual current_user might not have permissions for the call
+            ok = await self._user_service_client.does_user_exist(user_id)
             if not ok:
                 raise UserNotFound()
 
@@ -102,14 +104,14 @@ class ProjectService:
         return await self._project_repository.update_project(project_id, name, description)
 
     async def add_user_to_project(self, project_id: uuid.UUID, user_id: uuid.UUID, token: str) -> Project:
-        ok = await self._user_service_client.does_user_exist(user_id, token)
+        ok = await self._user_service_client.does_user_exist(user_id)
         if not ok:
             raise UserNotFound()
 
         return await self._project_repository.add_user_to_project(project_id, user_id)
 
     async def remove_user_from_project(self, project_id: uuid.UUID, user_id: uuid.UUID, token: str) -> Project:
-        ok = await self._user_service_client.does_user_exist(user_id, token)
+        ok = await self._user_service_client.does_user_exist(user_id)
         if not ok:
             raise UserNotFound()
 

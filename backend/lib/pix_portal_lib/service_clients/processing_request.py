@@ -5,9 +5,9 @@ from typing import Optional
 from urllib.parse import urljoin
 
 import httpx
+from pix_portal_lib.utils import get_env
 
 from .self_authenticating_client import SelfAuthenticatingClient
-from .utils import get_env
 
 processing_request_service_url = get_env("PROCESSING_REQUEST_SERVICE_URL")
 
@@ -26,6 +26,7 @@ class ProcessingRequest:
     input_assets_ids: list[str]
     output_assets_ids: list[str]
     jwt_token: str
+    should_notify: bool
 
 
 class ProcessingRequestStatus(str, Enum):
