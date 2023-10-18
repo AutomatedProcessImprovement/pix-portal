@@ -31,6 +31,23 @@ def instrument_app(
     """
     FastAPIInstrumentor.instrument_app(app)
 
+    instrument_worker(
+        service_name=service_name,
+        otel_collector_endpoint=otel_collector_endpoint,
+        httpx=httpx,
+        requests=requests,
+    )
+
+
+def instrument_worker(
+    service_name: str,
+    otel_collector_endpoint: str = "http://otel-collector:4317",
+    httpx: bool = True,
+    requests: bool = False,
+):
+    """
+    Instrument a worker with OpenTelemetry.
+    """
     if httpx:
         HTTPXClientInstrumentor().instrument()
 

@@ -51,7 +51,7 @@ Content-Type: application/octet-stream
 
 < ./PurchasingExampleSimulationModel.json
 
-### Create an asset
+### Create the process model asset
 
 POST http://localhost:9999/api/v1/assets/
 Content-Type: application/json
@@ -64,17 +64,30 @@ Authorization: Bearer {{token}}
   "project_id": "536b9d58-83b9-4251-ba87-5432ec9f0a8b"
 }
 
-### Create the configuration asset
+### Create the simulation model asset
 
 POST http://localhost:9999/api/v1/assets/
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "configuration_one_shot.yml",
-  "type": "configuration_simod_yaml",
-  "file_id": "f680742c-8409-4972-8bc8-c5069f0e28be",
-  "project_id": "775eb3ef-350b-4445-9229-3ea57d9d09c6"
+  "name": "PurchasingExampleSimulationModel.json",
+  "type": "simulation_model_prosimos_json",
+  "file_id": "1aa19b4a-a65f-4aa4-ac5f-d76ccd10dfdc",
+  "project_id": "536b9d58-83b9-4251-ba87-5432ec9f0a8b"
+}
+
+### Create the prosimos configuration asset
+
+POST http://localhost:9999/api/v1/assets/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "configuration_prosimos.yml",
+  "type": "configuration_prosimos_yaml",
+  "file_id": "32642de3-33d7-415a-9693-42a3e245e6bf",
+  "project_id": "536b9d58-83b9-4251-ba87-5432ec9f0a8b"
 }
 
 ### Get an asset
@@ -97,9 +110,9 @@ Authorization: Bearer {{token}}
   "type": "simulation_prosimos",
   "project_id": "536b9d58-83b9-4251-ba87-5432ec9f0a8b",
   "input_assets_ids": [
-    "72ecc773-4235-4f7b-adf6-f8a5cd7094a5",
-    "da60e574-a4eb-43c0-a706-26034a97ebbb",
-    "e33199c1-6bca-4fee-a47f-aa42d571a7a3"
+    "e5ee3c31-0c8c-4bb1-981f-4d9643ddc469",
+    "5c09694e-8e88-4f68-b87f-a804032a57d3",
+    "6bfb6b61-30b9-4590-8eeb-c31a99a567b0"
   ],
   "should_notify": true
 }

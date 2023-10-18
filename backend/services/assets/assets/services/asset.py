@@ -1,26 +1,32 @@
 import uuid
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator, Optional, Sequence
 
 from fastapi import Depends
 from pix_portal_lib.service_clients.file import FileServiceClient
+from pix_portal_lib.service_clients.project import ProjectServiceClient
 
-from ..repositories.asset_repository import get_asset_repository
-from ..repositories.asset_repository_interface import AssetRepositoryInterface
-from ..repositories.models import Asset, AssetType
+from ..persistence.model import Asset, AssetType
+from ..persistence.repository import get_asset_repository, AssetRepository
 
 
 class AssetService:
-    def __init__(self, asset_repository: AssetRepositoryInterface, file_service_client: FileServiceClient) -> None:
+    def __init__(
+        self,
+        asset_repository: AssetRepository,
+        file_service_client: FileServiceClient,
+        project_service_client: ProjectServiceClient,
+    ) -> None:
         self.asset_repository = asset_repository
         self.file_service_client = file_service_client
+        self.project_service_client = project_service_client
 
-    async def get_assets(self) -> list[Asset]:
+    async def get_assets(self) -> Sequence[Asset]:
         return await self.asset_repository.get_assets()
 
-    async def get_assets_by_project_id(self, project_id: uuid.UUID) -> list[Asset]:
+    async def get_assets_by_project_id(self, project_id: uuid.UUID) -> Sequence[Asset]:
         return await self.asset_repository.get_assets_by_project_id(project_id)
 
-    async def get_assets_by_processing_request_id(self, processing_request_id: uuid.UUID) -> list[Asset]:
+    async def get_assets_by_processing_request_id(self, processing_request_id: uuid.UUID) -> Sequence[Asset]:
         return await self.asset_repository.get_assets_by_processing_request_id(processing_request_id)
 
     async def create_asset(
@@ -33,7 +39,7 @@ class AssetService:
         description: Optional[str] = None,
     ) -> Asset:
         asset_type = AssetType(type)
-        return await self.asset_repository.create_asset(
+        asset = await self.asset_repository.create_asset(
             name,
             asset_type,
             file_id,
@@ -41,6 +47,8 @@ class AssetService:
             processing_requests_ids,
             description,
         )
+        await self.project_service_client.add_asset_to_project(str(project_id), str(asset.id))
+        return asset
 
     async def get_asset(self, asset_id: uuid.UUID) -> Asset:
         return await self.asset_repository.get_asset(asset_id)
@@ -88,7 +96,8 @@ class AssetService:
 
 
 async def get_asset_service(
-    asset_repository: AssetRepositoryInterface = Depends(get_asset_repository),
+    asset_repository: AssetRepository = Depends(get_asset_repository),
     file_service_client: FileServiceClient = Depends(FileServiceClient),
+    project_service_client: ProjectServiceClient = Depends(ProjectServiceClient),
 ) -> AsyncGenerator[AssetService, None]:
-    yield AssetService(asset_repository, file_service_client)
+    yield AssetService(asset_repository, file_service_client, project_service_client)

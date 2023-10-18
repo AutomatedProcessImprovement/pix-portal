@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from ..repositories.models import AssetType
+from ..persistence.model import AssetType
 
 
 class AssetIn(BaseModel):
