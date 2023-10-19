@@ -344,6 +344,18 @@ services:
     secrets:
       - mail_gmail_username
       - mail_gmail_password
+  kronos:
+    build:
+      context: workers/kronos
+    env_file:
+      - workers/kronos/.env
+    volumes:
+      - kronos-data:/var/tmp/kronos:rw
+    depends_on:
+      - kafka
+    networks:
+      - backend
+    restart: on-failure
 volumes:
   users-db-data:
   files-db-data:
@@ -356,6 +368,7 @@ volumes:
   caddy_config:
   bps-discovery-simod-data:
   simulation-prosimos-data:
+  kronos-data:
 networks:
   backend:
     name: pix_backend

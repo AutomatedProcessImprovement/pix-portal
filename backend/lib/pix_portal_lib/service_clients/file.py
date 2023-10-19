@@ -47,7 +47,7 @@ class FileServiceClient(SelfAuthenticatingClient):
 
     def get_absolute_url(self, relative_url: str, is_internal: bool) -> str:
         base = self._blobs_base_internal_url if is_internal else self._blobs_base_public_url
-        relative_url = relative_url.lstrip("/blobs/")
+        relative_url = relative_url.removeprefix("/blobs/")
         return urljoin(base, relative_url)
 
     async def upload_file(self, file_path: Path, token: Optional[str] = None) -> str:

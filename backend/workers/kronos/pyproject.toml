@@ -1,13 +1,13 @@
 [tool.poetry]
-name = "bps-discovery-simod-worker"
+name = "kronos-worker"
 version = "0.1.0"
 description = ""
 authors = ["Ihar Suvorau <ihar.suvorau@gmail.com>"]
 readme = "README.md"
-packages = [{ include = "bps_discovery_simod" }]
+packages = [{ include = "kronos" }]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.9,<3.11"
 pydantic = "^2.3.0"
 pydantic-settings = "^2.0.3"
 requests = "^2.31.0"
@@ -20,6 +20,7 @@ opentelemetry-exporter-prometheus = "^1.12.0rc1"
 opentelemetry-instrumentation-httpx = "^0.41b0"
 httpx = "^0.25.0"
 pix-portal-lib = { path = "lib/pix_portal_lib-0.1.23-py3-none-any.whl" }
+wta = { git = "https://github.com/AutomatedProcessImprovement/waiting-time-analysis.git", tag = "1.3.8" }
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"

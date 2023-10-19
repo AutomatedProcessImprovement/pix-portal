@@ -1,0 +1,119 @@
+### Get a JWT
+
+POST http://localhost:9999/api/v1/auth/jwt/login
+Content-Type: application/x-www-form-urlencoded
+
+username = ihar.suvorau@gmail.com &
+password = 123
+
+### Get a JWT
+
+POST http://localhost:9999/api/v1/auth/jwt/login
+Content-Type: application/x-www-form-urlencoded
+
+username = system@pix.cloud.ut.ee &
+password = system
+
+### List projects
+
+GET http://localhost:9999/api/v1/projects/?user_id=e431ca4d-4df3-42f4-b011-27d40ffa40ff
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Create a project
+
+POST http://localhost:9999/api/v1/projects/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "kronos run"
+}
+
+### Upload a file
+
+POST http://localhost:9999/api/v1/files/
+Authorization: Bearer {{token}}
+Content-Type: application/octet-stream
+
+< ./configuration_prosimos.yml
+
+### List files
+
+GET http://localhost:9999/api/v1/files/
+Authorization: Bearer {{token}}
+
+### Upload the column mapping
+
+POST http://localhost:9999/api/v1/files/
+Authorization: Bearer {{token}}
+Content-Type: application/octet-stream
+
+< ./column_mapping_kronos.json
+
+### Create the column mapping asset
+
+POST http://localhost:9999/api/v1/assets/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "column_mapping_kronos.json",
+  "type": "event_log_column_mapping_json",
+  "file_id": "0bbd41aa-07b5-414b-9bd4-b7666ca1bfd0",
+  "project_id": "c012fd4b-8cf1-4335-ae76-cac069e4a9ef"
+}
+
+### Create the event log asset
+
+POST http://localhost:9999/api/v1/assets/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "PurchasingExample.csv.gz",
+  "type": "event_log_csv_gz",
+  "file_id": "39fd287d-3d0d-401a-ae61-d66a49544a26",
+  "project_id": "c012fd4b-8cf1-4335-ae76-cac069e4a9ef"
+}
+
+### Get an asset
+
+GET http://localhost:9999/api/v1/assets/b6428878-3129-431f-ab58-c3a4f5ab9bf1/location?is_internal=true
+Authorization: Bearer {{token}}
+
+### List assets
+
+GET http://localhost:9999/api/v1/assets/?project_id=c012fd4b-8cf1-4335-ae76-cac069e4a9ef
+Authorization: Bearer {{token}}
+
+### Create a new processing request
+
+POST http://localhost:9999/api/v1/processing-requests/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "type": "waiting_time_analysis_kronos",
+  "project_id": "c012fd4b-8cf1-4335-ae76-cac069e4a9ef",
+  "input_assets_ids": [
+    "0327e14e-a8c5-47e5-b1e5-8e88d44262ef",
+    "22cf6a9e-ca90-48b2-b7af-551474b31bca"
+  ],
+  "should_notify": true
+}
+
+### Get a processing request
+
+GET http://localhost:9999/api/v1/processing-requests/b3bf945b-482f-4d10-adf4-786353106617
+Authorization: Bearer {{token}}
+
+### Get resulting asset
+
+GET http://localhost:9999/api/v1/assets/809790ff-cc02-44b1-83b8-463252ffe6ed/location?is_internal=false
+Authorization: Bearer {{token}}
+
+### Get the blob
+
+GET http://localhost:9999/api/v1/blobs/b4f1a4ded7611bb06fa393e10fec969369c23d2abc61916ff1aa3f1e821ea45e
+Authorization: Bearer {{token}}

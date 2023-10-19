@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any, Optional, Sequence
 
 from fastapi import APIRouter, Depends, Header
 from pix_portal_lib.exceptions.http_exceptions import (
@@ -45,7 +45,7 @@ async def get_projects(
     user_id: Optional[uuid.UUID] = None,
     project_service: ProjectService = Depends(get_project_service),
     user: dict = Depends(get_current_user),
-) -> list[Any]:
+) -> Sequence[Project]:
     if user_id:
         return await project_service.get_projects_by_user_id(user_id)
 
