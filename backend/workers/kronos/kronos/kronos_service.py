@@ -84,7 +84,7 @@ class KronosService:
             wta_analysis_asset_id = await self._asset_service_client.create_asset(
                 file_path=output_path,
                 project_id=processing_request.project_id,
-                asset_type=AssetType.WAITING_TIME_ANALYSIS_REPORT_KRONOS_JSON,
+                asset_type=AssetType.WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV,
             )
 
             # update project assets
@@ -149,7 +149,7 @@ class KronosService:
     ):
         log_ids = _column_mapping(column_mapping_path, None)
         _run(event_log_path, True, log_ids, output_dir)
-        output_path = (output_dir / (event_log_path.stem + "_transitions_report")).with_suffix(".json")
+        output_path = (output_dir / (event_log_path.stem + "_transitions_report")).with_suffix(".csv")
         return output_path
 
     async def _send_email_notification(self, processing_request: ProcessingRequest, is_success: bool):

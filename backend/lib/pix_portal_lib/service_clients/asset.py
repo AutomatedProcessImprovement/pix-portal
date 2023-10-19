@@ -28,6 +28,7 @@ class AssetType(str, Enum):
     CONFIGURATION_PROSIMOS_YAML = "configuration_prosimos_yaml"
     CONSTRAINTS_MODEL_OPTIMOS_JSON = "constraints_model_optimos_json"
     WAITING_TIME_ANALYSIS_REPORT_KRONOS_JSON = "waiting_time_analysis_report_kronos_json"
+    WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV = "waiting_time_analysis_report_kronos_csv"
 
 
 @dataclass
