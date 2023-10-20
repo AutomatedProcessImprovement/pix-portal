@@ -356,6 +356,37 @@ services:
     networks:
       - backend
     restart: on-failure
+  kronos-http:
+    build:
+      context: services/kronos
+    ports:
+      - 8090:5000
+    env_file:
+      - services/kronos/.env
+    depends_on:
+      - kronos-db
+    networks:
+      - backend
+    restart: on-failure
+  kronos-db:
+    image: postgres
+    restart: on-failure
+    user: postgres
+    volumes:
+      - kronos-db-data:/var/lib/postgresql/data
+    env_file:
+      - services/kronos/.env
+    expose:
+      - 5432
+    ports:
+      - 5437:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
 volumes:
   users-db-data:
   files-db-data:

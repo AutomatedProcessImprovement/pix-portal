@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "kronos"
+version = "0.1.0"
+description = ""
+authors = ["Ihar Suvorau <ihar.suvorau@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9,<3.12"
+gunicorn = "^21.2.0"
+requests = "^2.31.0"
+flask = "^3.0.0"
+flask-cors = "^4.0.0"
+psycopg2-binary = "^2.9.9"
+pix-framework = "^0.13.8"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.9.1"
+
+[tool.ruff]
+line-length = 120
+
+[tool.black]
+line-length = 120
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
