@@ -6,6 +6,6 @@ COPY . .
 RUN pip install --upgrade pip
 RUN pip install .
 
-EXPOSE 5000
+EXPOSE 8000
 
-CMD ["gunicorn", "-w", "4", "kronos.app:app", "-b", "0.0.0.0:5000"]
+CMD ["gunicorn", "-w", "2", "kronos.app:app", "-b", "0.0.0.0:8000"]

@@ -20,19 +20,21 @@ from psycopg2 import sql
 
 ALLOWED_ORIGINS = ["*"]
 
+URL_PREFIX = "/kronos"
+
 app = Flask(__name__)
 resources = {
-    r"/overview/*": {"origins": ALLOWED_ORIGINS},
-    r"/case_overview/*": {"origins": ALLOWED_ORIGINS},
-    r"/daily_summary/*": {"origins": ALLOWED_ORIGINS},
-    r"/activity_transitions/*": {"origins": ALLOWED_ORIGINS},
-    r"/activity_date_range_global/*": {"origins": ALLOWED_ORIGINS},
-    r"/activity_pairs/*": {"origins": ALLOWED_ORIGINS},
-    r"/activity_transitions_by_resource/*": {"origins": ALLOWED_ORIGINS},
-    r"/potential_cte/*": {"origins": ALLOWED_ORIGINS},
-    r"/cte_improvement/*": {"origins": ALLOWED_ORIGINS},
-    r"/wt_overview/*": {"origins": ALLOWED_ORIGINS},
-    r"/process_csv/*": {"origins": ALLOWED_ORIGINS},
+    f"{URL_PREFIX}/overview/*": {"origins": ALLOWED_ORIGINS},
+    f"{URL_PREFIX}/case_overview/*": {"origins": ALLOWED_ORIGINS},
+    f"{URL_PREFIX}/daily_summary/*": {"origins": ALLOWED_ORIGINS},
+    f"{URL_PREFIX}/activity_transitions/*": {"origins": ALLOWED_ORIGINS},
+    f"{URL_PREFIX}/activity_date_range_global/*": {"origins": ALLOWED_ORIGINS},
+    f"{URL_PREFIX}/activity_pairs/*": {"origins": ALLOWED_ORIGINS},
+    f"{URL_PREFIX}/activity_transitions_by_resource/*": {"origins": ALLOWED_ORIGINS},
+    f"{URL_PREFIX}/potential_cte/*": {"origins": ALLOWED_ORIGINS},
+    f"{URL_PREFIX}/cte_improvement/*": {"origins": ALLOWED_ORIGINS},
+    f"{URL_PREFIX}/wt_overview/*": {"origins": ALLOWED_ORIGINS},
+    f"{URL_PREFIX}/process_csv/*": {"origins": ALLOWED_ORIGINS},
 }
 
 CORS(app, resources=resources)
@@ -70,9 +72,12 @@ class DBHandler:
             return None
 
 
-@app.route("/create_table/<jobid>", methods=["POST"])
+@app.route(f"{URL_PREFIX}/create_table/<jobid>", methods=["POST"])
 def create_table(jobid):
     csv_data = request.data.decode("utf-8")
+
+    if csv_data == "":
+        return jsonify({"error": "No CSV data provided"}), 400
 
     # rename headers to match database column names
     #
@@ -147,7 +152,7 @@ def create_table(jobid):
         cur.close()
     except Exception as e:
         print("Error inserting data:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify({"error": "Cannot import CSV file into the database"}), 500
 
     # delete temporary file
     os.remove(csv_path)
@@ -155,7 +160,7 @@ def create_table(jobid):
     return jsonify({"message": "Table created successfully", "table_name": table_name})
 
 
-@app.route("/process_csv/<jobid>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/process_csv/<jobid>", methods=["GET"])
 def process_csv(jobid):
     csv_url = f"http://154.56.63.127:8080/assets/results/{jobid}/event_log.csv"
     response = requests.get(csv_url)
@@ -219,7 +224,7 @@ def process_csv(jobid):
     return jsonify(batch_characteristics)
 
 
-@app.route("/overview/<jobid>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/overview/<jobid>", methods=["GET"])
 def overview(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -336,7 +341,7 @@ def overview(jobid):
         return jsonify({"error": "An error occurred while processing your request"}), 500
 
 
-@app.route("/wt_overview/<jobid>/<wt_type>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/wt_overview/<jobid>/<wt_type>", methods=["GET"])
 def wt_overview(jobid, wt_type):
     # Validate wt_type
     valid_wt_types = ["batching", "prioritization", "extraneous", "contention", "unavailability"]
@@ -421,7 +426,7 @@ def wt_overview(jobid, wt_type):
         return jsonify({"error": "An error occurred while processing your request"}), 500
 
 
-@app.route("/wt_overview/<jobid>/<wt_type>/<sourceactivity>/<destinationactivity>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/wt_overview/<jobid>/<wt_type>/<sourceactivity>/<destinationactivity>", methods=["GET"])
 def wt_overview_activity(jobid, wt_type, sourceactivity, destinationactivity):
     # Validate wt_type
     valid_wt_types = ["batching", "prioritization", "extraneous", "contention", "unavailability"]
@@ -515,7 +520,7 @@ def wt_overview_activity(jobid, wt_type, sourceactivity, destinationactivity):
         return jsonify({"error": "An error occurred while processing your request"}), 500
 
 
-@app.route("/potential_cte/<jobid>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/potential_cte/<jobid>", methods=["GET"])
 def potential_cte(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -566,7 +571,7 @@ def potential_cte(jobid):
         return jsonify({"error": "An error occurred while processing your request"}), 500
 
 
-@app.route("/potential_cte_filtered/<jobid>/<source_activity>/<destination_activity>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/potential_cte_filtered/<jobid>/<source_activity>/<destination_activity>", methods=["GET"])
 def potential_cte_filtered(jobid, source_activity, destination_activity):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -628,7 +633,7 @@ def potential_cte_filtered(jobid, source_activity, destination_activity):
         return jsonify({"error": "An error occurred while processing your request"}), 500
 
 
-@app.route("/cte_improvement/<jobid>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/cte_improvement/<jobid>", methods=["GET"])
 def cte_improvement(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -714,7 +719,7 @@ def cte_improvement(jobid):
         return jsonify({"error": "An error occurred while processing your request"}), 500
 
 
-@app.route("/case_overview/<jobid>/<sourceactivity>/<destinationactivity>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/case_overview/<jobid>/<sourceactivity>/<destinationactivity>", methods=["GET"])
 def case_overview(jobid, sourceactivity, destinationactivity):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -821,7 +826,7 @@ def case_overview(jobid, sourceactivity, destinationactivity):
         return jsonify({"error": "An error occurred while processing your request"}), 500
 
 
-@app.route("/daily_summary/<jobid>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/daily_summary/<jobid>", methods=["GET"])
 def daily_summary(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -876,7 +881,7 @@ def daily_summary(jobid):
         return jsonify({"error": "An error occurred while processing your request"}), 500
 
 
-@app.route("/daily_summary/<jobid>/<sourceactivity>/<destinationactivity>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/daily_summary/<jobid>/<sourceactivity>/<destinationactivity>", methods=["GET"])
 def daily_summary_specific_pair(jobid, sourceactivity, destinationactivity):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -932,7 +937,7 @@ def daily_summary_specific_pair(jobid, sourceactivity, destinationactivity):
         return jsonify({"error": "An error occurred while processing your request"}), 500
 
 
-@app.route("/activity_transitions/<jobid>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/activity_transitions/<jobid>", methods=["GET"])
 def activity_transitions(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -991,7 +996,9 @@ def activity_transitions(jobid):
         return jsonify({"error": "An error occurred while processing your request"}), 500
 
 
-@app.route("/activity_transitions_by_resource/<jobid>/<sourceactivity>/<destinationactivity>", methods=["GET"])
+@app.route(
+    f"{URL_PREFIX}/activity_transitions_by_resource/<jobid>/<sourceactivity>/<destinationactivity>", methods=["GET"]
+)
 def activity_transitions_by_resource(jobid, sourceactivity, destinationactivity):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -1051,7 +1058,7 @@ def activity_transitions_by_resource(jobid, sourceactivity, destinationactivity)
         return jsonify({"error": "An error occurred while processing your request"}), 500
 
 
-@app.route("/activity_transitions/<jobid>/<sourceactivity>/<targetactivity>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/activity_transitions/<jobid>/<sourceactivity>/<targetactivity>", methods=["GET"])
 def specific_activity_transitions(jobid, sourceactivity, targetactivity):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -1108,7 +1115,7 @@ def specific_activity_transitions(jobid, sourceactivity, targetactivity):
         return jsonify({"error": "An error occurred while processing your request"}), 500
 
 
-@app.route("/activity_date_range_global/<jobid>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/activity_date_range_global/<jobid>", methods=["GET"])
 def activity_date_range_global(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -1168,7 +1175,7 @@ def activity_date_range_global(jobid):
         return jsonify({"error": "An error occurred while processing your request"}), 500
 
 
-@app.route("/activity_pairs/<jobid>", methods=["GET"])
+@app.route(f"{URL_PREFIX}/activity_pairs/<jobid>", methods=["GET"])
 def activity_pairs(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
