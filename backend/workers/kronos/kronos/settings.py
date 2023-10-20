@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     file_service_url: HttpUrl
     processing_request_service_url: HttpUrl
     project_service_url: HttpUrl
+    kronos_service_url: HttpUrl
 
     model_config = SettingsConfigDict(env_file=Path(__file__).parent.parent / ".env", extra="allow")
 

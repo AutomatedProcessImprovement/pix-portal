@@ -360,7 +360,7 @@ services:
     build:
       context: services/kronos
     ports:
-      - 8090:5000
+      - 8090:8000
     env_file:
       - services/kronos/.env
     depends_on:
@@ -400,6 +400,7 @@ volumes:
   bps-discovery-simod-data:
   simulation-prosimos-data:
   kronos-data:
+  kronos-db-data:
 networks:
   backend:
     name: pix_backend

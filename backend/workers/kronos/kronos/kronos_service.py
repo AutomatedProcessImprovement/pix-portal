@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Optional
 from uuid import UUID
 
-from kronos.settings import settings
 from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
 from pix_portal_lib.service_clients.asset import AssetServiceClient, AssetType, Asset
 from pix_portal_lib.service_clients.processing_request import (
@@ -16,11 +15,20 @@ from pix_portal_lib.service_clients.project import ProjectServiceClient
 from pix_portal_lib.service_clients.user import UserServiceClient
 from wta.cli import _column_mapping, _run
 
+from kronos.kronos_http_client import KronosHTTPClient
+from kronos.settings import settings
+
 logger = logging.getLogger()
 
 
 class InputAssetMissing(Exception):
     pass
+
+
+class FailedCreatingTableFromCSV(Exception):
+    def __init__(self, error: str):
+        super().__init__(error)
+        self.error = error
 
 
 class KronosService:
@@ -31,6 +39,7 @@ class KronosService:
         self._processing_request_service_client = ProcessingRequestServiceClient()
         self._project_service_client = ProjectServiceClient()
         self._user_service_client = UserServiceClient()
+        self._kronos_http_client = KronosHTTPClient()
 
         self._assets_base_dir.mkdir(parents=True, exist_ok=True)
         self._kronos_results_base_dir.mkdir(parents=True, exist_ok=True)
@@ -67,7 +76,7 @@ class KronosService:
 
             # run Kronos, it can take time
             logger.info(
-                f"Running Kronos analysis, "
+                f"Running Kronos analysis: "
                 f"processing_request_id={processing_request.processing_request_id}, "
                 f"column_mapping={column_mapping}, "
                 f"event_log={event_log}, "
@@ -79,6 +88,20 @@ class KronosService:
                 column_mapping_path=column_mapping.local_disk_path,
                 output_dir=output_dir,
             )
+            logger.info(
+                f"Kronos analysis has finished: "
+                f"processing_request_id={processing_request.processing_request_id}, "
+                f"output_path={output_path}, "
+            )
+
+            # load the results into the database using KronosHTTP
+            kronos_response = await self._kronos_http_client.create_table_from_path(
+                processing_request_id=processing_request.processing_request_id,
+                wta_report_csv_path=output_path,
+            )
+            if kronos_response.table_name is None:
+                raise FailedCreatingTableFromCSV(kronos_response.error)
+            logger.info(f"Kronos analysis uploaded to database: " f"table_name={kronos_response.table_name}")
 
             # upload results and create corresponding assets
             wta_analysis_asset_id = await self._asset_service_client.create_asset(
