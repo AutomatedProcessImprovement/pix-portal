@@ -34,6 +34,10 @@ handle /api/v1/* {
   handle /blobs* {
     reverse_proxy files:8000
   }
+
+  handle /kronos* {
+    reverse_proxy kronos-http:8000
+  }
 }
 
 handle /admin/grafana/* {

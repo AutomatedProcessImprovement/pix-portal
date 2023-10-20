@@ -1,0 +1,7 @@
+{
+  "case": "case_id",
+  "activity": "activity",
+  "resource": "resource",
+  "start_timestamp": "start_time",
+  "end_timestamp": "end_time"
+}

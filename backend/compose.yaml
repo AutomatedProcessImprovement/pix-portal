@@ -344,6 +344,49 @@ services:
     secrets:
       - mail_gmail_username
       - mail_gmail_password
+  kronos:
+    build:
+      context: workers/kronos
+    env_file:
+      - workers/kronos/.env
+    volumes:
+      - kronos-data:/var/tmp/kronos:rw
+    depends_on:
+      - kafka
+    networks:
+      - backend
+    restart: on-failure
+  kronos-http:
+    build:
+      context: services/kronos
+    ports:
+      - 8090:8000
+    env_file:
+      - services/kronos/.env
+    depends_on:
+      - kronos-db
+    networks:
+      - backend
+    restart: on-failure
+  kronos-db:
+    image: postgres
+    restart: on-failure
+    user: postgres
+    volumes:
+      - kronos-db-data:/var/lib/postgresql/data
+    env_file:
+      - services/kronos/.env
+    expose:
+      - 5432
+    ports:
+      - 5437:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
 volumes:
   users-db-data:
   files-db-data:
@@ -356,6 +399,8 @@ volumes:
   caddy_config:
   bps-discovery-simod-data:
   simulation-prosimos-data:
+  kronos-data:
+  kronos-db-data:
 networks:
   backend:
     name: pix_backend
