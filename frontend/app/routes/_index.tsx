@@ -1,7 +1,7 @@
 import type { MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { useOptionalUser } from "~/utils/utils";
+import { useOptionalUser } from "~/utils";
 
 export const meta: MetaFunction = () => {
   return [

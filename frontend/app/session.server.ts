@@ -1,5 +1,5 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
-import { getUserInfo } from "~/utils/auth";
+import { getUserInfo } from "~/auth.server";
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {

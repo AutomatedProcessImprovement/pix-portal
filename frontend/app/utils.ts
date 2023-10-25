@@ -1,6 +1,10 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 
+interface User {
+  email: string;
+}
+
 export function useMatchesData(
   id: string
 ): Record<string, unknown> | undefined {
@@ -9,11 +13,7 @@ export function useMatchesData(
     () => matchingRoutes.find((route) => route.id === id),
     [matchingRoutes, id]
   );
-  return route?.data;
-}
-
-function isUser(user: any) {
-  return user && typeof user === "object" && typeof user.email === "string";
+  return route?.data as Record<string, unknown> | undefined;
 }
 
 export function useOptionalUser(): User | undefined {
@@ -24,8 +24,8 @@ export function useOptionalUser(): User | undefined {
   return data.user as User;
 }
 
-interface User {
-  email: string;
+function isUser(user: any) {
+  return user && typeof user === "object" && typeof user.email === "string";
 }
 
 export function safeRedirect(

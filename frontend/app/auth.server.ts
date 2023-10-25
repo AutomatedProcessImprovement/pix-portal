@@ -1,7 +1,7 @@
-import axios from "axios";
+// Auth and users backend API.
 
-const loginURL = "http://localhost:9999/api/v1/auth/jwt/login";
-const userInfoURL = "http://localhost:9999/api/v1/users/me";
+import axios from "axios";
+import { loginURL, userInfoURL } from "~/backend_urls";
 
 export async function getJWT(
   username: string,

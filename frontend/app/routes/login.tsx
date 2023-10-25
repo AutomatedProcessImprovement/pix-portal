@@ -5,9 +5,9 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { getJWT } from "~/utils/auth";
+import { getJWT } from "~/auth.server";
 import { createUserSession, getUserEmail } from "~/session.server";
-import { safeRedirect } from "~/utils/utils";
+import { safeRedirect } from "~/utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userEmail = await getUserEmail(request);
