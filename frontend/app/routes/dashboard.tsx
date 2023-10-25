@@ -5,11 +5,12 @@ import {
   redirect,
 } from "@remix-run/node";
 import { requireUserEmail } from "~/session.server";
-import { Form } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
+import Header from "~/components/Header";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await requireUserEmail(request);
-  return json({});
+  const email = await requireUserEmail(request);
+  return json({ userEmail: email });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -20,8 +21,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function DashboardPage() {
+  const data = useLoaderData<typeof loader>();
+  const userEmail = data.userEmail;
+
   return (
     <>
+      <Header userEmail={userEmail} />
       <p>Dashboard</p>
       <Form method="post">
         <button type="submit">Check if logged in</button>
