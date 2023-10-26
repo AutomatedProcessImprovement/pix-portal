@@ -8,3 +8,8 @@ export const userInfoURL = new URL(
   "/api/v1/users/me",
   backendBaseURL
 ).toString();
+
+export const projectsURL = new URL(
+  "/api/v1/projects",
+  backendBaseURL
+).toString();

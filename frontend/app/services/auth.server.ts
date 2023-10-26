@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import { loginURL, userInfoURL } from "~/services/backend_urls";
+import { User } from "~/utils";
 
 export async function getJWT(
   username: string,
@@ -22,11 +23,11 @@ export async function getJWT(
   return data.access_token;
 }
 
-export async function getUserInfo(token: string): Promise<any> {
+export async function getUserInfo(token: string): Promise<User> {
   const { data } = await axios.get(userInfoURL, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  return data;
+  return data as User;
 }

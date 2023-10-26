@@ -1,40 +1,49 @@
-import {
-  ActionFunctionArgs,
-  json,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
-import { requireUserEmail } from "~/session.server";
-import { Form, useLoaderData } from "@remix-run/react";
+import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
+import { requireLoggedInUser } from "~/session.server";
+import { useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // TODO: handle 401 error when token expires
-  const email = await requireUserEmail(request);
-  return json({ userEmail: email });
+  const user = await requireLoggedInUser(request);
+  return json({ user });
 };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const userEmail = await requireUserEmail(request);
+export const action = async ({ request }: ActionFunctionArgs) => {};
 
-  console.log("User logged in:", userEmail);
-  return redirect("/dashboard");
-};
+function ProjectNav() {
+  const { user } = useLoaderData<typeof loader>();
+
+  return (
+    <div className="flex flex-wrap items-center px-4 py-3 bg-white border-b border-gray-200 h-14">
+      <h2 id="project-name" className="text-xl font-bold line-clamp-1">
+        Project Name
+      </h2>
+      <nav className="px-4">
+        <ul className="flex flex-wrap">
+          <li className="mx-2">
+            <a href="#">Edit</a>
+          </li>
+          <li className="mx-2">
+            <a href="#">Share</a>
+          </li>
+          <li className="mx-2">
+            <a href="#">Delete</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
-  const data = useLoaderData<typeof loader>();
-  const userEmail = data.userEmail;
+  const { user } = useLoaderData<typeof loader>();
 
   return (
     <>
-      <Header userEmail={userEmail} />
-      <p>Dashboard</p>
-      <Form method="post">
-        <button type="submit">Check if logged in</button>
-      </Form>
-      <Form method="post" action="/logout">
-        <button type="submit">Logout</button>
-      </Form>
+      <Header userEmail={user.email} />
+      <ProjectNav />
+      {user.id}
     </>
   );
 }

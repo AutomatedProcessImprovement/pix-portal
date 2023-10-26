@@ -28,14 +28,12 @@ export async function logout(request: Request) {
 
 export async function createUserSession(
   request: Request,
-  email: string,
-  token: string,
   remember: boolean,
+  user: User,
   redirectTo: string = "/"
 ) {
   const session = await getSession(request);
-  session.set("userEmail", email);
-  session.set("userToken", token);
+  session.set("currentUser", user);
   return redirect(redirectTo, {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(session, {
@@ -45,21 +43,20 @@ export async function createUserSession(
   });
 }
 
-export async function getUserInfo(request: Request): Promise<User> {
+export async function getSessionUserInfo(request: Request): Promise<User> {
   const session = await getSession(request);
-  const email = session.get("userEmail");
-  const token = session.get("userToken");
-  return { email, token };
+  const user = session.get("currentUser");
+  return user as User;
 }
 
-export async function requireUserEmail(
+export async function requireLoggedInUser(
   request: Request,
   redirectTo: string = new URL(request.url).pathname
-) {
-  const { email } = await getUserInfo(request);
-  if (!email) {
+): Promise<User> {
+  const user = await getSessionUserInfo(request);
+  if (!user) {
     const params = new URLSearchParams({ redirectTo });
     throw redirect(`/login?${params}`);
   }
-  return email;
+  return user;
 }

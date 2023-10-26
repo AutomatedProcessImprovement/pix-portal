@@ -7,10 +7,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useRouteError,
 } from "@remix-run/react";
-import styles from "~/tailwind.css";
+import twStyles from "~/tailwind.css";
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: twStyles },
+];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   return json({});
@@ -30,6 +33,24 @@ export default function App() {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
+      </body>
+    </html>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  console.error(error);
+  return (
+    <html>
+      <head>
+        <title>Oh no!</title>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        {/* add the UI you want your users to see */}
+        <Scripts />
       </body>
     </html>
   );
