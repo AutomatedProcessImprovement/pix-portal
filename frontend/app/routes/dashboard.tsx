@@ -9,6 +9,7 @@ import { Form, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  // TODO: handle 401 error when token expires
   const email = await requireUserEmail(request);
   return json({ userEmail: email });
 };

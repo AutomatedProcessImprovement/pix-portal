@@ -1,7 +1,7 @@
 // Auth and users backend API.
 
 import axios from "axios";
-import { loginURL, userInfoURL } from "~/backend_urls";
+import { loginURL, userInfoURL } from "~/services/backend_urls";
 
 export async function getJWT(
   username: string,

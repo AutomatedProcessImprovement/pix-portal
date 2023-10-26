@@ -1,5 +1,5 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
-import { getUserInfo } from "~/auth.server";
+import { User } from "~/utils";
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -45,36 +45,18 @@ export async function createUserSession(
   });
 }
 
-export async function getUserEmail(request: Request) {
+export async function getUserInfo(request: Request): Promise<User> {
   const session = await getSession(request);
-  return session.get("userEmail");
-}
-
-export async function getUserToken(request: Request) {
-  const session = await getSession(request);
-  return session.get("userToken");
-}
-
-export async function getUserData(request: Request): Promise<any> {
-  const userEmail = await getUserEmail(request);
-  const userToken = await getUserToken(request);
-  if (!userEmail || !userToken) {
-    return null;
-  }
-
-  const userData = await getUserInfo(userToken);
-  if (userData) {
-    return userData;
-  }
-
-  throw await logout(request);
+  const email = session.get("userEmail");
+  const token = session.get("userToken");
+  return { email, token };
 }
 
 export async function requireUserEmail(
   request: Request,
   redirectTo: string = new URL(request.url).pathname
 ) {
-  const email = await getUserEmail(request);
+  const { email } = await getUserInfo(request);
   if (!email) {
     const params = new URLSearchParams({ redirectTo });
     throw redirect(`/login?${params}`);

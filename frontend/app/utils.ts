@@ -1,8 +1,9 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 
-interface User {
+export interface User {
   email: string;
+  token: string | undefined;
 }
 
 export function useMatchesData(

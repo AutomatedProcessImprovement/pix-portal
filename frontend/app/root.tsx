@@ -9,14 +9,11 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import styles from "~/tailwind.css";
-import { getUserData } from "~/session.server";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  return json({
-    user: await getUserData(request),
-  });
+  return json({});
 };
 
 export default function App() {

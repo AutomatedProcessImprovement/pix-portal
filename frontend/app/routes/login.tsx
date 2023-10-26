@@ -5,14 +5,14 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { getJWT } from "~/auth.server";
-import { createUserSession, getUserEmail } from "~/session.server";
+import { getJWT } from "~/services/auth.server";
+import { createUserSession, getUserInfo } from "~/session.server";
 import { safeRedirect } from "~/utils";
 import Header from "~/components/Header";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const userEmail = await getUserEmail(request);
-  if (userEmail) {
+  const { email } = await getUserInfo(request);
+  if (email) {
     return redirect("/dashboard");
   }
   return json({});
