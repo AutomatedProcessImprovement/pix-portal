@@ -10,13 +10,15 @@ import {
   useRouteError,
 } from "@remix-run/react";
 import twStyles from "~/tailwind.css";
+import { getSessionUserInfo } from "~/session.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: twStyles },
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  return json({});
+  const user = await getSessionUserInfo(request);
+  return json({ user });
 };
 
 export default function App() {

@@ -11,10 +11,14 @@ import { safeRedirect } from "~/utils";
 import Header from "~/components/Header";
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  // TODO: need a better way to identify a valid user with non-expired token
   const user = await getSessionUserInfo(request);
-  if (user) {
-    return redirect("/dashboard");
+  console.log("user", user);
+
+  if (user && user.token !== null) {
+    return redirect("/projects");
   }
+
   return json({});
 }
 
@@ -33,7 +37,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
+  const redirectTo = searchParams.get("redirectTo") || "/projects";
 
   return (
     <>

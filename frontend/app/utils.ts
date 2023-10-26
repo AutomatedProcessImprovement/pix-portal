@@ -1,20 +1,8 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
-
-export interface User {
-  email: string;
-  token?: string;
-  first_name?: string;
-  last_name?: string;
-  creation_time?: string;
-  modification_time?: string;
-  deletion_time?: string;
-  last_login_time?: string;
-  id?: string;
-  is_active?: boolean;
-  is_superuser?: boolean;
-  is_verified?: boolean;
-}
+import { User } from "~/services/auth.server";
+import { logout } from "~/session.server";
+import { redirect } from "@remix-run/node";
 
 export function useMatchesData(
   id: string
@@ -52,4 +40,17 @@ export function safeRedirect(
   }
 
   return to;
+}
+
+export async function safeFetch(request: Request, func: () => Promise<any>) {
+  try {
+    return await func();
+  } catch (error) {
+    console.error("safeFetch error", error);
+    if (error.response.status === 401) {
+      await logout(request);
+      throw redirect("/");
+    }
+    return redirect("/");
+  }
 }

@@ -1,5 +1,6 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
-import { User } from "~/utils";
+
+import { User } from "~/services/auth.server";
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -9,6 +10,7 @@ const sessionStorage = createCookieSessionStorage({
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     secrets: [process.env.SESSION_SECRET!],
+    maxAge: 60 * 60, // 1 hour
   },
 });
 
@@ -19,6 +21,7 @@ async function getSession(request: Request) {
 
 export async function logout(request: Request) {
   const session = await getSession(request);
+  session.set("currentUser", null);
   return redirect("/", {
     headers: {
       "Set-Cookie": await sessionStorage.destroySession(session),
@@ -43,9 +46,14 @@ export async function createUserSession(
   });
 }
 
-export async function getSessionUserInfo(request: Request): Promise<User> {
+export async function getSessionUserInfo(
+  request: Request
+): Promise<User | undefined> {
   const session = await getSession(request);
   const user = session.get("currentUser");
+  if (!user) {
+    return undefined;
+  }
   return user as User;
 }
 

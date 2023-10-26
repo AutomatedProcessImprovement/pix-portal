@@ -1,8 +1,7 @@
 import type { MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
 import { useOptionalUser } from "~/utils";
 import Header from "~/components/Header";
+import { Link } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -11,13 +10,7 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader = async () => {
-  return json({});
-};
-
 export default function Index() {
-  const data = useLoaderData<typeof loader>();
-
   const user = useOptionalUser();
 
   if (user) {
@@ -26,6 +19,7 @@ export default function Index() {
         <Header userEmail={user.email} />
         <p>Logged in</p>
         <p>Email: {user.email}</p>
+        <Link to={`/projects`}>Projects</Link>
       </>
     );
   }
