@@ -1,6 +1,6 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { requireLoggedInUser } from "~/session.server";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useRouteError } from "@remix-run/react";
 import Header from "~/components/Header";
 import { listProjectsForUser } from "~/services/projects.server";
 import { safeFetch } from "~/utils";
@@ -13,7 +13,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   });
 };
 
-export default function DashboardPage() {
+export default function ProjectsPage() {
   const { user, projects } = useLoaderData<typeof loader>();
 
   return (
@@ -33,4 +33,9 @@ export default function DashboardPage() {
       </section>
     </>
   );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  return <div>{error.message}</div>;
 }

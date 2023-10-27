@@ -2,7 +2,7 @@ import { createCookieSessionStorage, redirect } from "@remix-run/node";
 
 import { User } from "~/services/auth.server";
 
-const sessionStorage = createCookieSessionStorage({
+export const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: "__session",
     httpOnly: true,
@@ -14,7 +14,7 @@ const sessionStorage = createCookieSessionStorage({
   },
 });
 
-async function getSession(request: Request) {
+export async function getSession(request: Request) {
   const cookie = request.headers.get("Cookie");
   return sessionStorage.getSession(cookie);
 }

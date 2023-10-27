@@ -1,7 +1,7 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 import { User } from "~/services/auth.server";
-import { logout } from "~/session.server";
+import { getSession, sessionStorage } from "~/session.server";
 import { redirect } from "@remix-run/node";
 
 export function useMatchesData(
@@ -47,10 +47,26 @@ export async function safeFetch(request: Request, func: () => Promise<any>) {
     return await func();
   } catch (error) {
     console.error("safeFetch error", error);
-    if (error.response.status === 401) {
-      await logout(request);
-      throw redirect("/");
-    }
-    return redirect("/");
+
+    const globalMessage =
+      error.response.data.message || error.message || "Something went wrong";
+    const session = await getSession(request);
+    session.flash("globalMessage", globalMessage);
+
+    // if (error.response.status === 401) {
+    //   return redirect("/logout");
+    // }
+    //
+    // return redirect("/", {
+    //   headers: {
+    //     "Set-Cookie": await sessionStorage.commitSession(session),
+    //   },
+    // });
+
+    return redirect("/logout", {
+      headers: {
+        "Set-Cookie": await sessionStorage.destroySession(session),
+      },
+    });
   }
 }
