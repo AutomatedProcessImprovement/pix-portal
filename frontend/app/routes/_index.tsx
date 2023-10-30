@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useOptionalUser } from "~/utils";
 import Header from "~/components/Header";
-import { Link, useLoaderData, useRouteError } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { getSession, sessionStorage } from "~/session.server";
 import ToastMessage from "~/components/ToastMessage";
 import { FlashMessage as FlashMessageType } from "~/shared/flash_message";
@@ -59,9 +59,4 @@ export default function Index() {
       <Link to={`/login`}>Login</Link>
     </>
   );
-}
-
-export function ErrorBoundary() {
-  const error = useRouteError();
-  return <div>{error.message}</div>;
 }

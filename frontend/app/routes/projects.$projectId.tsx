@@ -6,6 +6,7 @@ import { useLoaderData } from "@remix-run/react";
 import React from "react";
 import Header from "~/components/Header";
 import ProjectNav from "~/components/ProjectNav";
+import UploadAssetDialog from "~/components/UploadAssetDialog";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const projectId = params.projectId;
@@ -30,6 +31,8 @@ export default function ProjectPage() {
         <Header userEmail={user.email} />
         <ProjectNav project={project} />
         <h1>Project: {project.name}</h1>
+
+        <UploadAssetDialog trigger={<button>Open</button>} />
       </>
     );
   }

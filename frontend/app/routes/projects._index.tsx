@@ -1,8 +1,8 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { requireLoggedInUser } from "~/session.server";
-import { Link, useLoaderData, useRouteError } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
-import { listProjectsForUser } from "~/services/projects.server";
+import { listProjectsForUser, Project } from "~/services/projects.server";
 import { safeFetch } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -22,7 +22,7 @@ export default function ProjectsPage() {
       <section className="p-6">
         <h2 className="text-2xl font-bold">Projects</h2>
         <ul>
-          {projects.map((project) => (
+          {projects.map((project: Project) => (
             <li key={project.id}>
               <Link key={project.id} to={`/projects/${project.id}`}>
                 {project.name}
@@ -33,9 +33,4 @@ export default function ProjectsPage() {
       </section>
     </>
   );
-}
-
-export function ErrorBoundary() {
-  const error = useRouteError();
-  return <div>{error.message}</div>;
 }
