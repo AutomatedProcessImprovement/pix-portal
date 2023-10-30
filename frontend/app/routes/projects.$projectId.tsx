@@ -1,12 +1,12 @@
 import { getProject } from "~/services/projects.server";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
 import { safeFetch } from "~/utils";
 import { requireLoggedInUser } from "~/session.server";
 import { useLoaderData } from "@remix-run/react";
 import React from "react";
 import Header from "~/components/Header";
 import ProjectNav from "~/components/ProjectNav";
-import UploadAssetDialog from "~/components/UploadAssetDialog";
+import UploadAssetDialog, { AssetType } from "~/components/UploadAssetDialog";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const projectId = params.projectId;
@@ -32,7 +32,7 @@ export default function ProjectPage() {
         <ProjectNav project={project} />
         <h1>Project: {project.name}</h1>
 
-        <UploadAssetDialog trigger={<button>Open</button>} />
+        <UploadAssetDialog trigger={<button>Upload asset</button>} />
       </>
     );
   }
@@ -42,4 +42,35 @@ export default function ProjectPage() {
       <h1>Project not found</h1>
     </>
   );
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const user = await requireLoggedInUser(request);
+
+  // handling new asset upload
+  const formData = await request.formData();
+  const errors = await validateNewAssetData(formData);
+
+  return json({ user });
+}
+
+async function validateNewAssetData(formData: FormData) {
+  const errors = [];
+  const assetType = formData.get("assetType") as AssetType;
+  if (!assetType) {
+    errors.push("Asset type is required");
+  }
+
+  switch (assetType) {
+    case AssetType.EventLog:
+      break;
+    case AssetType.ProcessModel:
+      break;
+    case AssetType.SimulationModel:
+      break;
+  }
+
+  console.log("Validated:", assetType, "errors: ", errors);
+
+  return errors;
 }
