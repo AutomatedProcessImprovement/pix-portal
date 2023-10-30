@@ -7,7 +7,7 @@ import {
 } from "@remix-run/node";
 import { getJWT, getUserInfo } from "~/services/auth.server";
 import { createUserSession, getSessionUserInfo } from "~/session.server";
-import { safeRedirect } from "~/utils";
+import { safeFetch, safeRedirect } from "~/utils";
 import Header from "~/components/Header";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -23,16 +23,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const remember = formData.get("remember") === "on";
-  const redirectTo = safeRedirect(formData.get("redirectTo"));
-  const token = await getJWT(email, password);
-  const user = await getUserInfo(token);
-  user.token = token;
-  return createUserSession(request, remember, user, redirectTo);
+  return safeFetch(request, async () => {
+    const formData = await request.formData();
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const remember = formData.get("remember") === "on";
+    const redirectTo = safeRedirect(formData.get("redirectTo"));
+    const token = await getJWT(email, password);
+    const user = await getUserInfo(token);
+    user.token = token;
+    return createUserSession(request, remember, user, redirectTo);
+  });
 }
 
 export default function LoginPage() {

@@ -1,6 +1,7 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 
 import { User } from "~/services/auth.server";
+import { FlashMessage } from "~/shared/flash_message";
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -19,12 +20,19 @@ export async function getSession(request: Request) {
   return sessionStorage.getSession(cookie);
 }
 
-export async function logout(request: Request) {
+export async function logout(request: Request, flashMessage?: FlashMessage) {
   const session = await getSession(request);
+  await sessionStorage.destroySession(session);
   session.set("currentUser", null);
+
+  const newSession = await sessionStorage.getSession();
+  if (flashMessage) {
+    newSession.flash("globalMessage", flashMessage);
+  }
+
   return redirect("/", {
     headers: {
-      "Set-Cookie": await sessionStorage.destroySession(session),
+      "Set-Cookie": await sessionStorage.commitSession(newSession),
     },
   });
 }

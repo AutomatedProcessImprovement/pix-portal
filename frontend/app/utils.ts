@@ -1,8 +1,8 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 import { User } from "~/services/auth.server";
-import { getSession, sessionStorage } from "~/session.server";
-import { redirect } from "@remix-run/node";
+import { getSession, logout } from "~/session.server";
+import { AxiosError } from "axios";
 
 export function useMatchesData(
   id: string
@@ -48,25 +48,27 @@ export async function safeFetch(request: Request, func: () => Promise<any>) {
   } catch (error) {
     console.error("safeFetch error", error);
 
-    const globalMessage =
-      error.response.data.message || error.message || "Something went wrong";
+    let globalMessage;
+
+    if (error.response && error.response.data && error.response.data.message) {
+      globalMessage = error.response.data.message;
+    } else if (error.message) {
+      globalMessage = error.message;
+    } else if (error instanceof AxiosError && error.errors) {
+      globalMessage = error.errors.map((e) => e.message).join(". ");
+    } else {
+      globalMessage = "An unknown error occurred";
+    }
+
+    console.error("globalMessage:", globalMessage);
+
     const session = await getSession(request);
     session.flash("globalMessage", globalMessage);
 
-    // if (error.response.status === 401) {
-    //   return redirect("/logout");
-    // }
-    //
-    // return redirect("/", {
-    //   headers: {
-    //     "Set-Cookie": await sessionStorage.commitSession(session),
-    //   },
-    // });
-
-    return redirect("/logout", {
-      headers: {
-        "Set-Cookie": await sessionStorage.destroySession(session),
-      },
+    return await logout(request, {
+      type: "error",
+      message: globalMessage,
+      isAlert: true,
     });
   }
 }
