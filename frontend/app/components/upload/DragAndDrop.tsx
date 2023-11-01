@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Form, useNavigation } from "@remix-run/react";
 import { DocumentArrowUpIcon } from "@heroicons/react/24/outline";
 import { AssetType } from "~/components/upload/UploadAssetDialog";
@@ -25,6 +25,27 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
   const [eventLogDragActive, setEventLogDragActive] = useState<boolean>(false);
   const [processModelDragActive, setProcessModelDragActive] = useState<boolean>(false);
   const [simulationModelDragActive, setSimulationModelDragActive] = useState<boolean>(false);
+
+  const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (navigation.state === "submitting") {
+      setSubmitEnabled(false);
+      return;
+    }
+
+    switch (assetType) {
+      case AssetType.EventLog:
+        setSubmitEnabled(!!eventLogFile);
+        break;
+      case AssetType.ProcessModel:
+        setSubmitEnabled(!!processModelFile);
+        break;
+      case AssetType.SimulationModel:
+        setSubmitEnabled(!!processModelFile && !!simulationModelFile);
+        break;
+    }
+  }, [assetType, eventLogFile, processModelFile, simulationModelFile]);
 
   const validFileTypes = {
     "Event Log": [".csv", ".gz"], // it's .gz and not .csv.gz because only the last suffix is considered by the browser
@@ -157,7 +178,7 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
 
   return (
     <div className="flex items-center justify-center">
-      <Form method="post" encType="multipart/form-data" className="flex flex-col items-center justify-center space-y-5">
+      <Form method="post" encType="multipart/form-data" className="flex flex-col items-center justify-center space-y-8">
         {/* Hidden input element that hold actual files and allows and allow to select files for upload on the button click. */}
         <input
           type="file"
@@ -211,7 +232,7 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
         )}
 
         {assetType === AssetType.SimulationModel && (
-          <>
+          <div className="flex flex-wrap items-center justify-center">
             {/* Process Model */}
             <DragAndDropContainer
               file={processModelFile}
@@ -235,10 +256,10 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
               onSelectFile={() => openFileBrowser(assetType)}
               onRemove={() => onRemoveClick(assetType)}
             />
-          </>
+          </div>
         )}
 
-        <button type="submit" onClick={onSubmit} disabled={navigation.state === "submitting"}>
+        <button className="w-48" type="submit" onClick={onSubmit} disabled={!submitEnabled}>
           {navigation.state === "submitting" ? "Uploading..." : "Upload"}
         </button>
       </Form>
@@ -260,7 +281,7 @@ function DragAndDropContainer(props: {
     <div
       className={`${
         props.dragActiveFlag ? "bg-blue-100" : "bg-gray-50"
-      } upload-form border-4 border-blue-100 hover:border-blue-500 py-3 px-4 rounded-lg text-center flex flex-col items-center justify-center space-y-5`}
+      } upload-form border-4 border-blue-100 hover:border-blue-500 m-4 py-3 px-4 rounded-lg text-center flex flex-col items-center justify-center space-y-5`}
       onDragEnter={props.onDragEnter}
       onDragOver={props.onDragEnter}
       onDragLeave={props.onDragLeave}
