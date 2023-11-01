@@ -6,7 +6,7 @@ import { useLoaderData } from "@remix-run/react";
 import React from "react";
 import Header from "~/components/Header";
 import ProjectNav from "~/components/ProjectNav";
-import UploadAssetDialog, { AssetType } from "~/components/UploadAssetDialog";
+import UploadAssetDialog from "~/components/UploadAssetDialog";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const projectId = params.projectId;
@@ -66,24 +66,9 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 async function validateNewAssetData(formData: FormData) {
-  const errors = [];
-  const assetType = formData.get("assetType") as AssetType;
-  if (!assetType) {
-    errors.push("Asset type is required");
-  }
+  const errors: string[] = [];
 
   // TODO: validate file type
-
-  switch (assetType) {
-    case AssetType.EventLog:
-      break;
-    case AssetType.ProcessModel:
-      break;
-    case AssetType.SimulationModel:
-      break;
-  }
-
-  console.log("Validated:", assetType, "errors: ", errors);
 
   return errors;
 }
