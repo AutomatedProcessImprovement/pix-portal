@@ -51,6 +51,15 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const errors = await validateNewAssetData(formData);
 
+  if (errors.length > 0) {
+    return json({ errors, user });
+  }
+
+  const files = formData.getAll("file");
+  files.forEach((file) => {
+    console.log("File:", file);
+  });
+
   return json({ user });
 }
 
@@ -60,6 +69,8 @@ async function validateNewAssetData(formData: FormData) {
   if (!assetType) {
     errors.push("Asset type is required");
   }
+
+  // TODO: validate file type
 
   switch (assetType) {
     case AssetType.EventLog:
