@@ -3,11 +3,11 @@ import { requireLoggedInUser } from "~/session.server";
 import { Link, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 import { listProjectsForUser, Project } from "~/services/projects.server";
-import { safeFetch } from "~/utils";
+import { handleThrow } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireLoggedInUser(request);
-  return safeFetch(request, async () => {
+  return handleThrow(request, async () => {
     const projects = await listProjectsForUser(user.id, user.token!);
     return json({ user, projects });
   });

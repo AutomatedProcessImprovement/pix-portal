@@ -1,13 +1,15 @@
 import { useRef, useState } from "react";
-import { Form } from "@remix-run/react";
+import { Form, useNavigation } from "@remix-run/react";
 import { DocumentArrowUpIcon } from "@heroicons/react/24/outline";
-import { AssetType } from "~/components/UploadAssetDialog";
+import { AssetType } from "~/components/upload/UploadAssetDialog";
 
 export function DragAndDrop({ assetType }: { assetType: AssetType }) {
   // DragAndDrop component is used to upload files to the server. It keeps track of three different asset types:
   // Event Log, Process Model, Simulation Model. All asset types have a corresponding drag and drop area and a hidden
   // input element to store the actual file. The Simulation Model consists of two assets, thus, it has two drag and drop
   // areas and two hidden input elements to store the Process Model and Simulation Model files.
+
+  const navigation = useNavigation();
 
   // These are used to store the actual files and are hidden from the user.
   const eventLogInputRef = useRef<any>(null);
@@ -155,7 +157,7 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
 
   return (
     <div className="flex items-center justify-center">
-      <Form method="post" className="flex flex-col items-center justify-center space-y-5">
+      <Form method="post" encType="multipart/form-data" className="flex flex-col items-center justify-center space-y-5">
         {/* Hidden input element that hold actual files and allows and allow to select files for upload on the button click. */}
         <input
           type="file"
@@ -213,13 +215,13 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
             {/* Process Model */}
             <DragAndDropContainer
               file={processModelFile}
-              assetType={assetType}
+              assetType={AssetType.ProcessModel}
               dragActiveFlag={processModelDragActive}
-              onDragEnter={(e) => onDragEnterOrLeaveOrOver(e, assetType, true)}
-              onDragLeave={(e) => onDragEnterOrLeaveOrOver(e, assetType, false)}
-              onDrop={(e) => onDragDrop(e, assetType)}
-              onSelectFile={() => openFileBrowser(assetType)}
-              onRemove={() => onRemoveClick(assetType)}
+              onDragEnter={(e) => onDragEnterOrLeaveOrOver(e, AssetType.ProcessModel, true)}
+              onDragLeave={(e) => onDragEnterOrLeaveOrOver(e, AssetType.ProcessModel, false)}
+              onDrop={(e) => onDragDrop(e, AssetType.ProcessModel)}
+              onSelectFile={() => openFileBrowser(AssetType.ProcessModel)}
+              onRemove={() => onRemoveClick(AssetType.ProcessModel)}
             />
 
             {/* Simulation Parameters */}
@@ -236,8 +238,8 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
           </>
         )}
 
-        <button type="submit" onClick={onSubmit}>
-          Submit
+        <button type="submit" onClick={onSubmit} disabled={navigation.state === "submitting"}>
+          {navigation.state === "submitting" ? "Uploading..." : "Upload"}
         </button>
       </Form>
     </div>

@@ -1,19 +1,13 @@
 import { Form, useSearchParams } from "@remix-run/react";
-import {
-  ActionFunctionArgs,
-  json,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
+import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { getJWT, getUserInfo } from "~/services/auth.server";
 import { createUserSession, getSessionUserInfo } from "~/session.server";
-import { safeFetch, safeRedirect } from "~/utils";
+import { handleThrow, safeRedirect } from "~/utils";
 import Header from "~/components/Header";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   // TODO: need a better way to identify a valid user with non-expired token
   const user = await getSessionUserInfo(request);
-  console.log("user", user);
 
   if (user && user.token !== null) {
     return redirect("/projects");
@@ -23,7 +17,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  return safeFetch(request, async () => {
+  return handleThrow(request, async () => {
     const formData = await request.formData();
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
@@ -44,29 +38,14 @@ export default function LoginPage() {
     <>
       <Header userEmail={null} />
       <div className="flex">
-        <Form
-          method="post"
-          className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-        >
+        <Form method="post" className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
           <div className="p-4">
             <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-            />
+            <input id="email" name="email" type="email" autoComplete="email" required />
           </div>
           <div className="p-4">
             <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-            />
+            <input id="password" name="password" type="password" autoComplete="current-password" required />
           </div>
           <button type="submit">Login</button>
           <div className="p-4">

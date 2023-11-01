@@ -1,5 +1,4 @@
-import { projectsURL } from "~/services/backend_urls";
-import axios from "axios";
+import { http, projectsURL } from "~/services/shared";
 
 export interface Project {
   id: string;
@@ -13,25 +12,7 @@ export interface Project {
   processing_requests_ids: string[];
 }
 
-export const http = axios.create();
-
-http.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    console.error("Axios client failed:", error);
-    if (error.response.status === 401) {
-      console.error("Unauthorized:", error.response.data.message);
-    }
-    return Promise.reject(error);
-  }
-);
-
-export async function listProjectsForUser(
-  userId: string,
-  token: string
-): Promise<Project[]> {
+export async function listProjectsForUser(userId: string, token: string): Promise<Project[]> {
   const response = await http.get(projectsURL, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -43,10 +24,7 @@ export async function listProjectsForUser(
   return response.data as Project[];
 }
 
-export async function getProject(
-  projectId: string,
-  token: string
-): Promise<Project> {
+export async function getProject(projectId: string, token: string): Promise<Project> {
   const url = `${projectsURL}/${projectId}`;
   const response = await http.get(url, {
     headers: {

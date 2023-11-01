@@ -1,7 +1,7 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { Fragment, useEffect, useState } from "react";
-import { AssetType } from "~/components/UploadAssetDialog";
+import { AssetType } from "~/components/upload/UploadAssetDialog";
 
 export default function UploadAssetSelect({
   selected,

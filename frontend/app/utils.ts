@@ -4,14 +4,9 @@ import { User } from "~/services/auth.server";
 import { getSession, logout } from "~/session.server";
 import { AxiosError } from "axios";
 
-export function useMatchesData(
-  id: string
-): Record<string, unknown> | undefined {
+export function useMatchesData(id: string): Record<string, unknown> | undefined {
   const matchingRoutes = useMatches();
-  const route = useMemo(
-    () => matchingRoutes.find((route) => route.id === id),
-    [matchingRoutes, id]
-  );
+  const route = useMemo(() => matchingRoutes.find((route) => route.id === id), [matchingRoutes, id]);
   return route?.data as Record<string, unknown> | undefined;
 }
 
@@ -27,10 +22,7 @@ function isUser(user: any) {
   return user && typeof user === "object" && typeof user.email === "string";
 }
 
-export function safeRedirect(
-  to: FormDataEntryValue | string | null | undefined,
-  defaultRedirect: string = "/"
-) {
+export function safeRedirect(to: FormDataEntryValue | string | null | undefined, defaultRedirect: string = "/") {
   if (!to || typeof to !== "string") {
     return defaultRedirect;
   }
@@ -42,10 +34,10 @@ export function safeRedirect(
   return to;
 }
 
-export async function safeFetch(request: Request, func: () => Promise<any>) {
+export async function handleThrow(request: Request, func: () => Promise<any>) {
   try {
     return await func();
-  } catch (error) {
+  } catch (error: any) {
     console.error("safeFetch error", error);
 
     let globalMessage;
@@ -55,7 +47,7 @@ export async function safeFetch(request: Request, func: () => Promise<any>) {
     } else if (error.message) {
       globalMessage = error.message;
     } else if (error instanceof AxiosError && error.errors) {
-      globalMessage = error.errors.map((e) => e.message).join(". ");
+      globalMessage = error.errors.map((e: { message: any }) => e.message).join(". ");
     } else {
       globalMessage = "An unknown error occurred";
     }

@@ -1,7 +1,7 @@
 // Auth and users backend API.
 
 import axios from "axios";
-import { loginURL, userInfoURL } from "~/services/backend_urls";
+import { loginURL, userInfoURL } from "~/services/shared";
 
 export interface User {
   email: string;
@@ -18,10 +18,7 @@ export interface User {
   is_verified: boolean;
 }
 
-export async function getJWT(
-  username: string,
-  password: string
-): Promise<string> {
+export async function getJWT(username: string, password: string): Promise<string> {
   const { data } = await axios.post(
     loginURL,
     {

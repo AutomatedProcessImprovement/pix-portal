@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Dialog } from "@headlessui/react";
-import UploadAssetSelect from "~/components/UploadAssetSelect";
-import { DragAndDrop } from "~/components/DragAndDrop";
+import UploadAssetSelect from "~/components/upload/UploadAssetSelect";
+import { DragAndDrop } from "~/components/upload/DragAndDrop";
 
 export enum AssetType {
   EventLog = "Event Log",
@@ -29,7 +29,9 @@ export default function UploadAssetDialog({ trigger }: { trigger: ReactNode }) {
 
   return (
     <>
-      <div onClick={() => setIsOpen(true)}>{trigger}</div>
+      <div onClick={() => setIsOpen(true)} className="w-fit">
+        {trigger}
+      </div>
       <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-50 w-96 h-96">
         {/* The backdrop, rendered as a fixed sibling to the panel container */}
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
