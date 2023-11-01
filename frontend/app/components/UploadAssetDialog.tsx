@@ -29,29 +29,6 @@ export default function UploadAssetDialog({ trigger }: { trigger: ReactNode }) {
     };
   }, []);
 
-  async function submitForms() {
-    const forms = document.querySelectorAll("form.upload-form");
-    console.log("Submitting forms", forms);
-
-    if (assetType === AssetType.EventLog || assetType === AssetType.ProcessModel) {
-      // one file upload
-      const form = forms[0] as HTMLFormElement;
-      form.submit();
-    } else if (assetType === AssetType.SimulationModel) {
-      // two files upload
-      const formOne = forms[0] as HTMLFormElement;
-      const formTwo = forms[1] as HTMLFormElement;
-      await fetch(formOne.action, {
-        method: formOne.method,
-        headers: {
-          "Content-Type": formOne.enctype,
-        },
-        body: new FormData(formOne),
-      });
-      formTwo.submit();
-    }
-  }
-
   return (
     <>
       <div onClick={() => setIsOpen(true)}>{trigger}</div>
@@ -132,8 +109,11 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
   const [eventLogDragActive, setEventLogDragActive] = useState<boolean>(false);
   const [processModelDragActive, setProcessModelDragActive] = useState<boolean>(false);
   const [simulationModelDragActive, setSimulationModelDragActive] = useState<boolean>(false);
-  const inputRef = useRef<any>(null);
-  // const [files, setFiles] = useState<any>([]);
+
+  const eventLogInputRef = useRef<any>(null);
+  const processModelInputRef = useRef<any>(null);
+  const simulationModelInputRef = useRef<any>(null);
+
   const [eventLogFile, setEventLogFile] = useState<any>(null);
   const [processModelFile, setProcessModelFile] = useState<any>(null);
   const [simulationModelFile, setSimulationModelFile] = useState<any>(null);
@@ -141,111 +121,20 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
   const validFileTypes = {
     "Event Log": [".csv", ".gz"], // it's .gz and not .csv.gz because only the last suffix is considered by the browser
     "Process Model": [".bpmn"],
-    "Simulation Model": [".bpmn", ".json"],
+    "Simulation Model": [".json"],
   };
 
   function getValidFileTypes(assetType: AssetType) {
     return validFileTypes[assetType].join(", ");
   }
 
-  // function handleChange(e: any) {
-  //   e.preventDefault();
-  //   if (e.target.files && e.target.files[0]) {
-  //     console.log(e.target.files);
-  //     for (let i = 0; i < e.target.files["length"]; i++) {
-  //       setFiles((prevState: any) => [...prevState, e.target.files[i]]);
-  //     }
-  //   }
-  // }
-
-  // function handleSubmit(e: any) {
-  //   if (files.length === 0) {
-  //     e.preventDefault();
-  //     console.log("No file has been submitted");
-  //   } else {
-  //     console.log("File has been submitted");
-  //   }
-  // }
-
-  // function handleDrop(e: any) {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   setDragActive(false);
-  //   if (files.length > 0) {
-  //     return;
-  //   }
-  //   if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-  //     for (let i = 0; i < e.dataTransfer.files["length"]; i++) {
-  //       setFiles((prevState: any) => [...prevState, e.dataTransfer.files[i]]);
-  //     }
-  //   }
-  // }
-
-  // function handleDragLeave(e: any) {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   setDragActive(false);
-  // }
-  //
-  // function handleDragOver(e: any) {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   setDragActive(true);
-  //
-  //   let fileObject = getFileObject(assetType);
-  //
-  //   if (fileObject) {
-  //     e.dataTransfer.dropEffect = "none";
-  //   }
-  // }
-
-  // function handleDragEnter(e: any) {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   setDragActive(true);
-  //
-  //   let fileObject = getFileObject(assetType);
-  //
-  //   if (fileObject) {
-  //     e.dataTransfer.dropEffect = "none";
-  //   }
-  // }
-
   function preventDefaultStopPropagation(e: any) {
     e.preventDefault();
     e.stopPropagation();
   }
 
-  // function removeFile(fileName: any, idx: any) {
-  //   const newArr = [...files];
-  //   newArr.splice(idx, 1);
-  //   setFiles([]);
-  //   setFiles(newArr);
-  // }
-
-  function openFileExplorer() {
-    inputRef.current.value = "";
-    inputRef.current.click();
-  }
-
-  // function getFileObject(assetType: AssetType) {
-  //   let fileObject;
-  //   switch (assetType) {
-  //     case AssetType.EventLog:
-  //       fileObject = eventLogFile;
-  //       break;
-  //     case AssetType.ProcessModel:
-  //       fileObject = processModelFile;
-  //       break;
-  //     case AssetType.SimulationModel:
-  //       fileObject = simulationModelFile;
-  //       break;
-  //   }
-  //   return fileObject;
-  // }
-
   async function submitForm(e: any) {
-    e.preventDefault();
+    // e.preventDefault();
 
     // TODO: submit files using axios and backend without Remix action
     const files = [];
@@ -271,36 +160,42 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
       <Form id="new-asset" method="post" className="flex flex-col items-center justify-center space-y-5">
         <input type="hidden" name="assetType" value={assetType} />
 
-        {/* Input element that allows to select files for upload. We make it hidden, so we can activate it when the user clicks select files */}
+        {/* Hidden input element that hold actual files and allows and allow to select files for upload on the button click. */}
         <input
-          placeholder="fileInput"
-          name="file"
-          className="hidden"
-          ref={inputRef}
           type="file"
-          multiple={true}
+          name="eventLogFile"
+          ref={eventLogInputRef}
+          className="hidden"
+          accept={getValidFileTypes(AssetType.EventLog)}
           onChange={(e: any) => {
             e.preventDefault();
-            if (assetType === AssetType.EventLog) {
-              const file = e.target.files[0];
-              setEventLogFile(file);
-            } else if (assetType === AssetType.ProcessModel) {
-              const file = e.target.files[0];
-              setProcessModelFile(file);
-            } else if (assetType === AssetType.SimulationModel) {
-              for (let i = 0; i < e.target.files["length"]; i++) {
-                const file = e.target.files[i];
-                if (file.name.endsWith(".bpmn")) {
-                  setProcessModelFile(file);
-                } else if (file.name.endsWith(".json")) {
-                  setSimulationModelFile(file);
-                } else {
-                  console.error("Unknown file type", file);
-                }
-              }
-            }
+            const file = e.target.files[0];
+            setEventLogFile(file);
           }}
-          accept={getValidFileTypes(assetType)}
+        />
+        <input
+          type="file"
+          name="processModelFile"
+          ref={processModelInputRef}
+          className="hidden"
+          accept={getValidFileTypes(AssetType.ProcessModel)}
+          onChange={(e: any) => {
+            e.preventDefault();
+            const file = e.target.files[0];
+            setProcessModelFile(file);
+          }}
+        />
+        <input
+          type="file"
+          name="simulationModelFile"
+          ref={simulationModelInputRef}
+          className="hidden"
+          accept={getValidFileTypes(AssetType.SimulationModel)}
+          onChange={(e: any) => {
+            e.preventDefault();
+            const file = e.target.files[0];
+            setSimulationModelFile(file);
+          }}
         />
 
         {assetType === AssetType.EventLog && (
@@ -329,6 +224,8 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
               if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                 const file = e.dataTransfer.files[0];
                 setEventLogFile(file);
+                eventLogInputRef.current.files = e.dataTransfer.files;
+                console.log("eventLogInputRef.current.files", eventLogInputRef.current.files);
               }
             }}
             onDragLeave={(e) => {
@@ -346,27 +243,16 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
               }
             }}
           >
-            {/*/!* Input element that allows to select files for upload. We make it hidden, so we can activate it when the user clicks select files *!/*/}
-            {/*<input*/}
-            {/*  placeholder="fileInput"*/}
-            {/*  className="hidden"*/}
-            {/*  ref={inputRef}*/}
-            {/*  type="file"*/}
-            {/*  multiple={true}*/}
-            {/*  onChange={(e: any) => {*/}
-            {/*    const file = e.target.files[0];*/}
-            {/*    setEventLogFile(file);*/}
-            {/*  }}*/}
-            {/*  accept={getValidFileTypes(assetType)}*/}
-            {/*/>*/}
-
             {/* Instructions and controls */}
             <p className="text-lg mb-4 font-semibold">Add {assetType}</p>
             <p className="">
               Drag & Drop or{" "}
               <span
                 className="border border-blue-500 bg-white hover:bg-blue-50 rounded-md px-2 py-1 font-normal text-blue-600 cursor-pointer"
-                onClick={openFileExplorer}
+                onClick={() => {
+                  eventLogInputRef.current.value = "";
+                  eventLogInputRef.current.click();
+                }}
               >
                 {`select a file`}
               </span>{" "}
@@ -387,7 +273,10 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
                     <p className="truncate font-semibold text-blue-900">{eventLogFile.name}</p>
                     <div
                       className="flex text-blue-500 hover:text-blue-600 cursor-pointer text-sm font-semibold"
-                      onClick={() => setEventLogFile(null)}
+                      onClick={() => {
+                        setEventLogFile(null);
+                        eventLogInputRef.current.value = "";
+                      }}
                     >
                       Remove
                     </div>
@@ -424,6 +313,7 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
               if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                 const file = e.dataTransfer.files[0];
                 setProcessModelFile(file);
+                processModelInputRef.current.files = e.dataTransfer.files;
               }
             }}
             onDragLeave={(e) => {
@@ -461,7 +351,10 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
               Drag & Drop or{" "}
               <span
                 className="border border-blue-500 bg-white hover:bg-blue-50 rounded-md px-2 py-1 font-normal text-blue-600 cursor-pointer"
-                onClick={openFileExplorer}
+                onClick={() => {
+                  processModelInputRef.current.value = "";
+                  processModelInputRef.current.click();
+                }}
               >
                 {`select a file`}
               </span>{" "}
@@ -482,7 +375,10 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
                     <p className="truncate font-semibold text-blue-900">{processModelFile.name}</p>
                     <div
                       className="flex text-blue-500 hover:text-blue-600 cursor-pointer text-sm font-semibold"
-                      onClick={() => setProcessModelFile(null)}
+                      onClick={() => {
+                        setProcessModelFile(null);
+                        processModelInputRef.current.value = "";
+                      }}
                     >
                       Remove
                     </div>
@@ -521,6 +417,7 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
                 if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                   const file = e.dataTransfer.files[0];
                   setProcessModelFile(file);
+                  processModelInputRef.current.files = e.dataTransfer.files;
                 }
               }}
               onDragLeave={(e) => {
@@ -558,7 +455,10 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
                 Drag & Drop or{" "}
                 <span
                   className="border border-blue-500 bg-white hover:bg-blue-50 rounded-md px-2 py-1 font-normal text-blue-600 cursor-pointer"
-                  onClick={openFileExplorer}
+                  onClick={() => {
+                    processModelInputRef.current.value = "";
+                    processModelInputRef.current.click();
+                  }}
                 >
                   {`select a file`}
                 </span>{" "}
@@ -579,7 +479,10 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
                       <p className="truncate font-semibold text-blue-900">{processModelFile.name}</p>
                       <div
                         className="flex text-blue-500 hover:text-blue-600 cursor-pointer text-sm font-semibold"
-                        onClick={() => setProcessModelFile(null)}
+                        onClick={() => {
+                          setProcessModelFile(null);
+                          processModelInputRef.current.value = "";
+                        }}
                       >
                         Remove
                       </div>
@@ -615,6 +518,7 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
                 if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                   const file = e.dataTransfer.files[0];
                   setSimulationModelFile(file);
+                  simulationModelInputRef.current.files = e.dataTransfer.files;
                 }
               }}
               onDragLeave={(e) => {
@@ -638,7 +542,10 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
                 Drag & Drop or{" "}
                 <span
                   className="border border-blue-500 bg-white hover:bg-blue-50 rounded-md px-2 py-1 font-normal text-blue-600 cursor-pointer"
-                  onClick={openFileExplorer}
+                  onClick={() => {
+                    simulationModelInputRef.current.value = "";
+                    simulationModelInputRef.current.click();
+                  }}
                 >
                   {`select a file`}
                 </span>{" "}
@@ -659,7 +566,10 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
                       <p className="truncate font-semibold text-blue-900">{simulationModelFile.name}</p>
                       <div
                         className="flex text-blue-500 hover:text-blue-600 cursor-pointer text-sm font-semibold"
-                        onClick={() => setSimulationModelFile(null)}
+                        onClick={() => {
+                          setSimulationModelFile(null);
+                          simulationModelInputRef.current.value = "";
+                        }}
                       >
                         Remove
                       </div>

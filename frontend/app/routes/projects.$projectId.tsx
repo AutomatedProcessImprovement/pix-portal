@@ -55,10 +55,12 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ errors, user });
   }
 
-  const files = formData.getAll("file");
-  files.forEach((file) => {
-    console.log("File:", file);
-  });
+  const eventLog = formData.get("eventLogFile");
+  const processModel = formData.get("processModelFile");
+  const simulationModel = formData.get("simulationModelFile");
+  console.log("eventLog", eventLog);
+  console.log("processModel", processModel);
+  console.log("simulationModel", simulationModel);
 
   return json({ user });
 }
