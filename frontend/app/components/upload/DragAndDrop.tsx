@@ -2,6 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import { Form, useNavigation } from "@remix-run/react";
 import { DocumentArrowUpIcon } from "@heroicons/react/24/outline";
 import { AssetType } from "~/components/upload/UploadAssetDialog";
+import { ArrowDownIcon } from "@heroicons/react/24/solid";
+import EventLogColumnMappingDialog from "~/components/upload/EventLogColumnMappingDialog";
+import { Transition } from "@headlessui/react";
+
+export type EventLogColumnMapping = {
+  caseId: string;
+  activity: string;
+  resource: string;
+  startTimestamp: string;
+  endTimestamp: string;
+};
 
 export function DragAndDrop({ assetType }: { assetType: AssetType }) {
   // DragAndDrop component is used to upload files to the server. It keeps track of three different asset types:
@@ -21,13 +32,24 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
   const [processModelFile, setProcessModelFile] = useState<any>(null);
   const [simulationModelFile, setSimulationModelFile] = useState<any>(null);
 
-  // Flags to indicate whether the drag and drop areas are active.
+  // Drag and drop areas' states
   const [eventLogDragActive, setEventLogDragActive] = useState<boolean>(false);
   const [processModelDragActive, setProcessModelDragActive] = useState<boolean>(false);
   const [simulationModelDragActive, setSimulationModelDragActive] = useState<boolean>(false);
 
-  const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
+  // Event log column mapping value, states, and effects
+  const [eventLogColumnMappingEnabled, setEventLogColumnMappingEnabled] = useState<boolean>(false);
+  const [eventLogColumnMappingFilledIn, setEventLogColumnMappingFilledIn] = useState<boolean>(false);
+  const [eventLogColumnMapping, setEventLogColumnMapping] = useState<EventLogColumnMapping>({
+    caseId: "case",
+    activity: "activity",
+    resource: "resource",
+    startTimestamp: "start_time",
+    endTimestamp: "end_time",
+  });
 
+  // Submit button enabled state and effects
+  const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
   useEffect(() => {
     if (navigation.state === "submitting") {
       setSubmitEnabled(false);
@@ -36,7 +58,8 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
 
     switch (assetType) {
       case AssetType.EventLog:
-        setSubmitEnabled(!!eventLogFile);
+        setEventLogColumnMappingEnabled(!!eventLogFile);
+        setSubmitEnabled(!!eventLogFile && eventLogColumnMappingFilledIn);
         break;
       case AssetType.ProcessModel:
         setSubmitEnabled(!!processModelFile);
@@ -45,7 +68,7 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
         setSubmitEnabled(!!processModelFile && !!simulationModelFile);
         break;
     }
-  }, [assetType, eventLogFile, processModelFile, simulationModelFile]);
+  }, [assetType, eventLogFile, processModelFile, simulationModelFile, eventLogColumnMappingFilledIn]);
 
   const validFileTypes = {
     "Event Log": [".csv", ".gz"], // it's .gz and not .csv.gz because only the last suffix is considered by the browser
@@ -206,20 +229,53 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
         />
 
         {assetType === AssetType.EventLog && (
-          <DragAndDropContainer
-            file={eventLogFile}
-            assetType={assetType}
-            dragActiveFlag={eventLogDragActive}
-            onDragEnter={(e) => onDragEnterOrLeaveOrOver(e, assetType, true)}
-            onDragLeave={(e) => onDragEnterOrLeaveOrOver(e, assetType, false)}
-            onDrop={(e) => onDragDrop(e, assetType)}
-            onSelectFile={() => openFileBrowser(assetType)}
-            onRemove={() => onRemoveClick(assetType)}
-          />
+          <div className="flex flex-col items-center justify-center space-y-2 my-4">
+            <DragAndDropContainer
+              file={eventLogFile}
+              assetType={assetType}
+              dragActiveFlag={eventLogDragActive}
+              onDragEnter={(e) => onDragEnterOrLeaveOrOver(e, assetType, true)}
+              onDragLeave={(e) => onDragEnterOrLeaveOrOver(e, assetType, false)}
+              onDrop={(e) => onDragDrop(e, assetType)}
+              onSelectFile={() => openFileBrowser(assetType)}
+              onRemove={() => onRemoveClick(assetType)}
+            />
+            {/* Event log mapping */}
+            <Transition
+              show={eventLogColumnMappingEnabled}
+              enter="transition-opacity duration-1000"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+            >
+              {eventLogColumnMappingEnabled && (
+                <div className="flex flex-col space-y-2 mb-4">
+                  <ArrowDownIcon className="h-10 w-auto text-blue-200" aria-hidden="true" />
+                  <EventLogColumnMappingDialog
+                    trigger={
+                      <button
+                        type="button"
+                        className={`${
+                          eventLogColumnMappingFilledIn
+                            ? "bg-green-500 hover:bg-green-600 text-white"
+                            : "bg-green-50 hover:bg-green-100 text-green-900"
+                        } border-2 border-green-500 px-5 py-3 w-80 text-lg font-semibold`}
+                      >
+                        Specify column mapping
+                      </button>
+                    }
+                    columnMapping={eventLogColumnMapping}
+                    setColumnMapping={setEventLogColumnMapping}
+                    setColumnMappingFilledIn={setEventLogColumnMappingFilledIn}
+                  />
+                </div>
+              )}
+            </Transition>
+          </div>
         )}
 
         {assetType === AssetType.ProcessModel && (
           <DragAndDropContainer
+            className="m-4"
             file={processModelFile}
             assetType={assetType}
             dragActiveFlag={processModelDragActive}
@@ -235,6 +291,7 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
           <div className="flex flex-wrap items-center justify-center">
             {/* Process Model */}
             <DragAndDropContainer
+              className="m-4"
               file={processModelFile}
               assetType={AssetType.ProcessModel}
               dragActiveFlag={processModelDragActive}
@@ -247,6 +304,7 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
 
             {/* Simulation Parameters */}
             <DragAndDropContainer
+              className="m-4"
               file={simulationModelFile}
               assetType={assetType}
               dragActiveFlag={simulationModelDragActive}
@@ -276,12 +334,13 @@ function DragAndDropContainer(props: {
   onDrop: (e: any) => void;
   onSelectFile: () => void;
   onRemove: () => void;
+  className?: string;
 }) {
   return (
     <div
       className={`${
-        props.dragActiveFlag ? "bg-blue-100" : "bg-gray-50"
-      } upload-form border-4 border-blue-100 hover:border-blue-500 m-4 py-3 px-4 rounded-lg text-center flex flex-col items-center justify-center space-y-5`}
+        props.dragActiveFlag ? "bg-blue-100" : "bg-gray-50" + " " + props.className
+      } border-4 border-blue-100 hover:border-blue-500 py-3 px-4 rounded-lg text-center flex flex-col items-center justify-center space-y-5`}
       onDragEnter={props.onDragEnter}
       onDragOver={props.onDragEnter}
       onDragLeave={props.onDragLeave}

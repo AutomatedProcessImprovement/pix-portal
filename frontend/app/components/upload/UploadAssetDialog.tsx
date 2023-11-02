@@ -62,8 +62,8 @@ function UploadAssetDetails({ assetType }: { assetType: AssetType }) {
           children={
             <>
               An event log is a CSV file containing a list of events, one per line. Each line must contain at least the
-              following columns, separated by commas: <code>caseId</code>, <code>activity</code>,{" "}
-              <code>start timestamp</code>, <code>end timestamp</code>.
+              following columns, separated by commas: <code>case ID</code>, <code>activity</code>, <code>resource</code>
+              , <code>start timestamp</code>, <code>end timestamp</code>.
             </>
           }
         />
