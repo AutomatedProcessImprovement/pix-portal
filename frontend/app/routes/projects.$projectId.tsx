@@ -13,7 +13,7 @@ import { useLoaderData } from "@remix-run/react";
 import React from "react";
 import Header from "~/components/Header";
 import ProjectNav from "~/components/ProjectNav";
-import UploadAssetDialog, { AssetType } from "~/components/upload/UploadAssetDialog";
+import { AssetType } from "~/components/upload/UploadAssetDialog";
 import { deleteFile, uploadFile } from "~/services/files.server";
 import { Asset, AssetTypeBackend, createAsset, deleteAsset, getAssetsForProject } from "~/services/assets.server";
 import { EventLogColumnMapping } from "~/components/upload/column_mapping";
@@ -21,7 +21,7 @@ import { EventLogColumnMapping } from "~/components/upload/column_mapping";
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const projectId = params.projectId;
   if (!projectId) {
-    return json({ project: null });
+    return redirect("/projects");
   }
 
   const user = await requireLoggedInUser(request);
@@ -36,15 +36,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export default function ProjectPage() {
   const { user, project, assets } = useLoaderData<typeof loader>();
 
-  if (project) {
-    return (
-      <>
-        <Header userEmail={user.email} />
-        <ProjectNav project={project} />
-        <section className="p-4 flex flex-col space-y-4">
-          <h1 className="text-lg font-semibold">Project: {project.name}</h1>
-          <UploadAssetDialog trigger={<button>Upload asset</button>} />
-          <h2 className="text-lg font-semibold">Assets</h2>
+  return (
+    <>
+      <Header userEmail={user.email} />
+      <ProjectNav project={project} />
+      <section className="p-4 flex flex-col space-y-8">
+        <section className="flex flex-col space-y-2">
+          <h2 className="text-xl font-semibold">Assets</h2>
           <div className="max-w-fit overflow-scroll border-4 border-blue-100">
             <table className="">
               <thead>
@@ -68,13 +66,7 @@ export default function ProjectPage() {
             </table>
           </div>
         </section>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <h1>Project not found</h1>
+      </section>
     </>
   );
 }

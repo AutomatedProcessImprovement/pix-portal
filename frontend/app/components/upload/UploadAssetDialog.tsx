@@ -39,9 +39,9 @@ export default function UploadAssetDialog({ trigger }: { trigger: ReactNode }) {
 
   return (
     <>
-      <div onClick={() => setIsOpen(true)} className="w-fit">
+      <span onClick={() => setIsOpen(true)} className="w-fit">
         {trigger}
-      </div>
+      </span>
       <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-50">
         {/* The backdrop, rendered as a fixed sibling to the panel container */}
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
