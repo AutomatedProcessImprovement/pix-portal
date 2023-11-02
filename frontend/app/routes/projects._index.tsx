@@ -4,6 +4,7 @@ import { Link, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 import { listProjectsForUser, Project } from "~/services/projects.server";
 import { handleThrow } from "~/utils";
+import ProjectCard from "~/components/ProjectCard";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireLoggedInUser(request);
@@ -19,17 +20,16 @@ export default function ProjectsPage() {
   return (
     <>
       <Header userEmail={user.email} />
-      <section className="p-6">
-        <h2 className="text-2xl font-bold">Projects</h2>
-        <ul>
-          {projects.map((project: Project) => (
-            <li key={project.id}>
-              <Link key={project.id} to={`/projects/${project.id}`}>
-                {project.name}
+      <section className="p-6 flex flex-col space-y-4">
+        <div className="flex justify-center">
+          <ul className="flex-grow grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-6">
+            {projects.map((project: Project) => (
+              <Link key={project.id} to={`/projects/${project.id}`} className="border-none">
+                <ProjectCard key={project.id} project={project} />
               </Link>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </ul>
+        </div>
       </section>
     </>
   );

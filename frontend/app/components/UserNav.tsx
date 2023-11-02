@@ -5,7 +5,7 @@ export default function UserNav({ userEmail }: HeaderProps) {
   if (userEmail) {
     return (
       <nav className="flex flex-wrap items-center space-x-4">
-        <div className="text-gray-500">{userEmail || ""}</div>
+        <div className="text-gray-500 lg:block md:block hidden">{userEmail || ""}</div>
         <Form method="post" action="/logout">
           <button type="submit">Logout</button>
         </Form>
