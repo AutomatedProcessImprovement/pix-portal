@@ -1,6 +1,7 @@
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
+  isRouteErrorResponse,
   Links,
   LiveReload,
   Meta,
@@ -12,9 +13,7 @@ import {
 import twStyles from "~/tailwind.css";
 import { getSessionUserInfo } from "~/session.server";
 
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: twStyles },
-];
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: twStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getSessionUserInfo(request);
@@ -42,16 +41,22 @@ export default function App() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
-  console.error(error);
+  console.error("ErrorBoundary", error);
   return (
     <html>
       <head>
-        <title>Oh no!</title>
+        <title>Oops!</title>
         <Meta />
         <Links />
       </head>
       <body>
-        {/* add the UI you want your users to see */}
+        <h1>
+          {isRouteErrorResponse(error)
+            ? `${error.status} ${error.statusText}`
+            : error instanceof Error
+            ? error.message
+            : "Unknown Error"}
+        </h1>
         <Scripts />
       </body>
     </html>
