@@ -7,7 +7,7 @@ import EventLogColumnMappingDialog from "~/components/upload/EventLogColumnMappi
 import { Transition } from "@headlessui/react";
 import { EventLogColumnMapping } from "~/components/upload/column_mapping";
 
-export function DragAndDrop({ assetType }: { assetType: AssetType }) {
+export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
   // DragAndDrop component is used to upload files to the server. It keeps track of three different asset types:
   // Event Log, Process Model, Simulation Model. All asset types have a corresponding drag and drop area and a hidden
   // input element to store the actual file. The Simulation Model consists of two assets, thus, it has two drag and drop

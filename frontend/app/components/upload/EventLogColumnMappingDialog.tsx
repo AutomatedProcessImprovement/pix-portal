@@ -14,8 +14,7 @@ export default function EventLogColumnMappingDialog({
   setColumnMapping: (arg: EventLogColumnMapping) => void;
   setColumnMappingFilledIn: (arg: boolean) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const [submitEnabled, setSubmitEnabled] = useState(columnMapping.isValid());
 
   useEffect(() => {
@@ -40,11 +39,9 @@ export default function EventLogColumnMappingDialog({
     columnMapping.resource,
     columnMapping.startTimestamp,
     columnMapping.endTimestamp,
-    isOpen,
   ]);
 
   function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
-    setErrorMessage(null);
     const { name, value } = event.target;
     setColumnMapping(new EventLogColumnMapping({ ...columnMapping, [name]: value }));
   }
@@ -55,7 +52,6 @@ export default function EventLogColumnMappingDialog({
       setIsOpen(false);
     } else {
       setColumnMappingFilledIn(false);
-      setErrorMessage("Please fill in all fields");
     }
   }
 
@@ -135,7 +131,6 @@ export default function EventLogColumnMappingDialog({
                     />
                   </div>
                 </div>
-                {errorMessage && <div className="bg-red-50 border-2 border-red-500 text-red-500">{errorMessage}</div>}
                 <button type="button" className="w-2/3" onClick={handleSave} disabled={!submitEnabled} autoFocus={true}>
                   Confirm
                 </button>

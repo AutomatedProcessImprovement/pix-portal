@@ -1,7 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Dialog } from "@headlessui/react";
 import UploadAssetSelect from "~/components/upload/UploadAssetSelect";
-import { DragAndDrop } from "~/components/upload/DragAndDrop";
+import { DragAndDropForm } from "~/components/upload/DragAndDropForm";
+import { useNavigation } from "@remix-run/react";
 
 // AssetType specifies the type of asset that is being uploaded from the perspective of the UI.
 // Backend services have slightly different asset types.
@@ -16,6 +17,13 @@ const possibleAssetTypes: AssetType[] = [AssetType.EventLog, AssetType.ProcessMo
 export default function UploadAssetDialog({ trigger }: { trigger: ReactNode }) {
   let [isOpen, setIsOpen] = useState(false);
   let [assetType, setAssetType] = useState(possibleAssetTypes[0]);
+
+  const navigation = useNavigation();
+  useEffect(() => {
+    if (navigation.state === "loading") {
+      setIsOpen(false);
+    }
+  }, [navigation.state]);
 
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
@@ -106,7 +114,7 @@ function UploadAssetDetailsForAssetType({ assetType, children }: { assetType: As
   return (
     <div className="flex flex-col items-center">
       <p className="max-w-prose">{children}</p>
-      <DragAndDrop assetType={assetType} />
+      <DragAndDropForm assetType={assetType} />
     </div>
   );
 }
