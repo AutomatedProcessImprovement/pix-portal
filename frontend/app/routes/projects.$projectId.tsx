@@ -16,6 +16,7 @@ import ProjectNav from "~/components/ProjectNav";
 import UploadAssetDialog, { AssetType } from "~/components/upload/UploadAssetDialog";
 import { deleteFile, uploadFile } from "~/services/files.server";
 import { Asset, AssetTypeBackend, createAsset, deleteAsset, getAssetsForProject } from "~/services/assets.server";
+import { EventLogColumnMapping } from "~/components/upload/column_mapping";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const projectId = params.projectId;
@@ -42,6 +43,8 @@ export default function ProjectPage() {
         <ProjectNav project={project} />
         <section className="p-4 flex flex-col space-y-4">
           <h1 className="text-lg font-semibold">Project: {project.name}</h1>
+          <UploadAssetDialog trigger={<button>Upload asset</button>} />
+          <h2 className="text-lg font-semibold">Assets</h2>
           <div className="max-w-fit overflow-scroll border-4 border-blue-100">
             <table className="">
               <thead>
@@ -64,7 +67,6 @@ export default function ProjectPage() {
               </tbody>
             </table>
           </div>
-          <UploadAssetDialog trigger={<button>Upload asset</button>} />
         </section>
       </>
     );
@@ -110,6 +112,14 @@ async function createAssetsFromForm(formData: FormData, projectId: string, token
   const eventLog = formData.get("eventLogFile") as File;
   if (eventLog && eventLog.size > 0) {
     promises.push(uploadFileAndCreateAssetWithRollback(eventLog as File, AssetType.EventLog, projectId, token));
+
+    // additionally, create an in-memory file with the column mapping and upload it too
+    const mapping = formData.get("eventLogColumnMapping") as string;
+    const columnMapping = EventLogColumnMapping.fromString(mapping);
+    const columnMappingFile = new File([columnMapping.toString()], "column_mapping.json");
+    promises.push(
+      uploadFileAndCreateAssetWithRollback(columnMappingFile, "Event Log Column Mapping", projectId, token)
+    );
   }
 
   const processModel = formData.get("processModelFile") as File;
@@ -129,7 +139,7 @@ async function createAssetsFromForm(formData: FormData, projectId: string, token
 
 async function uploadFileAndCreateAssetWithRollback(
   file: File,
-  assetType: AssetType,
+  assetType: AssetType | string,
   projectId: string,
   token: string
 ) {
@@ -147,7 +157,7 @@ async function uploadFileAndCreateAssetWithRollback(
   return createdAsset;
 }
 
-function inferBackendAssetType(assetType: AssetType, fileName: string) {
+function inferBackendAssetType(assetType: AssetType | string, fileName: string) {
   const extension = fileName.split(".").pop();
 
   switch (assetType) {
@@ -171,5 +181,13 @@ function inferBackendAssetType(assetType: AssetType, fileName: string) {
       } else {
         throw new Error(`Unknown simulation model extension ${extension}`);
       }
+    case "Event Log Column Mapping":
+      if (extension === "json") {
+        return AssetTypeBackend.EVENT_LOG_COLUMN_MAPPING_JSON;
+      } else {
+        throw new Error(`Unknown event log column mapping extension ${extension}`);
+      }
+    default:
+      throw new Error(`Unknown asset type ${assetType}`);
   }
 }

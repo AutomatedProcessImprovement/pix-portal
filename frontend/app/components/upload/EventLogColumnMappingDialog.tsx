@@ -1,7 +1,7 @@
 import { ChangeEvent, ReactNode, useEffect, useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { Form } from "@remix-run/react";
-import { EventLogColumnMapping } from "~/components/upload/DragAndDrop";
+import { EventLogColumnMapping } from "~/components/upload/column_mapping";
 
 export default function EventLogColumnMappingDialog({
   trigger,
@@ -31,7 +31,7 @@ export default function EventLogColumnMappingDialog({
   }, []);
 
   useEffect(() => {
-    setSubmitEnabled(isValidColumnMapping());
+    setSubmitEnabled(columnMapping.isValid());
   }, [
     columnMapping.caseId,
     columnMapping.activity,
@@ -41,7 +41,7 @@ export default function EventLogColumnMappingDialog({
   ]);
 
   useEffect(() => {
-    if (!isOpen && !isValidColumnMapping()) {
+    if (!isOpen && !columnMapping.isValid()) {
       setColumnMappingFilledIn(false);
     }
   }, [isOpen]);
@@ -49,22 +49,17 @@ export default function EventLogColumnMappingDialog({
   function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
     setErrorMessage(null);
     const { name, value } = event.target;
-    setColumnMapping({ ...columnMapping, [name]: value });
+    setColumnMapping(new EventLogColumnMapping({ ...columnMapping, [name]: value }));
   }
 
   function handleSave() {
-    if (isValidColumnMapping()) {
+    if (columnMapping.isValid()) {
       setColumnMappingFilledIn(true);
       setIsOpen(false);
     } else {
       setColumnMappingFilledIn(false);
       setErrorMessage("Please fill in all fields");
     }
-  }
-
-  function isValidColumnMapping(): boolean {
-    const { caseId, activity, resource, startTimestamp, endTimestamp } = columnMapping;
-    return !!(caseId && activity && resource && startTimestamp && endTimestamp);
   }
 
   return (

@@ -3,17 +3,19 @@ import { Dialog } from "@headlessui/react";
 import UploadAssetSelect from "~/components/upload/UploadAssetSelect";
 import { DragAndDrop } from "~/components/upload/DragAndDrop";
 
+// AssetType specifies the type of asset that is being uploaded from the perspective of the UI.
+// Backend services have slightly different asset types.
 export enum AssetType {
   EventLog = "Event Log",
   ProcessModel = "Process Model",
   SimulationModel = "Simulation Model",
 }
 
-const assetTypes: AssetType[] = [AssetType.EventLog, AssetType.ProcessModel, AssetType.SimulationModel];
+const possibleAssetTypes: AssetType[] = [AssetType.EventLog, AssetType.ProcessModel, AssetType.SimulationModel];
 
 export default function UploadAssetDialog({ trigger }: { trigger: ReactNode }) {
   let [isOpen, setIsOpen] = useState(false);
-  let [assetType, setAssetType] = useState(assetTypes[0]);
+  let [assetType, setAssetType] = useState(possibleAssetTypes[0]);
 
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
@@ -41,7 +43,7 @@ export default function UploadAssetDialog({ trigger }: { trigger: ReactNode }) {
             <div className="flex flex-col space-y-4 items-center">
               <div className="flex items-baseline text-xl font-semibold">
                 <span className="mr-2">Upload</span>
-                <UploadAssetSelect assetTypes={assetTypes} selected={assetType} onChange={setAssetType} />
+                <UploadAssetSelect assetTypes={possibleAssetTypes} selected={assetType} onChange={setAssetType} />
               </div>
 
               <UploadAssetDetails assetType={assetType} />

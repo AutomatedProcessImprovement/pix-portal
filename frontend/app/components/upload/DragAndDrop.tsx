@@ -5,14 +5,7 @@ import { AssetType } from "~/components/upload/UploadAssetDialog";
 import { ArrowDownIcon } from "@heroicons/react/24/solid";
 import EventLogColumnMappingDialog from "~/components/upload/EventLogColumnMappingDialog";
 import { Transition } from "@headlessui/react";
-
-export type EventLogColumnMapping = {
-  caseId: string;
-  activity: string;
-  resource: string;
-  startTimestamp: string;
-  endTimestamp: string;
-};
+import { EventLogColumnMapping } from "~/components/upload/column_mapping";
 
 export function DragAndDrop({ assetType }: { assetType: AssetType }) {
   // DragAndDrop component is used to upload files to the server. It keeps track of three different asset types:
@@ -40,13 +33,9 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
   // Event log column mapping value, states, and effects
   const [eventLogColumnMappingEnabled, setEventLogColumnMappingEnabled] = useState<boolean>(false);
   const [eventLogColumnMappingFilledIn, setEventLogColumnMappingFilledIn] = useState<boolean>(false);
-  const [eventLogColumnMapping, setEventLogColumnMapping] = useState<EventLogColumnMapping>({
-    caseId: "case",
-    activity: "activity",
-    resource: "resource",
-    startTimestamp: "start_time",
-    endTimestamp: "end_time",
-  });
+  const [eventLogColumnMapping, setEventLogColumnMapping] = useState<EventLogColumnMapping>(
+    EventLogColumnMapping.default()
+  );
 
   // Submit button enabled state and effects
   const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
@@ -181,9 +170,8 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
     }
   }
 
-  function onSubmit() {
-    // Clean up inputs.
-
+  function handleSubmit() {
+    // Clean up inputs
     switch (assetType) {
       case AssetType.EventLog:
         processModelInputRef.current.value = "";
@@ -210,6 +198,13 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
           className="hidden"
           accept={getValidFileTypes(AssetType.EventLog)}
           onChange={(e: any) => onHiddenInputChange(e, AssetType.EventLog)}
+        />
+        <input
+          type="text"
+          name="eventLogColumnMapping"
+          className="hidden"
+          value={eventLogColumnMapping.toString()}
+          readOnly={true}
         />
         <input
           type="file"
@@ -317,7 +312,7 @@ export function DragAndDrop({ assetType }: { assetType: AssetType }) {
           </div>
         )}
 
-        <button className="w-48" type="submit" onClick={onSubmit} disabled={!submitEnabled}>
+        <button className="w-48" type="submit" onClick={handleSubmit} disabled={!submitEnabled}>
           {navigation.state === "submitting" ? "Uploading..." : "Upload"}
         </button>
       </Form>
