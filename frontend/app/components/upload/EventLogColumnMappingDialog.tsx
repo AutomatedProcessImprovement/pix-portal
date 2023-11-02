@@ -14,37 +14,34 @@ export default function EventLogColumnMappingDialog({
   setColumnMapping: (arg: EventLogColumnMapping) => void;
   setColumnMappingFilledIn: (arg: boolean) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [submitEnabled, setSubmitEnabled] = useState(false);
+  const [submitEnabled, setSubmitEnabled] = useState(columnMapping.isValid());
 
   useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
+    const handleKeyboard = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setIsOpen(false);
       }
     };
-    window.addEventListener("keydown", handleEsc);
+    window.addEventListener("keydown", handleKeyboard);
     return () => {
-      window.removeEventListener("keydown", handleEsc);
+      window.removeEventListener("keydown", handleKeyboard);
     };
-  }, []);
+  }, [submitEnabled, isOpen]);
 
   useEffect(() => {
-    setSubmitEnabled(columnMapping.isValid());
+    const valid = columnMapping.isValid();
+    setSubmitEnabled(valid);
+    setColumnMappingFilledIn(valid);
   }, [
     columnMapping.caseId,
     columnMapping.activity,
     columnMapping.resource,
     columnMapping.startTimestamp,
     columnMapping.endTimestamp,
+    isOpen,
   ]);
-
-  useEffect(() => {
-    if (!isOpen && !columnMapping.isValid()) {
-      setColumnMappingFilledIn(false);
-    }
-  }, [isOpen]);
 
   function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
     setErrorMessage(null);
@@ -139,8 +136,8 @@ export default function EventLogColumnMappingDialog({
                   </div>
                 </div>
                 {errorMessage && <div className="bg-red-50 border-2 border-red-500 text-red-500">{errorMessage}</div>}
-                <button type="button" className="w-2/3" onClick={handleSave} disabled={!submitEnabled}>
-                  Save
+                <button type="button" className="w-2/3" onClick={handleSave} disabled={!submitEnabled} autoFocus={true}>
+                  Confirm
                 </button>
               </Form>
             </section>
