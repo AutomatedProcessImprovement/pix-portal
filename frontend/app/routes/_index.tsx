@@ -8,10 +8,7 @@ import ToastMessage from "~/components/ToastMessage";
 import { FlashMessage as FlashMessageType } from "~/shared/flash_message";
 
 export const meta: MetaFunction = () => {
-  return [
-    { title: "PIX" },
-    { name: "description", content: "Process Improvement Explorer" },
-  ];
+  return [{ title: "PIX" }, { name: "description", content: "Process Improvement Explorer" }];
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -23,10 +20,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     flashMessage = message as FlashMessageType;
   }
 
-  return json(
-    { flashMessage },
-    { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
-  );
+  return json({ flashMessage }, { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } });
 }
 
 export default function Index() {
@@ -52,11 +46,15 @@ export default function Index() {
   }
 
   return (
-    <>
+    <div className="flex flex-col h-screen">
       {flashMessage && <ToastMessage message={flashMessage} />}
       <Header userEmail={null} />
-      <p>Not logged in</p>
-      <Link to={`/login`}>Login</Link>
-    </>
+      <section className="flex flex-1 flex-col space-y-4 items-center justify-center">
+        <div className="flex flex-col items-center p-6">
+          <p>Not logged in</p>
+          <Link to={`/login`}>Login</Link>
+        </div>
+      </section>
+    </div>
   );
 }

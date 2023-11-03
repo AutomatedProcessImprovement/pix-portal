@@ -12,6 +12,11 @@ export default function UserNav({ userEmail }: HeaderProps) {
       </nav>
     );
   } else {
-    return null;
+    return (
+      <nav className="flex flex-wrap items-center space-x-4">
+        <a href="/login">Login</a>
+        <a href="/signup">Signup</a>
+      </nav>
+    );
   }
 }
