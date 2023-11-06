@@ -7,15 +7,15 @@ from pix_portal_lib.exceptions.http_exceptions import (
 )
 from pix_portal_lib.service_clients.fastapi import get_current_user
 
+from assets.persistence.model import Asset
+from assets.persistence.repository import AssetNotFound
+from assets.services.asset import AssetService, get_asset_service
 from .schemas import AssetIn, AssetOut, AssetPatchIn, LocationOut
-from ..persistence.model import Asset
-from ..persistence.repository import AssetNotFound
-from ..services.asset import AssetService, get_asset_service
 
 router = APIRouter()
 
-# TODO: ensure when a user accesses an asset, they have access to the project it belongs to
 # TODO: check all other services don't return objects that don't belong to user
+# TODO: introduce caching for assets and files
 
 
 @router.get("/", response_model=list[AssetOut])
@@ -53,11 +53,13 @@ async def create_asset(
 async def get_asset(
     asset_id: uuid.UUID,
     asset_service: AssetService = Depends(get_asset_service),
-    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> Any:
+    if not await asset_service.user_has_access_to_asset(user_id=user["id"], asset_id=asset_id):
+        raise NotEnoughPermissionsHTTP()
+
     try:
-        result = await asset_service.get_asset(asset_id)
-        return result
+        return await asset_service.get_asset(asset_id)
     except AssetNotFound:
         raise HTTPException(status_code=404, detail="Asset not found")
 
@@ -67,8 +69,11 @@ async def patch_asset(
     asset_id: uuid.UUID,
     asset_data: AssetPatchIn,
     asset_service: AssetService = Depends(get_asset_service),
-    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> Any:
+    if not await asset_service.user_has_access_to_asset(user_id=user["id"], asset_id=asset_id):
+        raise NotEnoughPermissionsHTTP()
+
     try:
         result = await asset_service.update_asset(asset_id, **asset_data.model_dump(exclude_none=True))
         return result
@@ -81,8 +86,11 @@ async def delete_asset(
     asset_id: uuid.UUID,
     authorization: Annotated[str, Header()],
     asset_service: AssetService = Depends(get_asset_service),
-    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> None:
+    if not await asset_service.user_has_access_to_asset(user_id=user["id"], asset_id=asset_id):
+        raise NotEnoughPermissionsHTTP()
+
     token = authorization.split(" ")[1]
     try:
         await asset_service.delete_asset(asset_id, token=token)
@@ -96,8 +104,11 @@ async def get_asset_location(
     authorization: Annotated[str, Header()],
     is_internal: bool = False,
     asset_service: AssetService = Depends(get_asset_service),
-    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> Any:
+    if not await asset_service.user_has_access_to_asset(user_id=user["id"], asset_id=asset_id):
+        raise NotEnoughPermissionsHTTP()
+
     token = authorization.split(" ")[1]
     try:
         url = await asset_service.get_file_location(asset_id, is_internal=is_internal, token=token)

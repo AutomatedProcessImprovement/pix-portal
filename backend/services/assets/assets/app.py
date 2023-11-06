@@ -10,22 +10,19 @@ from pix_portal_lib.open_telemetry_utils import instrument_app
 from pix_portal_lib.persistence.alembic import migrate_to_latest
 from pix_portal_lib.service_clients.fastapi import add_user_to_app_state_if_present
 
-from .controllers import assets
+from assets.controllers import assets
 
 app = FastAPI(
     title="PIX Portal Assets",
-    description="Asset service for PIX Portal.",
+    description="""Asset service for PIX Portal manages assets and corresponding files. 
+    One asset can have multiple files.""",
     # TODO: update version programmatically
     version="0.1.0",
     dependencies=[Depends(add_user_to_app_state_if_present)],
 )
 
 
-app.include_router(
-    assets.router,
-    prefix="/assets",
-    tags=["assets"],
-)
+app.include_router(assets.router, prefix="/assets", tags=["assets"])
 
 app.add_middleware(RequestLoggingMiddleware)
 app.add_exception_handler(Exception, general_exception_handler)

@@ -19,16 +19,11 @@ asset_service_url = get_env("ASSET_SERVICE_URL")
 
 
 class AssetType(str, Enum):
-    EVENT_LOG_CSV = "event_log_csv"
-    EVENT_LOG_CSV_GZ = "event_log_csv_gz"
-    EVENT_LOG_COLUMN_MAPPING_JSON = "event_log_column_mapping_json"
-    PROCESS_MODEL_BPMN = "process_model_bpmn"
-    CONFIGURATION_SIMOD_YAML = "configuration_simod_yaml"
-    SIMULATION_MODEL_PROSIMOS_JSON = "simulation_model_prosimos_json"
-    CONFIGURATION_PROSIMOS_YAML = "configuration_prosimos_yaml"
-    CONSTRAINTS_MODEL_OPTIMOS_JSON = "constraints_model_optimos_json"
-    WAITING_TIME_ANALYSIS_REPORT_KRONOS_JSON = "waiting_time_analysis_report_kronos_json"
-    WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV = "waiting_time_analysis_report_kronos_csv"
+    EVENT_LOG = "event_log"
+    PROCESS_MODEL = "process_model"
+    SIMULATION_MODEL = "simulation_model"
+    SIMOD_CONFIGURATION = "simod_configuration"
+    OPTIMOS_CONFIGURATION = "optimos_configuration"
 
 
 @dataclass
