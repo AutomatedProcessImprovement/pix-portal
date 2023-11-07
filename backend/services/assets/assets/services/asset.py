@@ -5,7 +5,7 @@ from typing import AsyncGenerator, Optional, Sequence
 from assets.persistence.model import Asset, AssetType
 from assets.persistence.repository import get_asset_repository, AssetRepository
 from fastapi import Depends
-from pix_portal_lib.service_clients.file import FileServiceClient
+from pix_portal_lib.service_clients.file import FileServiceClient, File
 from pix_portal_lib.service_clients.project import ProjectServiceClient
 
 
@@ -99,12 +99,12 @@ class AssetService:
         )
         return list(files)
 
-    async def get_file(self, file_id: uuid.UUID, token: str) -> dict:
+    async def get_file(self, file_id: uuid.UUID, token: str) -> File:
         return await self.file_service_client.get_file(file_id, token=token)
 
     async def get_file_location(self, file_id: uuid.UUID, is_internal: bool, token: str) -> str:
         file = await self.file_service_client.get_file(file_id, token=token)
-        relative_url = file["url"]
+        relative_url = file.url
         absolute_url = self.file_service_client.get_absolute_url(relative_url, is_internal)
         return absolute_url
 

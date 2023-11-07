@@ -5,7 +5,7 @@ from collections import namedtuple
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, Any
 from urllib.parse import urljoin
 from uuid import UUID
 
@@ -184,8 +184,8 @@ class AssetServiceClient(SelfAuthenticatingClient):
                 "name": asset_name,
                 "type": asset_type,
                 "project_id": project_id,
-                "files_ids": files_ids,
-                "users_ids": users_ids,
+                "files_ids": self._uuid_list_to_str_list(files_ids),
+                "users_ids": self._uuid_list_to_str_list(users_ids),
             },
         )
         response.raise_for_status()
@@ -223,6 +223,10 @@ class AssetServiceClient(SelfAuthenticatingClient):
         for t in types:
             if str(t) not in files_types:
                 raise ValueError(f"Asset must have a file of type {t}")
+
+    @staticmethod
+    def _uuid_list_to_str_list(uuid_list: Union[list[uuid.UUID], tuple[Any]]) -> list[str]:
+        return [str(v) for v in uuid_list]
 
     async def delete_asset(self, asset_id: UUID, token: str) -> bool:
         url = urljoin(self._base_url, str(asset_id))

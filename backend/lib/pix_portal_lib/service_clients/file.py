@@ -54,23 +54,23 @@ class FileServiceClient(SelfAuthenticatingClient):
         self._blobs_base_public_url = blobs_base_public_url
         self._blobs_base_internal_url = blobs_base_internal_url
 
-    async def get_file(self, file_id: Union[str, UUID], token: str) -> File:
+    async def get_file(self, file_id: Union[str, UUID], token: Optional[str] = None) -> File:
         """
         Fetches a file using the file service.
         """
         url = self._file_resource_url(file_id)
-        response = await self._client.get(url, headers={"Authorization": f"Bearer {token}"})
+        response = await self._client.get(url, headers=await self.request_headers(token))
         response.raise_for_status()
 
         return File(**response.json())
 
-    async def delete_file(self, file_id: UUID, token: str) -> bool:
+    async def delete_file(self, file_id: UUID, token: Optional[str] = None) -> bool:
         """
         Deletes a file using the file service.
         Returns True if the file was deleted successfully.
         """
         url = self._file_resource_url(file_id)
-        response = await self._client.delete(url, headers={"Authorization": f"Bearer {token}"})
+        response = await self._client.delete(url, headers=await self.request_headers(token))
 
         if response.status_code == 204:
             return True

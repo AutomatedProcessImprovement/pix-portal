@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import AsyncGenerator, Sequence
 
 from fastapi import Depends
+
 from files.persistence.model import File, FileType
 from files.persistence.repository import get_file_repository, FileRepository
 from files.settings import settings
@@ -28,6 +29,11 @@ class FileService:
         if self._hash_exists_on_disk(hash):
             try:
                 file = await self.file_repository.get_file_by_hash(hash)
+
+                # add users if they don't have access to the file yet
+                if not await self.users_have_access_to_file(users_ids, file.id):
+                    await self.file_repository.add_users_to_file_if_needed(file.id, users_ids)
+
                 raise FileExists(file)
             except FileNotFoundError:
                 # File exists on disk but not in database, continue creating the database record
@@ -70,10 +76,16 @@ class FileService:
         return file.url
 
     async def user_has_access_to_file(self, user_id: uuid.UUID, file_id: uuid.UUID) -> bool:
-        asset = await self.get_file(file_id)
+        file = await self.get_file(file_id)
         user_id = str(user_id)
-        users_ids = [str(user_id) for user_id in asset.users_ids]
+        users_ids = [str(user_id) for user_id in file.users_ids]
         return user_id in users_ids
+
+    async def users_have_access_to_file(self, users_ids: list[uuid.UUID], file_id: uuid.UUID) -> bool:
+        file = await self.get_file(file_id)
+        users_ids = [str(user_id) for user_id in users_ids]
+        files_users_ids = [str(user_id) for user_id in file.users_ids]
+        return all(user_id in files_users_ids for user_id in users_ids)
 
     @staticmethod
     def _compute_sha256(content: bytes) -> str:

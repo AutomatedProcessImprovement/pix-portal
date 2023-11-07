@@ -8,7 +8,6 @@ from typing import Optional
 from uuid import UUID
 
 import yaml
-from bps_discovery_simod.settings import settings
 from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
 from pix_portal_lib.service_clients.asset import AssetServiceClient, AssetType, File_, Asset
 from pix_portal_lib.service_clients.file import FileType
@@ -19,6 +18,8 @@ from pix_portal_lib.service_clients.processing_request import (
 )
 from pix_portal_lib.service_clients.project import ProjectServiceClient
 from pix_portal_lib.service_clients.user import UserServiceClient
+
+from bps_discovery_simod.settings import settings
 
 logger = logging.getLogger()
 
@@ -193,7 +194,7 @@ class SimodService:
         config["common"]["train_log_path"] = str(event_log_path.absolute())
 
         # NOTE: test log is not supported for discovery in production
-        config["common"]["test_log_path"] = "null"
+        config["common"]["test_log_path"] = None
 
         # NOTE: column mapping format must correspond to EventLogIDs from pix-framework
         if column_mapping_path:

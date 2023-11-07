@@ -47,6 +47,19 @@ class FileRepository:
         await self.session.commit()
         return file
 
+    async def add_user_to_file(self, file_id: uuid.UUID, user_id: uuid.UUID) -> None:
+        await self.session.execute(
+            update(File).where(File.id == file_id).values(users_ids=File.users_ids.append(user_id))
+        )
+        await self.session.commit()
+
+    async def add_users_to_file_if_needed(self, file_id: uuid.UUID, users_ids: list[uuid.UUID]) -> None:
+        current_users_ids = await self.session.execute(select(File.users_ids).where(File.id == file_id))
+        current_users_ids = current_users_ids.scalars().all()
+        new_users_ids = set(users_ids).union(set(current_users_ids))
+        await self.session.execute(update(File).where(File.id == file_id).values(users_ids=list(new_users_ids)))
+        await self.session.commit()
+
     async def delete_file(self, file_id: uuid.UUID) -> None:
         await self.session.execute(update(File).where(File.id == file_id).values(deletion_time=datetime.utcnow()))
         await self.session.commit()
