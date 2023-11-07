@@ -1,41 +1,33 @@
 import uuid
-from typing import Annotated, Any
+from typing import Annotated, Any, Sequence
 
-from fastapi import APIRouter, Body, Depends, HTTPException, UploadFile, Response
+from fastapi import APIRouter, Body, Depends, HTTPException, Response
 from fastapi.responses import FileResponse
+from files.persistence.model import FileType, File
+from files.services.file import FileService, get_file_service, FileExists
+from pix_portal_lib.exceptions.http_exceptions import NotEnoughPermissionsHTTP
 from pix_portal_lib.service_clients.fastapi import get_current_user
 
 from .schemas import FileOut, LocationOut
-from ..services.file import FileService, get_file_service, FileExists
 
 router = APIRouter()
 
 
 @router.post("/", response_model=FileOut, status_code=201)
 async def create_file(
-    file_bytes: Annotated[bytes, Body()],
+    name: str,
+    type: FileType,
+    content: Annotated[bytes, Body()],
     response: Response,
     file_service: FileService = Depends(get_file_service),
-    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated,
+    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated,
 ) -> Any:
-    try:
-        result = await file_service.save_file(file_bytes)
-        response.status_code = 201
-    except FileExists as e:
-        result = e.file
-        response.status_code = 200
-    return result
+    if not type.is_valid():
+        raise HTTPException(status_code=400, detail="Invalid file type")
 
-
-@router.post("/upload", response_model=FileOut)
-async def upload_file(
-    upload: UploadFile,
-    response: Response,
-    file_service: FileService = Depends(get_file_service),
-    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
-) -> Any:
     try:
-        result = await file_service.save_file(upload.file.read())
+        users_ids = [uuid.UUID(user["id"])]
+        result = await file_service.save_file(name=name, file_type=type, file_bytes=content, users_ids=users_ids)
         response.status_code = 201
     except FileExists as e:
         result = e.file
@@ -46,8 +38,9 @@ async def upload_file(
 @router.get("/", response_model=list[FileOut])
 async def get_files(
     file_service: FileService = Depends(get_file_service),
-    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
-) -> list[Any]:
+    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+) -> Sequence[File]:
+    _raise_for_not_superuser(user)
     result = await file_service.get_files()
     return result
 
@@ -56,8 +49,10 @@ async def get_files(
 async def get_file(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
-    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> Any:
+    await _raise_no_access(file_service, user, file_id)
+
     try:
         result = await file_service.get_file(file_id)
         return result
@@ -69,8 +64,10 @@ async def get_file(
 async def delete_file(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
-    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> None:
+    await _raise_no_access(file_service, user, file_id)
+
     try:
         await file_service.delete_file(file_id)
     except FileNotFoundError:
@@ -81,8 +78,10 @@ async def delete_file(
 async def get_file_location(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
-    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> LocationOut:
+    await _raise_no_access(file_service, user, file_id)
+
     try:
         location = await file_service.get_file_url(file_id)
         return LocationOut(location=location)
@@ -94,10 +93,24 @@ async def get_file_location(
 async def get_file_content(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
-    _user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
 ) -> FileResponse:
+    await _raise_no_access(file_service, user, file_id)
+
     try:
         file_path = await file_service.get_file_path(file_id)
         return FileResponse(file_path)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="File not found")
+
+
+def _raise_for_not_superuser(user: dict) -> None:
+    if not user["is_superuser"]:
+        raise NotEnoughPermissionsHTTP()
+
+
+async def _raise_no_access(file_service: FileService, user: dict, file_id: uuid.UUID) -> None:
+    if user["is_superuser"] is True:
+        return
+    if not await file_service.user_has_access_to_file(user_id=user["id"], file_id=file_id):
+        raise NotEnoughPermissionsHTTP()

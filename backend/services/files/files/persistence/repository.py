@@ -7,7 +7,7 @@ from pix_portal_lib.persistence.sqlalchemy import get_async_session
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .model import File
+from .model import File, FileType
 
 
 class FileRepository:
@@ -39,8 +39,10 @@ class FileRepository:
             raise FileNotFoundError()
         return content_hash
 
-    async def create_file(self, content_hash: str, url: str) -> File:
-        file = File(content_hash=content_hash, url=url)
+    async def create_file(
+        self, name: str, file_type: FileType, content_hash: str, url: str, users_ids: list[uuid.UUID]
+    ) -> File:
+        file = File(name=name, content_hash=content_hash, url=url, type=file_type, users_ids=users_ids)
         self.session.add(file)
         await self.session.commit()
         return file
