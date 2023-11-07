@@ -198,7 +198,7 @@ class AssetServiceClient(SelfAuthenticatingClient):
     async def _validate_files(self, asset_type: AssetType, files: list[File_]):
         if asset_type == AssetType.EVENT_LOG:
             self._files_must_have_length(files, 2)
-            self._files_must_have_types(files, [FileType.EVENT_LOG_CSV, FileType.EVENT_LOG_CSV_GZ])
+            self._valid_file_types_for_event_log(files)
         elif asset_type == AssetType.PROCESS_MODEL:
             self._files_must_have_length(files, 1)
             self._files_must_have_types(files, [FileType.PROCESS_MODEL_BPMN])
@@ -223,6 +223,12 @@ class AssetServiceClient(SelfAuthenticatingClient):
         for t in types:
             if str(t) not in files_types:
                 raise ValueError(f"Asset must have a file of type {t}")
+
+    @staticmethod
+    def _valid_file_types_for_event_log(files: list[File_]) -> bool:
+        files_types = [str(file.type) for file in files]
+        event_log_valid = str(FileType.EVENT_LOG_CSV) in files_types or str(FileType.EVENT_LOG_CSV_GZ) in files_types
+        return event_log_valid and str(FileType.EVENT_LOG_COLUMN_MAPPING_JSON) in files_types
 
     @staticmethod
     def _uuid_list_to_str_list(uuid_list: Union[list[uuid.UUID], tuple[Any]]) -> list[str]:

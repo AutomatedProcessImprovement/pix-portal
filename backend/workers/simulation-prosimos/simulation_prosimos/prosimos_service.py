@@ -2,6 +2,7 @@ import json
 import logging
 import traceback
 from collections import namedtuple
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 from uuid import UUID
@@ -39,10 +40,12 @@ ProsimosConfiguration = namedtuple("ProsimosConfiguration", ["total_cases", "sta
 
 def _prosimos_configuration_from_simulation_model(simulation_model_path: Path) -> ProsimosConfiguration:
     simulation_model = json.load(simulation_model_path.open("r"))
+    # timestamp with tz
+
     config = ProsimosConfiguration(
-        total_cases=simulation_model["total_cases"],
-        starting_at=simulation_model["starting_at"],
-        is_event_added_to_log=simulation_model["is_event_added_to_log"],
+        total_cases=simulation_model.get("total_cases", 1000),
+        starting_at=simulation_model.get("starting_at", datetime.now(tz=timezone.utc)),
+        is_event_added_to_log=simulation_model.get("is_event_added_to_log", False),
     )
     return config
 
@@ -58,6 +61,15 @@ class ProsimosService:
 
         self._assets_base_dir.mkdir(parents=True, exist_ok=True)
         self._prosimos_results_base_dir.mkdir(parents=True, exist_ok=True)
+
+        self._default_prosimos_event_log_column_mapping_file_path = (
+            self._write_default_prosimos_event_log_column_mapping_file()
+        )
+        if not self._default_prosimos_event_log_column_mapping_file_path.exists():
+            raise FileNotFoundError(
+                f"Default Prosimos event log column mapping file not found: "
+                f"{self._default_prosimos_event_log_column_mapping_file_path}"
+            )
 
     async def process(self, processing_request: ProcessingRequest):
         """
@@ -99,8 +111,13 @@ class ProsimosService:
 
             # upload results and create corresponding assets
             synthetic_event_log_file = File_(name=output_path.name, type=FileType.EVENT_LOG_CSV, path=output_path)
+            default_prosimos_column_mapping_file = File_(
+                name="default_prosimos_event_log_column_mapping.json",
+                type=FileType.EVENT_LOG_COLUMN_MAPPING_JSON,
+                path=self._default_prosimos_event_log_column_mapping_file_path,
+            )
             synthetic_event_log_asset_id = await self._asset_service_client.create_asset(
-                files=[synthetic_event_log_file],
+                files=[synthetic_event_log_file, default_prosimos_column_mapping_file],
                 asset_name=synthetic_event_log_file.name,
                 asset_type=AssetType.EVENT_LOG,
                 project_id=processing_request.project_id,
@@ -215,3 +232,19 @@ class ProsimosService:
                 body=f"Processing request {processing_request.processing_request_id} has failed.",
             )
         email_notification_producer.send_message(msg)
+
+    def _write_default_prosimos_event_log_column_mapping_file(self) -> Path:
+        default_prosimos_event_log_column_mapping = {
+            "case": "case_id",
+            "activity": "activity",
+            "enabled_time": "enable_time",
+            "start_time": "start_time",
+            "end_time": "end_time",
+            "resource": "resource",
+        }
+
+        file_path = self._assets_base_dir / "default_prosimos_event_log_column_mapping.json"
+        if not file_path.exists():
+            json.dump(default_prosimos_event_log_column_mapping, file_path.open("w"))
+
+        return file_path
