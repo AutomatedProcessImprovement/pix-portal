@@ -2,12 +2,11 @@ import asyncio
 import uuid
 from typing import AsyncGenerator, Optional, Sequence
 
+from assets.persistence.model import Asset, AssetType
+from assets.persistence.repository import get_asset_repository, AssetRepository
 from fastapi import Depends
 from pix_portal_lib.service_clients.file import FileServiceClient
 from pix_portal_lib.service_clients.project import ProjectServiceClient
-
-from assets.persistence.model import Asset, AssetType
-from assets.persistence.repository import get_asset_repository, AssetRepository
 
 
 class AssetService:
@@ -38,8 +37,12 @@ class AssetService:
         files_ids: list[uuid.UUID],
         users_ids: list[uuid.UUID],
         processing_requests_ids: list[uuid.UUID],
+        token: str,
         description: Optional[str] = None,
     ) -> Asset:
+        for file_id in files_ids:
+            await self.file_service_client.is_deleted(file_id, token=token)
+
         asset_type = AssetType(type)
         asset = await self.asset_repository.create_asset(
             name=name,
@@ -50,7 +53,9 @@ class AssetService:
             processing_requests_ids=processing_requests_ids,
             description=description,
         )
+
         await self.project_service_client.add_asset_to_project(str(project_id), str(asset.id))
+
         return asset
 
     async def get_asset(self, asset_id: uuid.UUID) -> Asset:
@@ -105,7 +110,9 @@ class AssetService:
 
     async def user_has_access_to_asset(self, user_id: uuid.UUID, asset_id: uuid.UUID) -> bool:
         asset = await self.get_asset(asset_id)
-        return user_id in asset.users_ids
+        user_id = str(user_id)
+        users_ids = [str(user_id) for user_id in asset.users_ids]
+        return user_id in users_ids
 
 
 async def get_asset_service(

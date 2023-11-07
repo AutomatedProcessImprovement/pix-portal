@@ -13,7 +13,6 @@ class AssetIn(BaseModel):
     type: str
     project_id: uuid.UUID
     files_ids: list[uuid.UUID]
-    users_ids: list[uuid.UUID]
     processing_requests_ids: list[uuid.UUID] = []
 
 

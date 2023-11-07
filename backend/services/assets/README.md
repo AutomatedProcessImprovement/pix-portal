@@ -1,5 +1,5 @@
 Migration with Alembic:
 
 ```shell
-alembic revision --autogenerate -m "migration message"
+DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5433/files" alembic revision --autogenerate -m "Revision message"
 ```
