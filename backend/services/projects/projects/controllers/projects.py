@@ -11,20 +11,20 @@ from pix_portal_lib.exceptions.http_exceptions import (
 )
 from pix_portal_lib.service_clients.fastapi import get_current_user
 
+from projects.persistence.model import Project
+from projects.persistence.repository import ProjectNotFound
+from projects.services.project import (
+    AssetNotFound,
+    ProjectService,
+    UserNotFound,
+    get_project_service,
+)
 from .schemas import (
     AddAssetToProjectIn,
     AddUserToProjectIn,
     ProjectIn,
     ProjectOut,
     ProjectPatchIn,
-)
-from ..persistence.model import Project
-from ..persistence.repository import ProjectNotFound
-from ..services.project import (
-    AssetNotFound,
-    ProjectService,
-    UserNotFound,
-    get_project_service,
 )
 
 router = APIRouter()

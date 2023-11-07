@@ -2,7 +2,7 @@ import asyncio
 from logging.config import fileConfig
 
 from alembic import context
-from processing_requests.repositories.models import Base
+from processing_requests.persistence.model import Base
 from processing_requests.settings import settings
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
