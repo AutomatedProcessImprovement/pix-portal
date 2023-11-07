@@ -1,13 +1,13 @@
 import uuid
-from typing import Annotated, Any, Sequence
+from typing import Annotated, Any, Sequence, Optional
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Response
 from fastapi.responses import FileResponse
-from files.persistence.model import FileType, File
-from files.services.file import FileService, get_file_service, FileExists
 from pix_portal_lib.exceptions.http_exceptions import NotEnoughPermissionsHTTP
 from pix_portal_lib.service_clients.fastapi import get_current_user
 
+from files.persistence.model import FileType, File
+from files.services.file import FileService, get_file_service, FileExists
 from .schemas import FileOut, LocationOut
 
 router = APIRouter()
@@ -21,12 +21,16 @@ async def create_file(
     response: Response,
     file_service: FileService = Depends(get_file_service),
     user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated,
+    users_ids: Optional[str] = None,  # list of users ids separated by commas
 ) -> Any:
     if not type.is_valid():
         raise HTTPException(status_code=400, detail="Invalid file type")
 
     try:
-        users_ids = [uuid.UUID(user["id"])]
+        if users_ids is None:
+            users_ids = [uuid.UUID(user["id"])]
+        else:
+            users_ids = [uuid.UUID(user_id.strip()) for user_id in users_ids.split(",")]
         result = await file_service.save_file(name=name, file_type=type, file_bytes=content, users_ids=users_ids)
         response.status_code = 201
     except FileExists as e:

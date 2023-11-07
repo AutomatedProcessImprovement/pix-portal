@@ -1,9 +1,6 @@
 import uuid
 from typing import Annotated, Any, Optional, Sequence
 
-from assets.persistence.model import Asset
-from assets.persistence.repository import AssetNotFound
-from assets.services.asset import AssetService, get_asset_service
 from fastapi import APIRouter, Depends, Header, HTTPException
 from pix_portal_lib.exceptions.http_exceptions import (
     NotEnoughPermissionsHTTP,
@@ -11,6 +8,9 @@ from pix_portal_lib.exceptions.http_exceptions import (
 )
 from pix_portal_lib.service_clients.fastapi import get_current_user
 
+from assets.persistence.model import Asset
+from assets.persistence.repository import AssetNotFound
+from assets.services.asset import AssetService, get_asset_service
 from .schemas import AssetIn, AssetOut, AssetPatchIn, LocationOut
 
 router = APIRouter()
@@ -55,8 +55,13 @@ async def create_asset(
 ) -> Any:
     # TODO: assert project_id exists and not deleted
 
-    users_ids = [uuid.UUID(user["id"])]
-    return await asset_service.create_asset(**asset_data.model_dump() | {"users_ids": users_ids, "token": token})
+    request_payload = asset_data.model_dump() | {"token": token}
+
+    if request_payload.get("users_ids") is None:
+        users_ids = [uuid.UUID(user["id"])]
+        request_payload["users_ids"] = users_ids
+
+    return await asset_service.create_asset(**request_payload)
 
 
 @router.get("/{asset_id}", response_model=AssetOut)

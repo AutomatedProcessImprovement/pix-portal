@@ -13,6 +13,7 @@ class AssetIn(BaseModel):
     type: str
     project_id: uuid.UUID
     files_ids: list[uuid.UUID]
+    users_ids: Optional[list[uuid.UUID]] = None
     processing_requests_ids: list[uuid.UUID] = []
 
 

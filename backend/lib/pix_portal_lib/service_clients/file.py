@@ -1,8 +1,10 @@
-import uuid
+from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 from urllib.parse import urljoin
+from uuid import UUID
 
 import httpx
 from pix_portal_lib.utils import get_env
@@ -26,6 +28,21 @@ class FileType(str, Enum):
     WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV = "waiting_time_analysis_report_kronos_csv"
 
 
+@dataclass
+class File:
+    id: UUID
+    url: str
+    content_hash: str
+    type: str
+    name: str
+    users_ids: list[UUID]
+    creation_time: datetime
+    deletion_time: Optional[datetime] = None
+
+    def is_deleted(self) -> bool:
+        return self.deletion_time is not None
+
+
 # some of the services that use this class could have access to an expired token,
 # in that case, the service has to be able to authenticate itself, SelfAuthenticatingClient provides
 # the self.token property that calls the auth service to get a new token if the current one is None
@@ -37,16 +54,17 @@ class FileServiceClient(SelfAuthenticatingClient):
         self._blobs_base_public_url = blobs_base_public_url
         self._blobs_base_internal_url = blobs_base_internal_url
 
-    async def get_file(self, file_id: uuid.UUID, token: str) -> dict:
+    async def get_file(self, file_id: Union[str, UUID], token: str) -> File:
         """
-        Gets a file using the file service.
+        Fetches a file using the file service.
         """
         url = self._file_resource_url(file_id)
         response = await self._client.get(url, headers={"Authorization": f"Bearer {token}"})
         response.raise_for_status()
-        return response.json()
 
-    async def delete_file(self, file_id: uuid.UUID, token: str) -> bool:
+        return File(**response.json())
+
+    async def delete_file(self, file_id: UUID, token: str) -> bool:
         """
         Deletes a file using the file service.
         Returns True if the file was deleted successfully.
@@ -64,15 +82,23 @@ class FileServiceClient(SelfAuthenticatingClient):
         relative_url = relative_url.removeprefix("/blobs/")
         return urljoin(base, relative_url)
 
-    async def upload_file(self, file_path: Path, token: Optional[str] = None) -> str:
+    async def upload_file(
+        self, name: str, path: Path, type: FileType, users_ids: list[UUID], token: Optional[str] = None
+    ) -> str:
         """
         Uploads a file to the file service and returns the file ID.
         If token is not provided, the service will authenticate itself as a SYSTEM user.
         """
-        content = file_path.read_bytes()
+        content = path.read_bytes()
         t = token or await self.token
+        params = {
+            "name": name,
+            "type": type.value,
+            "users_ids": ",".join([str(user_id) for user_id in users_ids]),
+        }
         response = await self._client.post(
             self._base_url,
+            params=params,
             headers={
                 "Authorization": f"Bearer {t}",
                 "Content-Type": "application/octet-stream",
@@ -82,9 +108,9 @@ class FileServiceClient(SelfAuthenticatingClient):
         response.raise_for_status()
         return response.json()["id"]
 
-    async def is_deleted(self, file_id: uuid.UUID, token: str) -> bool:
+    async def is_deleted(self, file_id: UUID, token: str) -> bool:
         file = await self.get_file(file_id, token)
-        return file["deletion_time"] is not None
+        return file.is_deleted()
 
-    def _file_resource_url(self, file_id: uuid.UUID) -> str:
+    def _file_resource_url(self, file_id: Union[UUID, str]) -> str:
         return urljoin(self._base_url, f"{file_id}")

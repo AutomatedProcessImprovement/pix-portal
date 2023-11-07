@@ -5,7 +5,8 @@ from typing import Optional
 from uuid import UUID
 
 from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
-from pix_portal_lib.service_clients.asset import AssetServiceClient, AssetType, Asset
+from pix_portal_lib.service_clients.asset import AssetServiceClient, Asset, File_
+from pix_portal_lib.service_clients.file import FileType
 from pix_portal_lib.service_clients.processing_request import (
     ProcessingRequestServiceClient,
     ProcessingRequest,
@@ -22,7 +23,11 @@ logger = logging.getLogger()
 
 
 class InputAssetMissing(Exception):
-    pass
+    def __init__(self, message: Optional[str] = None):
+        if message is not None:
+            super().__init__(message)
+        else:
+            super().__init__("Simod discovery failed. Input asset not found.")
 
 
 class FailedCreatingTableFromCSV(Exception):
@@ -62,30 +67,21 @@ class KronosService:
             ]
 
             # get and validate input assets
-            event_log = self._find_asset_by_type(assets, AssetType.EVENT_LOG_CSV) or self._find_asset_by_type(
-                assets, AssetType.EVENT_LOG_CSV_GZ
-            )
-            column_mapping = self._find_asset_by_type(assets, AssetType.EVENT_LOG_COLUMN_MAPPING_JSON)
-            if (
-                event_log is None
-                or column_mapping is None
-                or event_log.local_disk_path is None
-                or column_mapping.local_disk_path is None
-            ):
-                raise InputAssetMissing()
+            event_log_file, column_mapping_file = self._extract_input_files(assets)
+            self._validate_input_files([event_log_file, column_mapping_file])
 
             # run Kronos, it can take time
             logger.info(
                 f"Running Kronos analysis: "
                 f"processing_request_id={processing_request.processing_request_id}, "
-                f"column_mapping={column_mapping}, "
-                f"event_log={event_log}, "
+                f"column_mapping={column_mapping_file}, "
+                f"event_log={event_log_file}, "
             )
             output_dir = self._kronos_results_base_dir / processing_request.processing_request_id
             output_dir.mkdir(parents=True, exist_ok=True)
             output_path = self._run_kronos(
-                event_log_path=event_log.local_disk_path,
-                column_mapping_path=column_mapping.local_disk_path,
+                event_log_path=event_log_file.path,
+                column_mapping_path=column_mapping_file.path,
                 output_dir=output_dir,
             )
             logger.info(
@@ -103,26 +99,7 @@ class KronosService:
                 raise FailedCreatingTableFromCSV(kronos_response.error)
             logger.info(f"Kronos analysis uploaded to database: " f"table_name={kronos_response.table_name}")
 
-            # upload results and create corresponding assets
-            wta_analysis_asset_id = await self._asset_service_client.create_asset(
-                file_path=output_path,
-                project_id=processing_request.project_id,
-                asset_type=AssetType.WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV,
-            )
-
-            # update project assets
-            # NOTE: assets must be added to the project first before adding them to the processing request,
-            #   because the processing request service checks if the assets belong to the project
-            await self._project_service_client.add_asset_to_project(
-                project_id=processing_request.project_id,
-                asset_id=wta_analysis_asset_id,
-            )
-
-            # update output assets in the processing request
-            await self._processing_request_service_client.add_output_asset_to_processing_request(
-                processing_request_id=processing_request.processing_request_id,
-                asset_id=wta_analysis_asset_id,
-            )
+            # NOTE: there's no public output assets from Kronos, a user is supposed to use Kronos UI instead
 
             # update processing request status
             await self._processing_request_service_client.update_status(
@@ -157,12 +134,31 @@ class KronosService:
         self._project_service_client.nullify_token()
         self._processing_request_service_client.nullify_token()
 
-    @staticmethod
-    def _find_asset_by_type(assets: list[Asset], asset_type: AssetType) -> Optional[Asset]:
+    def _extract_input_files(self, assets: list[Asset]) -> tuple[Optional[File_], Optional[File_]]:
+        files: list[File_] = []
         for asset in assets:
-            if asset.type == asset_type:
-                return asset
+            if asset.files is not None:
+                files.extend(asset.files)
+
+        event_log_file = self._find_file_by_type(files, FileType.EVENT_LOG_CSV) or self._find_file_by_type(
+            files, FileType.EVENT_LOG_CSV_GZ
+        )
+        event_log_column_mapping_file = self._find_file_by_type(files, FileType.EVENT_LOG_COLUMN_MAPPING_JSON)
+
+        return event_log_file, event_log_column_mapping_file
+
+    @staticmethod
+    def _find_file_by_type(files: list[File_], type: FileType) -> Optional[File_]:
+        for file in files:
+            if file.type == type:
+                return file
         return None
+
+    @staticmethod
+    def _validate_input_files(files: list[File_]):
+        for f in files:
+            if f is None or f.path is None or not Path(f.path).exists():
+                raise InputAssetMissing()
 
     @staticmethod
     def _run_kronos(
