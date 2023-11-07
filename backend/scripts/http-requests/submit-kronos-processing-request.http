@@ -30,22 +30,27 @@ Authorization: Bearer {{token}}
   "name": "kronos run"
 }
 
-### Upload a file
+### Upload an event log
 
-POST http://localhost:9999/api/v1/files/
+POST http://localhost:9999/api/v1/files/?type=event_log_csv_gz&name=PurchasingExample.csv.gz
 Authorization: Bearer {{token}}
 Content-Type: application/octet-stream
 
-< ./configuration_prosimos.yml
+< ./PurchasingExample.csv.gz
 
 ### List files
 
 GET http://localhost:9999/api/v1/files/
 Authorization: Bearer {{token}}
 
+### Get a file
+
+GET http://localhost:9999/api/v1/files/cca1c04f-1943-4e67-b6fb-9526e86ecb0c
+Authorization: Bearer {{token}}
+
 ### Upload the column mapping
 
-POST http://localhost:9999/api/v1/files/
+POST http://localhost:9999/api/v1/files/?type=event_log_column_mapping_json&name=PurchasingExample.json
 Authorization: Bearer {{token}}
 Content-Type: application/octet-stream
 
@@ -71,15 +76,18 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "PurchasingExample.csv.gz",
-  "type": "event_log_csv_gz",
-  "file_id": "39fd287d-3d0d-401a-ae61-d66a49544a26",
-  "project_id": "c012fd4b-8cf1-4335-ae76-cac069e4a9ef"
+  "name": "PurchasingExample",
+  "type": "event_log",
+  "project_id": "c012fd4b-8cf1-4335-ae76-cac069e4a9ef",
+  "files_ids": [
+    "cca1c04f-1943-4e67-b6fb-9526e86ecb0c",
+    "a6930157-caa1-437d-9959-baddad8b8d51"
+  ]
 }
 
 ### Get an asset
 
-GET http://localhost:9999/api/v1/assets/b6428878-3129-431f-ab58-c3a4f5ab9bf1/location?is_internal=true
+GET http://localhost:9999/api/v1/assets/f56b4ded-7d6a-4e88-95be-f1f40f416c9b/files/cca1c04f-1943-4e67-b6fb-9526e86ecb0c/location
 Authorization: Bearer {{token}}
 
 ### List assets

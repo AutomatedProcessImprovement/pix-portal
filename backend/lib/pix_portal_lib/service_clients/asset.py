@@ -94,8 +94,17 @@ class AssetServiceClient(SelfAuthenticatingClient):
 
     async def does_asset_exist(self, asset_id: UUID, token: str) -> bool:
         url = urljoin(self._base_url, str(asset_id))
-        response = await self._http_client.get(url, headers={"Authorization": f"Bearer {token}"})
-        # TODO: check if the asset is deleted
+
+        response = await self._http_client.get(url, headers=await self.request_headers(token))
+
+        if response.status_code != 200:
+            return False
+
+        # check if the asset is deleted
+        asset = response.json()
+        if asset["deletion_time"] is not None:
+            return False
+
         return response.status_code == 200
 
     async def get_asset_location(self, asset_id: str, is_internal: bool = True, token: Optional[str] = None) -> str:
@@ -109,6 +118,8 @@ class AssetServiceClient(SelfAuthenticatingClient):
     async def create_asset(
         self, file_path: Path, asset_type: AssetType, project_id: str, token: Optional[str] = None
     ) -> str:
+        # TODO: update, file and asset models have changed
+
         # upload file
         file_id = await self._file_service.upload_file(file_path, token=token)
 
