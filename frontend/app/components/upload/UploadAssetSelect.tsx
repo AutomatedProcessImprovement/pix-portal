@@ -1,18 +1,18 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { Fragment, useEffect, useState } from "react";
-import { AssetType } from "~/components/upload/UploadAssetDialog";
+import { AssetTypeBackend, assetTypeToString } from "~/shared/AssetTypeBackend";
 
 export default function UploadAssetSelect({
   selected,
   onChange,
   assetTypes,
 }: {
-  selected: AssetType;
-  onChange: (value: AssetType) => void;
-  assetTypes: AssetType[];
+  selected: AssetTypeBackend;
+  onChange: (value: AssetTypeBackend) => void;
+  assetTypes: AssetTypeBackend[];
 }) {
-  const [selectedAssetType, setSelectedAssetType] = useState<AssetType>(selected);
+  const [selectedAssetType, setSelectedAssetType] = useState<AssetTypeBackend>(selected);
 
   useEffect(() => {
     setSelectedAssetType(selectedAssetType);
@@ -24,7 +24,7 @@ export default function UploadAssetSelect({
       <Listbox value={selected} onChange={onChange}>
         <div className="relative">
           <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white hover:bg-white py-2 pl-3 pr-10 text-left text-gray-900 border-4 border-blue-100 hover:border-blue-500 focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300">
-            <span className="block truncate">{selected}</span>
+            <span className="block truncate">{assetTypeToString(selected)}</span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon className="h-5 w-5 text-blue-400" aria-hidden="true" />
             </span>
@@ -43,7 +43,9 @@ export default function UploadAssetSelect({
                 >
                   {({ selected }) => (
                     <>
-                      <span className={`block truncate ${selected ? "font-semibold" : "font-normal"}`}>{asset}</span>
+                      <span className={`block truncate ${selected ? "font-semibold" : "font-normal"}`}>
+                        {assetTypeToString(asset)}
+                      </span>
                       {selected ? (
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
                           <CheckIcon className="h-5 w-5" aria-hidden="true" />

@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import { Form, useNavigation } from "@remix-run/react";
-import { DocumentArrowUpIcon } from "@heroicons/react/24/outline";
-import { AssetType } from "~/components/upload/UploadAssetDialog";
-import { ArrowDownIcon } from "@heroicons/react/24/solid";
-import EventLogColumnMappingDialog from "~/components/upload/EventLogColumnMappingDialog";
 import { Transition } from "@headlessui/react";
+import { DocumentArrowUpIcon } from "@heroicons/react/24/outline";
+import { ArrowDownIcon } from "@heroicons/react/24/solid";
+import { Form, useNavigation } from "@remix-run/react";
+import { useEffect, useRef, useState } from "react";
+import EventLogColumnMappingDialog from "~/components/upload/EventLogColumnMappingDialog";
 import { EventLogColumnMapping } from "~/components/upload/column_mapping";
+import { AssetTypeBackend, assetTypeToString } from "~/shared/AssetTypeBackend";
 
-export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
+export function DragAndDropForm({ assetType }: { assetType: AssetTypeBackend }) {
   // DragAndDrop component is used to upload files to the server. It keeps track of three different asset types:
   // Event Log, Process Model, Simulation Model. All asset types have a corresponding drag and drop area and a hidden
   // input element to store the actual file. The Simulation Model consists of two assets, thus, it has two drag and drop
@@ -46,27 +46,28 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
     }
 
     switch (assetType) {
-      case AssetType.EventLog:
+      case AssetTypeBackend.EVENT_LOG:
         setEventLogColumnMappingEnabled(!!eventLogFile);
         setSubmitEnabled(!!eventLogFile && eventLogColumnMappingFilledIn);
         break;
-      case AssetType.ProcessModel:
+      case AssetTypeBackend.PROCESS_MODEL:
         setSubmitEnabled(!!processModelFile);
         break;
-      case AssetType.SimulationModel:
+      case AssetTypeBackend.SIMULATION_MODEL:
         setSubmitEnabled(!!processModelFile && !!simulationModelFile);
         break;
     }
   }, [assetType, eventLogFile, processModelFile, simulationModelFile, eventLogColumnMappingFilledIn]);
 
-  const validFileTypes = {
-    "Event Log": [".csv", ".gz"], // it's .gz and not .csv.gz because only the last suffix is considered by the browser
-    "Process Model": [".bpmn"],
-    "Simulation Model": [".json"],
-  };
-
-  function getValidFileTypes(assetType: AssetType) {
-    return validFileTypes[assetType].join(", ");
+  function getValidFileTypes(assetType: AssetTypeBackend) {
+    switch (assetType) {
+      case AssetTypeBackend.EVENT_LOG:
+        return [".csv", ".gz"].join(", "); // it's .gz and not .csv.gz because only the last suffix is considered by the browser
+      case AssetTypeBackend.PROCESS_MODEL:
+        return [".bpmn"].join(", ");
+      case AssetTypeBackend.SIMULATION_MODEL:
+        return [".json"].join(", ");
+    }
   }
 
   function preventDefaultStopPropagation(e: any) {
@@ -74,36 +75,36 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
     e.stopPropagation();
   }
 
-  function onHiddenInputChange(e: any, assetType: AssetType) {
+  function onHiddenInputChange(e: any, assetType: AssetTypeBackend) {
     e.preventDefault();
     const file = e.target.files[0];
     switch (assetType) {
-      case AssetType.EventLog:
+      case AssetTypeBackend.EVENT_LOG:
         setEventLogFile(file);
         break;
-      case AssetType.ProcessModel:
+      case AssetTypeBackend.PROCESS_MODEL:
         setProcessModelFile(file);
         break;
-      case AssetType.SimulationModel:
+      case AssetTypeBackend.SIMULATION_MODEL:
         setSimulationModelFile(file);
         break;
     }
   }
 
-  function onDragEnterOrLeaveOrOver(e: any, assetType: AssetType, dragActive: boolean) {
+  function onDragEnterOrLeaveOrOver(e: any, assetType: AssetTypeBackend, dragActive: boolean) {
     preventDefaultStopPropagation(e);
 
     let fileExists = false;
     switch (assetType) {
-      case AssetType.EventLog:
+      case AssetTypeBackend.EVENT_LOG:
         fileExists = !!eventLogFile;
         setEventLogDragActive(dragActive);
         break;
-      case AssetType.ProcessModel:
+      case AssetTypeBackend.PROCESS_MODEL:
         fileExists = !!processModelFile;
         setProcessModelDragActive(dragActive);
         break;
-      case AssetType.SimulationModel:
+      case AssetTypeBackend.SIMULATION_MODEL:
         fileExists = !!simulationModelFile;
         setSimulationModelDragActive(dragActive);
         break;
@@ -114,21 +115,21 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
     }
   }
 
-  function onDragDrop(e: any, assetType: AssetType) {
+  function onDragDrop(e: any, assetType: AssetTypeBackend) {
     onDragEnterOrLeaveOrOver(e, assetType, false);
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
       switch (assetType) {
-        case AssetType.EventLog:
+        case AssetTypeBackend.EVENT_LOG:
           setEventLogFile(file);
           eventLogInputRef.current.files = e.dataTransfer.files;
           break;
-        case AssetType.ProcessModel:
+        case AssetTypeBackend.PROCESS_MODEL:
           setProcessModelFile(file);
           processModelInputRef.current.files = e.dataTransfer.files;
           break;
-        case AssetType.SimulationModel:
+        case AssetTypeBackend.SIMULATION_MODEL:
           setSimulationModelFile(file);
           simulationModelInputRef.current.files = e.dataTransfer.files;
           break;
@@ -136,34 +137,34 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
     }
   }
 
-  function onRemoveClick(assetType: AssetType) {
+  function onRemoveClick(assetType: AssetTypeBackend) {
     switch (assetType) {
-      case AssetType.EventLog:
+      case AssetTypeBackend.EVENT_LOG:
         setEventLogFile(null);
         eventLogInputRef.current.value = "";
         break;
-      case AssetType.ProcessModel:
+      case AssetTypeBackend.PROCESS_MODEL:
         setProcessModelFile(null);
         processModelInputRef.current.value = "";
         break;
-      case AssetType.SimulationModel:
+      case AssetTypeBackend.SIMULATION_MODEL:
         setSimulationModelFile(null);
         simulationModelInputRef.current.value = "";
         break;
     }
   }
 
-  function openFileBrowser(assetType: AssetType) {
+  function openFileBrowser(assetType: AssetTypeBackend) {
     switch (assetType) {
-      case AssetType.EventLog:
+      case AssetTypeBackend.EVENT_LOG:
         eventLogInputRef.current.value = "";
         eventLogInputRef.current.click();
         break;
-      case AssetType.ProcessModel:
+      case AssetTypeBackend.PROCESS_MODEL:
         processModelInputRef.current.value = "";
         processModelInputRef.current.click();
         break;
-      case AssetType.SimulationModel:
+      case AssetTypeBackend.SIMULATION_MODEL:
         simulationModelInputRef.current.value = "";
         simulationModelInputRef.current.click();
         break;
@@ -173,15 +174,15 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
   function handleSubmit() {
     // Clean up inputs
     switch (assetType) {
-      case AssetType.EventLog:
+      case AssetTypeBackend.EVENT_LOG:
         processModelInputRef.current.value = "";
         simulationModelInputRef.current.value = "";
         break;
-      case AssetType.ProcessModel:
+      case AssetTypeBackend.PROCESS_MODEL:
         eventLogInputRef.current.value = "";
         simulationModelInputRef.current.value = "";
         break;
-      case AssetType.SimulationModel:
+      case AssetTypeBackend.SIMULATION_MODEL:
         eventLogInputRef.current.value = "";
         break;
     }
@@ -190,14 +191,15 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
   return (
     <div className="flex items-center justify-center">
       <Form method="post" encType="multipart/form-data" className="flex flex-col items-center justify-center space-y-8">
+        <input type="hidden" name="assetType" value={assetType} />
         {/* Hidden input element that hold actual files and allows and allow to select files for upload on the button click. */}
         <input
           type="file"
           name="eventLogFile"
           ref={eventLogInputRef}
           className="hidden"
-          accept={getValidFileTypes(AssetType.EventLog)}
-          onChange={(e: any) => onHiddenInputChange(e, AssetType.EventLog)}
+          accept={getValidFileTypes(AssetTypeBackend.EVENT_LOG)}
+          onChange={(e: any) => onHiddenInputChange(e, AssetTypeBackend.EVENT_LOG)}
         />
         <input
           type="text"
@@ -211,19 +213,19 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
           name="processModelFile"
           ref={processModelInputRef}
           className="hidden"
-          accept={getValidFileTypes(AssetType.ProcessModel)}
-          onChange={(e: any) => onHiddenInputChange(e, AssetType.ProcessModel)}
+          accept={getValidFileTypes(AssetTypeBackend.PROCESS_MODEL)}
+          onChange={(e: any) => onHiddenInputChange(e, AssetTypeBackend.PROCESS_MODEL)}
         />
         <input
           type="file"
           name="simulationModelFile"
           ref={simulationModelInputRef}
           className="hidden"
-          accept={getValidFileTypes(AssetType.SimulationModel)}
-          onChange={(e: any) => onHiddenInputChange(e, AssetType.SimulationModel)}
+          accept={getValidFileTypes(AssetTypeBackend.SIMULATION_MODEL)}
+          onChange={(e: any) => onHiddenInputChange(e, AssetTypeBackend.SIMULATION_MODEL)}
         />
 
-        {assetType === AssetType.EventLog && (
+        {assetType === AssetTypeBackend.EVENT_LOG && (
           <div className="flex flex-col items-center justify-center space-y-2 my-4">
             <DragAndDropContainer
               file={eventLogFile}
@@ -268,7 +270,7 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
           </div>
         )}
 
-        {assetType === AssetType.ProcessModel && (
+        {assetType === AssetTypeBackend.PROCESS_MODEL && (
           <DragAndDropContainer
             className="m-4"
             file={processModelFile}
@@ -282,19 +284,19 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
           />
         )}
 
-        {assetType === AssetType.SimulationModel && (
+        {assetType === AssetTypeBackend.SIMULATION_MODEL && (
           <div className="flex flex-wrap items-center justify-center">
             {/* Process Model */}
             <DragAndDropContainer
               className="m-4"
               file={processModelFile}
-              assetType={AssetType.ProcessModel}
+              assetType={AssetTypeBackend.PROCESS_MODEL}
               dragActiveFlag={processModelDragActive}
-              onDragEnter={(e) => onDragEnterOrLeaveOrOver(e, AssetType.ProcessModel, true)}
-              onDragLeave={(e) => onDragEnterOrLeaveOrOver(e, AssetType.ProcessModel, false)}
-              onDrop={(e) => onDragDrop(e, AssetType.ProcessModel)}
-              onSelectFile={() => openFileBrowser(AssetType.ProcessModel)}
-              onRemove={() => onRemoveClick(AssetType.ProcessModel)}
+              onDragEnter={(e) => onDragEnterOrLeaveOrOver(e, AssetTypeBackend.PROCESS_MODEL, true)}
+              onDragLeave={(e) => onDragEnterOrLeaveOrOver(e, AssetTypeBackend.PROCESS_MODEL, false)}
+              onDrop={(e) => onDragDrop(e, AssetTypeBackend.PROCESS_MODEL)}
+              onSelectFile={() => openFileBrowser(AssetTypeBackend.PROCESS_MODEL)}
+              onRemove={() => onRemoveClick(AssetTypeBackend.PROCESS_MODEL)}
             />
 
             {/* Simulation Parameters */}
@@ -322,7 +324,7 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
 
 function DragAndDropContainer(props: {
   file: any;
-  assetType: AssetType;
+  assetType: AssetTypeBackend;
   dragActiveFlag: boolean;
   onDragEnter: (e: any) => void;
   onDragLeave: (e: any) => void;
@@ -347,12 +349,12 @@ function DragAndDropContainer(props: {
   );
 }
 
-function DragAndDropHeader(props: { assetType: AssetType; onSelectFile: () => void }) {
+function DragAndDropHeader(props: { assetType: AssetTypeBackend; onSelectFile: () => void }) {
   // Header of the drag-and-drop area, additional instructions, and controls.
 
   return (
     <div>
-      <p className="text-lg mb-4 font-semibold">Add {props.assetType}</p>
+      <p className="text-lg mb-4 font-semibold">Add {assetTypeToString(props.assetType)}</p>
       <p className="">
         Drag & Drop or{" "}
         <span
