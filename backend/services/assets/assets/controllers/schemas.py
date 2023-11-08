@@ -4,15 +4,16 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from ..persistence.model import AssetType
+from assets.persistence.model import AssetType
 
 
 class AssetIn(BaseModel):
     name: str
     description: Optional[str] = None
     type: str
-    file_id: uuid.UUID
     project_id: uuid.UUID
+    files_ids: list[uuid.UUID]
+    users_ids: Optional[list[uuid.UUID]] = None
     processing_requests_ids: list[uuid.UUID] = []
 
 
@@ -24,8 +25,9 @@ class AssetOut(BaseModel):
     name: str
     description: Optional[str] = None
     type: str
-    file_id: uuid.UUID
     project_id: uuid.UUID
+    files_ids: list[uuid.UUID] = []
+    users_ids: list[uuid.UUID]
     processing_requests_ids: list[uuid.UUID] = []
 
 
@@ -33,8 +35,9 @@ class AssetPatchIn(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     type: Optional[AssetType] = None
-    file_id: Optional[uuid.UUID] = None
     project_id: Optional[uuid.UUID] = None
+    files_ids: Optional[list[uuid.UUID]] = None
+    users_ids: Optional[list[uuid.UUID]] = None
     processing_requests_ids: Optional[list[uuid.UUID]] = None
 
 

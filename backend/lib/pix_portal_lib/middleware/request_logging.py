@@ -49,7 +49,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             f"user_id={user_id} "
             f"status_code={response.status_code} "
             f"request_bytes={request.headers.get('content-length')} "
-            f"response_bytes={response.headers.get('content-length')}"
+            f"response_bytes={response.headers.get('content-length')} "
             f"duration={end-start}"
         )
 

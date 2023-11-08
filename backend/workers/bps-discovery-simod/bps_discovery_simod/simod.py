@@ -1,5 +1,5 @@
+import json
 import logging
-import re
 import subprocess
 import traceback
 from dataclasses import dataclass
@@ -7,8 +7,10 @@ from pathlib import Path
 from typing import Optional
 from uuid import UUID
 
+import yaml
 from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
-from pix_portal_lib.service_clients.asset import AssetServiceClient, Asset, AssetType
+from pix_portal_lib.service_clients.asset import AssetServiceClient, AssetType, File_, Asset
+from pix_portal_lib.service_clients.file import FileType
 from pix_portal_lib.service_clients.processing_request import (
     ProcessingRequestServiceClient,
     ProcessingRequest,
@@ -23,13 +25,19 @@ logger = logging.getLogger()
 
 
 class InputAssetMissing(Exception):
-    def __init__(self):
-        super().__init__("Simod discovery failed. Input asset not found.")
+    def __init__(self, message: Optional[str] = None):
+        if message is not None:
+            super().__init__(message)
+        else:
+            super().__init__("Simod discovery failed. Input asset not found.")
 
 
 class SimodDiscoveryFailed(Exception):
-    def __init__(self):
-        super().__init__("Simod discovery failed.")
+    def __init__(self, message: Optional[str] = None):
+        if message is not None:
+            super().__init__(message)
+        else:
+            super().__init__("Simod discovery failed.")
 
 
 class SimodService:
@@ -69,37 +77,37 @@ class SimodService:
                 for asset_id in processing_request.input_assets_ids
             ]
 
+            config_file, event_log_file, event_log_column_mapping_file = self._extract_input_files(assets)
+            # NOTE: event_log_column_mapping_file is optional
+            self._validate_input_files([config_file, event_log_file])
+
             # update Simod configuration to include the correct event log path
-            config_asset = self._find_asset_by_type(assets, AssetType.CONFIGURATION_SIMOD_YAML)
-            event_log_asset = self._find_asset_by_type(assets, AssetType.EVENT_LOG_CSV) or self._find_asset_by_type(
-                assets, AssetType.EVENT_LOG_CSV_GZ
+            self._update_configuration_file(
+                config_file.path,
+                event_log_file.path,
+                event_log_column_mapping_file.path if event_log_column_mapping_file else None,
             )
-            if (
-                config_asset is None
-                or event_log_asset is None
-                or config_asset.local_disk_path is None
-                or event_log_asset.local_disk_path is None
-            ):
-                raise InputAssetMissing()
-            self._update_configuration_file(config_asset.local_disk_path, event_log_asset.local_disk_path)
 
             # run Simod, it can take hours
             results_dir = self._simod_results_base_dir / processing_request.processing_request_id
             results_dir.mkdir(parents=True, exist_ok=True)
-            result = _start_simod_discovery_subprocess(config_asset.local_disk_path, results_dir)
+            result = _start_simod_discovery_subprocess(config_file.path, results_dir)
             result_stdout = result.stdout if result.stdout is not None else ""
             result_stderr = result.stderr if result.stderr is not None else ""
 
             # upload results and create corresponding assets
             result_dir = result.output_dir
-            bpmn_path, bps_model_path = self._find_simod_results_file_paths(result_dir, event_log_asset.local_disk_path)
-            bpmn_asset_id = await self._asset_service_client.create_asset(
-                file_path=bpmn_path, project_id=processing_request.project_id, asset_type=AssetType.PROCESS_MODEL_BPMN
+            bpmn_path, prosimos_json_path = self._find_simod_results_file_paths(result_dir, event_log_file.path)
+            bpmn_file = File_(name=bpmn_path.name, type=FileType.PROCESS_MODEL_BPMN, path=bpmn_path)
+            prosimos_json_file = File_(
+                name=prosimos_json_path.name, type=FileType.SIMULATION_MODEL_PROSIMOS_JSON, path=prosimos_json_path
             )
-            bps_model_asset_id = await self._asset_service_client.create_asset(
-                file_path=bps_model_path,
+            simulation_model_asset_id = await self._asset_service_client.create_asset(
+                files=[bpmn_file, prosimos_json_file],
                 project_id=processing_request.project_id,
-                asset_type=AssetType.SIMULATION_MODEL_PROSIMOS_JSON,
+                asset_name=bpmn_path.name,
+                asset_type=AssetType.SIMULATION_MODEL,
+                users_ids=[UUID(processing_request.user_id)],
             )
 
             # update project assets
@@ -107,21 +115,13 @@ class SimodService:
             #   because the processing request service checks if the assets belong to the project
             await self._project_service_client.add_asset_to_project(
                 project_id=processing_request.project_id,
-                asset_id=bpmn_asset_id,
-            )
-            await self._project_service_client.add_asset_to_project(
-                project_id=processing_request.project_id,
-                asset_id=bps_model_asset_id,
+                asset_id=simulation_model_asset_id,
             )
 
             # update output assets in the processing request
             await self._processing_request_service_client.add_output_asset_to_processing_request(
                 processing_request_id=processing_request.processing_request_id,
-                asset_id=bpmn_asset_id,
-            )
-            await self._processing_request_service_client.add_output_asset_to_processing_request(
-                processing_request_id=processing_request.processing_request_id,
-                asset_id=bps_model_asset_id,
+                asset_id=simulation_model_asset_id,
             )
 
             # update processing request status
@@ -155,29 +155,53 @@ class SimodService:
 
         # set token to None to force re-authentication, because the token might have expired
         self._asset_service_client.nullify_token()
-        self._asset_service_client._file_service.nullify_token()
+        self._asset_service_client._file_client.nullify_token()
         self._project_service_client.nullify_token()
         self._processing_request_service_client.nullify_token()
 
-    @staticmethod
-    def _find_asset_by_type(assets: list[Asset], asset_type: AssetType) -> Optional[Asset]:
+    def _extract_input_files(self, assets: list[Asset]) -> tuple[Optional[File_], Optional[File_], Optional[File_]]:
+        files: list[File_] = []
         for asset in assets:
-            if asset.type == asset_type:
-                return asset
+            if asset.files is not None:
+                files.extend(asset.files)
+
+        config_file = self._find_file_by_type(files, FileType.CONFIGURATION_SIMOD_YAML)
+        event_log_file = self._find_file_by_type(files, FileType.EVENT_LOG_CSV) or self._find_file_by_type(
+            files, FileType.EVENT_LOG_CSV_GZ
+        )
+        event_log_column_mapping_file = self._find_file_by_type(files, FileType.EVENT_LOG_COLUMN_MAPPING_JSON)
+
+        return config_file, event_log_file, event_log_column_mapping_file
+
+    @staticmethod
+    def _find_file_by_type(files: list[File_], type: FileType) -> Optional[File_]:
+        for file in files:
+            if file.type == type:
+                return file
         return None
 
     @staticmethod
-    def _update_configuration_file(config_path: Path, event_log_path: Path):
-        content = config_path.read_bytes()
+    def _validate_input_files(files: list[File_]):
+        for f in files:
+            if f is None or f.path is None or not Path(f.path).exists():
+                raise InputAssetMissing()
 
-        regexp = r"train_log_path: .*\n"
-        replacement = f"train_log_path: {event_log_path.absolute()}\n"
-        content = re.sub(regexp, replacement, content.decode("utf-8"))
+    @staticmethod
+    def _update_configuration_file(config_path: Path, event_log_path: Path, column_mapping_path: Optional[Path] = None):
+        content = config_path.read_bytes()
+        config = yaml.safe_load(content)
+
+        config["common"]["train_log_path"] = str(event_log_path.absolute())
 
         # NOTE: test log is not supported for discovery in production
-        regexp = r"test_log_path: .*\n"
-        replacement = "test_log_path: null\n"
-        content = re.sub(regexp, replacement, content)
+        config["common"]["test_log_path"] = None
+
+        # NOTE: column mapping format must correspond to EventLogIDs from pix-framework
+        if column_mapping_path:
+            column_mapping = json.load(column_mapping_path.open("r"))
+            config["common"]["log_ids"] = column_mapping
+
+        content = yaml.dump(config)
 
         config_path.write_bytes(content.encode("utf-8"))
 

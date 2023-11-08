@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 
 from sqlalchemy import DateTime, String, Uuid
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -10,16 +10,11 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class AssetType(str, Enum):
-    EVENT_LOG_CSV = "event_log_csv"
-    EVENT_LOG_CSV_GZ = "event_log_csv_gz"
-    EVENT_LOG_COLUMN_MAPPING_JSON = "event_log_column_mapping_json"
-    PROCESS_MODEL_BPMN = "process_model_bpmn"
-    CONFIGURATION_SIMOD_YAML = "configuration_simod_yaml"
-    SIMULATION_MODEL_PROSIMOS_JSON = "simulation_model_prosimos_json"
-    CONFIGURATION_PROSIMOS_YAML = "configuration_prosimos_yaml"
-    CONSTRAINTS_MODEL_OPTIMOS_JSON = "constraints_model_optimos_json"
-    WAITING_TIME_ANALYSIS_REPORT_KRONOS_JSON = "waiting_time_analysis_report_kronos_json"
-    WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV = "waiting_time_analysis_report_kronos_csv"
+    EVENT_LOG = "event_log"
+    PROCESS_MODEL = "process_model"
+    SIMULATION_MODEL = "simulation_model"
+    SIMOD_CONFIGURATION = "simod_configuration"
+    OPTIMOS_CONFIGURATION = "optimos_configuration"
 
 
 class Base(AsyncAttrs, DeclarativeBase):
@@ -45,6 +40,9 @@ class Asset(Base):
 
     # Implicit relationships to other microservices' tables
 
-    file_id: Mapped[Optional[uuid.UUID]] = mapped_column(Uuid, nullable=False)
     project_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
-    processing_requests_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[])
+    users_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[], index=True)
+    files_ids: Mapped[List[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[])
+    processing_requests_ids: Mapped[List[uuid.UUID]] = mapped_column(
+        ARRAY(Uuid), nullable=False, default=[], index=True
+    )

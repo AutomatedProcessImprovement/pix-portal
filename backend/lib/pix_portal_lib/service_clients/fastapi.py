@@ -40,7 +40,7 @@ async def get_current_user(
     token = authorization.split(" ")[1]
     ok, user = await auth_service.verify_token(token)
     if not ok:
-        raise HTTPException(status_code=401, detail="Invalid authentication token")
+        raise HTTPException(status_code=401, detail=f"Invalid authentication token: {token}")
     return user
 
 
@@ -63,5 +63,5 @@ async def get_current_superuser(
     token = authorization.split(" ")[1]
     ok, user = await auth_service.verify_token(token, is_superuser=True)
     if not ok:
-        raise HTTPException(status_code=401, detail="Invalid authentication token")
+        raise HTTPException(status_code=401, detail=f"Invalid authentication token: {token}")
     return user

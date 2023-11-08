@@ -1,12 +1,12 @@
+import asyncio
 import uuid
 from typing import AsyncGenerator, Optional, Sequence
 
+from assets.persistence.model import Asset, AssetType
+from assets.persistence.repository import get_asset_repository, AssetRepository
 from fastapi import Depends
-from pix_portal_lib.service_clients.file import FileServiceClient
+from pix_portal_lib.service_clients.file import FileServiceClient, File
 from pix_portal_lib.service_clients.project import ProjectServiceClient
-
-from ..persistence.model import Asset, AssetType
-from ..persistence.repository import get_asset_repository, AssetRepository
 
 
 class AssetService:
@@ -33,21 +33,29 @@ class AssetService:
         self,
         name: str,
         type: str,
-        file_id: uuid.UUID,
         project_id: uuid.UUID,
-        processing_requests_ids: list[uuid.UUID] = [],
+        files_ids: list[uuid.UUID],
+        users_ids: list[uuid.UUID],
+        processing_requests_ids: list[uuid.UUID],
+        token: str,
         description: Optional[str] = None,
     ) -> Asset:
+        for file_id in files_ids:
+            await self.file_service_client.is_deleted(file_id, token=token)
+
         asset_type = AssetType(type)
         asset = await self.asset_repository.create_asset(
-            name,
-            asset_type,
-            file_id,
-            project_id,
-            processing_requests_ids,
-            description,
+            name=name,
+            type=asset_type,
+            project_id=project_id,
+            files_ids=files_ids,
+            users_ids=users_ids,
+            processing_requests_ids=processing_requests_ids,
+            description=description,
         )
+
         await self.project_service_client.add_asset_to_project(str(project_id), str(asset.id))
+
         return asset
 
     async def get_asset(self, asset_id: uuid.UUID) -> Asset:
@@ -58,7 +66,8 @@ class AssetService:
         asset_id: uuid.UUID,
         name: Optional[str] = None,
         type: Optional[AssetType] = None,
-        file_id: Optional[uuid.UUID] = None,
+        files_ids: Optional[list[uuid.UUID]] = None,
+        users_ids: Optional[list[uuid.UUID]] = None,
         project_id: Optional[uuid.UUID] = None,
         processing_requests_ids: Optional[list[uuid.UUID]] = None,
         description: Optional[str] = None,
@@ -67,7 +76,8 @@ class AssetService:
             asset_id,
             name=name,
             type=type,
-            file_id=file_id,
+            files_ids=files_ids,
+            users_ids=users_ids,
             project_id=project_id,
             processing_requests_ids=processing_requests_ids,
             description=description,
@@ -76,23 +86,33 @@ class AssetService:
     async def delete_asset(self, asset_id: uuid.UUID, token: str) -> None:
         asset = await self.get_asset(asset_id)
         await self.asset_repository.delete_asset(asset_id)
-        deleted_ok = await self.file_service_client.delete_file(asset.file_id, token=token)
-        if not deleted_ok:
-            raise Exception("Asset deleted but file deletion failed")
 
-    async def get_file_by_asset_id(self, asset_id: uuid.UUID, token: str) -> dict:
+        for file_id in asset.files_ids:
+            deleted_ok = await self.file_service_client.delete_file(file_id, token=token)
+            if not deleted_ok:
+                raise Exception("Asset deleted but files deletion failed")
+
+    async def get_files_by_asset_id(self, asset_id: uuid.UUID, token: str) -> list[dict]:
         asset = await self.get_asset(asset_id)
-        return await self.file_service_client.get_file(asset.file_id, token=token)
+        files = await asyncio.gather(
+            *[self.file_service_client.get_file(file_id, token=token) for file_id in asset.files_ids]
+        )
+        return list(files)
 
-    async def get_file(self, file_id: uuid.UUID, token: str) -> dict:
+    async def get_file(self, file_id: uuid.UUID, token: str) -> File:
         return await self.file_service_client.get_file(file_id, token=token)
 
-    async def get_file_location(self, asset_id: uuid.UUID, is_internal: bool, token: str) -> str:
-        asset = await self.get_asset(asset_id)
-        file = await self.file_service_client.get_file(asset.file_id, token=token)
-        relative_url = file["url"]
+    async def get_file_location(self, file_id: uuid.UUID, is_internal: bool, token: str) -> str:
+        file = await self.file_service_client.get_file(file_id, token=token)
+        relative_url = file.url
         absolute_url = self.file_service_client.get_absolute_url(relative_url, is_internal)
         return absolute_url
+
+    async def user_has_access_to_asset(self, user_id: uuid.UUID, asset_id: uuid.UUID) -> bool:
+        asset = await self.get_asset(asset_id)
+        user_id = str(user_id)
+        users_ids = [str(user_id) for user_id in asset.users_ids]
+        return user_id in users_ids
 
 
 async def get_asset_service(

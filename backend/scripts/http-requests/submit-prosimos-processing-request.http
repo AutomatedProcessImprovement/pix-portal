@@ -27,7 +27,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "project one"
+  "name": "Prosimos Run"
 }
 
 ### Upload a file
@@ -61,7 +61,7 @@ Authorization: Bearer {{token}}
   "name": "PurchasingExample.bpmn",
   "type": "process_model_bpmn",
   "file_id": "9df58316-cfcb-4f06-8c47-f2102648a4db",
-  "project_id": "536b9d58-83b9-4251-ba87-5432ec9f0a8b"
+  "project_id": "9da8ed0b-1f3b-44b0-ab6e-f9319ef45e75"
 }
 
 ### Create the simulation model asset
@@ -74,7 +74,7 @@ Authorization: Bearer {{token}}
   "name": "PurchasingExampleSimulationModel.json",
   "type": "simulation_model_prosimos_json",
   "file_id": "1aa19b4a-a65f-4aa4-ac5f-d76ccd10dfdc",
-  "project_id": "536b9d58-83b9-4251-ba87-5432ec9f0a8b"
+  "project_id": "9da8ed0b-1f3b-44b0-ab6e-f9319ef45e75"
 }
 
 ### Create the prosimos configuration asset
@@ -87,12 +87,12 @@ Authorization: Bearer {{token}}
   "name": "configuration_prosimos.yml",
   "type": "configuration_prosimos_yaml",
   "file_id": "32642de3-33d7-415a-9693-42a3e245e6bf",
-  "project_id": "536b9d58-83b9-4251-ba87-5432ec9f0a8b"
+  "project_id": "9da8ed0b-1f3b-44b0-ab6e-f9319ef45e75"
 }
 
 ### Get an asset
 
-GET http://localhost:9999/api/v1/assets/b6428878-3129-431f-ab58-c3a4f5ab9bf1/location?is_internal=true
+GET http://localhost:9999/api/v1/assets/9777218c-99c5-4704-aa12-b5e4ad5ac0be
 Authorization: Bearer {{token}}
 
 ### List assets
@@ -108,11 +108,9 @@ Authorization: Bearer {{token}}
 
 {
   "type": "simulation_prosimos",
-  "project_id": "536b9d58-83b9-4251-ba87-5432ec9f0a8b",
+  "project_id": "9da8ed0b-1f3b-44b0-ab6e-f9319ef45e75",
   "input_assets_ids": [
-    "e5ee3c31-0c8c-4bb1-981f-4d9643ddc469",
-    "5c09694e-8e88-4f68-b87f-a804032a57d3",
-    "6bfb6b61-30b9-4590-8eeb-c31a99a567b0"
+    "9777218c-99c5-4704-aa12-b5e4ad5ac0be"
   ],
   "should_notify": true
 }

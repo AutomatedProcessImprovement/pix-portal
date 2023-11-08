@@ -10,7 +10,7 @@ from pix_portal_lib.open_telemetry_utils import instrument_app
 from pix_portal_lib.persistence.alembic import migrate_to_latest
 from pix_portal_lib.service_clients.fastapi import add_user_to_app_state_if_present
 
-from .controllers import blobs, files
+from files.controllers import blobs, files
 
 app = FastAPI(
     title="PIX Portal Files",

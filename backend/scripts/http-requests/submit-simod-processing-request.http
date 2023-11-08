@@ -16,7 +16,7 @@ password = system
 
 ### List projects
 
-GET http://localhost:9999/api/v1/projects/
+GET http://localhost:9999/api/v1/projects/?user_id=e431ca4d-4df3-42f4-b011-27d40ffa40ff
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -33,26 +33,34 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "project one"
+  "name": "Simod Run"
 }
 
-### Upload a file
+### Upload an event log
 
-POST http://localhost:9999/api/v1/files/
+POST http://localhost:9999/api/v1/files/?name=PurchasingExample.csv.gz&type=event_log_csv_gz
 Authorization: Bearer {{token}}
 Content-Type: application/octet-stream
 
 < ./PurchasingExample.csv.gz
 
+### Upload a column mapping
+
+POST http://localhost:9999/api/v1/files/?name=column_mapping.json&type=event_log_column_mapping_json
+Authorization: Bearer {{token}}
+Content-Type: application/octet-stream
+
+< ./column_mapping.json
+
 ### Upload the configuration
 
-POST http://localhost:9999/api/v1/files/
+POST http://localhost:9999/api/v1/files/?name=configuration_one_shot.yml&type=configuration_simod_yaml
 Authorization: Bearer {{token}}
 Content-Type: application/octet-stream
 
 < ./configuration_one_shot.yml
 
-### Create an asset
+### Create the event log asset
 
 POST http://localhost:9999/api/v1/assets/
 Content-Type: application/json
@@ -60,9 +68,12 @@ Authorization: Bearer {{token}}
 
 {
   "name": "PurchasingExample.csv.gz",
-  "type": "event_log_csv_gz",
-  "file_id": "39fd287d-3d0d-401a-ae61-d66a49544a26",
-  "project_id": "536b9d58-83b9-4251-ba87-5432ec9f0a8b"
+  "type": "event_log",
+  "files_ids": [
+    "cca1c04f-1943-4e67-b6fb-9526e86ecb0c",
+    "b189919e-67fc-4764-9002-689fcc65f02d"
+  ],
+  "project_id": "9da8ed0b-1f3b-44b0-ab6e-f9319ef45e75"
 }
 
 ### Create the configuration asset
@@ -73,9 +84,11 @@ Authorization: Bearer {{token}}
 
 {
   "name": "configuration_one_shot.yml",
-  "type": "configuration_simod_yaml",
-  "file_id": "f680742c-8409-4972-8bc8-c5069f0e28be",
-  "project_id": "536b9d58-83b9-4251-ba87-5432ec9f0a8b"
+  "type": "simod_configuration",
+  "files_ids": [
+    "ecce6a24-8e49-4c8c-a48a-a11a8f502ed4"
+  ],
+  "project_id": "9da8ed0b-1f3b-44b0-ab6e-f9319ef45e75"
 }
 
 ### List assets
@@ -91,10 +104,10 @@ Authorization: Bearer {{token}}
 
 {
   "type": "process_model_optimization_simod",
-  "project_id": "536b9d58-83b9-4251-ba87-5432ec9f0a8b",
+  "project_id": "9da8ed0b-1f3b-44b0-ab6e-f9319ef45e75",
   "input_assets_ids": [
-    "527d2ae3-a50a-4d48-b90e-bbac20305400",
-    "7fb77a94-794d-49aa-ae59-2bd3095048bc"
+    "19045307-f284-4003-a5f6-da0e9094c94c",
+    "50277fe2-fe19-445c-8254-53daae5eca83"
   ],
   "should_notify": true
 }
@@ -102,4 +115,9 @@ Authorization: Bearer {{token}}
 ### Get a processing request
 
 GET http://localhost:9999/api/v1/processing-requests/d0846ce5-c022-496c-9bc2-c25cec4de74b
+Authorization: Bearer {{token}}
+
+### Get a file
+
+GET http://localhost:9999/api/v1/files/cca1c04f-1943-4e67-b6fb-9526e86ecb0c
 Authorization: Bearer {{token}}

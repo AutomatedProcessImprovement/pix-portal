@@ -5,9 +5,9 @@ from typing import AsyncGenerator, Sequence
 
 from fastapi import Depends
 
-from ..persistence.model import File
-from ..persistence.repository import get_file_repository, FileRepository
-from ..settings import settings
+from files.persistence.model import File, FileType
+from files.persistence.repository import get_file_repository, FileRepository
+from files.settings import settings
 
 
 class FileExists(Exception):
@@ -23,12 +23,17 @@ class FileService:
 
         self.base_dir.mkdir(parents=True, exist_ok=True)
 
-    async def save_file(self, file_bytes: bytes) -> File:
+    async def save_file(self, name: str, file_type: FileType, file_bytes: bytes, users_ids: list[uuid.UUID]) -> File:
         hash = self._compute_sha256(file_bytes)
 
         if self._hash_exists_on_disk(hash):
             try:
                 file = await self.file_repository.get_file_by_hash(hash)
+
+                # add users if they don't have access to the file yet
+                if not await self.users_have_access_to_file(users_ids, file.id):
+                    await self.file_repository.add_users_to_file_if_needed(file.id, users_ids)
+
                 raise FileExists(file)
             except FileNotFoundError:
                 # File exists on disk but not in database, continue creating the database record
@@ -40,13 +45,22 @@ class FileService:
 
         url = self._generate_url(hash)
 
-        return await self.file_repository.create_file(hash, url)
+        return await self.file_repository.create_file(
+            name=name,
+            content_hash=hash,
+            url=url,
+            file_type=file_type,
+            users_ids=users_ids,
+        )
 
     async def get_files(self) -> Sequence[File]:
         return await self.file_repository.get_files()
 
     async def get_file(self, file_id: uuid.UUID) -> File:
         return await self.file_repository.get_file(file_id)
+
+    async def get_file_by_hash(self, hash: str) -> File:
+        return await self.file_repository.get_file_by_hash(hash)
 
     async def delete_file(self, file_id: uuid.UUID) -> None:
         content_hash = await self.file_repository.get_file_hash(file_id)
@@ -60,6 +74,18 @@ class FileService:
     async def get_file_url(self, file_id: uuid.UUID) -> str:
         file = await self.get_file(file_id)
         return file.url
+
+    async def user_has_access_to_file(self, user_id: uuid.UUID, file_id: uuid.UUID) -> bool:
+        file = await self.get_file(file_id)
+        user_id = str(user_id)
+        users_ids = [str(user_id) for user_id in file.users_ids]
+        return user_id in users_ids
+
+    async def users_have_access_to_file(self, users_ids: list[uuid.UUID], file_id: uuid.UUID) -> bool:
+        file = await self.get_file(file_id)
+        users_ids = [str(user_id) for user_id in users_ids]
+        files_users_ids = [str(user_id) for user_id in file.users_ids]
+        return all(user_id in files_users_ids for user_id in users_ids)
 
     @staticmethod
     def _compute_sha256(content: bytes) -> str:

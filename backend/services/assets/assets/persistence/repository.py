@@ -7,7 +7,7 @@ from pix_portal_lib.persistence.sqlalchemy import get_async_session
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .model import Asset, AssetType
+from assets.persistence.model import Asset, AssetType
 
 
 class AssetNotFound(Exception):
@@ -40,16 +40,18 @@ class AssetRepository:
         self,
         name: str,
         type: AssetType,
-        file_id: uuid.UUID,
         project_id: uuid.UUID,
-        processing_requests_ids: list[uuid.UUID] = [],
+        users_ids: list[uuid.UUID],
+        files_ids: list[uuid.UUID],
+        processing_requests_ids: list[uuid.UUID],
         description: Optional[str] = None,
     ) -> Asset:
         asset = Asset(
             name=name,
             type=type,
-            file_id=file_id,
             project_id=project_id,
+            users_ids=users_ids,
+            files_ids=files_ids,
             processing_requests_ids=processing_requests_ids,
             description=description,
         )
@@ -70,7 +72,8 @@ class AssetRepository:
         name: Optional[str] = None,
         description: Optional[str] = None,
         type: Optional[AssetType] = None,
-        file_id: Optional[uuid.UUID] = None,
+        files_ids: Optional[list[uuid.UUID]] = None,
+        users_ids: Optional[list[uuid.UUID]] = None,
         project_id: Optional[uuid.UUID] = None,
         processing_requests_ids: Optional[list[uuid.UUID]] = None,
     ) -> Asset:
@@ -81,8 +84,10 @@ class AssetRepository:
             asset.description = description
         if type is not None:
             asset.type = type
-        if file_id is not None:
-            asset.file_id = file_id
+        if users_ids is not None:
+            asset.users_ids = users_ids
+        if files_ids is not None:
+            asset.files_ids = files_ids
         if project_id is not None:
             asset.project_id = project_id
         if processing_requests_ids is not None:

@@ -6,7 +6,6 @@ import uuid
 import pix_portal_lib.open_telemetry_utils as open_telemetry_utils
 from kafka import KafkaConsumer
 from pix_portal_lib.service_clients.processing_request import ProcessingRequest
-
 from simulation_prosimos.prosimos_service import ProsimosService
 from simulation_prosimos.settings import settings
 
@@ -49,7 +48,7 @@ async def process_message(message):
 
 async def main():
     for message in consumer:
-        if asyncio.get_event_loop().is_closed():
+        if not asyncio.get_event_loop() or asyncio.get_event_loop().is_closed():
             asyncio.set_event_loop(asyncio.new_event_loop())
         await asyncio.create_task(process_message(message))
 

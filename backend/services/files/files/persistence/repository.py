@@ -7,7 +7,7 @@ from pix_portal_lib.persistence.sqlalchemy import get_async_session
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .model import File
+from .model import File, FileType
 
 
 class FileRepository:
@@ -39,11 +39,26 @@ class FileRepository:
             raise FileNotFoundError()
         return content_hash
 
-    async def create_file(self, content_hash: str, url: str) -> File:
-        file = File(content_hash=content_hash, url=url)
+    async def create_file(
+        self, name: str, file_type: FileType, content_hash: str, url: str, users_ids: list[uuid.UUID]
+    ) -> File:
+        file = File(name=name, content_hash=content_hash, url=url, type=file_type, users_ids=users_ids)
         self.session.add(file)
         await self.session.commit()
         return file
+
+    async def add_user_to_file(self, file_id: uuid.UUID, user_id: uuid.UUID) -> None:
+        await self.session.execute(
+            update(File).where(File.id == file_id).values(users_ids=File.users_ids.append(user_id))
+        )
+        await self.session.commit()
+
+    async def add_users_to_file_if_needed(self, file_id: uuid.UUID, users_ids: list[uuid.UUID]) -> None:
+        current_users_ids = await self.session.execute(select(File.users_ids).where(File.id == file_id))
+        current_users_ids = current_users_ids.scalars().all()
+        new_users_ids = set(users_ids).union(set(current_users_ids))
+        await self.session.execute(update(File).where(File.id == file_id).values(users_ids=list(new_users_ids)))
+        await self.session.commit()
 
     async def delete_file(self, file_id: uuid.UUID) -> None:
         await self.session.execute(update(File).where(File.id == file_id).values(deletion_time=datetime.utcnow()))
