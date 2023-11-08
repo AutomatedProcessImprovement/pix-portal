@@ -87,7 +87,12 @@ Authorization: Bearer {{token}}
 
 ### Get an asset
 
-GET http://localhost:9999/api/v1/assets/f56b4ded-7d6a-4e88-95be-f1f40f416c9b/files/cca1c04f-1943-4e67-b6fb-9526e86ecb0c/location
+GET http://localhost:9999/api/v1/assets/e6acf87c-bf52-46e2-81d7-20e243259885
+Authorization: Bearer {{token}}
+
+### Get asset files
+
+GET http://localhost:9999/api/v1/assets/e6acf87c-bf52-46e2-81d7-20e243259885/files/09ca10e8-7984-4879-a1a3-0a712a44294f/location
 Authorization: Bearer {{token}}
 
 ### List assets
@@ -103,10 +108,9 @@ Authorization: Bearer {{token}}
 
 {
   "type": "waiting_time_analysis_kronos",
-  "project_id": "c012fd4b-8cf1-4335-ae76-cac069e4a9ef",
+  "project_id": "9da8ed0b-1f3b-44b0-ab6e-f9319ef45e75",
   "input_assets_ids": [
-    "0327e14e-a8c5-47e5-b1e5-8e88d44262ef",
-    "22cf6a9e-ca90-48b2-b7af-551474b31bca"
+    "e6acf87c-bf52-46e2-81d7-20e243259885"
   ],
   "should_notify": true
 }
@@ -123,7 +127,7 @@ Authorization: Bearer {{token}}
 
 ### Get the blob
 
-GET http://localhost:9999/api/v1/blobs/b4f1a4ded7611bb06fa393e10fec969369c23d2abc61916ff1aa3f1e821ea45e
+GET http://localhost:9999/api/v1/blobs/0e94ebb6b5b394c8e10bcdbc8e1311a2153c295b166c285e1ae4ca3f3c744ab4
 Authorization: Bearer {{token}}
 
 ### Query Kronos HTTP

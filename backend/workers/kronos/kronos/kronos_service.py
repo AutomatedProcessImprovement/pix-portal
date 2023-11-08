@@ -1,3 +1,4 @@
+import json
 import logging
 import traceback
 from pathlib import Path
@@ -14,6 +15,7 @@ from pix_portal_lib.service_clients.processing_request import (
 )
 from pix_portal_lib.service_clients.project import ProjectServiceClient
 from pix_portal_lib.service_clients.user import UserServiceClient
+from wta import EventLogIDs
 from wta.cli import _column_mapping, _run
 
 from kronos.kronos_http_client import KronosHTTPClient
@@ -130,7 +132,7 @@ class KronosService:
 
         # set token to None to force re-authentication, because the token might have expired
         self._asset_service_client.nullify_token()
-        self._asset_service_client._file_service.nullify_token()
+        self._asset_service_client._file_client.nullify_token()
         self._project_service_client.nullify_token()
         self._processing_request_service_client.nullify_token()
 
@@ -167,9 +169,21 @@ class KronosService:
         output_dir: Path,
     ):
         log_ids = _column_mapping(column_mapping_path, None)
+        KronosService._post_process_log_ids(column_mapping_path, log_ids)
+
         _run(event_log_path, True, log_ids, output_dir)
+
         output_path = (output_dir / (event_log_path.stem + "_transitions_report")).with_suffix(".csv")
         return output_path
+
+    @staticmethod
+    def _post_process_log_ids(column_mapping_path: Path, log_ids: EventLogIDs):
+        # WTA v1.3.8 uses "start_timestamp" and "end_timestamp" keys from the column mapping file
+        # instead of "start_time" and "end_time" but uses "start_time" and "end_time" in EventLogIDs,
+        # so we need to ensure the correct column names are used for start and end timestamps
+        column_mapping = json.load(column_mapping_path.open("r"))
+        setattr(log_ids, "start_time", column_mapping["start_time"])
+        setattr(log_ids, "end_time", column_mapping["end_time"])
 
     async def _send_email_notification(self, processing_request: ProcessingRequest, is_success: bool):
         email_notification_producer = EmailNotificationProducer(client_id="waiting_time_analysis_kronos")
