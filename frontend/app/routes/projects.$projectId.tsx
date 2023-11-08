@@ -6,7 +6,7 @@ import {
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
 } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Outlet, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 import ProjectNav from "~/components/ProjectNav";
 import { Asset, getAssetsForProject } from "~/services/assets.server";
@@ -64,6 +64,7 @@ export default function ProjectPage() {
           </div>
         </section>
       </section>
+      <Outlet />
     </>
   );
 }
