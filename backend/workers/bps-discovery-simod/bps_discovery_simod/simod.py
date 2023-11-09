@@ -8,6 +8,7 @@ from typing import Optional
 from uuid import UUID
 
 import yaml
+from bps_discovery_simod.settings import settings
 from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
 from pix_portal_lib.service_clients.asset import AssetServiceClient, AssetType, File_, Asset
 from pix_portal_lib.service_clients.file import FileType
@@ -18,8 +19,6 @@ from pix_portal_lib.service_clients.processing_request import (
 )
 from pix_portal_lib.service_clients.project import ProjectServiceClient
 from pix_portal_lib.service_clients.user import UserServiceClient
-
-from bps_discovery_simod.settings import settings
 
 logger = logging.getLogger()
 
@@ -105,7 +104,7 @@ class SimodService:
             simulation_model_asset_id = await self._asset_service_client.create_asset(
                 files=[bpmn_file, prosimos_json_file],
                 project_id=processing_request.project_id,
-                asset_name=bpmn_path.name,
+                asset_name=bpmn_path.stem,
                 asset_type=AssetType.SIMULATION_MODEL,
                 users_ids=[UUID(processing_request.user_id)],
             )

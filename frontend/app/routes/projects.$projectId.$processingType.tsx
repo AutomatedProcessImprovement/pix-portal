@@ -1,9 +1,10 @@
 import { json, redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
 import { isRouteErrorResponse, useLoaderData, useMatches, useRouteError } from "@remix-run/react";
-import InputAssets from "~/components/processing/InputAssets";
+import ProcessingApp from "~/components/processing/ProcessingApp";
 import ProcessingMenu from "~/components/processing/ProcessingMenu";
-import { getAssetsForProject } from "~/services/assets.server";
+import { Asset, getAssetsForProject } from "~/services/assets.server";
 import { requireLoggedInUser } from "~/session.server";
+import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 import { handleThrow } from "~/utils";
 
 export enum ProcessingType {
@@ -20,7 +21,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const user = await requireLoggedInUser(request);
 
   return handleThrow(request, async () => {
-    const assets = await getAssetsForProject(projectId, user.token!);
+    let assets = await getAssetsForProject(projectId, user.token!);
+    assets = filterAssetsByType(assets, processingType as ProcessingType);
     return json({ assets, processingType });
   });
 };
@@ -47,11 +49,7 @@ export default function RouteComponent() {
       <div className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
         <ProcessingMenu projectId={project.id} />
       </div>
-      <div className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
-        <InputAssets assets={assets} processingType={processingType} />
-      </div>
-      <div className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">{processingType}</div>
-      <div className="border-2 border-red-400 px-2 py-1 bg-yellow-50">Output assets</div>
+      <ProcessingApp assets={assets} processingType={processingType} />
     </div>
   );
 }
@@ -62,4 +60,19 @@ export function ErrorBoundary() {
     return <div className="p-4 bg-red-400">Route error</div>;
   }
   return <div className="p-4 bg-red-400">Some other error</div>;
+}
+
+function filterAssetsByType(assets: Asset[], processingType: ProcessingType) {
+  switch (processingType) {
+    case ProcessingType.Discovery:
+      return assets.filter(
+        (asset) => asset.type === AssetTypeBackend.EVENT_LOG || asset.type === AssetTypeBackend.PROCESS_MODEL
+      );
+    case ProcessingType.Simulation:
+      return assets.filter((asset) => asset.type === AssetTypeBackend.SIMULATION_MODEL);
+    case ProcessingType.WaitingTime:
+      return assets.filter((asset) => asset.type === AssetTypeBackend.EVENT_LOG);
+    default:
+      throw new Error("Invalid processing type");
+  }
 }

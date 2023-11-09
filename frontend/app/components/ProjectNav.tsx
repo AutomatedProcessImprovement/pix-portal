@@ -1,9 +1,8 @@
-import { Project } from "~/services/projects.server";
-import { Link } from "@remix-run/react";
 import { ChevronRightIcon, HomeIcon } from "@heroicons/react/24/outline";
+import { Link } from "@remix-run/react";
 import UploadAssetDialog from "~/components/upload/UploadAssetDialog";
-import React from "react";
-import { PlusCircleIcon } from "@heroicons/react/20/solid";
+import { Project } from "~/services/projects.server";
+import UploadAssetButton from "./UploadAssetButton";
 
 export default function ProjectNav({ project }: { project: Project }) {
   return (
@@ -35,11 +34,3 @@ export default function ProjectNav({ project }: { project: Project }) {
   );
 }
 
-function UploadAssetButton() {
-  return (
-    <div className="group flex flex-auto space-x-1 items-center justify-between cursor-pointer">
-      <PlusCircleIcon className="h-5 w-auto text-blue-500 group-hover:text-blue-600" />
-      <a>Upload asset</a>
-    </div>
-  );
-}

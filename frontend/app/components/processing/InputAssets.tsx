@@ -1,32 +1,51 @@
-import { ProcessingType } from "~/routes/projects.$projectId.$processingType";
+import { useEffect } from "react";
 import { Asset } from "~/services/assets.server";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
+import UploadAssetButton from "../UploadAssetButton";
+import UploadAssetDialog from "../upload/UploadAssetDialog";
 
-export default function InputAssets({ assets, processingType }: { assets: Asset[]; processingType: ProcessingType }) {
-  assets = filterAssetsByType(assets, processingType);
+export default function InputAssets({
+  assets,
+  selectedAssets,
+  setSelectedAssets,
+}: {
+  assets: Asset[];
+  selectedAssets: Asset[];
+  setSelectedAssets: (assets: Asset[]) => void;
+}) {
+  useEffect(() => {
+    console.log("InputAssets useEffect: selected assets", selectedAssets);
+  }, [assets, selectedAssets]);
+
+  function handleClick(asset: Asset) {
+    // allow only one asset of each type to be selected at the same time
+
+    if (selectedAssets.includes(asset)) {
+      // if the asset is already selected, deselect it
+      setSelectedAssets([...filterOutAssetType(selectedAssets, asset.type as AssetTypeBackend)]);
+    } else {
+      setSelectedAssets([...filterOutAssetType(selectedAssets, asset.type as AssetTypeBackend), asset]);
+    }
+  }
 
   return (
-    <div className="flex flex-col p-2 space-y-2">
-      {assets.map((asset: Asset) => (
-        <div key={asset.id} className="px-2 bg-teal-200">
+    <div className="flex flex-col items-center p-2 space-y-2">
+      {assets.sort().map((asset: Asset) => (
+        <div
+          key={asset.id}
+          className={`px-2 bg-teal-200 ${selectedAssets.includes(asset) ? "bg-teal-400 border-2 border-teal-800" : ""}`}
+          onClick={() => {
+            handleClick(asset);
+          }}
+        >
           {asset.name}
         </div>
       ))}
+      <UploadAssetDialog trigger={<UploadAssetButton />} />
     </div>
   );
 }
 
-function filterAssetsByType(assets: Asset[], processingType: ProcessingType) {
-  switch (processingType) {
-    case ProcessingType.Discovery:
-      return assets.filter(
-        (asset) => asset.type === AssetTypeBackend.EVENT_LOG || asset.type === AssetTypeBackend.PROCESS_MODEL
-      );
-    case ProcessingType.Simulation:
-      return assets.filter((asset) => asset.type === AssetTypeBackend.SIMULATION_MODEL);
-    case ProcessingType.WaitingTime:
-      return assets.filter((asset) => asset.type === AssetTypeBackend.EVENT_LOG);
-    default:
-      throw new Error("Invalid processing type");
-  }
+function filterOutAssetType(assets: Asset[], assetType: AssetTypeBackend) {
+  return assets.filter((asset) => asset.type !== assetType);
 }
