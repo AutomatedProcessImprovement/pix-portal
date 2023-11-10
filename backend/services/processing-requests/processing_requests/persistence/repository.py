@@ -105,6 +105,8 @@ class ProcessingRequestRepository:
         status: Optional[ProcessingRequestStatus] = None,
         message: Optional[str] = None,
         should_notify: Optional[bool] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
     ) -> ProcessingRequest:
         processing_request = await self.get_processing_request(processing_request_id)
         if status is not None:
@@ -113,6 +115,10 @@ class ProcessingRequestRepository:
             processing_request.message = message
         if should_notify is not None:
             processing_request.should_notify = should_notify
+        if start_time is not None and processing_request.start_time is None:
+            processing_request.start_time = start_time
+        if end_time is not None and processing_request.end_time is None:
+            processing_request.end_time = end_time
         processing_request.modification_time = datetime.utcnow()
         await self.session.commit()
         return processing_request

@@ -1,10 +1,13 @@
 import json
 import logging
 import traceback
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 from uuid import UUID
 
+from kronos.kronos_http_client import KronosHTTPClient
+from kronos.settings import settings
 from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
 from pix_portal_lib.service_clients.asset import AssetServiceClient, Asset, File_
 from pix_portal_lib.service_clients.file import FileType
@@ -17,9 +20,6 @@ from pix_portal_lib.service_clients.project import ProjectServiceClient
 from pix_portal_lib.service_clients.user import UserServiceClient
 from wta import EventLogIDs
 from wta.cli import _column_mapping, _run
-
-from kronos.kronos_http_client import KronosHTTPClient
-from kronos.settings import settings
 
 logger = logging.getLogger()
 
@@ -58,8 +58,10 @@ class KronosService:
         """
         try:
             # update processing request status
-            await self._processing_request_service_client.update_status(
-                processing_request_id=processing_request.processing_request_id, status=ProcessingRequestStatus.RUNNING
+            await self._processing_request_service_client.update_request(
+                processing_request_id=processing_request.processing_request_id,
+                status=ProcessingRequestStatus.RUNNING,
+                start_time=datetime.utcnow(),
             )
 
             # download assets
@@ -104,8 +106,10 @@ class KronosService:
             # NOTE: there's no public output assets from Kronos, a user is supposed to use Kronos UI instead
 
             # update processing request status
-            await self._processing_request_service_client.update_status(
-                processing_request_id=processing_request.processing_request_id, status=ProcessingRequestStatus.FINISHED
+            await self._processing_request_service_client.update_request(
+                processing_request_id=processing_request.processing_request_id,
+                status=ProcessingRequestStatus.FINISHED,
+                end_time=datetime.utcnow(),
             )
 
             # send email notification to queue
@@ -120,9 +124,10 @@ class KronosService:
             )
 
             # update processing request status
-            await self._processing_request_service_client.update_status(
+            await self._processing_request_service_client.update_request(
                 processing_request_id=processing_request.processing_request_id,
                 status=ProcessingRequestStatus.FAILED,
+                end_time=datetime.utcnow(),
                 message=str(e),
             )
 

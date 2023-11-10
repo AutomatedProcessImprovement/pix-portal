@@ -78,8 +78,10 @@ class ProsimosService:
         """
         try:
             # update processing request status
-            await self._processing_request_service_client.update_status(
-                processing_request_id=processing_request.processing_request_id, status=ProcessingRequestStatus.RUNNING
+            await self._processing_request_service_client.update_request(
+                processing_request_id=processing_request.processing_request_id,
+                status=ProcessingRequestStatus.RUNNING,
+                start_time=datetime.utcnow(),
             )
 
             # download assets
@@ -139,8 +141,10 @@ class ProsimosService:
             )
 
             # update processing request status
-            await self._processing_request_service_client.update_status(
-                processing_request_id=processing_request.processing_request_id, status=ProcessingRequestStatus.FINISHED
+            await self._processing_request_service_client.update_request(
+                processing_request_id=processing_request.processing_request_id,
+                status=ProcessingRequestStatus.FINISHED,
+                end_time=datetime.utcnow(),
             )
 
             # send email notification to queue
@@ -155,9 +159,10 @@ class ProsimosService:
             )
 
             # update processing request status
-            await self._processing_request_service_client.update_status(
+            await self._processing_request_service_client.update_request(
                 processing_request_id=processing_request.processing_request_id,
                 status=ProcessingRequestStatus.FAILED,
+                end_time=datetime.utcnow(),
                 message=str(e),
             )
 

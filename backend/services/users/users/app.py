@@ -6,10 +6,12 @@ from pix_portal_lib.exceptions.fastapi_handlers import general_exception_handler
 from pix_portal_lib.middleware.request_logging import RequestLoggingMiddleware
 from pix_portal_lib.open_telemetry_utils import instrument_app
 from pydantic import BaseModel
+from starlette.middleware.cors import CORSMiddleware
 
 from .db import User
 from .init_db import migrate_to_latest
 from .schemas import UserCreate, UserRead, UserUpdate
+from .settings import settings
 from .users import auth_backend, current_active_user, fastapi_users
 
 app = FastAPI(
@@ -45,6 +47,13 @@ app.include_router(
     tags=["users"],
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins.split(","),
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
+)
 app.add_middleware(RequestLoggingMiddleware)
 app.add_exception_handler(Exception, general_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)

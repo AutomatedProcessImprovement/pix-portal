@@ -2,6 +2,8 @@ import threading
 import traceback
 from pathlib import Path
 
+from assets.controllers import assets
+from assets.settings import settings
 from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from pix_portal_lib.exceptions.fastapi_handlers import general_exception_handler, http_exception_handler
@@ -9,8 +11,7 @@ from pix_portal_lib.middleware.request_logging import RequestLoggingMiddleware
 from pix_portal_lib.open_telemetry_utils import instrument_app
 from pix_portal_lib.persistence.alembic import migrate_to_latest
 from pix_portal_lib.service_clients.fastapi import add_user_to_app_state_if_present
-
-from assets.controllers import assets
+from starlette.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="PIX Portal Assets",
@@ -24,6 +25,13 @@ app = FastAPI(
 
 app.include_router(assets.router, prefix="/assets", tags=["assets"])
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins.split(","),
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
+)
 app.add_middleware(RequestLoggingMiddleware)
 app.add_exception_handler(Exception, general_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
