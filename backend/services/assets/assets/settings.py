@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     file_service_url: HttpUrl
     blobs_base_public_url: HttpUrl
     blobs_base_internal_url: HttpUrl
+    allowed_origins: str
 
     model_config = SettingsConfigDict(env_file=Path(__file__).parent.parent / ".env", extra="allow")
 

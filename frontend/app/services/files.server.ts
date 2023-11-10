@@ -1,15 +1,5 @@
-import { filesURL, http } from "~/services/shared";
-
-export type File = {
-  id: string;
-  name: string;
-  type: string;
-  url: string;
-  users_ids: string[];
-  content_hash: string;
-  creation_time: string;
-  deletion_time?: string;
-};
+import { filesURL, http } from "~/services/shared.server";
+import { File } from "./files";
 
 export enum FileType {
   EVENT_LOG_CSV = "event_log_csv",

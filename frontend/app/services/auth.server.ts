@@ -1,7 +1,7 @@
 // Auth and users backend API.
 
 import axios from "axios";
-import { loginURL, userInfoURL } from "~/services/shared";
+import { loginURL, userInfoURL } from "~/services/shared.server";
 
 export interface User {
   email: string;

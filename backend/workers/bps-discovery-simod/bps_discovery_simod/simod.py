@@ -3,6 +3,7 @@ import logging
 import subprocess
 import traceback
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 from uuid import UUID
@@ -41,9 +42,6 @@ class SimodDiscoveryFailed(Exception):
 
 
 class SimodService:
-    src_dir: Path = Path("/usr/src/Simod")
-    run_sh_script: Path = src_dir / "run.sh"
-
     def __init__(self):
         self._assets_base_dir = settings.asset_base_dir
         self._simod_results_base_dir = settings.simod_results_base_dir
@@ -67,8 +65,10 @@ class SimodService:
 
         try:
             # update processing request status
-            await self._processing_request_service_client.update_status(
-                processing_request_id=processing_request.processing_request_id, status=ProcessingRequestStatus.RUNNING
+            await self._processing_request_service_client.update_request(
+                processing_request_id=processing_request.processing_request_id,
+                status=ProcessingRequestStatus.RUNNING,
+                start_time=datetime.utcnow(),
             )
 
             # download assets
@@ -77,21 +77,24 @@ class SimodService:
                 for asset_id in processing_request.input_assets_ids
             ]
 
-            config_file, event_log_file, event_log_column_mapping_file = self._extract_input_files(assets)
-            # NOTE: event_log_column_mapping_file is optional
-            self._validate_input_files([config_file, event_log_file])
-
-            # update Simod configuration to include the correct event log path
+            # update Simod configuration to include the correct event log path, process model
+            config_file, event_log_file, column_mapping_file, process_model_file = self._extract_input_files(assets)
+            self._validate_input_files([event_log_file])  # only event log is required, other files are optional
+            if config_file is None:
+                config_file_path = self._copy_default_configuration(processing_request.processing_request_id)
+            else:
+                config_file_path = Path(config_file.path)
             self._update_configuration_file(
-                config_file.path,
+                config_file_path,
                 event_log_file.path,
-                event_log_column_mapping_file.path if event_log_column_mapping_file else None,
+                column_mapping_file.path if column_mapping_file else None,
+                process_model_file.path if process_model_file else None,
             )
 
             # run Simod, it can take hours
             results_dir = self._simod_results_base_dir / processing_request.processing_request_id
             results_dir.mkdir(parents=True, exist_ok=True)
-            result = _start_simod_discovery_subprocess(config_file.path, results_dir)
+            result = _start_simod_discovery_subprocess(config_file_path, results_dir)
             result_stdout = result.stdout if result.stdout is not None else ""
             result_stderr = result.stderr if result.stderr is not None else ""
 
@@ -105,7 +108,7 @@ class SimodService:
             simulation_model_asset_id = await self._asset_service_client.create_asset(
                 files=[bpmn_file, prosimos_json_file],
                 project_id=processing_request.project_id,
-                asset_name=bpmn_path.name,
+                asset_name=bpmn_path.stem,
                 asset_type=AssetType.SIMULATION_MODEL,
                 users_ids=[UUID(processing_request.user_id)],
             )
@@ -125,8 +128,10 @@ class SimodService:
             )
 
             # update processing request status
-            await self._processing_request_service_client.update_status(
-                processing_request_id=processing_request.processing_request_id, status=ProcessingRequestStatus.FINISHED
+            await self._processing_request_service_client.update_request(
+                processing_request_id=processing_request.processing_request_id,
+                status=ProcessingRequestStatus.FINISHED,
+                end_time=datetime.utcnow(),
             )
 
             # send email notification to queue
@@ -143,9 +148,10 @@ class SimodService:
             )
 
             # update processing request status
-            await self._processing_request_service_client.update_status(
+            await self._processing_request_service_client.update_request(
                 processing_request_id=processing_request.processing_request_id,
                 status=ProcessingRequestStatus.FAILED,
+                end_time=datetime.utcnow(),
                 message=str(e),
             )
 
@@ -159,7 +165,9 @@ class SimodService:
         self._project_service_client.nullify_token()
         self._processing_request_service_client.nullify_token()
 
-    def _extract_input_files(self, assets: list[Asset]) -> tuple[Optional[File_], Optional[File_], Optional[File_]]:
+    def _extract_input_files(
+        self, assets: list[Asset]
+    ) -> tuple[Optional[File_], Optional[File_], Optional[File_], Optional[File_]]:
         files: list[File_] = []
         for asset in assets:
             if asset.files is not None:
@@ -170,8 +178,9 @@ class SimodService:
             files, FileType.EVENT_LOG_CSV_GZ
         )
         event_log_column_mapping_file = self._find_file_by_type(files, FileType.EVENT_LOG_COLUMN_MAPPING_JSON)
+        process_model_file = self._find_file_by_type(files, FileType.PROCESS_MODEL_BPMN)
 
-        return config_file, event_log_file, event_log_column_mapping_file
+        return config_file, event_log_file, event_log_column_mapping_file, process_model_file
 
     @staticmethod
     def _find_file_by_type(files: list[File_], type: FileType) -> Optional[File_]:
@@ -180,14 +189,25 @@ class SimodService:
                 return file
         return None
 
+    def _copy_default_configuration(self, processing_request_id: str) -> Path:
+        default_configuration_path: Path = Path(__file__).parent / "configuration_one_shot.yaml"
+        file_path = self._assets_base_dir / f"{processing_request_id}_configuration.yaml"
+        file_path.write_bytes(default_configuration_path.read_bytes())
+        return file_path
+
     @staticmethod
     def _validate_input_files(files: list[File_]):
         for f in files:
             if f is None or f.path is None or not Path(f.path).exists():
-                raise InputAssetMissing()
+                raise InputAssetMissing(message=f"Input asset not found: {f}")
 
     @staticmethod
-    def _update_configuration_file(config_path: Path, event_log_path: Path, column_mapping_path: Optional[Path] = None):
+    def _update_configuration_file(
+        config_path: Path,
+        event_log_path: Path,
+        column_mapping_path: Optional[Path] = None,
+        process_model_path: Optional[Path] = None,
+    ):
         content = config_path.read_bytes()
         config = yaml.safe_load(content)
 
@@ -200,6 +220,9 @@ class SimodService:
         if column_mapping_path:
             column_mapping = json.load(column_mapping_path.open("r"))
             config["common"]["log_ids"] = column_mapping
+
+        if process_model_path:
+            config["common"]["process_model_path"] = str(process_model_path.absolute())
 
         content = yaml.dump(config)
 

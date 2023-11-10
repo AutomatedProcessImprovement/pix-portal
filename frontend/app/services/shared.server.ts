@@ -6,6 +6,7 @@ export const userInfoURL = new URL("/api/v1/users/me", backendBaseURL).toString(
 export const projectsURL = new URL("/api/v1/projects", backendBaseURL).toString();
 export const filesURL = new URL("/api/v1/files", backendBaseURL).toString();
 export const assetsURL = new URL("/api/v1/assets", backendBaseURL).toString();
+export const processingRequestsURL = new URL("/api/v1/processing-requests", backendBaseURL).toString();
 
 export const http = axios.create();
 

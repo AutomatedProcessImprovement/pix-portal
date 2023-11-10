@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 from urllib.parse import urljoin
@@ -66,9 +67,36 @@ class ProcessingRequestServiceClient(SelfAuthenticatingClient):
     ) -> dict:
         url = urljoin(self._base_url, f"{processing_request_id}")
         headers = await self.request_headers(token)
-        logger.info(
-            f"Updating processing request status to {status.value} for processing request {processing_request_id}, headers={headers}"
-        )
         response = await self._client.patch(url, headers=headers, json={"status": status, "message": message})
+        response.raise_for_status()
+        return response.json()
+
+    async def update_request(
+        self,
+        processing_request_id: str,
+        status: Optional[ProcessingRequestStatus] = None,
+        message: Optional[str] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        token: Optional[str] = None,
+    ) -> dict:
+        url = urljoin(self._base_url, f"{processing_request_id}")
+        headers = await self.request_headers(token)
+
+        payload = {}
+        if status is not None:
+            payload["status"] = status
+        if message is not None:
+            payload["message"] = message
+        if start_time is not None:
+            payload["start_time"] = str(start_time)
+        if end_time is not None:
+            payload["end_time"] = str(end_time)
+
+        response = await self._client.patch(
+            url,
+            headers=headers,
+            json=payload,
+        )
         response.raise_for_status()
         return response.json()

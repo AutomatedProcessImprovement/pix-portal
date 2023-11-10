@@ -2,6 +2,7 @@ import hashlib
 import uuid
 from pathlib import Path
 from typing import AsyncGenerator, Sequence
+from urllib.parse import urljoin
 
 from fastapi import Depends
 
@@ -20,6 +21,7 @@ class FileService:
     def __init__(self, file_repository: FileRepository) -> None:
         self.base_dir = settings.base_dir
         self.file_repository = file_repository
+        self._blobs_base_public_url = settings.blobs_base_public_url.unicode_string()
 
         self.base_dir.mkdir(parents=True, exist_ok=True)
 
@@ -74,6 +76,11 @@ class FileService:
     async def get_file_url(self, file_id: uuid.UUID) -> str:
         file = await self.get_file(file_id)
         return file.url
+
+    async def get_file_location(self, file_id: uuid.UUID) -> str:
+        file = await self.get_file(file_id)
+        relative_url = file.url.removeprefix("/blobs/")
+        return urljoin(self._blobs_base_public_url, relative_url)
 
     async def user_has_access_to_file(self, user_id: uuid.UUID, file_id: uuid.UUID) -> bool:
         file = await self.get_file(file_id)

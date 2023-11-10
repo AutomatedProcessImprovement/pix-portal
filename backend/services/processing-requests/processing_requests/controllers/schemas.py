@@ -32,6 +32,8 @@ class PatchProcessingRequest(BaseModel):
     status: Optional[ProcessingRequestStatus] = None
     message: Optional[str] = None
     should_notify: Optional[bool] = None
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
 
 
 class AssetIn(BaseModel):

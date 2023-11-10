@@ -1,4 +1,4 @@
-import { assetsURL, http } from "~/services/shared";
+import { assetsURL, http } from "~/services/shared.server";
 import { AssetTypeBackend } from "../shared/AssetTypeBackend";
 
 export type Asset = {

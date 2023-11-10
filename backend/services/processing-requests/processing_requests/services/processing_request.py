@@ -1,5 +1,6 @@
 import logging
 import uuid
+from datetime import datetime
 from typing import AsyncGenerator, Optional, Sequence, Union
 
 from fastapi import Depends
@@ -191,6 +192,8 @@ class ProcessingRequestService:
         status: Optional[ProcessingRequestStatus] = None,
         message: Optional[str] = None,
         should_notify: Optional[bool] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
     ) -> ProcessingRequest:
         return await self._processing_request_repository.update_processing_request(
             processing_request_id, status, message, should_notify

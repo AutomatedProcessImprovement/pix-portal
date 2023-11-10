@@ -10,8 +10,9 @@ from pix_portal_lib.middleware.request_logging import RequestLoggingMiddleware
 from pix_portal_lib.open_telemetry_utils import instrument_app
 from pix_portal_lib.persistence.alembic import migrate_to_latest
 from pix_portal_lib.service_clients.fastapi import add_user_to_app_state_if_present
-
-from .controllers import processing_requests
+from processing_requests.controllers import processing_requests
+from processing_requests.settings import settings
+from starlette.middleware.cors import CORSMiddleware
 
 logger = logging.getLogger()
 
@@ -29,6 +30,13 @@ app.include_router(
     prefix="/processing-requests",
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins.split(","),
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
+)
 app.add_middleware(RequestLoggingMiddleware)
 app.add_exception_handler(Exception, general_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)

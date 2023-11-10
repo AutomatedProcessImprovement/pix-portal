@@ -1,4 +1,4 @@
-import { http, projectsURL } from "~/services/shared";
+import { http, projectsURL } from "~/services/shared.server";
 
 export interface Project {
   id: string;

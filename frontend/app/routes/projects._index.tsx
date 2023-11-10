@@ -1,10 +1,10 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { requireLoggedInUser } from "~/session.server";
 import { Link, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
-import { listProjectsForUser, Project } from "~/services/projects.server";
-import { handleThrow } from "~/utils";
 import ProjectCard from "~/components/ProjectCard";
+import { listProjectsForUser, Project } from "~/services/projects.server";
+import { requireLoggedInUser } from "~/session.server";
+import { handleThrow } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireLoggedInUser(request);
@@ -24,7 +24,7 @@ export default function ProjectsPage() {
         <div className="flex justify-center">
           <ul className="flex-grow grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-6">
             {projects.map((project: Project) => (
-              <Link key={project.id} to={`/projects/${project.id}`} className="border-none">
+              <Link key={project.id} to={`/projects/${project.id}/discovery`} className="border-none">
                 <ProjectCard key={project.id} project={project} />
               </Link>
             ))}
