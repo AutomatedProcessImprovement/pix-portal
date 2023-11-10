@@ -87,7 +87,7 @@ async def get_file_location(
     await _raise_no_access(file_service, user, file_id)
 
     try:
-        location = await file_service.get_file_url(file_id)
+        location = await file_service.get_file_location(file_id)
         return LocationOut(location=location)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="File not found")
