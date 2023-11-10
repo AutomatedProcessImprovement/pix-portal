@@ -1,4 +1,4 @@
-import { filesURL, http } from "~/services/shared";
+import { filesURL, http } from "~/services/shared.server";
 
 export type File = {
   id: string;

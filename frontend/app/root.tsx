@@ -1,26 +1,33 @@
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
-  isRouteErrorResponse,
   Links,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
+  useLoaderData,
   useRouteError,
 } from "@remix-run/react";
-import twStyles from "~/tailwind.css";
 import { getSessionUserInfo } from "~/session.server";
+import twStyles from "~/tailwind.css";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: twStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getSessionUserInfo(request);
-  return json({ user });
+  return json({
+    user,
+    ENV: {
+      BACKEND_BASE_URL: process.env.BACKEND_BASE_URL,
+    },
+  });
 };
 
 export default function App() {
+  const data = useLoaderData<typeof loader>();
   return (
     <html lang="en">
       <head>
@@ -32,6 +39,7 @@ export default function App() {
       <body>
         <Outlet />
         <ScrollRestoration />
+        <script dangerouslySetInnerHTML={{ __html: `window.ENV = ${JSON.stringify(data.ENV)}` }} />
         <Scripts />
         <LiveReload />
       </body>

@@ -1,10 +1,22 @@
 import { useState } from "react";
 import { ProcessingType } from "~/routes/projects.$projectId.$processingType";
 import { Asset } from "~/services/assets.server";
+import { ProcessingRequest } from "~/services/processing_requests";
 import InputAssets from "./InputAssets";
+import OutputAssets from "./OutputAssets";
 import ProcessingSetup from "./ProcessingSetup";
 
-export default function ProcessingApp({ assets, processingType }: { assets: Asset[]; processingType: ProcessingType }) {
+export default function ProcessingApp({
+  assets,
+  processingType,
+  processingRequests,
+  user,
+}: {
+  assets: Asset[];
+  processingType: ProcessingType;
+  processingRequests: ProcessingRequest[];
+  user: any;
+}) {
   const [selectedAssets, setSelectedAssets] = useState<Asset[]>([]);
 
   return (
@@ -15,7 +27,9 @@ export default function ProcessingApp({ assets, processingType }: { assets: Asse
       <div className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
         <ProcessingSetup assets={assets} processingType={processingType} selectedAssets={selectedAssets} />
       </div>
-      <div className="border-2 border-red-400 px-2 py-1 bg-yellow-50">Output assets</div>
+      <div className="border-2 border-red-400 px-2 py-1 bg-yellow-50">
+        <OutputAssets processingRequests={processingRequests} user={user} />
+      </div>
     </>
   );
 }

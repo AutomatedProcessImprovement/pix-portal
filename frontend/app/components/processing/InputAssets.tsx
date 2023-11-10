@@ -30,6 +30,7 @@ export default function InputAssets({
 
   return (
     <div className="flex flex-col items-center p-2 space-y-2">
+      <h2 className="text-xl font-semibold">Input Assets</h2>
       {assets.sort().map((asset: Asset) => (
         <div
           key={asset.id}
