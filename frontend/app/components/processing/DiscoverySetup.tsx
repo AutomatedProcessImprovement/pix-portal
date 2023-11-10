@@ -1,26 +1,10 @@
 import { Form } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { useMatches } from "react-router";
 import { Asset } from "~/services/assets.server";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 
 export default function DiscoverySetup({ selectedAssets }: { selectedAssets: Asset[] }) {
   // Simod requires one event log and, optionally, a process model
-
-  // get data from the route component's URL
-  const matches = useMatches();
-  console.log;
-  let parentParams, parentData;
-  matches.forEach((m) => {
-    if (m.id === "routes/projects.$projectId.$processingType") {
-      parentParams = m.params;
-    }
-    if (m.id === "root") {
-      parentData = m.data;
-    }
-  });
-  const { projectId, processingType } = parentParams as any;
-  const { user } = parentData as any;
 
   const [eventLog, setEventLog] = useState<Asset | null>(null);
   const [processModel, setProcessModel] = useState<Asset | null>(null);
@@ -30,9 +14,7 @@ export default function DiscoverySetup({ selectedAssets }: { selectedAssets: Ass
   useEffect(() => {
     setEventLog(selectedAssets.find((asset) => asset.type === AssetTypeBackend.EVENT_LOG) || null);
     setProcessModel(selectedAssets.find((asset) => asset.type === AssetTypeBackend.PROCESS_MODEL) || null);
-  }, [selectedAssets, eventLog, processModel]);
-
-  useEffect(() => {});
+  }, [selectedAssets]);
 
   async function handleClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     const assetsIds = selectedAssets.map((asset) => asset.id);
@@ -40,9 +22,9 @@ export default function DiscoverySetup({ selectedAssets }: { selectedAssets: Ass
   }
 
   return (
-    <section>
+    <section className="p-2 space-y-2">
       <h2 className="text-xl font-semibold">Discovery Setup</h2>
-      <Form method="post">
+      <Form method="post" className="flex flex-col space-y-2">
         <input type="hidden" name="selectedInputAssetsIds" value={selectedInputAssetsIdsRef.join(",")} />
         <EventLogArea eventLog={eventLog} />
         <ProcessModelArea processModel={processModel} />
@@ -56,7 +38,7 @@ export default function DiscoverySetup({ selectedAssets }: { selectedAssets: Ass
 
 function EventLogArea({ eventLog }: { eventLog: Asset | null }) {
   return (
-    <div className="border-4 border-blue-100">
+    <div className="p-2 border-4 border-blue-100">
       {eventLog ? (
         <div>
           <div>Event log: {eventLog.name}</div>
@@ -70,7 +52,7 @@ function EventLogArea({ eventLog }: { eventLog: Asset | null }) {
 
 function ProcessModelArea({ processModel }: { processModel: Asset | null }) {
   return (
-    <div className="border-4 border-blue-100">
+    <div className="p-2 border-4 border-blue-100">
       {processModel ? (
         <div>
           <div>Process model: {processModel.name}</div>

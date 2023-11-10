@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Asset } from "./assets.server";
 
-const clientSideHttp = axios.create({
+export const clientSideHttp = axios.create({
   baseURL: "http://localhost:9999/api/v1",
   headers: {
     "Content-Type": "application/json",

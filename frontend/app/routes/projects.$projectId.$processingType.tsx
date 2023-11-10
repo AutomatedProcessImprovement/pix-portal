@@ -65,11 +65,16 @@ export default function RouteComponent() {
   const { processingType, assets, processingRequests, user } = useLoaderData<typeof loader>();
 
   return (
-    <div className="grid grid-cols-[1fr_2fr_8fr_2fr]">
+    <div className="grid grid-cols-[3rem_2fr_8fr_2fr]">
       <div className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
         <ProcessingMenu projectId={project.id} />
       </div>
-      <ProcessingApp assets={assets} processingType={processingType} processingRequests={processingRequests} user={user} />
+      <ProcessingApp
+        assets={assets}
+        processingType={processingType}
+        processingRequests={processingRequests}
+        user={user}
+      />
     </div>
   );
 }
