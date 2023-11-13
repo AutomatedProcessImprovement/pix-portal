@@ -196,7 +196,12 @@ class ProcessingRequestService:
         end_time: Optional[datetime] = None,
     ) -> ProcessingRequest:
         return await self._processing_request_repository.update_processing_request(
-            processing_request_id, status, message, should_notify
+            processing_request_id=processing_request_id,
+            status=status,
+            message=message,
+            should_notify=should_notify,
+            start_time=start_time,
+            end_time=end_time,
         )
 
     async def add_input_asset_to_processing_request(
