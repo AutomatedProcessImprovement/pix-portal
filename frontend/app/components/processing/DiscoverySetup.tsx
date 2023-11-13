@@ -1,10 +1,12 @@
-import { Form } from "@remix-run/react";
+import { Form, useNavigation } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { Asset } from "~/services/assets.server";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 
 export default function DiscoverySetup({ selectedAssets }: { selectedAssets: Asset[] }) {
   // Simod requires one event log and, optionally, a process model
+
+  const navigation = useNavigation();
 
   const [eventLog, setEventLog] = useState<Asset | null>(null);
   const [processModel, setProcessModel] = useState<Asset | null>(null);
@@ -28,7 +30,7 @@ export default function DiscoverySetup({ selectedAssets }: { selectedAssets: Ass
         <input type="hidden" name="selectedInputAssetsIds" value={selectedInputAssetsIdsRef.join(",")} />
         <EventLogArea eventLog={eventLog} />
         <ProcessModelArea processModel={processModel} />
-        <button type="submit" disabled={eventLog === null} onClick={handleClick}>
+        <button type="submit" disabled={eventLog === null || navigation.state === "submitting"} onClick={handleClick}>
           Start discovery
         </button>
       </Form>
