@@ -3,6 +3,7 @@ import { useNavigation } from "@remix-run/react";
 import { ReactNode, useEffect, useState } from "react";
 import { DragAndDropForm } from "~/components/upload/DragAndDropForm";
 import UploadAssetSelect from "~/components/upload/UploadAssetSelect";
+import { ProcessingType } from "~/routes/projects.$projectId.$processingType";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 
 const assetTypesForSelectMenu: AssetTypeBackend[] = [
@@ -11,9 +12,21 @@ const assetTypesForSelectMenu: AssetTypeBackend[] = [
   AssetTypeBackend.SIMULATION_MODEL,
 ];
 
-export default function UploadAssetDialog({ trigger }: { trigger: ReactNode }) {
+export default function UploadAssetDialog({
+  trigger,
+  processingType,
+}: {
+  trigger: ReactNode;
+  processingType: ProcessingType | null;
+}) {
   let [isOpen, setIsOpen] = useState(false);
-  let [assetType, setAssetType] = useState(assetTypesForSelectMenu[0]);
+
+  const initialAssetType = processingTypeToAssetType(processingType);
+  let [assetType, setAssetType] = useState(initialAssetType);
+  
+  useEffect(() => {
+    setAssetType(initialAssetType);
+  }, [initialAssetType]);
 
   const navigation = useNavigation();
   useEffect(() => {
@@ -114,4 +127,21 @@ function UploadAssetDetailsForAssetType({ assetType, children }: { assetType: As
       <DragAndDropForm assetType={assetType} />
     </div>
   );
+}
+
+function processingTypeToAssetType(type: ProcessingType | undefined | null): AssetTypeBackend {
+  if (!type) {
+    return AssetTypeBackend.EVENT_LOG;
+  }
+
+  switch (type) {
+    case ProcessingType.Discovery:
+      return AssetTypeBackend.EVENT_LOG;
+    case ProcessingType.Simulation:
+      return AssetTypeBackend.SIMULATION_MODEL;
+    case ProcessingType.WaitingTime:
+      return AssetTypeBackend.EVENT_LOG;
+    default:
+      throw new Error("Invalid processing type");
+  }
 }

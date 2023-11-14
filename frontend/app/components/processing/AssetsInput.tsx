@@ -1,3 +1,4 @@
+import { ProcessingType } from "~/routes/projects.$projectId.$processingType";
 import { Asset } from "~/services/assets.server";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 import UploadAssetButton from "../UploadAssetButton";
@@ -7,10 +8,12 @@ export default function AssetsInput({
   assets,
   selectedAssets,
   setSelectedAssets,
+  processingType,
 }: {
   assets: Asset[];
   selectedAssets: Asset[];
   setSelectedAssets: (assets: Asset[]) => void;
+  processingType: ProcessingType;
 }) {
   function handleClick(asset: Asset) {
     // allow only one asset of each type to be selected at the same time
@@ -37,7 +40,7 @@ export default function AssetsInput({
           {asset.name}
         </div>
       ))}
-      <UploadAssetDialog trigger={<UploadAssetButton />} />
+      <UploadAssetDialog trigger={<UploadAssetButton />} processingType={processingType} />
     </div>
   );
 }

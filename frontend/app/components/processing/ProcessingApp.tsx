@@ -22,7 +22,12 @@ export default function ProcessingApp({
   return (
     <>
       <div className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
-        <AssetsInput assets={assets} selectedAssets={selectedAssets} setSelectedAssets={setSelectedAssets} />
+        <AssetsInput
+          assets={assets}
+          selectedAssets={selectedAssets}
+          setSelectedAssets={setSelectedAssets}
+          processingType={processingType}
+        />
       </div>
       <div className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
         <ProcessingSetup assets={assets} processingType={processingType} selectedAssets={selectedAssets} />

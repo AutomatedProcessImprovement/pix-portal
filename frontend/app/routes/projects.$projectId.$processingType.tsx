@@ -1,5 +1,5 @@
 import { json, redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
-import { isRouteErrorResponse, useLoaderData, useMatches, useRouteError } from "@remix-run/react";
+import { isRouteErrorResponse, useLoaderData, useRouteError } from "@remix-run/react";
 import ProcessingApp from "~/components/processing/ProcessingApp";
 import ProcessingMenu from "~/components/processing/ProcessingMenu";
 import { Asset, getAssetsForProject } from "~/services/assets.server";
@@ -29,7 +29,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     let processingRequests = await getProcessingRequestsForProject(projectId, user.token!);
     processingRequests = filterRequestsByType(processingRequests, processingType as ProcessingType);
 
-    return json({ assets, processingType, processingRequests, user });
+    return json({ assets, processingType, processingRequests, user, projectId });
   });
 };
 
@@ -58,16 +58,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 };
 
 export default function ProcessingPage() {
-  const matches = useMatches();
-  const parentData = matches.filter((m) => m.id === "routes/projects.$projectId").map((m) => m.data)[0];
-  const { project } = parentData as any;
-
-  const { processingType, assets, processingRequests, user } = useLoaderData<typeof loader>();
+  const { processingType, assets, processingRequests, user, projectId } = useLoaderData<typeof loader>();
 
   return (
     <div className="grid grid-cols-[3rem_2fr_8fr_2fr]">
       <div className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
-        <ProcessingMenu projectId={project.id} />
+        <ProcessingMenu projectId={projectId} />
       </div>
       <ProcessingApp
         assets={assets}

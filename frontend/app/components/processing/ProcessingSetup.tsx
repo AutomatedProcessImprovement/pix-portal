@@ -18,7 +18,7 @@ export default function ProcessingSetup({
       case ProcessingType.Discovery:
         return <SetupSimod selectedAssets={selectedAssets} />;
       case ProcessingType.Simulation:
-        return <SetupProsimos />;
+        return <SetupProsimos selectedAssets={selectedAssets} />;
       case ProcessingType.WaitingTime:
         return <SetupKronos />;
       default:
