@@ -57,7 +57,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   return null;
 };
 
-export default function RouteComponent() {
+export default function ProcessingPage() {
   const matches = useMatches();
   const parentData = matches.filter((m) => m.id === "routes/projects.$projectId").map((m) => m.data)[0];
   const { project } = parentData as any;

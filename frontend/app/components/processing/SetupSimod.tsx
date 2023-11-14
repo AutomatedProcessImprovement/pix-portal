@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Asset } from "~/services/assets.server";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 
-export default function DiscoverySetup({ selectedAssets }: { selectedAssets: Asset[] }) {
+export default function SetupSimod({ selectedAssets }: { selectedAssets: Asset[] }) {
   // Simod requires one event log and, optionally, a process model
 
   const navigation = useNavigation();

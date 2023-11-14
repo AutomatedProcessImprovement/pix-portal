@@ -1,10 +1,9 @@
-import { useEffect } from "react";
 import { Asset } from "~/services/assets.server";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 import UploadAssetButton from "../UploadAssetButton";
 import UploadAssetDialog from "../upload/UploadAssetDialog";
 
-export default function InputAssets({
+export default function AssetsInput({
   assets,
   selectedAssets,
   setSelectedAssets,
@@ -13,10 +12,6 @@ export default function InputAssets({
   selectedAssets: Asset[];
   setSelectedAssets: (assets: Asset[]) => void;
 }) {
-  useEffect(() => {
-    console.log("InputAssets useEffect: selected assets", selectedAssets);
-  }, [assets, selectedAssets]);
-
   function handleClick(asset: Asset) {
     // allow only one asset of each type to be selected at the same time
 

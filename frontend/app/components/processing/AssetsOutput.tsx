@@ -3,7 +3,7 @@ import { ProcessingRequest, ProcessingRequestStatus } from "~/services/processin
 import { AssetCardAsync } from "./AssetCardAsync";
 import { ProcessingRequestCard } from "./ProcessingRequestCard";
 
-export default function OutputAssets({
+export default function AssetsOutput({
   processingRequests,
   user,
 }: {

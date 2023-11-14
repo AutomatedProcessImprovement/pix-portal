@@ -1,8 +1,8 @@
 import { ProcessingType } from "~/routes/projects.$projectId.$processingType";
 import { Asset } from "~/services/assets.server";
-import DiscoverySetup from "./DiscoverySetup";
-import SimulationSetup from "./SimulationSetup";
-import WaitingTimeSetup from "./WaitingTimeSetup";
+import SetupKronos from "./SetupKronos";
+import SetupProsimos from "./SetupProsimos";
+import SetupSimod from "./SetupSimod";
 
 export default function ProcessingSetup({
   assets,
@@ -16,11 +16,11 @@ export default function ProcessingSetup({
   function chooseProcessingSetup() {
     switch (processingType) {
       case ProcessingType.Discovery:
-        return <DiscoverySetup selectedAssets={selectedAssets} />;
+        return <SetupSimod selectedAssets={selectedAssets} />;
       case ProcessingType.Simulation:
-        return <SimulationSetup />;
+        return <SetupProsimos />;
       case ProcessingType.WaitingTime:
-        return <WaitingTimeSetup />;
+        return <SetupKronos />;
       default:
         throw new Error("Invalid processing type");
     }
