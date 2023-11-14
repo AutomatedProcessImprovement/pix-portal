@@ -10,6 +10,7 @@ export default function SetupProsimos({ selectedAssets }: { selectedAssets: Asse
 
   useEffect(() => {
     setSimulationModel(selectedAssets.find((asset) => asset.type === AssetTypeBackend.SIMULATION_MODEL) || null);
+    selectedAssetsIdsRef.current!.value = selectedAssets.map((asset) => asset.id).join(",");
   }, [selectedAssets]);
 
   return (
@@ -18,11 +19,7 @@ export default function SetupProsimos({ selectedAssets }: { selectedAssets: Asse
       <Form method="post" className="flex flex-col space-y-2">
         <input type="hidden" name="selectedInputAssetsIds" ref={selectedAssetsIdsRef} />
         <SimulationModelArea asset={simulationModel} />
-        <button
-          type="submit"
-          disabled={simulationModel === null || navigation.state === "submitting"}
-          onClick={(e) => e.preventDefault()}
-        >
+        <button type="submit" disabled={simulationModel === null || navigation.state === "submitting"}>
           Start simulation
         </button>
       </Form>
