@@ -2,6 +2,7 @@ import { Form, useNavigation } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
 import { Asset } from "~/services/assets.server";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
+import ProsimosConfiguration from "./ProsimosConfiguration";
 
 export default function SetupProsimos({ selectedAssets }: { selectedAssets: Asset[] }) {
   const navigation = useNavigation();
@@ -15,7 +16,7 @@ export default function SetupProsimos({ selectedAssets }: { selectedAssets: Asse
 
   return (
     <section className="p-2 space-y-2">
-      <h2 className="text-xl font-semibold">Discovery Setup</h2>
+      <h2 className="text-xl font-semibold">Simulation Setup</h2>
       <Form method="post" className="flex flex-col space-y-2">
         <input type="hidden" name="selectedInputAssetsIds" ref={selectedAssetsIdsRef} />
         <SimulationModelArea asset={simulationModel} />
@@ -23,6 +24,7 @@ export default function SetupProsimos({ selectedAssets }: { selectedAssets: Asse
           Start simulation
         </button>
       </Form>
+      <ProsimosConfiguration asset={simulationModel} />
     </section>
   );
 }
