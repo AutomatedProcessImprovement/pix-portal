@@ -2,7 +2,7 @@ import React from "react";
 import { useFormContext } from "react-hook-form";
 import { InputError } from "./InputError";
 
-export function CustomSelect({
+export function Select({
   name,
   options,
   label,

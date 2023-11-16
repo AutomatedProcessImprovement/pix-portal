@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import CustomFormSection from "./CustomFormSection";
-import { CustomInput } from "./CustomInput";
-import { CustomSelect } from "~/components/processing/prosimos/CustomSelect";
+import FormSection from "./FormSection";
+import { Input } from "./Input";
+import { Select } from "~/components/processing/prosimos/Select";
 
-export function ResourceProfiles() {
+export function TabResourceProfiles() {
   const name = "resource_profiles";
 
   const { control, watch } = useFormContext();
@@ -36,7 +36,7 @@ export function ResourceProfiles() {
 
   return (
     <div className="flex flex-col space-y-4">
-      <CustomFormSection title="Resource Calendars">
+      <FormSection title="Resource Calendars">
         {!isEnabled && <div className="text-red-500">Please add resource calendars first</div>}
         {isEnabled &&
           fields.map((field, index) => {
@@ -53,7 +53,7 @@ export function ResourceProfiles() {
         <button type="button" onClick={handleAddPool} disabled={!isEnabled}>
           Add Pool
         </button>
-      </CustomFormSection>
+      </FormSection>
     </div>
   );
 }
@@ -90,7 +90,7 @@ function ResourceProfile({ name, children }: { name: string; children?: React.Re
   return (
     <div className="border-4 p-4 space-y-2">
       <div className="space-y-2">
-        <CustomInput name={`${name}.name`} label="Pool Name" />
+        <Input name={`${name}.name`} label="Pool Name" />
         <div className="flex flex-col space-y-2 ptt-4">
           <div className="grid grid-cols-5 gap-2">
             <div>Profile Name</div>
@@ -103,10 +103,10 @@ function ResourceProfile({ name, children }: { name: string; children?: React.Re
             const namePrefix = `${name}.resource_list.[${index}]`;
             return (
               <div key={field.id} className="grid grid-cols-5 gap-2">
-                <CustomInput name={`${namePrefix}.name`} label="Name" pure={true} />
-                <CustomInput name={`${namePrefix}.cost_per_hour`} label="Name" type="number" pure={true} />
-                <CustomInput name={`${namePrefix}.amount`} label="Name" type="number" pure={true} />
-                <CustomSelect
+                <Input name={`${namePrefix}.name`} label="Name" pure={true} />
+                <Input name={`${namePrefix}.cost_per_hour`} label="Name" type="number" pure={true} />
+                <Input name={`${namePrefix}.amount`} label="Name" type="number" pure={true} />
+                <Select
                   name={`${namePrefix}.calendar`}
                   options={resourceCalendars.map((c: any) => c.name)}
                   defaultValue={resourceCalendars[0].name}

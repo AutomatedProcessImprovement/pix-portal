@@ -3,10 +3,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Asset } from "~/services/assets.server";
-import { CaseCreation } from "./prosimos/CaseCreation";
-import { CustomFormErrors } from "./prosimos/CustomFormErrors";
-import { ResourceCalendars } from "./prosimos/ResourceCalendars";
-import { ResourceProfiles } from "./prosimos/ResourceProfiles";
+import { TabCaseCreation } from "./prosimos/TabCaseCreation";
+import { FormErrors } from "./prosimos/FormErrors";
+import { TabResourceCalendars } from "./prosimos/TabResourceCalendars";
+import { TabResourceProfiles } from "./prosimos/TabResourceProfiles";
 import { prosimosConfigurationSchema } from "./prosimos/form-schema";
 
 export default function ProsimosConfiguration({ asset }: { asset: Asset | null }) {
@@ -24,9 +24,9 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
   }
 
   const tabs = [
-    { name: "Case Creation", component: <CaseCreation /> },
-    { name: "Resource Calendars", component: <ResourceCalendars /> },
-    { name: "Resources Profiles", component: <ResourceProfiles /> },
+    { name: "Case Creation", component: <TabCaseCreation /> },
+    { name: "Resource Calendars", component: <TabResourceCalendars /> },
+    { name: "Resources Profiles", component: <TabResourceProfiles /> },
     { name: "Resource Allocation", component: <div>Resource Allocation</div> },
     { name: "Branching Probabilities", component: <div>Branching Probabilities</div> },
     { name: "Batching", component: <div>Batching</div> },
@@ -64,7 +64,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
               ))}
             </Tab.Panels>
           </Tab.Group>
-          {methods.formState.errors && <CustomFormErrors errors={methods.formState.errors} />}
+          {methods.formState.errors && <FormErrors errors={methods.formState.errors} />}
           <button type="submit">Submit</button>
         </form>
       </FormProvider>

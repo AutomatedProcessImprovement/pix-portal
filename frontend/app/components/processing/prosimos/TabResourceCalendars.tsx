@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import CustomFormSection from "./CustomFormSection";
-import { CustomInput } from "./CustomInput";
-import { CustomSelect } from "./CustomSelect";
+import FormSection from "./FormSection";
+import { Input } from "./Input";
+import { Select } from "./Select";
 import { WeekDay } from "./form-schema";
 
-export function ResourceCalendars() {
+export function TabResourceCalendars() {
   const name = "resource_calendars";
 
   const { control } = useFormContext();
@@ -27,7 +27,7 @@ export function ResourceCalendars() {
 
   return (
     <div className="flex flex-col space-y-4">
-      <CustomFormSection title="Resource Calendars">
+      <FormSection title="Resource Calendars">
         {fields.map((field, index) => {
           return (
             <div key={field.id}>
@@ -42,7 +42,7 @@ export function ResourceCalendars() {
         <button type="button" onClick={handleAddCalendar}>
           Add Calendar
         </button>
-      </CustomFormSection>
+      </FormSection>
     </div>
   );
 }
@@ -74,20 +74,20 @@ function ResourceCalendar({ name, children }: { name: string; children?: React.R
   return (
     <div className="border-4 p-4 space-y-2">
       <div className="space-y-2">
-        <CustomInput name={`${name}.name`} label="Calendar Name" />
+        <Input name={`${name}.name`} label="Calendar Name" />
         {fields.map((field, index) => {
           return (
             <div key={field.id} className="flex space-x-2">
-              <CustomSelect name={`${name}.time_periods.[${index}].from`} options={weekDays} label="From" pure={true} />
-              <CustomSelect name={`${name}.time_periods.[${index}].to`} options={weekDays} label="To" pure={true} />
-              <CustomInput
+              <Select name={`${name}.time_periods.[${index}].from`} options={weekDays} label="From" pure={true} />
+              <Select name={`${name}.time_periods.[${index}].to`} options={weekDays} label="To" pure={true} />
+              <Input
                 name={`${name}.time_periods.[${index}].beginTime`}
                 type="time"
                 defaultValue="09:00"
                 label="Begin at"
                 pure={true}
               />
-              <CustomInput
+              <Input
                 name={`${name}.time_periods.[${index}].endTime`}
                 type="time"
                 defaultValue="17:00"

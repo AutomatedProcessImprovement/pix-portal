@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { DistributionType } from "./distribution-constants";
 
-export function CaseCreationDistributionParametersInputs({
+export function TabCaseCreationDistributionParametersInputs({
   name,
   ...rest
 }: {
@@ -29,7 +29,7 @@ export function CaseCreationDistributionParametersInputs({
     // make sure we have the correct number of fields in the field array
     const numOfLabels = labelNames[watchDistributionName as keyof typeof labelNames].length;
     replace(
-      Array.from({ length: numOfLabels }, (_, index) => {
+      Array.from({ length: numOfLabels }, () => {
         return { value: 0 };
       })
     );

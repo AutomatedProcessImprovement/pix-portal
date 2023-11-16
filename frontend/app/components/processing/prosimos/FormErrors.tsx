@@ -1,6 +1,6 @@
 import { FieldErrors } from "react-hook-form";
 
-export function CustomFormErrors({ errors }: { errors?: FieldErrors }) {
+export function FormErrors({ errors }: { errors?: FieldErrors }) {
   function extractMessageFromObject(error: any): string | null {
     if (error.message) {
       return error.message;

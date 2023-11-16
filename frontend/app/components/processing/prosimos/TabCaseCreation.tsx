@@ -1,13 +1,13 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { CaseCreationDistributionParametersInputs } from "./CaseCreationDistributionParametersInputs";
-import CustomFormSection from "./CustomFormSection";
-import { CustomInput } from "./CustomInput";
-import { CustomSelect } from "./CustomSelect";
+import { TabCaseCreationDistributionParametersInputs } from "./TabCaseCreationDistributionParametersInputs";
+import FormSection from "./FormSection";
+import { Input } from "./Input";
+import { Select } from "./Select";
 import { DistributionType } from "./distribution-constants";
 import { WeekDay } from "./form-schema";
 import { useEffect } from "react";
 
-export function CaseCreation() {
+export function TabCaseCreation() {
   const { control } = useFormContext();
 
   function formatDateForInputValue(date: Date) {
@@ -50,37 +50,32 @@ export function CaseCreation() {
 
   return (
     <div className="flex flex-col space-y-4">
-      <CustomFormSection title="Scenario Specification">
-        <CustomInput name="total_cases" type="number" defaultValue={100} />
-        <CustomInput name="start_time" type="datetime-local" defaultValue={formatDateForInputValue(new Date())} />
-        <CustomSelect
+      <FormSection title="Scenario Specification">
+        <Input name="total_cases" type="number" defaultValue={100} />
+        <Input name="start_time" type="datetime-local" defaultValue={formatDateForInputValue(new Date())} />
+        <Select
           name="arrival_time_distribution.distribution_name"
           options={Object.values(DistributionType)}
           defaultValue={DistributionType.expon}
         />
-        <CaseCreationDistributionParametersInputs
+        <TabCaseCreationDistributionParametersInputs
           name="arrival_time_distribution.distribution_params"
           defaultValue={DistributionType.expon}
         />
-      </CustomFormSection>
-      <CustomFormSection title="Arrival Time Calendar">
+      </FormSection>
+      <FormSection title="Arrival Time Calendar">
         {fields.map((field, index) => {
           return (
             <div key={field.id} className="flex space-x-2 items-end">
-              <CustomSelect name={`arrival_time_calendar[${index}].from`} options={weekDays} label="From" />
-              <CustomSelect name={`arrival_time_calendar[${index}].to`} options={weekDays} label="To" />
-              <CustomInput
+              <Select name={`arrival_time_calendar[${index}].from`} options={weekDays} label="From" />
+              <Select name={`arrival_time_calendar[${index}].to`} options={weekDays} label="To" />
+              <Input
                 name={`arrival_time_calendar[${index}].beginTime`}
                 type="time"
                 defaultValue="09:00"
                 label="Begin at"
               />
-              <CustomInput
-                name={`arrival_time_calendar[${index}].endTime`}
-                type="time"
-                defaultValue="17:00"
-                label="End at"
-              />
+              <Input name={`arrival_time_calendar[${index}].endTime`} type="time" defaultValue="17:00" label="End at" />
               <div>
                 <button type="button" onClick={() => remove(index)}>
                   Remove
@@ -92,7 +87,7 @@ export function CaseCreation() {
         <button type="button" onClick={handleAddTime}>
           Add Calendar
         </button>
-      </CustomFormSection>
+      </FormSection>
     </div>
   );
 }
