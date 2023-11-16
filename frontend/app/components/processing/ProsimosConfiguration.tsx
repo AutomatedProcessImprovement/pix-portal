@@ -5,6 +5,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Asset } from "~/services/assets.server";
 import { CaseCreation } from "./prosimos/CaseCreation";
 import { CustomFormErrors } from "./prosimos/CustomFormErrors";
+import { ResourceCalendars } from "./prosimos/ResourceCalendars";
 import { prosimosConfigurationSchema } from "./prosimos/form-schema";
 
 export default function ProsimosConfiguration({ asset }: { asset: Asset | null }) {
@@ -23,7 +24,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
 
   const tabs = [
     { name: "Case Creation", component: <CaseCreation /> },
-    { name: "Resource Calendars", component: <div>Resource Calendars</div> },
+    { name: "Resource Calendars", component: <ResourceCalendars /> },
     { name: "Resources", component: <div>Resources</div> },
     { name: "Resource Allocation", component: <div>Resource Allocation</div> },
     { name: "Branching Probabilities", component: <div>Branching Probabilities</div> },

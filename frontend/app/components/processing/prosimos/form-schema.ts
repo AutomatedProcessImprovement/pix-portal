@@ -20,22 +20,28 @@ const valueArray = yup
 
 export const arrivalTimeSchema = yup.object().shape(distributionValues);
 
+const calendarPeriod = yup.object({
+  from: yup.string().required(),
+  to: yup.string().required(),
+  beginTime: yup.string().required(),
+  endTime: yup.string().required(),
+});
+
 export const prosimosConfigurationSchema = yup.object({
   total_cases: yup.number().positive().integer().required(),
   start_time: yup.date().required(),
   arrival_time_distribution: yup.object().shape(distributionValues),
-  arrival_time_calendar: yup
+  arrival_time_calendar: yup.array().of(calendarPeriod).required().min(1, "At least one calendar is required"),
+  resource_calendars: yup
     .array()
     .of(
       yup.object({
-        from: yup.string().required(),
-        to: yup.string().required(),
-        beginTime: yup.string().required(),
-        endTime: yup.string().required(),
+        id: yup.string().required(),
+        name: yup.string().required(),
+        time_periods: yup.array().of(calendarPeriod).required(),
       })
     )
-    .required()
-    .min(1, "At least one calendar is required"),
+    .required(),
 });
 
 export enum WeekDay {

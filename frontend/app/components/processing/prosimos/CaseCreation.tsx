@@ -1,5 +1,6 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { CaseCreationDistributionParametersInputs } from "./CaseCreationDistributionParametersInputs";
+import CustomFormSection from "./CustomFormSection";
 import { CustomInput } from "./CustomInput";
 import { CustomSelect } from "./CustomSelect";
 import { DistributionType } from "./distribution-constants";
@@ -42,8 +43,7 @@ export function CaseCreation() {
 
   return (
     <div className="flex flex-col space-y-4">
-      <section className="p-4 flex flex-col space-y-2 border-4">
-        <h3 className="text-lg font-semibold">Scenario Specification</h3>
+      <CustomFormSection title="Scenario Specification">
         <CustomInput name="total_cases" type="number" defaultValue={100} />
         <CustomInput name="start_time" type="datetime-local" defaultValue={formatDateForInputValue(new Date())} />
         <CustomSelect
@@ -55,9 +55,8 @@ export function CaseCreation() {
           name="arrival_time_distribution.distribution_params"
           defaultValue={DistributionType.expon}
         />
-      </section>
-      <section className="p-4 flex flex-col space-y-2 border-4">
-        <h3 className="text-lg font-semibold">Arrival Time Calendar</h3>
+      </CustomFormSection>
+      <CustomFormSection title="Arrival Time Calendar">
         {fields.map((field, index) => {
           return (
             <div key={field.id} className="flex space-x-2 items-end">
@@ -86,7 +85,7 @@ export function CaseCreation() {
         <button type="button" onClick={handleAddTime}>
           Add time
         </button>
-      </section>
+      </CustomFormSection>
     </div>
   );
 }
