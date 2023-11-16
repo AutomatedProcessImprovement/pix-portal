@@ -1,20 +1,20 @@
 import React from "react";
-import { FieldErrors } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { InputError } from "./InputError";
 
 export function CustomSelect({
-  register,
-  options,
   name,
-  errors,
+  options,
+  label,
   ...rest
-}: { register?: any; options: string[]; name: string; errors?: FieldErrors } & React.DetailedHTMLProps<
+}: { name: string; options: string[]; label?: string } & React.DetailedHTMLProps<
   React.SelectHTMLAttributes<HTMLSelectElement>,
   HTMLSelectElement
 >) {
+  const { register, formState } = useFormContext();
   return (
     <div className="flex flex-col space-y-1">
-      <label htmlFor={name}>{name}</label>
+      <label htmlFor={name}>{label || name}</label>
       <select {...register(name)} {...rest}>
         {options.map((value) => (
           <option key={value} value={value}>
@@ -22,7 +22,9 @@ export function CustomSelect({
           </option>
         ))}
       </select>
-      {errors && errors[name] && <InputError message={errors[name]?.message?.toString()} />}
+      {formState.errors && formState.errors[name] && (
+        <InputError message={formState.errors[name]?.message?.toString()} />
+      )}
     </div>
   );
 }

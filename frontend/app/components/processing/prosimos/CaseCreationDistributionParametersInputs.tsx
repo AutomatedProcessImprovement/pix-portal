@@ -1,21 +1,14 @@
 import { useEffect } from "react";
-import { FieldErrors, useFieldArray } from "react-hook-form";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { DistributionType } from "./distribution-constants";
 
 export function CaseCreationDistributionParametersInputs({
-  register,
   name,
-  errors,
-  watch,
-  control,
   ...rest
 }: {
-  register?: any;
   name: string;
-  errors?: FieldErrors;
-  watch?: any;
-  control?: any;
 } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) {
+  const { control, register, watch } = useFormContext();
   const watchDistributionName = watch("arrival_time_distribution.distribution_name", rest.defaultValue);
 
   const { fields, replace } = useFieldArray({
@@ -50,7 +43,7 @@ export function CaseCreationDistributionParametersInputs({
             <label htmlFor={`${name}[${index}].value`}>
               {labelNames[watchDistributionName as keyof typeof labelNames][index]}
             </label>
-            <input {...register(`${name}[${index}].value` as const)} defaultValue={0} />
+            <input {...register(`${name}[${index}].value` as const)} {...rest} />
           </div>
         );
       })}

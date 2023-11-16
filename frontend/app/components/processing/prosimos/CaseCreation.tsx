@@ -1,15 +1,16 @@
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { CaseCreationDistributionParametersInputs } from "./CaseCreationDistributionParametersInputs";
-import { CustomForm } from "./CustomForm";
 import { CustomInput } from "./CustomInput";
 import { CustomSelect } from "./CustomSelect";
 import { DistributionType } from "./distribution-constants";
-import { caseCreationSchema } from "./form-schema";
+import { WeekDay } from "./form-schema";
 
 export function CaseCreation() {
-  function onSubmit(data: any) {
-    console.log("data", data);
-  }
+  const { control } = useFormContext();
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "arrival_time_calendar",
+  });
 
   function formatDateForInputValue(date: Date) {
     const year = date.getFullYear();
@@ -28,14 +29,20 @@ export function CaseCreation() {
     return `${year}-${monthString}-${dayString}T${hourString}:${minuteString}`;
   }
 
+  function handleAddTime() {
+    append({
+      from: "Monday",
+      to: "Friday",
+      beginTime: "09:00",
+      endTime: "17:00",
+    });
+  }
+
+  const weekDays = Object.values(WeekDay);
+
   return (
-    <>
-      <CustomForm
-        onSubmit={onSubmit}
-        className="flex flex-col space-y-2"
-        defaultValues={{}}
-        resolver={yupResolver(caseCreationSchema)}
-      >
+    <div className="flex flex-col space-y-4">
+      <section className="p-4 flex flex-col space-y-2 border-4">
         <h3 className="text-lg font-semibold">Scenario Specification</h3>
         <CustomInput name="total_cases" type="number" defaultValue={100} />
         <CustomInput name="start_time" type="datetime-local" defaultValue={formatDateForInputValue(new Date())} />
@@ -48,8 +55,38 @@ export function CaseCreation() {
           name="arrival_time_distribution.distribution_params"
           defaultValue={DistributionType.expon}
         />
-        <button type="submit">Submit</button>
-      </CustomForm>
-    </>
+      </section>
+      <section className="p-4 flex flex-col space-y-2 border-4">
+        <h3 className="text-lg font-semibold">Arrival Time Calendar</h3>
+        {fields.map((field, index) => {
+          return (
+            <div key={field.id} className="flex space-x-2 items-end">
+              <CustomSelect name={`arrival_time_calendar[${index}].from`} options={weekDays} label="From" />
+              <CustomSelect name={`arrival_time_calendar[${index}].to`} options={weekDays} label="To" />
+              <CustomInput
+                name={`arrival_time_calendar[${index}].beginTime`}
+                type="time"
+                defaultValue="09:00"
+                label="Begin at"
+              />
+              <CustomInput
+                name={`arrival_time_calendar[${index}].endTime`}
+                type="time"
+                defaultValue="17:00"
+                label="End at"
+              />
+              <div>
+                <button type="button" onClick={() => remove(index)}>
+                  Remove
+                </button>
+              </div>
+            </div>
+          );
+        })}
+        <button type="button" onClick={handleAddTime}>
+          Add time
+        </button>
+      </section>
+    </div>
   );
 }

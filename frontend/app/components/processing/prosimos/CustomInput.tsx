@@ -1,21 +1,23 @@
 import React from "react";
-import { FieldErrors } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { InputError } from "./InputError";
 
 export function CustomInput({
-  register,
   name,
-  errors,
+  label,
   ...rest
-}: { register?: any; name: string; errors?: FieldErrors } & React.DetailedHTMLProps<
+}: { name: string; label?: string } & React.DetailedHTMLProps<
   React.InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
 >) {
+  const { register, formState } = useFormContext();
   return (
     <div className="flex flex-col space-y-1">
-      <label htmlFor={name}>{name}</label>
+      <label htmlFor={name}>{label || name}</label>
       <input {...register(name)} {...rest} />
-      {errors && errors[name] && <InputError message={errors[name]?.message?.toString()} />}
+      {formState.errors && formState.errors[name] && (
+        <InputError message={formState.errors[name]?.message?.toString()} />
+      )}
     </div>
   );
 }
