@@ -31,7 +31,7 @@ export function CustomSelect({
   const innerContent = (
     <>
       {!noLabel && <label htmlFor={name}>{label || name}</label>}
-      <select id={name} {...register(name)} {...rest}>
+      <select id={name} {...register(name)} {...rest} className="truncate">
         {options.map((option) => (
           <option key={option} value={option}>
             {option}

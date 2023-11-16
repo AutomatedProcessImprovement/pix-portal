@@ -5,13 +5,10 @@ import { CustomInput } from "./CustomInput";
 import { CustomSelect } from "./CustomSelect";
 import { DistributionType } from "./distribution-constants";
 import { WeekDay } from "./form-schema";
+import { useEffect } from "react";
 
 export function CaseCreation() {
   const { control } = useFormContext();
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "arrival_time_calendar",
-  });
 
   function formatDateForInputValue(date: Date) {
     const year = date.getFullYear();
@@ -30,6 +27,11 @@ export function CaseCreation() {
     return `${year}-${monthString}-${dayString}T${hourString}:${minuteString}`;
   }
 
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "arrival_time_calendar",
+  });
+
   function handleAddTime() {
     append({
       from: "Monday",
@@ -38,6 +40,11 @@ export function CaseCreation() {
       endTime: "17:00",
     });
   }
+
+  // append one on render
+  useEffect(() => {
+    if (fields.length === 0) handleAddTime();
+  }, []);
 
   const weekDays = Object.values(WeekDay);
 
@@ -83,7 +90,7 @@ export function CaseCreation() {
           );
         })}
         <button type="button" onClick={handleAddTime}>
-          Add time
+          Add Calendar
         </button>
       </CustomFormSection>
     </div>

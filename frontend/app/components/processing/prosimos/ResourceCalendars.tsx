@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import CustomFormSection from "./CustomFormSection";
 import { CustomInput } from "./CustomInput";
@@ -8,16 +8,22 @@ import { WeekDay } from "./form-schema";
 export function ResourceCalendars() {
   const name = "resource_calendars";
 
-  const { control, watch } = useFormContext();
-  const selectedResourceCalendarName = watch(`${name}.name`);
+  const { control } = useFormContext();
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: name,
   });
 
-  useEffect(() => {
-    console.log("selectedResourceCalendarName", selectedResourceCalendarName);
-  }, [selectedResourceCalendarName]);
+  function handleAddCalendar() {
+    const id = fields.length + 1;
+    append({ id: `${id}`, name: `calendar ${id}`, time_periods: [] });
+  }
+
+  // append one on render
+  // useEffect(() => {
+  //   if (fields.length === 0) handleAddCalendar();
+  // }, [fields]);
 
   return (
     <div className="flex flex-col space-y-4">
@@ -33,12 +39,7 @@ export function ResourceCalendars() {
             </div>
           );
         })}
-        <button
-          type="button"
-          onClick={() =>
-            append({ id: `${fields.length}`, name: "default schedule " + fields.length, time_periods: [] })
-          }
-        >
+        <button type="button" onClick={handleAddCalendar}>
           Add Calendar
         </button>
       </CustomFormSection>
@@ -65,7 +66,7 @@ function ResourceCalendar({ name, children }: { name: string; children?: React.R
 
   // append one on render
   useEffect(() => {
-    handleAddTime();
+    if (fields.length === 0) handleAddTime();
   }, []);
 
   const weekDays = Object.values(WeekDay);
@@ -73,8 +74,7 @@ function ResourceCalendar({ name, children }: { name: string; children?: React.R
   return (
     <div className="border-4 p-4 space-y-2">
       <div className="space-y-2">
-        <input type="hidden" {...control.register(`${name}.id`)} />
-        <CustomInput name={`${name}.name`} label="Name" />
+        <CustomInput name={`${name}.name`} label="Calendar Name" />
         {fields.map((field, index) => {
           return (
             <div key={field.id} className="flex space-x-2">

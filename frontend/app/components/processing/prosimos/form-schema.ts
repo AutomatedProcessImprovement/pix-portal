@@ -31,17 +31,42 @@ export const prosimosConfigurationSchema = yup.object({
   total_cases: yup.number().positive().integer().required(),
   start_time: yup.date().required(),
   arrival_time_distribution: yup.object().shape(distributionValues),
-  arrival_time_calendar: yup.array().of(calendarPeriod).required().min(1, "At least one calendar is required"),
+  arrival_time_calendar: yup.array().of(calendarPeriod).required().min(1, "At least one arrival calendar is required"),
   resource_calendars: yup
     .array()
     .of(
       yup.object({
+        // NOTE: this field is removed from the form but added in the post-processing
         id: yup.string().required(),
         name: yup.string().required(),
         time_periods: yup.array().of(calendarPeriod).required(),
       })
     )
     .required(),
+  resource_profiles: yup
+    .array()
+    .of(
+      yup.object({
+        // NOTE: this field is removed from the form but added in the post-processing
+        id: yup.string().required(),
+        name: yup.string().required(),
+        resource_list: yup
+          .array()
+          .of(
+            yup.object({
+              // NOTE: this field is removed from the form but added in the post-processing
+              id: yup.string().required(),
+              name: yup.string().required(),
+              cost_per_hour: yup.number().required(),
+              amount: yup.number().positive().integer().required(),
+              calendar: yup.string().required(),
+              assignedTasks: yup.array(),
+            })
+          )
+          .min(1, "At least one resource is required"),
+      })
+    )
+    .min(1, "At least one resource profile is required"),
 });
 
 export enum WeekDay {
