@@ -1,11 +1,11 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useOptionalUser } from "~/utils";
-import Header from "~/components/Header";
 import { Link, useLoaderData } from "@remix-run/react";
-import { getSession, sessionStorage } from "~/session.server";
+import Header from "~/components/Header";
 import ToastMessage from "~/components/ToastMessage";
+import { getSession, sessionStorage } from "~/session.server";
 import { FlashMessage as FlashMessageType } from "~/shared/flash_message";
+import { useOptionalUser } from "~/utils";
 
 export const meta: MetaFunction = () => {
   return [{ title: "PIX" }, { name: "description", content: "Process Improvement Explorer" }];
@@ -29,7 +29,7 @@ export default function Index() {
 
   if (flashMessage) {
     setTimeout(() => {
-      document.getElementById("global-message")?.remove();
+      document && document.getElementById("global-message")?.remove();
     }, 5000);
   }
 
