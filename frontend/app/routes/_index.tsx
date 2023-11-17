@@ -29,7 +29,7 @@ export default function Index() {
 
   if (flashMessage) {
     setTimeout(() => {
-      document && document.getElementById("global-message")?.remove();
+      window && window.document.getElementById("global-message")?.remove();
     }, 5000);
   }
 

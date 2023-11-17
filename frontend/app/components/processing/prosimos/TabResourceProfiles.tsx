@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { Select } from "~/components/processing/prosimos/Select";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
-import { Select } from "~/components/processing/prosimos/Select";
+
+// TODO: add assignedTasks to the final form output in the post-processing stage
 
 export function TabResourceProfiles() {
   const name = "resource_profiles";
@@ -36,7 +38,7 @@ export function TabResourceProfiles() {
 
   return (
     <div className="flex flex-col space-y-4">
-      <FormSection title="Resource Calendars">
+      <FormSection title="Resource Profiles">
         {!isEnabled && <div className="text-red-500">Please add resource calendars first</div>}
         {isEnabled &&
           fields.map((field, index) => {
@@ -82,10 +84,6 @@ function ResourceProfile({ name, children }: { name: string; children?: React.Re
   }, []);
 
   const resourceCalendars = watch("resource_calendars");
-
-  useEffect(() => {
-    console.log("resourceCalendars", resourceCalendars);
-  }, [resourceCalendars]);
 
   return (
     <div className="border-4 p-4 space-y-2">

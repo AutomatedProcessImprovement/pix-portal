@@ -3,8 +3,9 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Asset } from "~/services/assets.server";
-import { TabCaseCreation } from "./prosimos/TabCaseCreation";
 import { FormErrors } from "./prosimos/FormErrors";
+import { TabCaseCreation } from "./prosimos/TabCaseCreation";
+import { TabResourceAllocation } from "./prosimos/TabResourceAllocation";
 import { TabResourceCalendars } from "./prosimos/TabResourceCalendars";
 import { TabResourceProfiles } from "./prosimos/TabResourceProfiles";
 import { prosimosConfigurationSchema } from "./prosimos/form-schema";
@@ -27,7 +28,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
     { name: "Case Creation", component: <TabCaseCreation /> },
     { name: "Resource Calendars", component: <TabResourceCalendars /> },
     { name: "Resources Profiles", component: <TabResourceProfiles /> },
-    { name: "Resource Allocation", component: <div>Resource Allocation</div> },
+    { name: "Resource Allocation", component: <TabResourceAllocation /> },
     { name: "Branching Probabilities", component: <div>Branching Probabilities</div> },
     { name: "Batching", component: <div>Batching</div> },
     { name: "Case Attributes", component: <div>Case Attributes</div> },
