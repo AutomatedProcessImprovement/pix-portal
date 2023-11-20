@@ -6,31 +6,6 @@ import { Input } from "./Input";
 import { Select } from "./Select";
 import { DistributionType } from "./distribution";
 
-//  "task_resource_distribution": [
-//         {
-//             "task_id": "node_f38b9a97-7fe1-4930-acbd-db874a206caf",
-//             "resources": [
-//                 {
-//                     "resource_id": "Alberto Duport",
-//                     "distribution_name": "gamma",
-//                     "distribution_params": [
-//                         {
-//                             "value": 107.8381235189874
-//                         },
-//                         {
-//                             "value": 29152.338380398352
-//                         },
-//                         {
-//                             "value": 0.0
-//                         },
-//                         {
-//                             "value": 860.08685
-//                         }
-//                     ]
-//                 },
-//           }
-//   ]
-
 export function TabResourceAllocation() {
   const name = "task_resource_distribution";
 

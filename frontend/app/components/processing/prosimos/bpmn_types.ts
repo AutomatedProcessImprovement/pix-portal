@@ -1,7 +1,8 @@
+import { FlowNode } from "bpmn-moddle";
+
 export interface ModelTask {
   id: string;
   name: string;
-  resource: string;
 }
 
 export interface AllModelTasks {
@@ -9,19 +10,18 @@ export interface AllModelTasks {
 }
 
 export interface Gateways {
-  [gatewayId: string]: GatewayInfo;
+  [gatewayId: string]: Gateway;
 }
 
-export interface GatewayInfo {
-  type: string;
+export interface Gateway {
+  id: string;
   name: string;
-  childs: SequenceElements;
+  outgoingFlows: FlowNode[];
 }
 
-export interface SequenceElements {
-  [seqId: string]: {
-    name: string;
-  };
+export interface SequenceElement {
+  id: string;
+  name: string;
 }
 
 export class Dictionary<T> {

@@ -29,7 +29,7 @@ export function Input({
   const innerContent = (
     <>
       {!noLabel && <label htmlFor={name}>{label || name}</label>}
-      <input id={name} {...register(name)} {...rest} className="truncate" />
+      <input id={name} {...register(name)} {...rest} className={`truncate ${rest.className ? rest.className : ""}`} />
       {!noError && formState.errors && formState.errors[name] && (
         <InputError message={formState.errors[name]?.message?.toString()} />
       )}

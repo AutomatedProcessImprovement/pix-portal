@@ -7,6 +7,7 @@ import { FileType } from "~/services/files";
 import { BpmnDataContext, UserContext } from "./contexts";
 import { FormErrors } from "./prosimos/FormErrors";
 import { TabCaseCreation } from "./prosimos/TabCaseCreation";
+import { TabGateways } from "./prosimos/TabGateways";
 import { TabResourceAllocation } from "./prosimos/TabResourceAllocation";
 import { TabResourceCalendars } from "./prosimos/TabResourceCalendars";
 import { TabResourceProfiles } from "./prosimos/TabResourceProfiles";
@@ -52,7 +53,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
     { name: "Resource Calendars", component: <TabResourceCalendars /> },
     { name: "Resources Profiles", component: <TabResourceProfiles /> },
     { name: "Resource Allocation", component: <TabResourceAllocation /> },
-    { name: "Branching Probabilities", component: <div>Branching Probabilities</div> },
+    { name: "Branching Probabilities", component: <TabGateways /> },
     { name: "Batching", component: <div>Batching</div> },
     { name: "Case Attributes", component: <div>Case Attributes</div> },
     { name: "Prioritisation", component: <div>Prioritisation</div> },

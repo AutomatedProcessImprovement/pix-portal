@@ -112,6 +112,30 @@ export const prosimosConfigurationSchema = yup.object({
     )
     .required()
     .min(1, "At least one resource allocation is required"),
+  gateway_branching_probabilities: yup
+    .array()
+    .of(
+      yup.object({
+        gateway_id: yup.string().required(),
+        probabilities: yup
+          .array()
+          .of(
+            yup.object({
+              path_id: yup.string().required(),
+              value: yup.number().max(1).required(),
+            })
+          )
+          .test("sum", "Probabilities must sum to 1", (value) => {
+            if (!value) {
+              return true;
+            }
+            const sum = value.reduce((acc, curr) => acc + curr.value, 0);
+            return sum === 1;
+          })
+          .required(),
+      })
+    )
+    .required(),
 });
 
 export enum WeekDay {
