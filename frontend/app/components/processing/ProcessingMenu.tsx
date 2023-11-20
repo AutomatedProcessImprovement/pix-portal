@@ -3,7 +3,7 @@ import { NavLink } from "@remix-run/react";
 export default function ProcessingMenu({ projectId }: { projectId: string }) {
   function navLinkClasses({ isActive, isPending }: { isActive: boolean; isPending: boolean }) {
     let classes = "border-none";
-    if (isPending) classes += " text-red-600";
+    if (isPending) classes += " text-red-600 animate-pulse";
     if (isActive) classes += " text-black";
     return classes;
   }

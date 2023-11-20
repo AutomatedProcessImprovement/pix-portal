@@ -2,13 +2,14 @@ import { ArrowDownTrayIcon } from "@heroicons/react/20/solid";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { Asset, getAsset } from "~/services/assets";
-import { User } from "~/services/auth.server";
+import { User } from "~/services/auth";
 import { File, getFile, getFileLocation } from "~/services/files";
 
-export function AssetCardAsync({ assetId, user }: { assetId: string; user: User }) {
+export function AssetCardAsync({ assetId, user }: { assetId: string; user: User | null }) {
   const [asset, setAsset] = useState<Asset | null>(null);
 
   useEffect(() => {
+    if (!user) return;
     getAsset(assetId, user.token!).then((asset) => setAsset(asset));
   }, [assetId]);
 
@@ -34,13 +35,14 @@ export function AssetCardAsync({ assetId, user }: { assetId: string; user: User 
   );
 }
 
-function FileCardAsync({ assetId, fileId, user }: { assetId: string; fileId: string; user: User }) {
+function FileCardAsync({ assetId, fileId, user }: { assetId: string; fileId: string; user: User | null }) {
   const [file, setFile] = useState<File | null>(null);
   const [fileLocation, setFileLocation] = useState<string | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string>("");
   const hiddenAnchorRef = useRef<HTMLAnchorElement | null>(null);
 
   useEffect(() => {
+    if (!user) return;
     getFile(fileId, user.token!).then((file) => setFile(file));
     getFileLocation(fileId, user.token!).then((fileLocation) => setFileLocation(fileLocation.location));
   }, [assetId, fileId]);
@@ -61,7 +63,7 @@ function FileCardAsync({ assetId, fileId, user }: { assetId: string; fileId: str
     const response = await axios.get(fileLocation, {
       responseType: "blob",
       headers: {
-        Authorization: `Bearer ${user.token}`,
+        Authorization: `Bearer ${user?.token}`,
       },
     });
 

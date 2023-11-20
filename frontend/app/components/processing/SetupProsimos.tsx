@@ -1,19 +1,31 @@
 import { Form, useNavigation } from "@remix-run/react";
-import { useContext, useEffect, useRef, useState } from "react";
-import { Asset } from "~/services/assets";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { Asset, getAsset } from "~/services/assets";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 import ProsimosConfiguration from "./ProsimosConfiguration";
-import { SelectedAssetsContext } from "./contexts";
+import { SelectedAssetsContext, UserContext } from "./contexts";
 
 export default function SetupProsimos() {
   const navigation = useNavigation();
   const selectedAssetsIdsRef = useRef<HTMLInputElement>(null);
   const [simulationModel, setSimulationModel] = useState<Asset | null>(null);
+  const user = useContext(UserContext);
 
   const selectedAssets = useContext(SelectedAssetsContext);
   useEffect(() => {
-    setSimulationModel(selectedAssets.find((asset) => asset.type === AssetTypeBackend.SIMULATION_MODEL) || null);
     selectedAssetsIdsRef.current!.value = selectedAssets.map((asset) => asset.id).join(",");
+    fetchSimulationModel();
+  }, [selectedAssets]);
+
+  const fetchSimulationModel = useCallback(async () => {
+    const simulationModel = selectedAssets.find((asset) => asset.type === AssetTypeBackend.SIMULATION_MODEL);
+    if (simulationModel) {
+      // this call populates the files field with the file objects, so we can find a BPMN model file and fetch its content
+      const asset = await getAsset(simulationModel.id, user?.token!, false);
+      setSimulationModel(asset);
+    } else {
+      setSimulationModel(null);
+    }
   }, [selectedAssets]);
 
   return (

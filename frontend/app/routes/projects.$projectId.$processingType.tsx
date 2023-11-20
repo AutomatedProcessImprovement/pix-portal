@@ -2,6 +2,7 @@ import { json, redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from
 import { isRouteErrorResponse, useLoaderData, useRouteError } from "@remix-run/react";
 import ProcessingApp from "~/components/processing/ProcessingApp";
 import ProcessingMenu from "~/components/processing/ProcessingMenu";
+import { UserContext } from "~/components/processing/contexts";
 import { Asset } from "~/services/assets";
 import { getAssetsForProject } from "~/services/assets.server";
 import { ProcessingRequest, ProcessingRequestType } from "~/services/processing_requests";
@@ -66,12 +67,9 @@ export default function ProcessingPage() {
       <div className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
         <ProcessingMenu projectId={projectId} />
       </div>
-      <ProcessingApp
-        assets={assets}
-        processingType={processingType}
-        processingRequests={processingRequests}
-        user={user}
-      />
+      <UserContext.Provider value={user}>
+        <ProcessingApp assets={assets} processingType={processingType} processingRequests={processingRequests} />
+      </UserContext.Provider>
     </div>
   );
 }

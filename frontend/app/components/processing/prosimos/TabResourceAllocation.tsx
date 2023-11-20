@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { BpmnDataContext } from "../contexts";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
 import { Select } from "./Select";
@@ -30,10 +31,10 @@ import { DistributionType } from "./distribution-constants";
 //           }
 //   ]
 
-// TODO: read BPMN activities to display task_id in the component
-
 export function TabResourceAllocation() {
   const name = "task_resource_distribution";
+
+  const bpmnData = useContext(BpmnDataContext);
 
   const { control, watch } = useFormContext();
 
@@ -52,11 +53,13 @@ export function TabResourceAllocation() {
   });
 
   function handleAddAllocation() {
-    append({ task_id: "Foo bar", resources: [] });
+    bpmnData?.tasks?.forEach((task) => {
+      append({ task_id: task.name, resources: [] });
+    });
   }
   useEffect(() => {
     if (fields.length === 0) handleAddAllocation();
-  }, []);
+  }, [bpmnData]);
 
   return (
     <div className="flex flex-col space-y-4">

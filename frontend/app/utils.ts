@@ -1,8 +1,8 @@
 import { useMatches } from "@remix-run/react";
-import { useMemo } from "react";
-import { User } from "~/services/auth.server";
-import { getSession, logout } from "~/session.server";
 import { AxiosError } from "axios";
+import { useMemo } from "react";
+import { getSession, logout } from "~/session.server";
+import { User } from "./services/auth";
 
 export function useMatchesData(id: string): Record<string, unknown> | undefined {
   const matchingRoutes = useMatches();

@@ -1,13 +1,16 @@
 import { Tab } from "@headlessui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Asset } from "~/services/assets";
+import { FileType } from "~/services/files";
+import { BpmnDataContext, UserContext } from "./contexts";
 import { FormErrors } from "./prosimos/FormErrors";
 import { TabCaseCreation } from "./prosimos/TabCaseCreation";
 import { TabResourceAllocation } from "./prosimos/TabResourceAllocation";
 import { TabResourceCalendars } from "./prosimos/TabResourceCalendars";
 import { TabResourceProfiles } from "./prosimos/TabResourceProfiles";
+import { BpmnData, fetchAndParseBpmn } from "./prosimos/bpmn";
 import { prosimosConfigurationSchema } from "./prosimos/form-schema";
 
 export default function ProsimosConfiguration({ asset }: { asset: Asset | null }) {
@@ -15,6 +18,26 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
     resolver: yupResolver(prosimosConfigurationSchema),
     shouldUseNativeValidation: true,
   });
+
+  const user = useContext(UserContext);
+
+  const [bpmnData, setBpmnData] = useState<BpmnData | null>(null);
+
+  useEffect(() => {
+    if (!asset) return;
+    console.log("simulation model", asset);
+
+    const parseBpmn = async () => {
+      const bpmnFile = asset.files?.find((file) => file.type === FileType.PROCESS_MODEL_BPMN);
+      if (!bpmnFile || !user || !user?.token) return;
+      const bpmnData = await fetchAndParseBpmn(bpmnFile?.id, user?.token);
+      return bpmnData;
+    };
+
+    parseBpmn().then((bpmnData) => {
+      if (bpmnData) setBpmnData(bpmnData);
+    });
+  }, [asset]);
 
   useEffect(() => {
     console.log("formState.errors", methods.formState.errors);
@@ -43,31 +66,33 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
         {asset.id} ({asset.type})
       </p>
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)} className="flex flex-col space-y-2">
-          <Tab.Group>
-            <Tab.List>
-              {tabs.map((tab) => (
-                <Tab
-                  key={tab.name}
-                  className={({ selected }) =>
-                    `px-2 py-1 mr-1 mb-1 hover:bg-blue-200  text-slate-900 rounded-none ${
-                      selected ? "bg-blue-200" : "bg-blue-50"
-                    }`
-                  }
-                >
-                  {tab.name}
-                </Tab>
-              ))}
-            </Tab.List>
-            <Tab.Panels>
-              {tabs.map((tab) => (
-                <Tab.Panel key={tab.name}>{tab.component}</Tab.Panel>
-              ))}
-            </Tab.Panels>
-          </Tab.Group>
-          {methods.formState.errors && <FormErrors errors={methods.formState.errors} />}
-          <button type="submit">Submit</button>
-        </form>
+        <BpmnDataContext.Provider value={bpmnData}>
+          <form onSubmit={methods.handleSubmit(onSubmit)} className="flex flex-col space-y-2">
+            <Tab.Group>
+              <Tab.List>
+                {tabs.map((tab) => (
+                  <Tab
+                    key={tab.name}
+                    className={({ selected }) =>
+                      `px-2 py-1 mr-1 mb-1 hover:bg-blue-200  text-slate-900 rounded-none ${
+                        selected ? "bg-blue-200" : "bg-blue-50"
+                      }`
+                    }
+                  >
+                    {tab.name}
+                  </Tab>
+                ))}
+              </Tab.List>
+              <Tab.Panels>
+                {tabs.map((tab) => (
+                  <Tab.Panel key={tab.name}>{tab.component}</Tab.Panel>
+                ))}
+              </Tab.Panels>
+            </Tab.Group>
+            {methods.formState.errors && <FormErrors errors={methods.formState.errors} />}
+            <button type="submit">Submit</button>
+          </form>
+        </BpmnDataContext.Provider>
       </FormProvider>
     </section>
   );

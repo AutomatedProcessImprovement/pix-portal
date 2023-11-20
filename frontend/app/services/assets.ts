@@ -1,4 +1,5 @@
 import axios from "axios";
+import { File } from "./files";
 
 export type Asset = {
   id: string;
@@ -12,6 +13,7 @@ export type Asset = {
   files_ids: string[];
   users_ids: string[];
   processing_requests_ids?: string[];
+  files?: File[];
 };
 
 export const clientSideHttp = axios.create({
@@ -21,11 +23,14 @@ export const clientSideHttp = axios.create({
   },
 });
 
-export async function getAsset(assetId: string, token: string) {
+export async function getAsset(assetId: string, token: string, lazy: boolean = true) {
   const url = `/assets/${assetId}`;
   const response = await clientSideHttp.get(url, {
     headers: {
       Authorization: `Bearer ${token}`,
+    },
+    params: {
+      lazy: lazy, // NOTE: if false, the call returns the asset with its files as objects, not just ids
     },
   });
   return response.data as Asset;

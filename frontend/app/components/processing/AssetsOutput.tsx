@@ -1,15 +1,12 @@
-import { User } from "~/services/auth.server";
+import { useContext } from "react";
 import { ProcessingRequest, ProcessingRequestStatus } from "~/services/processing_requests";
 import { AssetCardAsync } from "./AssetCardAsync";
 import { ProcessingRequestCard } from "./ProcessingRequestCard";
+import { UserContext } from "./contexts";
 
-export default function AssetsOutput({
-  processingRequests,
-  user,
-}: {
-  processingRequests: ProcessingRequest[];
-  user: User;
-}) {
+export default function AssetsOutput({ processingRequests }: { processingRequests: ProcessingRequest[] }) {
+  const user = useContext(UserContext);
+
   function byCreationTime(a: ProcessingRequest, b: ProcessingRequest) {
     return a.creation_time.localeCompare(b.creation_time);
   }
