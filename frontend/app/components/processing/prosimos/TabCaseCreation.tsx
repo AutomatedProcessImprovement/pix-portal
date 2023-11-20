@@ -3,8 +3,8 @@ import { TabCaseCreationDistributionParametersInputs } from "./TabCaseCreationDi
 import FormSection from "./FormSection";
 import { Input } from "./Input";
 import { Select } from "./Select";
-import { DistributionType } from "./distribution-constants";
-import { WeekDay } from "./form-schema";
+import { DistributionType } from "./distribution";
+import { WeekDay } from "./configuration_schema";
 import { useEffect } from "react";
 
 export function TabCaseCreation() {

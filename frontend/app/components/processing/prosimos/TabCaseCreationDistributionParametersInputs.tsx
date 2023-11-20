@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { DistributionType } from "./distribution-constants";
+import { DistributionType } from "./distribution";
 
 export function TabCaseCreationDistributionParametersInputs({
   name,

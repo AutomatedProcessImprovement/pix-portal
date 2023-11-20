@@ -1,5 +1,5 @@
 import * as yup from "yup";
-import { DistributionType, getNumOfParamsPerDistr } from "./distribution-constants";
+import { DistributionType, getNumOfParamsPerDistr } from "./distribution";
 
 const validateArrayUniqueness = (ref: any, fieldName: string, message: string) => {
   return ref.test("unique", message, function (this: any, distrArr: []) {

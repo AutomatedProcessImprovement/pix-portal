@@ -4,7 +4,7 @@ import { BpmnDataContext } from "../contexts";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
 import { Select } from "./Select";
-import { DistributionType } from "./distribution-constants";
+import { DistributionType } from "./distribution";
 
 //  "task_resource_distribution": [
 //         {
@@ -47,18 +47,18 @@ export function TabResourceAllocation() {
     else setIsEnabled(false);
   }, [resourceProfiles]);
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append } = useFieldArray({
     control,
     name: name,
   });
 
-  function handleAddAllocation() {
-    bpmnData?.tasks?.forEach((task) => {
-      append({ task_id: task.name, resources: [] });
-    });
-  }
+  // set acvitivities from BPMN file
   useEffect(() => {
-    if (fields.length === 0) handleAddAllocation();
+    if (fields.length === 0) {
+      bpmnData?.tasks?.forEach((task) => {
+        append({ task_id: task.name, resources: [] }); // TODO: decide either to use task.name or task.id, depends what Prosimos expects
+      });
+    }
   }, [bpmnData]);
 
   return (
