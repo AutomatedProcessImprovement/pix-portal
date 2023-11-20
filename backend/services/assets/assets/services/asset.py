@@ -2,11 +2,13 @@ import asyncio
 import uuid
 from typing import AsyncGenerator, Optional, Sequence
 
-from assets.persistence.model import Asset, AssetType
-from assets.persistence.repository import get_asset_repository, AssetRepository
 from fastapi import Depends
 from pix_portal_lib.service_clients.file import FileServiceClient, File
 from pix_portal_lib.service_clients.project import ProjectServiceClient
+
+from assets.controllers.schemas import AssetOut
+from assets.persistence.model import Asset, AssetType
+from assets.persistence.repository import get_asset_repository, AssetRepository
 
 
 class AssetService:
@@ -58,8 +60,15 @@ class AssetService:
 
         return asset
 
-    async def get_asset(self, asset_id: uuid.UUID) -> Asset:
-        return await self.asset_repository.get_asset(asset_id)
+    async def get_asset(self, asset_id: uuid.UUID, token: Optional[str] = None, lazy: bool = True) -> AssetOut:
+        if lazy:
+            asset = await self.asset_repository.get_asset(asset_id)
+            return AssetOut(**asset.__dict__)
+
+        assert token is not None, "token must be provided if lazy is False"
+        asset = await self.asset_repository.get_asset(asset_id)
+        result = await self._post_process([asset], token)
+        return result[0]
 
     async def update_asset(
         self,
@@ -93,9 +102,14 @@ class AssetService:
                 raise Exception("Asset deleted but files deletion failed")
 
     async def get_files_by_asset_id(self, asset_id: uuid.UUID, token: str) -> list[dict]:
-        asset = await self.get_asset(asset_id)
+        asset = await self.get_asset(asset_id, token=token)
+        return await self._fetch_files(asset.files_ids, token=token)
+
+    async def _fetch_files(self, files_ids: Optional[list[uuid.UUID]], token: str) -> list[dict]:
+        if not files_ids or len(files_ids) == 0:
+            return []
         files = await asyncio.gather(
-            *[self.file_service_client.get_file(file_id, token=token) for file_id in asset.files_ids]
+            *[self.file_service_client.get_file(file_id, token=token) for file_id in files_ids]
         )
         return list(files)
 
@@ -113,6 +127,13 @@ class AssetService:
         user_id = str(user_id)
         users_ids = [str(user_id) for user_id in asset.users_ids]
         return user_id in users_ids
+
+    async def _post_process(self, assets: Sequence[Asset], token: str) -> Sequence[AssetOut]:
+        # convert to AssetOut and fetch files
+        assets_ = [AssetOut(**asset.__dict__) for asset in assets]
+        for asset in assets_:
+            asset.files = await self._fetch_files(asset.files_ids, token=token)
+        return assets_
 
 
 async def get_asset_service(
