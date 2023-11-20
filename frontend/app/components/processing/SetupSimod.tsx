@@ -1,9 +1,10 @@
 import { Form, useNavigation } from "@remix-run/react";
-import { useEffect, useState } from "react";
-import { Asset } from "~/services/assets.server";
+import { useContext, useEffect, useState } from "react";
+import { Asset } from "~/services/assets";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
+import { SelectedAssetsContext } from "./contexts";
 
-export default function SetupSimod({ selectedAssets }: { selectedAssets: Asset[] }) {
+export default function SetupSimod() {
   // Simod requires one event log and, optionally, a process model
 
   const navigation = useNavigation();
@@ -13,6 +14,7 @@ export default function SetupSimod({ selectedAssets }: { selectedAssets: Asset[]
 
   const [selectedInputAssetsIdsRef, setSelectedInputAssetsIdsRef] = useState<string[]>([]);
 
+  const selectedAssets = useContext(SelectedAssetsContext);
   useEffect(() => {
     setEventLog(selectedAssets.find((asset) => asset.type === AssetTypeBackend.EVENT_LOG) || null);
     setProcessModel(selectedAssets.find((asset) => asset.type === AssetTypeBackend.PROCESS_MODEL) || null);

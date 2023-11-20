@@ -1,24 +1,15 @@
 import { ProcessingType } from "~/routes/projects.$projectId.$processingType";
-import { Asset } from "~/services/assets.server";
 import SetupKronos from "./SetupKronos";
 import SetupProsimos from "./SetupProsimos";
 import SetupSimod from "./SetupSimod";
 
-export default function ProcessingSetup({
-  assets,
-  processingType,
-  selectedAssets,
-}: {
-  assets: Asset[];
-  processingType: ProcessingType;
-  selectedAssets: Asset[];
-}) {
+export default function ProcessingSetup({ processingType }: { processingType: ProcessingType }) {
   function chooseProcessingSetup() {
     switch (processingType) {
       case ProcessingType.Discovery:
-        return <SetupSimod selectedAssets={selectedAssets} />;
+        return <SetupSimod />;
       case ProcessingType.Simulation:
-        return <SetupProsimos selectedAssets={selectedAssets} />;
+        return <SetupProsimos />;
       case ProcessingType.WaitingTime:
         return <SetupKronos />;
       default:

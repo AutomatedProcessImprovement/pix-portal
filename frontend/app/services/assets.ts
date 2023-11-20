@@ -1,5 +1,18 @@
 import axios from "axios";
-import { Asset } from "./assets.server";
+
+export type Asset = {
+  id: string;
+  creation_time: string;
+  modification_time?: string;
+  deletion_time?: string;
+  name: string;
+  description?: string;
+  type: string;
+  project_id: string;
+  files_ids: string[];
+  users_ids: string[];
+  processing_requests_ids?: string[];
+};
 
 export const clientSideHttp = axios.create({
   baseURL: "http://localhost:9999/api/v1",

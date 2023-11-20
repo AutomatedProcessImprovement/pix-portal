@@ -2,7 +2,8 @@ import { json, redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from
 import { isRouteErrorResponse, useLoaderData, useRouteError } from "@remix-run/react";
 import ProcessingApp from "~/components/processing/ProcessingApp";
 import ProcessingMenu from "~/components/processing/ProcessingMenu";
-import { Asset, getAssetsForProject } from "~/services/assets.server";
+import { Asset } from "~/services/assets";
+import { getAssetsForProject } from "~/services/assets.server";
 import { ProcessingRequest, ProcessingRequestType } from "~/services/processing_requests";
 import { createProcessingRequest, getProcessingRequestsForProject } from "~/services/processing_requests.server";
 import { requireLoggedInUser } from "~/session.server";

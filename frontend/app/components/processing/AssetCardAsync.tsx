@@ -1,8 +1,7 @@
 import { ArrowDownTrayIcon } from "@heroicons/react/20/solid";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { getAsset } from "~/services/assets";
-import { Asset } from "~/services/assets.server";
+import { Asset, getAsset } from "~/services/assets";
 import { User } from "~/services/auth.server";
 import { File, getFile, getFileLocation } from "~/services/files";
 

@@ -1,5 +1,5 @@
 import { ProcessingType } from "~/routes/projects.$projectId.$processingType";
-import { Asset } from "~/services/assets.server";
+import { Asset } from "~/services/assets";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 import UploadAssetButton from "../UploadAssetButton";
 import UploadAssetDialog from "../upload/UploadAssetDialog";

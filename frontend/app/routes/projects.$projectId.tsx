@@ -9,7 +9,8 @@ import {
 import { Outlet, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 import ProjectNav from "~/components/ProjectNav";
-import { Asset, getAssetsForProject } from "~/services/assets.server";
+import { Asset } from "~/services/assets";
+import { getAssetsForProject } from "~/services/assets.server";
 import { getProject } from "~/services/projects.server";
 import { requireLoggedInUser } from "~/session.server";
 import { createAssetsFromForm } from "~/shared/file_upload.server";

@@ -1,14 +1,16 @@
 import { Form, useNavigation } from "@remix-run/react";
-import { useEffect, useRef, useState } from "react";
-import { Asset } from "~/services/assets.server";
+import { useContext, useEffect, useRef, useState } from "react";
+import { Asset } from "~/services/assets";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 import ProsimosConfiguration from "./ProsimosConfiguration";
+import { SelectedAssetsContext } from "./contexts";
 
-export default function SetupProsimos({ selectedAssets }: { selectedAssets: Asset[] }) {
+export default function SetupProsimos() {
   const navigation = useNavigation();
   const selectedAssetsIdsRef = useRef<HTMLInputElement>(null);
   const [simulationModel, setSimulationModel] = useState<Asset | null>(null);
 
+  const selectedAssets = useContext(SelectedAssetsContext);
   useEffect(() => {
     setSimulationModel(selectedAssets.find((asset) => asset.type === AssetTypeBackend.SIMULATION_MODEL) || null);
     selectedAssetsIdsRef.current!.value = selectedAssets.map((asset) => asset.id).join(",");
