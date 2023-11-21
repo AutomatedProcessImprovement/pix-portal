@@ -125,17 +125,85 @@ export const prosimosConfigurationSchema = yup.object({
               value: yup.number().max(1).required(),
             })
           )
-          .test("sum", "Probabilities must sum to 1", (value) => {
-            if (!value) {
-              return true;
-            }
-            const sum = value.reduce((acc, curr) => acc + curr.value, 0);
-            return sum === 1;
-          })
+          .test("sum", "Probabilities must sum to 1", testProbabilitiesSum)
           .required(),
       })
     )
     .required(),
+  event_distribution: yup.array().of(
+    // TODO: where is it coming from?
+    yup.object({
+      event_id: yup.string().required(),
+      ...distributionSchema,
+    })
+  ),
+  batch_processing: yup.array().of(
+    yup.object({
+      task_id: yup.string().required(),
+      type: yup.string().required(),
+      size_distrib: yup
+        .array()
+        .of(
+          yup.object({
+            key: yup.string().required(),
+            value: yup.number().required(),
+          })
+        )
+        .min(1)
+        .test("sum", "Probabilities must sum to 1", testProbabilitiesSum)
+        .test("unique", "Size distributions must have unique keys", testUniqueKeys),
+      duration_distrib: yup
+        .array()
+        .of(
+          yup.object({
+            key: yup.string().required(),
+            value: yup.number().required(),
+          })
+        )
+        .min(1)
+        .test("sum", "Probabilities must sum to 1", testProbabilitiesSum)
+        .test("unique", "Duration distributions must have unique keys", testUniqueKeys),
+      firing_rules: yup
+        .array()
+        .of(
+          yup
+            .array()
+            .of(
+              yup.object({
+                attribute: yup.string().required(),
+                comparison: yup.string().required(),
+                // string for weekday and numeric string for all others
+                value: yup.lazy((value) => {
+                  const stringOrNumber = yup.string().when("attribute", {
+                    is: (val: string) => val === "week_day",
+                    // string is the only limitation (it can contain everything)
+                    then: (schema) => schema,
+                    // string can contain only digit numbers
+                    otherwise: (schema) => schema.matches(/^\d+$/),
+                  });
+                  const oneValueSchema = stringOrNumber.required();
+                  return Array.isArray(value) ? yup.array().of(oneValueSchema).min(2) : oneValueSchema;
+                }),
+              })
+            )
+            .min(1)
+            .test("unique", "Firing rules must have unique attributes", (firingRules) => {
+              if (!firingRules) return true;
+
+              const attributeArr = firingRules?.map(({ attribute }) => attribute ?? "");
+              const originalSize = attributeArr?.length;
+
+              if (!originalSize || originalSize === 0) return true;
+
+              const attributeSet = new Set(attributeArr);
+              const uniqueSize = attributeSet.size;
+
+              return uniqueSize === originalSize;
+            })
+        )
+        .min(1),
+    })
+  ),
 });
 
 export enum WeekDay {
@@ -146,4 +214,18 @@ export enum WeekDay {
   Friday = "Friday",
   Saturday = "Saturday",
   Sunday = "Sunday",
+}
+
+function testProbabilitiesSum(value: any) {
+  if (!value) {
+    return true;
+  }
+  const sum = value.reduce((acc: number, curr: { value: number }) => acc + curr.value, 0);
+  return sum === 1;
+}
+
+function testUniqueKeys(items: { key: string }[] | undefined) {
+  if (!items) return true;
+  const keysArr = items?.map(({ key }) => key ?? "");
+  return isStrArrUnique(keysArr);
 }

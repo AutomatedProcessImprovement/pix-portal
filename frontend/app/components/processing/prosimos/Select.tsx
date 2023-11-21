@@ -5,6 +5,7 @@ import { InputError } from "./InputError";
 export function Select({
   name,
   options,
+  optionLabels,
   label,
   noLabel,
   noError,
@@ -14,6 +15,7 @@ export function Select({
 }: {
   name: string;
   options: string[];
+  optionLabels?: string[];
   label?: string;
   noLabel?: boolean;
   noError?: boolean;
@@ -32,9 +34,9 @@ export function Select({
     <>
       {!noLabel && <label htmlFor={name}>{label || name}</label>}
       <select id={name} {...register(name)} {...rest} className="truncate">
-        {options.map((option) => (
+        {options.map((option, index) => (
           <option key={option} value={option}>
-            {option}
+            {optionLabels ? optionLabels[index] : option}
           </option>
         ))}
       </select>
