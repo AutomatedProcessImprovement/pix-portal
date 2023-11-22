@@ -27,6 +27,8 @@ export function TabBatching() {
 
   function handleAppend() {
     append({
+      // task_id is there, but we don't provide the default value,
+      // the Select will receive the first task_id form the BPMN data
       // task_id: "",
       type: BatchingType.sequential,
       size_distrib: [],
@@ -48,7 +50,7 @@ export function TabBatching() {
           );
         })}
         <button type="button" onClick={handleAppend}>
-          Add Batching Rule
+          Add Activity Batching Ruleset
         </button>
       </FormSection>
     </div>
@@ -145,6 +147,18 @@ enum FiringRuleAttribute {
   week_day = "week_day",
 }
 
+type FiringAndRule = {
+  attribute: FiringRuleAttribute;
+  comparison: string;
+  value: number;
+};
+
+const defaultFiringAndRule: FiringAndRule = {
+  attribute: FiringRuleAttribute.batch_size,
+  comparison: ">",
+  value: 0,
+};
+
 function firingRuleAttributeToLabel(attribute: FiringRuleAttribute) {
   switch (attribute) {
     case FiringRuleAttribute.batch_size:
@@ -181,13 +195,13 @@ function FiringOrRules({ name }: { name: string }) {
           return (
             <FiringAndRules key={field.id} name={`${name}.firing_rules[${index}]`}>
               <button type="button" onClick={() => removeOrRulesField(index)} className="bg-slate-400">
-                Remove OR Ruleset
+                Remove AND Rules
               </button>
             </FiringAndRules>
           );
         })}
         <button type="button" onClick={() => appendOrRulesField({})}>
-          Add OR Ruleset
+          Add AND Rules
         </button>
       </div>
     </div>
@@ -233,16 +247,7 @@ function FiringAndRules({ name, children }: { name: string; children?: React.Rea
             </div>
           );
         })}
-        <button
-          type="button"
-          onClick={() =>
-            appendAndRulesField({
-              attribute: FiringRuleAttribute.batch_size,
-              comparison: ">",
-              value: 0,
-            })
-          }
-        >
+        <button type="button" onClick={() => appendAndRulesField(defaultFiringAndRule)}>
           Add Condition
         </button>
       </div>

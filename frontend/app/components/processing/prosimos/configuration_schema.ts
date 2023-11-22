@@ -202,6 +202,38 @@ export const prosimosConfigurationSchema = yup.object({
             })
         )
         .min(1),
+      case_attributes: yup.array().of(
+        yup.object({
+          name: yup
+            .string()
+            .trim()
+            .matches(
+              /^[a-zA-Z0-9-_,.`':]+$/g,
+              "Invalid name. Allowed characters include [a-z], [A-Z], [0-9], and [_,.-:`']"
+            )
+            .required(),
+          type: yup.string().required(),
+          values: yup.mixed().when("type", (type: string | string[], _) => {
+            switch (type) {
+              case "continuous":
+                return yup.object().shape(distributionSchema);
+              case "discrete":
+                return yup
+                  .array()
+                  .of(
+                    yup.object({
+                      key: yup.string().required(),
+                      value: yup.number().required(),
+                    })
+                  )
+                  .min(1)
+                  .test("sum", "Probabilities must sum to 1", testProbabilitiesSum);
+              default:
+                throw new Error(`Invalid type: ${type}`);
+            }
+          }),
+        })
+      ),
     })
   ),
 });
