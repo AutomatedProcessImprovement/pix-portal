@@ -17,6 +17,7 @@ export function TabResourceProfiles() {
   // track if the component is enabled
   const [isEnabled, setIsEnabled] = useState(false);
   useEffect(() => {
+    if (!resourceCalendars) return;
     if (resourceCalendars.length > 0) setIsEnabled(true);
     else setIsEnabled(false);
   }, [resourceCalendars]);

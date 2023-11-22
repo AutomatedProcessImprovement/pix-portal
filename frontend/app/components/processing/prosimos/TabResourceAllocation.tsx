@@ -19,6 +19,7 @@ export function TabResourceAllocation() {
   // track if the component is enabled
   const [isEnabled, setIsEnabled] = useState(false);
   useEffect(() => {
+    if (!resourceProfiles) return;
     if (resourceProfiles.length > 0) setIsEnabled(true);
     else setIsEnabled(false);
   }, [resourceProfiles]);
