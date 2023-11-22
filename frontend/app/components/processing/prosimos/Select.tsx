@@ -1,6 +1,6 @@
+import { ErrorMessage } from "@hookform/error-message";
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { InputError } from "./InputError";
 
 export function Select({
   name,
@@ -22,7 +22,10 @@ export function Select({
   noWrapper?: boolean;
   pure?: boolean;
 } & React.DetailedHTMLProps<React.SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>) {
-  const { register, formState } = useFormContext();
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
 
   if (pure) {
     noError = true;
@@ -40,9 +43,11 @@ export function Select({
           </option>
         ))}
       </select>
-      {!noError && formState.errors && formState.errors[name] && (
-        <InputError message={formState.errors[name]?.message?.toString()} />
-      )}
+      <ErrorMessage
+        errors={errors}
+        name={name}
+        render={({ message }) => <p className="text-red-500 text-sm">{message}</p>}
+      />
     </>
   );
 
