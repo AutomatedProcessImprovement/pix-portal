@@ -14,18 +14,11 @@ const validateArrayUniquenessTest = (ref: any, distrArr: [], fieldName: string, 
   return isStrArrUnique(keysArr) || createError({ path, message });
 };
 
-const isStrArrUnique = (wordsArr: string[] | undefined): boolean => {
-  // returns whether the provided array of string contains only unique words
-  const origSize = wordsArr?.length;
-
-  if (!origSize || origSize === 0) {
-    return true;
-  }
-
-  const set = new Set(wordsArr);
-  const uniqueSize = set.size;
-
-  return uniqueSize === origSize;
+const isStrArrUnique = (values: string[] | undefined): boolean => {
+  const arrLength = values?.length;
+  if (!arrLength || arrLength === 0) return true;
+  const set = new Set(values);
+  return arrLength === set.size;
 };
 
 yup.addMethod(yup.array, "uniqueId", validateArrayUniqueness); // TODO: continue with this
@@ -187,19 +180,7 @@ export const prosimosConfigurationSchema = yup.object({
               })
             )
             .min(1)
-            .test("unique", "Firing rules must have unique attributes", (firingRules) => {
-              if (!firingRules) return true;
-
-              const attributeArr = firingRules?.map(({ attribute }) => attribute ?? "");
-              const originalSize = attributeArr?.length;
-
-              if (!originalSize || originalSize === 0) return true;
-
-              const attributeSet = new Set(attributeArr);
-              const uniqueSize = attributeSet.size;
-
-              return uniqueSize === originalSize;
-            })
+            .test("unique", "Firing rules must have unique attributes", testUniqueAttributes)
         )
         .min(1),
       case_attributes: yup.array().of(
@@ -234,9 +215,44 @@ export const prosimosConfigurationSchema = yup.object({
           }),
         })
       ),
+      prioritization_rules: yup.array().of(
+        yup.object({
+          priority_level: yup.number().required().min(1),
+          rules: yup
+            .array()
+            .of(
+              yup
+                .array()
+                .of(
+                  yup.object({
+                    attribute: yup.string().required(),
+                    comparison: yup.string().required(),
+                    values: yup
+                      .mixed<
+                        | yup.InferType<typeof prioritizationStringSchema>
+                        | yup.InferType<typeof prioritizationNumbersSchema>
+                      >()
+                      .test("shape", "Invalid values", (value) => {
+                        prioritizationStringSchema.isValidSync(value) || prioritizationNumbersSchema.isValidSync(value);
+                      }),
+                  })
+                )
+                .min(1)
+                .test("unique", "Prioritization rules must have unique attributes", testUniqueAttributes)
+            )
+            .min(1),
+        })
+      ),
     })
   ),
 });
+
+const prioritizationStringSchema = yup.string().required();
+const prioritizationNumbersSchema = yup
+  .array()
+  .of(yup.number())
+  .required()
+  .min(2, "At least two parameters are required");
 
 export enum WeekDay {
   Monday = "Monday",
@@ -259,5 +275,11 @@ function testProbabilitiesSum(value: any) {
 function testUniqueKeys(items: { key: string }[] | undefined) {
   if (!items) return true;
   const keysArr = items?.map(({ key }) => key ?? "");
+  return isStrArrUnique(keysArr);
+}
+
+function testUniqueAttributes(items: { attribute: string }[] | undefined) {
+  if (!items) return true;
+  const keysArr = items?.map(({ attribute }) => attribute ?? "");
   return isStrArrUnique(keysArr);
 }

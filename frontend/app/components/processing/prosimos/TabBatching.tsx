@@ -39,7 +39,7 @@ export function TabBatching() {
 
   return (
     <div className="flex flex-col space-y-4">
-      <FormSection title="Resource Allocation">
+      <FormSection title="Batching">
         {batchingRulesFields.map((field, index) => {
           return (
             <BatchingConfiguration key={field.id} name={`${name}[${index}]`}>
@@ -50,7 +50,7 @@ export function TabBatching() {
           );
         })}
         <button type="button" onClick={handleAppend}>
-          Add Activity Batching Ruleset
+          Add Activity Batching Rules
         </button>
       </FormSection>
     </div>

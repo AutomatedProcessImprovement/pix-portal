@@ -10,6 +10,7 @@ import { TabBatching } from "./prosimos/TabBatching";
 import { TabCaseAttributes } from "./prosimos/TabCaseAttributes";
 import { TabCaseCreation } from "./prosimos/TabCaseCreation";
 import { TabGateways } from "./prosimos/TabGateways";
+import { TabPrioritisation } from "./prosimos/TabPrioritisation";
 import { TabResourceAllocation } from "./prosimos/TabResourceAllocation";
 import { TabResourceCalendars } from "./prosimos/TabResourceCalendars";
 import { TabResourceProfiles } from "./prosimos/TabResourceProfiles";
@@ -58,7 +59,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
     { name: "Branching Probabilities", component: <TabGateways /> },
     { name: "Batching", component: <TabBatching /> },
     { name: "Case Attributes", component: <TabCaseAttributes /> },
-    { name: "Prioritisation", component: <div>Prioritisation</div> },
+    { name: "Prioritisation", component: <TabPrioritisation /> },
     { name: "Simulation Results", component: <div>Simulation Results</div> },
   ];
 
@@ -71,7 +72,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
       <FormProvider {...methods}>
         <BpmnDataContext.Provider value={bpmnData}>
           <form onSubmit={methods.handleSubmit(onSubmit)} className="flex flex-col space-y-2">
-            <Tab.Group defaultIndex={6}>
+            <Tab.Group defaultIndex={7}>
               <Tab.List>
                 {tabs.map((tab) => (
                   <Tab
