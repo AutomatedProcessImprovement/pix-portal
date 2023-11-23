@@ -118,7 +118,7 @@ export const prosimosConfigurationSchema = yup.object({
               value: yup.number().max(1).required(),
             })
           )
-          .test("sum", "Probabilities must sum to 1", testProbabilitiesSum)
+          .test("sum", "Gateway branching probabilities must sum to 1", testProbabilitiesSum)
           .required(),
       })
     )
@@ -143,7 +143,7 @@ export const prosimosConfigurationSchema = yup.object({
           })
         )
         .min(1)
-        .test("sum", "Probabilities must sum to 1", testProbabilitiesSum)
+        .test("sum", "Batching probabilities of the size distribution array must sum to 1", testProbabilitiesSum)
         .test("unique", "Size distributions must have unique keys", testUniqueKeys),
       duration_distrib: yup
         .array()
@@ -154,7 +154,6 @@ export const prosimosConfigurationSchema = yup.object({
           })
         )
         .min(1)
-        .test("sum", "Probabilities must sum to 1", testProbabilitiesSum)
         .test("unique", "Duration distributions must have unique keys", testUniqueKeys),
       firing_rules: yup
         .array()
@@ -208,7 +207,7 @@ export const prosimosConfigurationSchema = yup.object({
                     })
                   )
                   .min(1)
-                  .test("sum", "Probabilities must sum to 1", testProbabilitiesSum);
+                  .test("sum", "Case attributes values probabilities must sum to 1", testProbabilitiesSum);
               default:
                 throw new Error(`Invalid type: ${type}`);
             }

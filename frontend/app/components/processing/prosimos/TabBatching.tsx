@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useId, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { BpmnDataContext } from "../contexts";
 import FormSection from "./FormSection";
@@ -25,11 +25,23 @@ export function TabBatching() {
     name: name,
   });
 
+  // set acvitivities from BPMN file
+  const bpmnData = useContext(BpmnDataContext);
+  const [activities, setActivities] = useState<{ id: string; name: string }[]>([]);
+  useEffect(() => {
+    if (bpmnData === null) return;
+    const activities = bpmnData?.tasks?.map((task) => {
+      return {
+        id: task.id,
+        name: task.name,
+      };
+    });
+    setActivities(activities);
+  }, [bpmnData]);
+
   function handleAppend() {
     append({
-      // task_id is there, but we don't provide the default value,
-      // the Select will receive the first task_id form the BPMN data
-      // task_id: "",
+      task_id: activities[0]?.id ?? "",
       type: BatchingType.sequential,
       size_distrib: [],
       duration_distrib: [],
@@ -60,11 +72,8 @@ export function TabBatching() {
 function BatchingConfiguration({ name, children }: { name: string; children?: React.ReactNode }) {
   const { control, watch } = useFormContext();
 
-  const {
-    fields: sizeFields,
-    append: appendSizeField,
-    remove: removeSizeField,
-  } = useFieldArray({
+  // this field is controlled programmatically, so we don't need to register it or display in UI
+  const { replace: replaceSizeField } = useFieldArray({
     control,
     name: `${name}.size_distrib`,
   });
@@ -78,15 +87,9 @@ function BatchingConfiguration({ name, children }: { name: string; children?: Re
     name: `${name}.duration_distrib`,
   });
 
-  function handleAppend() {
-    const key = watch(`${name}.size_distrib`).length;
-    appendSizeField({ key: key, value: 0 });
+  function handleAppendDurationScaling() {
+    const key = watch(`${name}.duration_distrib`).length + 1;
     appendDurationField({ key: key, value: 0 });
-  }
-
-  function handleRemove(index: number) {
-    removeSizeField(index);
-    removeDurationField(index);
   }
 
   // set acvitivities from BPMN file
@@ -103,6 +106,23 @@ function BatchingConfiguration({ name, children }: { name: string; children?: Re
     setActivities(activities);
   }, [bpmnData]);
 
+  // handling the size_distrib array that is computed based on the batching probability input field
+  const batchingProbabilityInputId = useId();
+  const [batchingProbability, setBatchingProbability] = useState<string>("1.0");
+  useEffect(() => {
+    const probability = parseFloat(batchingProbability);
+    if (isNaN(probability)) return; // TODO: show error message
+    if (probability < 0 || probability > 1) return; // TODO: show error message
+    if (probability === 1) {
+      replaceSizeField([{ key: 1, value: 1.0 }]);
+    } else {
+      replaceSizeField([
+        { key: 1, value: parseFloat((1.0 - probability).toPrecision(2)) }, // to avoid precision errors we use toPrecision
+        { key: 2, value: probability },
+      ]);
+    }
+  }, [batchingProbability]);
+
   return (
     <div className="border-4 p-4 space-y-2">
       <div className="space-y-2">
@@ -112,24 +132,31 @@ function BatchingConfiguration({ name, children }: { name: string; children?: Re
             name={`${name}.task_id`}
             options={activities.map((activity) => activity.name)}
             label="Activity Name"
-            defaultValue={activities.length > 0 ? activities[0].name : ""}
           />
           <Select name={`${name}.type`} options={Object.values(BatchingType)} label="Batch Type" />
-          {sizeFields.map((field, index) => {
-            // sizeFields and duraionFields must have the same length, they elements are paired,
-            // so we use only sizeFields to fille values of both fields
+          {/* The Batching Probability input isn't present in the form schema but is used to compute batch_processing[0].size_distrib */}
+          <label htmlFor={batchingProbabilityInputId}>Batching Probability</label>
+          <input
+            type="text" // type="number" uses comma as decimal separator (depending on the OS settings), but we need a dot
+            id={batchingProbabilityInputId}
+            name={batchingProbabilityInputId}
+            value={batchingProbability}
+            onChange={(e) => setBatchingProbability(e.target.value)}
+            placeholder="From 0 to 1"
+          />
+          {durationFields.map((field, index) => {
             return (
               <div key={field.id} className="flex items-end p-4 border-4 space-x-2">
-                <Input name={`${name}.size_distrib[${index}].value`} label="Batch Size" />
+                <Input name={`${name}.duration_distrib[${index}].key`} label="Batch Size" />
                 <Input name={`${name}.duration_distrib[${index}].value`} label="Duration Scale Factor" />
-                <button type="button" onClick={() => handleRemove(index)} className="w-28 bg-slate-400">
-                  Remove Batch
+                <button type="button" onClick={() => removeDurationField(index)} className="w-28 bg-slate-400">
+                  Remove
                 </button>
               </div>
             );
           })}
-          <button type="button" onClick={handleAppend}>
-            Add Batch
+          <button type="button" onClick={handleAppendDurationScaling}>
+            Add Duration Scaling
           </button>
         </div>
       </div>
