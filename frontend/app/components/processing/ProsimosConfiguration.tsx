@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useContext, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Asset } from "~/services/assets";
-import { FileType } from "~/services/files";
+import { FileType, File as File_, getFileContent } from "~/services/files";
 import { BpmnDataContext, UserContext } from "./contexts";
 import { FormErrors } from "./prosimos/FormErrors";
 import { TabBatching } from "./prosimos/TabBatching";
@@ -14,8 +14,9 @@ import { TabPrioritisation } from "./prosimos/TabPrioritisation";
 import { TabResourceAllocation } from "./prosimos/TabResourceAllocation";
 import { TabResourceCalendars } from "./prosimos/TabResourceCalendars";
 import { TabResourceProfiles } from "./prosimos/TabResourceProfiles";
-import { BpmnData, fetchAndParseBpmn } from "./prosimos/bpmn";
+import { BpmnData, parseBpmn } from "./prosimos/bpmn";
 import { prosimosConfigurationSchema } from "./prosimos/schema";
+import { parseSimulationParameters } from "./prosimos/simulation_parameters";
 
 export default function ProsimosConfiguration({ asset }: { asset: Asset | null }) {
   const methods = useForm({
@@ -26,21 +27,45 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
   const user = useContext(UserContext);
 
   const [bpmnData, setBpmnData] = useState<BpmnData | null>(null);
+  const [jsonData, setJsonData] = useState<object | null>(null);
 
   useEffect(() => {
     if (!asset) return;
+    if (!user || !user.token) return;
+    const token = user.token;
 
-    const parseBpmn = async () => {
-      const bpmnFile = asset.files?.find((file) => file.type === FileType.PROCESS_MODEL_BPMN);
-      if (!bpmnFile || !user || !user?.token) return;
-      const bpmnData = await fetchAndParseBpmn(bpmnFile?.id, user?.token);
-      return bpmnData;
-    };
+    (async () => {
+      let bpmnFile: File_ | undefined;
+      let jsonFile: File_ | undefined;
+      for (const file of asset.files ?? []) {
+        if (file.type === FileType.PROCESS_MODEL_BPMN) bpmnFile = file;
+        if (file.type === FileType.SIMULATION_MODEL_PROSIMOS_JSON) jsonFile = file;
+      }
 
-    parseBpmn().then((bpmnData) => {
-      if (bpmnData) setBpmnData(bpmnData);
+      if (!bpmnFile) return;
+      const bpmnBlob = await getFileContent(bpmnFile?.id, token);
+      const bpmnData = await parseBpmn(bpmnBlob);
+
+      if (!jsonFile) return;
+      const jsonBlob = await getFileContent(jsonFile?.id, token);
+      const jsonData = await parseSimulationParameters(jsonBlob);
+
+      return { bpmnData, jsonData };
+    })().then((result) => {
+      if (!result) return;
+      if (result.bpmnData) setBpmnData(bpmnData);
+      if (result.jsonData) setJsonData(jsonData);
+      methods.reset(result.jsonData);
     });
   }, [asset]);
+
+  useEffect(() => {
+    console.log("jsonData", jsonData);
+  }, [jsonData]);
+
+  useEffect(() => {
+    console.log("bpmnData", bpmnData);
+  }, [bpmnData]);
 
   useEffect(() => {
     console.log("formState.errors", methods.formState.errors);

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { Input } from "./Input";
 import { DistributionType } from "./distribution";
 
 export function TabCaseCreationDistributionParametersInputs({
@@ -8,7 +9,7 @@ export function TabCaseCreationDistributionParametersInputs({
 }: {
   name: string;
 } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) {
-  const { control, register, watch } = useFormContext();
+  const { control, watch, getValues } = useFormContext();
   const watchDistributionName = watch("arrival_time_distribution.distribution_name", rest.defaultValue);
 
   const { fields, replace } = useFieldArray({
@@ -28,11 +29,19 @@ export function TabCaseCreationDistributionParametersInputs({
   useEffect(() => {
     // make sure we have the correct number of fields in the field array
     const numOfLabels = labelNames[watchDistributionName as keyof typeof labelNames].length;
-    replace(
-      Array.from({ length: numOfLabels }, () => {
-        return { value: 0 };
-      })
-    );
+    let params = getValues("arrival_time_distribution.distribution_params");
+    console.log("params", params);
+    if (params && params.length > 1) {
+      // if values are provided, use them
+      replace(params.slice(0, numOfLabels));
+    } else {
+      // otherwise, use default values
+      replace(
+        Array.from({ length: numOfLabels }, () => {
+          return { value: 0 };
+        })
+      );
+    }
   }, [watchDistributionName]);
 
   return (
@@ -40,10 +49,11 @@ export function TabCaseCreationDistributionParametersInputs({
       {fields.map((field, index) => {
         return (
           <div key={field.id} className="flex flex-col space-y-1">
-            <label htmlFor={`${name}[${index}].value`}>
-              {labelNames[watchDistributionName as keyof typeof labelNames][index]}
-            </label>
-            <input {...register(`${name}[${index}].value` as const)} {...rest} />
+            <Input
+              name={`${name}[${index}].value`}
+              type="number"
+              label={labelNames[watchDistributionName as keyof typeof labelNames][index]}
+            />
           </div>
         );
       })}

@@ -50,6 +50,7 @@ export async function getFileLocation(fileId: string, token: string) {
 export async function getFileContent(fileId: string, token: string) {
   const url = `/files/${fileId}/content`;
   const response = await clientSideHttp.get(url, {
+    responseType: "blob",
     headers: {
       Authorization: `Bearer ${token}`,
     },

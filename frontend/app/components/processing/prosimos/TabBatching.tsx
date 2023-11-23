@@ -8,7 +8,6 @@ import { Select } from "./Select";
 enum BatchingType {
   sequential = "Sequential",
   parallel = "Parallel",
-  concurrent = "Concurrent",
 }
 
 export function TabBatching() {

@@ -25,8 +25,10 @@ const calendarPeriod = yup.object({
 });
 
 export const prosimosConfigurationSchema = yup.object({
-  total_cases: yup.number().positive().integer().required(),
-  start_time: yup.date().required(),
+  // total_casea and start_time have a soft requirement, they must be present when submitting data,
+  // but can be omitted when loading data from custom parameters files
+  total_cases: yup.number().positive().integer(),
+  start_time: yup.date(),
   arrival_time_distribution: yup.object().shape(distributionSchema),
   arrival_time_calendar: yup.array().of(calendarPeriod).required().min(1, "At least one arrival calendar is required"),
   resource_calendars: yup

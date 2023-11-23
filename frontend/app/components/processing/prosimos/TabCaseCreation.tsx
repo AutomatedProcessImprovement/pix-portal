@@ -1,11 +1,11 @@
+import { useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { TabCaseCreationDistributionParametersInputs } from "./TabCaseCreationDistributionParametersInputs";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
 import { Select } from "./Select";
+import { TabCaseCreationDistributionParametersInputs } from "./TabCaseCreationDistributionParametersInputs";
 import { DistributionType } from "./distribution";
 import { WeekDay } from "./schema";
-import { useEffect } from "react";
 
 export function TabCaseCreation() {
   const { control } = useFormContext();

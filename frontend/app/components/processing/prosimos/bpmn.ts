@@ -10,15 +10,13 @@ export type BpmnData = {
   eventsFromModel: EventsFromModel;
 };
 
-export async function fetchAndParseBpmn(fileId: string, token: string) {
+export async function parseBpmn(bpmnBlob: Blob) {
   let xmlStr: string;
   let tasks: ModelTask[];
   let gateways: Gateway_[];
   let eventsFromModel: EventsFromModel;
 
-  const bpmnBlob = await fetchFile(fileId, token);
-
-  xmlStr = await (bpmnBlob as Blob).text();
+  xmlStr = await bpmnBlob.text();
 
   const moddle = new BpmnModdle();
   const { elementsById, references, rootElement, warnings }: any = await moddle.fromXML(xmlStr);
