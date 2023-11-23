@@ -22,12 +22,8 @@ export async function fetchAndParseBpmn(fileId: string, token: string) {
 
   const moddle = new BpmnModdle();
   const { elementsById, references, rootElement, warnings }: any = await moddle.fromXML(xmlStr);
-  console.log("elementsById", elementsById);
-  console.log("references", references);
-  console.log("rootElement", rootElement);
   console.log("warnings", warnings);
   const process = rootElement?.rootElements?.find((e: { $type: string }) => e.$type === "bpmn:Process");
-  console.log("process", process);
 
   tasks = process?.flowElements
     ?.filter((e: { $type: string }) => e.$type === "bpmn:Task")
@@ -40,7 +36,6 @@ export async function fetchAndParseBpmn(fileId: string, token: string) {
         },
       ];
     }, [] as ModelTask[]);
-  console.log("tasks", tasks);
 
   gateways = process?.flowElements
     ?.filter(
@@ -62,7 +57,6 @@ export async function fetchAndParseBpmn(fileId: string, token: string) {
         },
       ];
     }, [] as Gateway_[]);
-  console.log("gateways", gateways);
 
   eventsFromModel = process?.flowElements
     ?.filter((e: { $type: string }) => e.$type === "bpmn:IntermediateCatchEvent")
@@ -74,7 +68,6 @@ export async function fetchAndParseBpmn(fileId: string, token: string) {
         },
       };
     }, {} as EventsFromModel);
-  console.log("eventsFromModel", eventsFromModel);
 
   return { xmlStr, tasks, gateways, eventsFromModel };
 }

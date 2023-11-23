@@ -227,7 +227,7 @@ export const prosimosConfigurationSchema = yup.object({
                   yup.object({
                     attribute: yup.string().required(),
                     comparison: yup.string().required(),
-                    values: yup
+                    value: yup
                       .mixed<
                         | yup.InferType<typeof prioritizationStringSchema>
                         | yup.InferType<typeof prioritizationNumbersSchema>

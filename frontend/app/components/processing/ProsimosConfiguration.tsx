@@ -29,7 +29,6 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
 
   useEffect(() => {
     if (!asset) return;
-    console.log("simulation model", asset);
 
     const parseBpmn = async () => {
       const bpmnFile = asset.files?.find((file) => file.type === FileType.PROCESS_MODEL_BPMN);
@@ -72,7 +71,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
       <FormProvider {...methods}>
         <BpmnDataContext.Provider value={bpmnData}>
           <form onSubmit={methods.handleSubmit(onSubmit)} className="flex flex-col space-y-2">
-            <Tab.Group defaultIndex={7}>
+            <Tab.Group defaultIndex={0}>
               <Tab.List>
                 {tabs.map((tab) => (
                   <Tab

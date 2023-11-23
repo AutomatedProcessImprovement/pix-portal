@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
@@ -11,13 +11,10 @@ export function TabPrioritisation() {
 
   // track if there are any discrete case attributes' options
   const caseAttributes = watch(`case_attributes`);
-  const [isEnabled, setIsEnabled] = React.useState<boolean>(false);
+  const [isEnabled, setIsEnabled] = useState<boolean>(false);
   useEffect(() => {
     if (!caseAttributes) return;
-    const discreteCaseAttributes = caseAttributes.filter((attribute: any) => attribute.type === "discrete");
-    if (discreteCaseAttributes.length > 0) {
-      setIsEnabled(true);
-    }
+    setIsEnabled(caseAttributes.length > 0);
   }, [caseAttributes]);
 
   const { fields, append, remove } = useFieldArray({
@@ -34,8 +31,8 @@ export function TabPrioritisation() {
 
   return (
     <div className="flex flex-col space-y-4">
-      <FormSection title="Prioritisation">
-        {!isEnabled && <div className="text-red-500">Please add resource profiles first</div>}
+      <FormSection title="Case-Based Prioritisation">
+        {!isEnabled && <div className="text-red-500">Please add case attributes first</div>}
         {isEnabled &&
           fields.map((field, index) => {
             return (
@@ -64,23 +61,11 @@ function PrioritisationConfiguration({ name, children }: { name: string; childre
   );
 }
 
-enum PrioritisationRuleAttribute {
-  name = "name",
-}
-
 enum PrioritisationOperator {
+  lessThanOrEqual = "<=",
   equal = "=",
-}
-
-function prioritisationRuleAttributeToLabel(attribute: PrioritisationRuleAttribute) {
-  switch (attribute) {
-    case PrioritisationRuleAttribute.name: {
-      return "Name";
-    }
-    default: {
-      return attribute;
-    }
-  }
+  greaterThanOrEqual = ">=",
+  between = "between",
 }
 
 function PrioritisationRules({ name }: { name: string }) {
@@ -130,6 +115,14 @@ function PrioritisationAndRules({ name, children }: { name: string; children?: R
     setCaseAttribtuesOptions(options);
   }, [caseAttributes]);
 
+  // track case attributes' names
+  const [caseAttributesNames, setCaseAttributesNames] = React.useState<string[]>([]);
+  useEffect(() => {
+    if (!caseAttributes) return;
+    const names = caseAttributes.map((attribute: any) => attribute.name);
+    setCaseAttributesNames(names);
+  }, [caseAttributes]);
+
   const {
     fields: andFiringRulesFields,
     append: appendAndRulesField,
@@ -139,6 +132,12 @@ function PrioritisationAndRules({ name, children }: { name: string; children?: R
     name: `${name}`,
   });
 
+  function getComparisonOptions(attribute: string) {
+    const caseAttribute = caseAttributes.find((attr: any) => attr.name === attribute);
+    if (!caseAttribute) return [""];
+    return caseAttribute.type === "discrete" ? [PrioritisationOperator.equal] : Object.values(PrioritisationOperator);
+  }
+
   return (
     <div className="border-4 p-4 space-y-4">
       <div className="flex flex-col space-y-4">
@@ -146,40 +145,86 @@ function PrioritisationAndRules({ name, children }: { name: string; children?: R
         {andFiringRulesFields.map((field, index) => {
           return (
             <div key={field.id} className="flex space-x-2">
-              <Select
-                name={`${name}[${index}].attribute`}
-                options={Object.values(PrioritisationRuleAttribute)}
-                optionLabels={Object.values(PrioritisationRuleAttribute).map((attribute) =>
-                  prioritisationRuleAttributeToLabel(attribute)
-                )}
-                label="Attribute"
-              />
+              <Select name={`${name}[${index}].attribute`} options={caseAttributesNames} label="Attribute" />
               <Select
                 name={`${name}[${index}].comparison`}
-                options={Object.values(PrioritisationOperator)}
+                options={getComparisonOptions(watch(`${name}[${index}].attribute`))}
                 label="Operator"
               />
-              <Select name={`${name}[${index}].values`} options={caseAttributesOptions} label="Case Attribute Option" />
+              <PrioritisationAndRulesValuesField name={`${name}[${index}]`} />
               <button type="button" onClick={() => removeAndRulesField(index)} className="bg-slate-400">
                 Remove
               </button>
             </div>
           );
         })}
-        <button
-          type="button"
-          onClick={() =>
-            appendAndRulesField({
-              attribute: PrioritisationRuleAttribute.name,
-              comparison: PrioritisationOperator.equal,
-              value: caseAttributesOptions.length > 0 ? caseAttributesOptions[0] : "",
-            })
-          }
-        >
+        <button type="button" onClick={() => appendAndRulesField({})}>
           Add Condition
         </button>
       </div>
       {children}
+    </div>
+  );
+}
+
+function PrioritisationAndRulesValuesField({ name }: { name: string }) {
+  const { control, watch } = useFormContext();
+
+  const caseAttributes = watch(`case_attributes`);
+  const attributeName = watch(`${name}.attribute`);
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: `${name}.value`,
+  });
+
+  // add one input field by default
+  useEffect(() => {
+    const fieldsLength = watch(`${name}.value`).length;
+    if (fieldsLength === 0) append({ value: 0 });
+  }, []);
+
+  const [attributeType, setAttributeType] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    const caseAttribute = caseAttributes.find((attr: any) => attr.name === attributeName);
+    if (!caseAttribute) return;
+    setAttributeType(caseAttribute.type);
+  }, [attributeName]);
+
+  const attributeOperator = watch(`${name}.comparison`);
+  useEffect(() => {
+    // "between" for "continous" attribute requires two input fields, so remove one
+    if (attributeType === "continuous" && attributeOperator === PrioritisationOperator.between) {
+      append({ value: 1 });
+    } else {
+      // remove all input fields except the first one
+      if (watch(`${name}.value`).length > 1) {
+        for (let i = 1; i < watch(`${name}.value`).length; i++) {
+          remove(i);
+        }
+      }
+    }
+  }, [attributeOperator]);
+
+  function getCaseAttributeOptions(attribute: string) {
+    const caseAttribute = caseAttributes.find((attr: any) => attr.name === attribute);
+    if (!caseAttribute) return [""];
+    return caseAttribute.values.map((value: any) => value.key as string);
+  }
+
+  return (
+    <div className="flex space-x-2">
+      {fields.map((field, index) => {
+        const fieldName = `${name}.value[${index}]`;
+        return (
+          <div key={field.id}>
+            {attributeType === "continuous" && <Input name={fieldName} type="number" label="Value" defaultValue={0} />}
+            {attributeType === "discrete" && (
+              <Select name={fieldName} options={getCaseAttributeOptions(attributeName)} label="Case Attribute Option" />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

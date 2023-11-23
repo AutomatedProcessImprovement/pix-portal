@@ -15,7 +15,7 @@ interface CaseAttribute {
 export function TabCaseAttributes() {
   const name = "case_attributes";
 
-  const { control } = useFormContext();
+  const { control, watch } = useFormContext();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -23,13 +23,15 @@ export function TabCaseAttributes() {
   });
 
   function handleAppend(type: CaseAttribute["type"]) {
+    const fieldsIndex = watch(name).length;
+    const attributeName = `Attribute Name ${fieldsIndex}`;
     switch (type) {
       case "continuous":
-        append({ name: "Attribute Name", type: type, values: [{ key: "Option Name", value: 1 }] });
+        append({ name: attributeName, type: type, values: [{ key: "Option Name 0", value: 1 }] });
         break;
       case "discrete":
         append({
-          name: "Attribute Name",
+          name: attributeName,
           type: type,
           values: [{ distribution_name: DistributionType.expon, distribution_params: [0, 0, 0] }],
         });
@@ -88,7 +90,7 @@ function CaseAttribute({ name, children }: { name: string; children?: React.Reac
                   <div className="flex space-x-2">
                     <Input
                       name={`${name}.values[${index}].key`}
-                      defaultValue={"Option Name"}
+                      defaultValue={"Option Name 0"}
                       type="text"
                       label="Option Name"
                     />
@@ -97,12 +99,18 @@ function CaseAttribute({ name, children }: { name: string; children?: React.Reac
                       Remove
                     </button>
                   </div>
-                  <button type="button" onClick={() => append({ key: "Option Name", value: 1 })}>
-                    Add Option
-                  </button>
                 </div>
               );
             })}
+          <button
+            type="button"
+            onClick={() => {
+              const fieldsLength = watch(`${name}.values`).length;
+              append({ key: `Option Name ${fieldsLength}`, value: 1 });
+            }}
+          >
+            Add Option
+          </button>
           {caseType === "continuous" &&
             fields.map((field, index) => {
               return (
