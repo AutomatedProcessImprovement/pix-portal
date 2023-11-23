@@ -1,46 +1,21 @@
 import * as yup from "yup";
 import { DistributionType, getNumOfParamsPerDistr } from "./distribution";
 
-const validateArrayUniqueness = (ref: any, fieldName: string, message: string) => {
-  return ref.test("unique", message, function (this: any, distrArr: []) {
-    return validateArrayUniquenessTest(this, distrArr, fieldName, message);
-  });
-};
-
-const validateArrayUniquenessTest = (ref: any, distrArr: [], fieldName: string, message: string) => {
-  const keysArr = distrArr?.map(({ [fieldName]: value }) => value ?? "");
-  const { path, createError } = ref;
-
-  return isStrArrUnique(keysArr) || createError({ path, message });
-};
-
-const isStrArrUnique = (values: string[] | undefined): boolean => {
-  const arrLength = values?.length;
-  if (!arrLength || arrLength === 0) return true;
-  const set = new Set(values);
-  return arrLength === set.size;
-};
-
-yup.addMethod(yup.array, "uniqueId", validateArrayUniqueness); // TODO: continue with this
-
 const distributionSchema = {
   distribution_name: yup.string().required(),
   distribution_params: yup.mixed().when("distribution_name", (distributionName: string | string[], _) => {
     const dtype = distributionName as DistributionType;
-    return valueArray.min(getNumOfParamsPerDistr(dtype), `Missed required parameters for ${distributionName}`);
+    return yup
+      .array()
+      .of(
+        yup.object().shape({
+          value: yup.number().required(),
+        })
+      )
+      .required()
+      .min(getNumOfParamsPerDistr(dtype), `Missed required parameters for ${distributionName}`);
   }),
 };
-
-const valueArray = yup
-  .array()
-  .of(
-    yup.object().shape({
-      value: yup.number().required(),
-    })
-  )
-  .required();
-
-export const arrivalTimeSchema = yup.object().shape(distributionSchema);
 
 const calendarPeriod = yup.object({
   from: yup.string().required(),
@@ -82,7 +57,11 @@ export const prosimosConfigurationSchema = yup.object({
               assignedTasks: yup.array(),
             })
           )
-          .min(1, "At least one resource is required"),
+          .min(1, "At least one resource is required")
+          .test("unique", "Resource profiles must have globally unique names", (resourceList) => {
+            const namesArr = resourceList?.map(({ name }) => name ?? "");
+            return isStrArrUnique(namesArr);
+          }),
       })
     )
     .min(1, "At least one resource profile is required"),
@@ -282,3 +261,10 @@ function testUniqueAttributes(items: { attribute: string }[] | undefined) {
   const keysArr = items?.map(({ attribute }) => attribute ?? "");
   return isStrArrUnique(keysArr);
 }
+
+const isStrArrUnique = (values: string[] | undefined): boolean => {
+  const arrLength = values?.length;
+  if (!arrLength || arrLength === 0) return true;
+  const set = new Set(values);
+  return arrLength === set.size;
+};

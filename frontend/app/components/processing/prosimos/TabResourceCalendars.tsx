@@ -3,7 +3,7 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
 import { Select } from "./Select";
-import { WeekDay } from "./configuration_schema";
+import { WeekDay } from "./schema";
 
 export function TabResourceCalendars() {
   const name = "resource_calendars";

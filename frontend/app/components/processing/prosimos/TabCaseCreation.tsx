@@ -4,7 +4,7 @@ import FormSection from "./FormSection";
 import { Input } from "./Input";
 import { Select } from "./Select";
 import { DistributionType } from "./distribution";
-import { WeekDay } from "./configuration_schema";
+import { WeekDay } from "./schema";
 import { useEffect } from "react";
 
 export function TabCaseCreation() {

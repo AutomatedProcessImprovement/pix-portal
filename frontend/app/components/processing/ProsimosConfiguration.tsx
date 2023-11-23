@@ -15,7 +15,7 @@ import { TabResourceAllocation } from "./prosimos/TabResourceAllocation";
 import { TabResourceCalendars } from "./prosimos/TabResourceCalendars";
 import { TabResourceProfiles } from "./prosimos/TabResourceProfiles";
 import { BpmnData, fetchAndParseBpmn } from "./prosimos/bpmn";
-import { prosimosConfigurationSchema } from "./prosimos/configuration_schema";
+import { prosimosConfigurationSchema } from "./prosimos/schema";
 
 export default function ProsimosConfiguration({ asset }: { asset: Asset | null }) {
   const methods = useForm({
@@ -48,6 +48,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
 
   function onSubmit(data: any) {
     console.log("ProsimosConfiguration data", data);
+    // TODO: post-process and send
   }
 
   const tabs = [
