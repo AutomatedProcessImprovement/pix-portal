@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { DistributionParametersInputs } from "./DistributionParametersInputs";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
 import { Select } from "./Select";
-import { TabCaseCreationDistributionParametersInputs } from "./TabCaseCreationDistributionParametersInputs";
 import { DistributionType } from "./distribution";
 import { WeekDay } from "./schema";
 
@@ -58,8 +58,10 @@ export function TabCaseCreation() {
           options={Object.values(DistributionType)}
           defaultValue={DistributionType.expon}
         />
-        <TabCaseCreationDistributionParametersInputs
+        <DistributionParametersInputs
           name="arrival_time_distribution.distribution_params"
+          distributionNameKey="arrival_time_distribution.distribution_name"
+          distributionParamsKey="arrival_time_distribution.distribution_params"
           defaultValue={DistributionType.expon}
         />
       </FormSection>

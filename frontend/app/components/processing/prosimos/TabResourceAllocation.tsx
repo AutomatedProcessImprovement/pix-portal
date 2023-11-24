@@ -125,7 +125,8 @@ function ResourceAllocation({ name, children }: { name: string; children?: React
                   />
                   <DistributionParametersInputs
                     name={`${name}.resources[${index}].distribution_params`}
-                    watchDistributionName={`${name}.resources[${index}].distribution_name`}
+                    distributionNameKey={`${name}.resources[${index}].distribution_name`}
+                    distributionParamsKey={`${name}.resources[${index}].distribution_params`}
                     defaultValue={DistributionType.expon}
                   />
                   <button type="button" onClick={() => remove(index)}>

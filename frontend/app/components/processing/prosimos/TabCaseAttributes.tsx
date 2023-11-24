@@ -122,7 +122,8 @@ function CaseAttribute({ name, children }: { name: string; children?: React.Reac
                   />
                   <DistributionParametersInputs
                     name={`${name}.values[${index}].distribution_params`}
-                    watchDistributionName={`${name}.values[${index}].distribution_name`}
+                    distributionNameKey={`${name}.values[${index}].distribution_name`}
+                    distributionParamsKey={`${name}.values[${index}].distribution_params`}
                     defaultValue={DistributionType.expon}
                   />
                 </div>
