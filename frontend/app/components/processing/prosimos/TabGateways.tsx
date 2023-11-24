@@ -65,7 +65,7 @@ function GatewayProbabilities({ name, gateway }: { name: string; gateway: Gatewa
               type="number"
               label="Probability"
               pure={true}
-              className="w-20"
+              className="w-32"
             ></Input>
           </div>
         );

@@ -34,7 +34,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
     if (!user || !user.token) return;
     const token = user.token;
 
-    (async () => {
+    const fetchAndParseFiles = async () => {
       let bpmnFile: File_ | undefined;
       let jsonFile: File_ | undefined;
       for (const file of asset.files ?? []) {
@@ -45,27 +45,17 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
       if (!bpmnFile) return;
       const bpmnBlob = await getFileContent(bpmnFile?.id, token);
       const bpmnData = await parseBpmn(bpmnBlob);
+      setBpmnData(bpmnData);
 
       if (!jsonFile) return;
       const jsonBlob = await getFileContent(jsonFile?.id, token);
       const jsonData = await parseSimulationParameters(jsonBlob);
+      setJsonData(jsonData);
+      methods.reset(jsonData);
+    };
 
-      return { bpmnData, jsonData };
-    })().then((result) => {
-      if (!result) return;
-      if (result.bpmnData) setBpmnData(bpmnData);
-      if (result.jsonData) setJsonData(jsonData);
-      methods.reset(result.jsonData);
-    });
+    fetchAndParseFiles();
   }, [asset]);
-
-  useEffect(() => {
-    console.log("jsonData", jsonData);
-  }, [jsonData]);
-
-  useEffect(() => {
-    console.log("bpmnData", bpmnData);
-  }, [bpmnData]);
 
   useEffect(() => {
     console.log("formState.errors", methods.formState.errors);

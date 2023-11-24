@@ -32,11 +32,6 @@ export function TabResourceProfiles() {
     append({ id: `${id}`, name: `pool ${id}`, resource_list: [] });
   }
 
-  // append one on render
-  // useEffect(() => {
-  //   if (fields.length === 0) handleAddPool();
-  // }, []);
-
   return (
     <div className="flex flex-col space-y-4">
       <FormSection title="Resource Profiles">
