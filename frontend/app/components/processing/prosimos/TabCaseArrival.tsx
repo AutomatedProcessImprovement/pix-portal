@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { DistributionParametersInputs } from "./DistributionParametersInputs";
+import { DistributionNameAndValues } from "./DistributionNameAndValues";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
 import { Select } from "./Select";
-import { DistributionType } from "./distribution";
 import { WeekDay } from "./schema";
 
-export function TabCaseCreation() {
+export function TabCaseArrival() {
+  const name = "arrival_time_calendar";
+
   const { control } = useFormContext();
 
   function formatDateForInputValue(date: Date) {
@@ -29,7 +30,7 @@ export function TabCaseCreation() {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "arrival_time_calendar",
+    name: name,
   });
 
   function handleAddTime() {
@@ -53,31 +54,22 @@ export function TabCaseCreation() {
       <FormSection title="Scenario Specification">
         <Input name="total_cases" type="number" defaultValue={100} />
         <Input name="start_time" type="datetime-local" defaultValue={formatDateForInputValue(new Date())} />
-        <Select
-          name="arrival_time_distribution.distribution_name"
-          options={Object.values(DistributionType)}
-          defaultValue={DistributionType.expon}
-        />
-        <DistributionParametersInputs
-          name="arrival_time_distribution.distribution_params"
-          distributionNameKey="arrival_time_distribution.distribution_name"
-          distributionParamsKey="arrival_time_distribution.distribution_params"
-          defaultValue={DistributionType.expon}
-        />
+        <DistributionNameAndValues name="arrival_time_distribution" />
       </FormSection>
       <FormSection title="Arrival Time Calendar">
         {fields.map((field, index) => {
           return (
             <div key={field.id} className="flex space-x-2 items-end">
-              <Select name={`arrival_time_calendar[${index}].from`} options={weekDays} label="From" />
-              <Select name={`arrival_time_calendar[${index}].to`} options={weekDays} label="To" />
+              <Select name={`${name}[${index}].from`} options={weekDays} label="From" />
+              <Select name={`${name}[${index}].to`} options={weekDays} label="To" />
               <Input
-                name={`arrival_time_calendar[${index}].beginTime`}
+                name={`${name}[${index}].beginTime`}
                 type="time"
-                defaultValue="09:00"
+                defaultValue="09:00:00"
+                step="1"
                 label="Begin at"
               />
-              <Input name={`arrival_time_calendar[${index}].endTime`} type="time" defaultValue="17:00" label="End at" />
+              <Input name={`${name}[${index}].endTime`} type="time" defaultValue="17:00:00" step="1" label="End at" />
               <div>
                 <button type="button" onClick={() => remove(index)}>
                   Remove

@@ -8,7 +8,7 @@ import { BpmnDataContext, UserContext } from "./contexts";
 import { FormErrors } from "./prosimos/FormErrors";
 import { TabBatching } from "./prosimos/TabBatching";
 import { TabCaseAttributes } from "./prosimos/TabCaseAttributes";
-import { TabCaseCreation } from "./prosimos/TabCaseCreation";
+import { TabCaseArrival } from "./prosimos/TabCaseArrival";
 import { TabGateways } from "./prosimos/TabGateways";
 import { TabPrioritisation } from "./prosimos/TabPrioritisation";
 import { TabResourceAllocation } from "./prosimos/TabResourceAllocation";
@@ -69,7 +69,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
   }
 
   const tabs = [
-    { name: "Case Creation", component: <TabCaseCreation /> },
+    { name: "Case Arrival", component: <TabCaseArrival /> },
     { name: "Resource Calendars", component: <TabResourceCalendars /> },
     { name: "Resources Profiles", component: <TabResourceProfiles /> },
     { name: "Resource Allocation", component: <TabResourceAllocation /> },

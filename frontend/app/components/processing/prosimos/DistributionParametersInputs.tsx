@@ -58,6 +58,7 @@ export function DistributionParametersInputs({
             <Input
               name={`${name}[${index}].value`}
               type="number"
+              step="any"
               label={labelNames[watchDistributionName as keyof typeof labelNames][index]}
             />
           </div>

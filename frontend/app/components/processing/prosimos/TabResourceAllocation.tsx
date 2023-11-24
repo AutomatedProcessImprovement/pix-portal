@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { BpmnDataContext } from "../contexts";
-import { DistributionParametersInputs } from "./DistributionParametersInputs";
+import { DistributionNameAndValues } from "./DistributionNameAndValues";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
 import { Select } from "./Select";
@@ -118,17 +118,7 @@ function ResourceAllocation({ name, children }: { name: string; children?: React
                     defaultValue={resourceProfiles[0].name}
                     label="Resource Profile"
                   />
-                  <Select
-                    name={`${name}.resources[${index}].distribution_name`}
-                    options={Object.values(DistributionType)}
-                    defaultValue={DistributionType.expon}
-                  />
-                  <DistributionParametersInputs
-                    name={`${name}.resources[${index}].distribution_params`}
-                    distributionNameKey={`${name}.resources[${index}].distribution_name`}
-                    distributionParamsKey={`${name}.resources[${index}].distribution_params`}
-                    defaultValue={DistributionType.expon}
-                  />
+                  <DistributionNameAndValues name={`${name}.resources[${index}]`} />
                   <button type="button" onClick={() => remove(index)}>
                     Remove
                   </button>

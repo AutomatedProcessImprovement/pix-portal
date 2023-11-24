@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { DistributionParametersInputs } from "./DistributionParametersInputs";
+import { DistributionNameAndValues } from "./DistributionNameAndValues";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
-import { Select } from "./Select";
 import { DistributionType } from "./distribution";
 
 interface CaseAttribute {
@@ -115,17 +114,7 @@ function CaseAttribute({ name, children }: { name: string; children?: React.Reac
             fields.map((field, index) => {
               return (
                 <div key={field.id}>
-                  <Select
-                    name={`${name}.values[${index}].distribution_name`}
-                    options={Object.values(DistributionType)}
-                    defaultValue={DistributionType.expon}
-                  />
-                  <DistributionParametersInputs
-                    name={`${name}.values[${index}].distribution_params`}
-                    distributionNameKey={`${name}.values[${index}].distribution_name`}
-                    distributionParamsKey={`${name}.values[${index}].distribution_params`}
-                    defaultValue={DistributionType.expon}
-                  />
+                  <DistributionNameAndValues name={`${name}.values[${index}]`} />
                 </div>
               );
             })}
