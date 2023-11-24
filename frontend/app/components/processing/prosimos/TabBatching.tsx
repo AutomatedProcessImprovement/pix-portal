@@ -69,7 +69,7 @@ export function TabBatching() {
 }
 
 function BatchingConfiguration({ name, children }: { name: string; children?: React.ReactNode }) {
-  const { control, watch } = useFormContext();
+  const { control, watch, setError } = useFormContext();
 
   // this field is controlled programmatically, so we don't need to register it or display in UI
   const { replace: replaceSizeField } = useFieldArray({
@@ -107,17 +107,25 @@ function BatchingConfiguration({ name, children }: { name: string; children?: Re
 
   // handling the size_distrib array that is computed based on the batching probability input field
   const batchingProbabilityInputId = useId();
-  const [batchingProbability, setBatchingProbability] = useState<string>("1.0");
+  const [batchingProbability, setBatchingProbability] = useState<number>(1.0);
   useEffect(() => {
-    const probability = parseFloat(batchingProbability);
-    if (isNaN(probability)) return; // TODO: show error message
-    if (probability < 0 || probability > 1) return; // TODO: show error message
-    if (probability === 1) {
+    if (isNaN(batchingProbability)) {
+      setError(`${name}.batchingProbability`, { type: "manual", message: "Batching Probability must be a number" });
+      return;
+    }
+    if (batchingProbability < 0 || batchingProbability > 1) {
+      setError(`${name}.batchingProbability`, {
+        type: "manual",
+        message: "Batching Probability must be between 0 and 1",
+      });
+      return;
+    }
+    if (batchingProbability === 1) {
       replaceSizeField([{ key: 1, value: 1.0 }]);
     } else {
       replaceSizeField([
-        { key: 1, value: parseFloat((1.0 - probability).toPrecision(2)) }, // to avoid precision errors we use toPrecision
-        { key: 2, value: probability },
+        { key: 1, value: parseFloat((1.0 - batchingProbability).toPrecision(2)) }, // to avoid precision errors we use toPrecision
+        { key: 2, value: batchingProbability },
       ]);
     }
   }, [batchingProbability]);
@@ -136,11 +144,10 @@ function BatchingConfiguration({ name, children }: { name: string; children?: Re
           {/* The Batching Probability input isn't present in the form schema but is used to compute batch_processing[0].size_distrib */}
           <label htmlFor={batchingProbabilityInputId}>Batching Probability</label>
           <input
-            type="text" // type="number" uses comma as decimal separator (depending on the OS settings), but we need a dot
+            type="number" // type="number" uses comma as decimal separator (depending on the OS settings), but we need a dot
             id={batchingProbabilityInputId}
-            name={batchingProbabilityInputId}
             value={batchingProbability}
-            onChange={(e) => setBatchingProbability(e.target.value)}
+            onChange={(e) => setBatchingProbability(parseFloat(e.target.value))}
             placeholder="From 0 to 1"
           />
           {durationFields.map((field, index) => {
