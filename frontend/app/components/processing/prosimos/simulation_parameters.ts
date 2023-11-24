@@ -1,4 +1,5 @@
-import { prosimosConfigurationSchema } from "./schema";
+import { ValidationError } from "yup";
+import { ProsimosConfiguration, prosimosConfigurationSchema } from "./schema";
 
 type CalendarPeriod = {
   from: string;
@@ -12,10 +13,18 @@ type NamedEntity = {
   name: string;
 };
 
-export async function parseSimulationParameters(jsonBlob: Blob) {
+export async function parseSimulationParameters(
+  jsonBlob: Blob
+): Promise<[ProsimosConfiguration | null, ValidationError | null]> {
   const jsonStr = await jsonBlob.text();
   const json = JSON.parse(jsonStr);
-  let simulationParameters = await prosimosConfigurationSchema.validate(json);
+
+  let simulationParameters: ProsimosConfiguration;
+  try {
+    simulationParameters = await prosimosConfigurationSchema.validate(json);
+  } catch (e) {
+    return [null, e as ValidationError];
+  }
 
   simulationParameters.arrival_time_calendar =
     simulationParameters.arrival_time_calendar.map(postProcessCalendarPeriod);
@@ -30,7 +39,7 @@ export async function parseSimulationParameters(jsonBlob: Blob) {
   );
 
   console.log("simulationParameters", simulationParameters);
-  return simulationParameters;
+  return [simulationParameters, null];
 }
 
 function postProcessCalendarPeriod(calendarPeriod: CalendarPeriod) {

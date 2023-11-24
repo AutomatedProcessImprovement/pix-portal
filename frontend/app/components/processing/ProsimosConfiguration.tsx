@@ -27,7 +27,6 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
   const user = useContext(UserContext);
 
   const [bpmnData, setBpmnData] = useState<BpmnData | null>(null);
-  const [jsonData, setJsonData] = useState<object | null>(null);
 
   useEffect(() => {
     if (!asset) return;
@@ -49,9 +48,12 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
 
       if (!jsonFile) return;
       const jsonBlob = await getFileContent(jsonFile?.id, token);
-      const jsonData = await parseSimulationParameters(jsonBlob);
-      setJsonData(jsonData);
-      methods.reset(jsonData);
+      const [jsonData, error] = await parseSimulationParameters(jsonBlob);
+      if (error) {
+        console.error("error parsing simulation parameters", Object.entries(error));
+        methods.setError("root", { message: error.message });
+        return;
+      } else if (jsonData) methods.reset(jsonData);
     };
 
     fetchAndParseFiles();

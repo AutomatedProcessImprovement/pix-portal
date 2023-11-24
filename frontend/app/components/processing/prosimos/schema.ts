@@ -155,7 +155,8 @@ export const prosimosConfigurationSchema = yup.object({
                     otherwise: (schema) => schema.matches(/^\d+$/),
                   });
                   const oneValueSchema = stringOrNumber.required();
-                  return Array.isArray(value) ? yup.array().of(oneValueSchema).min(2) : oneValueSchema;
+                  // return Array.isArray(value) ? yup.array().of(oneValueSchema).min(2) : oneValueSchema; // TODO: why min(2)?
+                  return Array.isArray(value) ? yup.array().of(oneValueSchema) : oneValueSchema;
                 }),
               })
             )
@@ -270,3 +271,5 @@ const isStrArrUnique = (values: string[] | undefined): boolean => {
   const set = new Set(values);
   return arrLength === set.size;
 };
+
+export type ProsimosConfiguration = yup.InferType<typeof prosimosConfigurationSchema>;

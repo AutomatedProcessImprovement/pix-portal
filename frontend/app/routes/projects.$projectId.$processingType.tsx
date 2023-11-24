@@ -76,6 +76,7 @@ export default function ProcessingPage() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
+  console.error("error", error);
   if (isRouteErrorResponse(error)) {
     return <div className="p-4 bg-red-400">Route error</div>;
   }
