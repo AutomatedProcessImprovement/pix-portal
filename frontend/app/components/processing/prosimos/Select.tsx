@@ -1,5 +1,5 @@
 import { ErrorMessage } from "@hookform/error-message";
-import React from "react";
+import React, { useId } from "react";
 import { useFormContext } from "react-hook-form";
 
 export function Select({
@@ -33,12 +33,14 @@ export function Select({
     noWrapper = true;
   }
 
+  const selectId = useId();
+
   const innerContent = (
     <>
-      {!noLabel && <label htmlFor={name}>{label || name}</label>}
-      <select id={name} {...register(name)} {...rest} className="truncate">
+      {!noLabel && <label htmlFor={selectId}>{label || name}</label>}
+      <select id={selectId} {...register(name)} {...rest} className="truncate">
         {options.map((option, index) => (
-          <option key={option} value={option}>
+                <option key={option} value={option}>
             {optionLabels ? optionLabels[index] : option}
           </option>
         ))}

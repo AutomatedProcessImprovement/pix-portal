@@ -137,7 +137,8 @@ function BatchingConfiguration({ name, children }: { name: string; children?: Re
           <span className="text-lg font-semibold">Acitivity Batches</span>
           <Select
             name={`${name}.task_id`}
-            options={activities.map((activity) => activity.name)}
+            options={activities.map((activity) => activity.id)}
+            optionLabels={activities.map((activity) => activity.name)}
             label="Activity Name"
           />
           <Select name={`${name}.type`} options={Object.values(BatchingType)} label="Batch Type" />

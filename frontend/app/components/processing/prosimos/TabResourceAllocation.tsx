@@ -3,7 +3,6 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { BpmnDataContext } from "../contexts";
 import { DistributionNameAndValues } from "./DistributionNameAndValues";
 import FormSection from "./FormSection";
-import { Input } from "./Input";
 import { Select } from "./Select";
 import { DistributionType } from "./distribution";
 
@@ -30,10 +29,14 @@ export function TabResourceAllocation() {
   });
 
   // set acvitivities from BPMN file
+  const [activities, setActivities] = useState<{ id: string; name: string }[]>([]);
   useEffect(() => {
+    setActivities(bpmnData?.tasks || []);
+
+    // if there are no fields, add one for each activity
     if (fields.length === 0) {
       bpmnData?.tasks?.forEach((task) => {
-        append({ task_id: task.name, resources: [] }); // TODO: decide either to use task.name or task.id, depends what Prosimos expects
+        append({ task_id: task.id, resources: [] });
       });
     }
   }, [bpmnData]);
@@ -46,7 +49,10 @@ export function TabResourceAllocation() {
           fields.map((field, index) => {
             return (
               <div key={field.id}>
-                <ResourceAllocation name={`${name}[${index}]`}></ResourceAllocation>
+                <ResourceAllocation
+                  name={`${name}[${index}]`}
+                  activityName={activities[index]?.name}
+                ></ResourceAllocation>
               </div>
             );
           })}
@@ -55,8 +61,16 @@ export function TabResourceAllocation() {
   );
 }
 
-function ResourceAllocation({ name, children }: { name: string; children?: React.ReactNode }) {
-  const { control, watch } = useFormContext();
+function ResourceAllocation({
+  name,
+  activityName,
+  children,
+}: {
+  name: string;
+  activityName?: string;
+  children?: React.ReactNode;
+}) {
+  const { control, watch, getValues } = useFormContext();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -107,11 +121,18 @@ function ResourceAllocation({ name, children }: { name: string; children?: React
       {!isEnabled && <div className="text-red-500">Please add resource calendars first</div>}
       {isEnabled && (
         <div className="space-y-2">
-          <Input name={`${name}.task_id`} label="Activity Name" disabled={true} />
+          <p className="flex space-x-4">
+            <span className="w-28">Activity Name:</span>
+            <span className="font-semibold">{activityName}</span>
+          </p>
+          <p className="flex space-x-4">
+            <span className="w-28">Activity ID:</span>
+            <span>{getValues(`${name}.task_id`) || "not found"}</span>
+          </p>
           <div className="flex flex-col border-4 p-4 space-y-4">
             {fields.map((field, index) => {
               return (
-                <div key={field.id} className="bg-slate-50 px-4 py-3">
+                <div key={field.id} className="flex flex-col bg-slate-50 px-4 py-3 space-y-4">
                   <Select
                     name={`${name}.resources[${index}].resource_id`}
                     options={resourceProfiles.map((profile: any) => profile.name)}

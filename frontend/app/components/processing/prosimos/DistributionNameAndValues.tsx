@@ -7,6 +7,7 @@ export function DistributionNameAndValues({ name }: { name: string }) {
     <>
       <Select
         name={`${name}.distribution_name`}
+        label="Distribution Type"
         options={Object.values(DistributionType)}
         defaultValue={DistributionType.expon}
       />

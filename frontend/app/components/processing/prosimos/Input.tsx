@@ -1,5 +1,5 @@
 import { ErrorMessage } from "@hookform/error-message";
-import React from "react";
+import React, { useId } from "react";
 import { useFormContext } from "react-hook-form";
 
 export function Input({
@@ -29,10 +29,17 @@ export function Input({
     noWrapper = true;
   }
 
+  const inputId = useId();
+
   const innerContent = (
     <>
-      {!noLabel && <label htmlFor={name}>{label || name}</label>}
-      <input id={name} {...register(name)} {...rest} className={`truncate ${rest.className ? rest.className : ""}`} />
+      {!noLabel && <label htmlFor={inputId}>{label || name}</label>}
+      <input
+        id={inputId}
+        {...register(name)}
+        {...rest}
+        className={`truncate ${rest.className ? rest.className : ""}`}
+      />
       <ErrorMessage
         errors={errors}
         name={name}
