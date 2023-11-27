@@ -1,6 +1,6 @@
 import { assetsURL, http } from "~/services/shared.server";
-import { AssetTypeBackend } from "../shared/AssetTypeBackend";
-import { Asset } from "./assets";
+import type { AssetTypeBackend } from "../shared/AssetTypeBackend";
+import type { Asset } from "./assets";
 
 export async function createAsset(
   filesIds: string[],

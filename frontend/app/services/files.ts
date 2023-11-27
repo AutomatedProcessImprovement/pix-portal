@@ -1,4 +1,4 @@
-import { clientSideHttp } from "./assets";
+import { clientSideHttp } from "./shared";
 
 export type File = {
   id: string;
@@ -56,4 +56,29 @@ export async function getFileContent(fileId: string, token: string) {
     },
   });
   return response.data as Blob;
+}
+
+export async function uploadFile(file: Blob, file_name: string, file_type: FileType, token: string) {
+  const url = `/files/`;
+  const bytes = await file.arrayBuffer();
+  const response = await clientSideHttp.post(url, bytes, {
+    headers: {
+      "Content-Type": "application/octet-stream",
+      Authorization: `Bearer ${token}`,
+    },
+    params: {
+      name: file_name,
+      type: file_type,
+    },
+  });
+  return response.data as File;
+}
+
+export async function deleteFile(fileId: string, token: string) {
+  const url = `/files/${fileId}`;
+  await clientSideHttp.delete(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }

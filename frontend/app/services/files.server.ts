@@ -1,5 +1,5 @@
 import { filesURL, http } from "~/services/shared.server";
-import { File } from "./files";
+import type { File } from "./files";
 
 export enum FileType {
   EVENT_LOG_CSV = "event_log_csv",

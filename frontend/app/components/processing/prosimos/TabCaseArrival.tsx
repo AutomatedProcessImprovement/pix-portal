@@ -4,29 +4,14 @@ import { DistributionNameAndValues } from "./DistributionNameAndValues";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
 import { Select } from "./Select";
-import { WeekDay } from "./schema";
+import { weekDays } from "./schema";
+import { formatDate } from "./shared";
+import { makeTitleCase } from "./simulation_parameters";
 
 export function TabCaseArrival() {
   const name = "arrival_time_calendar";
 
   const { control } = useFormContext();
-
-  function formatDateForInputValue(date: Date) {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-
-    const hour = date.getHours();
-    const minute = date.getMinutes();
-
-    const monthString = month.toString().padStart(2, "0");
-    const dayString = day.toString().padStart(2, "0");
-
-    const hourString = hour.toString().padStart(2, "0");
-    const minuteString = minute.toString().padStart(2, "0");
-
-    return `${year}-${monthString}-${dayString}T${hourString}:${minuteString}`;
-  }
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -47,21 +32,21 @@ export function TabCaseArrival() {
     if (fields.length === 0) handleAddTime();
   }, [fields.length, handleAddTime]);
 
-  const weekDays = Object.values(WeekDay);
+  const weekDays_ = weekDays.map((day) => makeTitleCase(day));
 
   return (
     <div className="flex flex-col space-y-4">
       <FormSection title="Scenario Specification">
         <Input name="total_cases" type="number" defaultValue={100} />
-        <Input name="start_time" type="datetime-local" defaultValue={formatDateForInputValue(new Date())} />
+        <Input name="start_time" type="datetime-local" defaultValue={formatDate(new Date())} />
         <DistributionNameAndValues name="arrival_time_distribution" />
       </FormSection>
       <FormSection title="Arrival Time Calendar">
         {fields.map((field, index) => {
           return (
             <div key={field.id} className="flex space-x-2 items-end">
-              <Select name={`${name}[${index}].from`} options={weekDays} label="From" />
-              <Select name={`${name}[${index}].to`} options={weekDays} label="To" />
+              <Select name={`${name}[${index}].from`} options={weekDays_} label="From" />
+              <Select name={`${name}[${index}].to`} options={weekDays_} label="To" />
               <Input
                 name={`${name}[${index}].beginTime`}
                 type="time"

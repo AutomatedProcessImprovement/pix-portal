@@ -1,5 +1,6 @@
 import type { ValidationError } from "yup";
 import { prosimosConfigurationSchema, type ProsimosConfiguration } from "./schema";
+import { formatDate } from "./shared";
 
 type CalendarPeriod = {
   from: string;
@@ -26,6 +27,8 @@ export async function parseSimulationParameters(
     return [null, e as ValidationError];
   }
 
+  simulationParameters.start_time = formatDate(new Date(simulationParameters.start_time));
+
   simulationParameters.arrival_time_calendar =
     simulationParameters.arrival_time_calendar.map(postProcessCalendarPeriod);
 
@@ -51,7 +54,7 @@ function postProcessCalendarPeriod(calendarPeriod: CalendarPeriod) {
   };
 }
 
-function makeTitleCase(str: string) {
+export function makeTitleCase(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 

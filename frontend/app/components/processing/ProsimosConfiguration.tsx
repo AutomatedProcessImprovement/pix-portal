@@ -1,20 +1,24 @@
 import { Tab } from "@headlessui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { Asset } from "~/services/assets";
-import { FileType, File as File_, getFileContent } from "~/services/files";
+import { v4 as uuidv4 } from "uuid";
+import { patchAsset, type Asset } from "~/services/assets";
+import type { File as File_ } from "~/services/files";
+import { FileType, deleteFile, getFileContent, uploadFile } from "~/services/files";
 import { BpmnDataContext, UserContext } from "./contexts";
 import { FormErrors } from "./prosimos/FormErrors";
 import { TabBatching } from "./prosimos/TabBatching";
-import { TabCaseAttributes } from "./prosimos/TabCaseAttributes";
 import { TabCaseArrival } from "./prosimos/TabCaseArrival";
+import { TabCaseAttributes } from "./prosimos/TabCaseAttributes";
 import { TabGateways } from "./prosimos/TabGateways";
 import { TabPrioritisation } from "./prosimos/TabPrioritisation";
 import { TabResourceAllocation } from "./prosimos/TabResourceAllocation";
 import { TabResourceCalendars } from "./prosimos/TabResourceCalendars";
 import { TabResourceProfiles } from "./prosimos/TabResourceProfiles";
-import { BpmnData, parseBpmn } from "./prosimos/bpmn";
+import type { BpmnData } from "./prosimos/bpmn";
+import { parseBpmn } from "./prosimos/bpmn";
+import type { ProsimosConfiguration } from "./prosimos/schema";
 import { prosimosConfigurationSchema } from "./prosimos/schema";
 import { parseSimulationParameters } from "./prosimos/simulation_parameters";
 
@@ -27,6 +31,8 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
   const user = useContext(UserContext);
 
   const [bpmnData, setBpmnData] = useState<BpmnData | null>(null);
+  const [simulationParameters, setSimulationParameters] = useState<ProsimosConfiguration | null>(null);
+  const [simulationParametersFile, setSimulationParametersFile] = useState<File_ | null>(null);
 
   useEffect(() => {
     if (!asset) return;
@@ -38,7 +44,12 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
       let jsonFile: File_ | undefined;
       for (const file of asset.files ?? []) {
         if (file.type === FileType.PROCESS_MODEL_BPMN) bpmnFile = file;
-        if (file.type === FileType.SIMULATION_MODEL_PROSIMOS_JSON) jsonFile = file;
+        if (file.type === FileType.SIMULATION_MODEL_PROSIMOS_JSON) {
+          jsonFile = file;
+          setSimulationParametersFile(file);
+        } else {
+          setSimulationParametersFile(null);
+        }
       }
 
       if (!bpmnFile) return;
@@ -52,21 +63,54 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
       if (error) {
         console.error("error parsing simulation parameters", Object.entries(error));
         methods.setError("root", { message: error.message });
-        return;
-      } else if (jsonData) methods.reset(jsonData);
+        setSimulationParameters(null);
+      } else if (jsonData) {
+        methods.reset(jsonData);
+        setSimulationParameters(jsonData);
+      }
     };
 
-    fetchAndParseFiles();
-  }, [asset]);
+    fetchAndParseFiles().then();
+  }, [asset, user, methods]);
 
   useEffect(() => {
     console.log("formState.errors", methods.formState.errors);
   }, [methods.formState.errors]);
 
-  function onSubmit(data: any) {
-    console.log("ProsimosConfiguration data", data);
-    // TODO: post-process and send
-  }
+  const onSubmit = useCallback(
+    async (data: any) => {
+      const newSimulationParameters = data as ProsimosConfiguration;
+      console.log("newSimulationParameters", newSimulationParameters);
+      console.log("simulationParameters", simulationParameters);
+
+      if (!simulationParameters || !simulationParametersFile || !asset?.id) {
+        console.log("no simulation parameters");
+        return;
+      }
+
+      // upload the new file
+      const jsonBlob = new Blob([JSON.stringify(newSimulationParameters)], { type: "application/json" });
+      const jsonFileName = simulationParametersFile?.name ?? `${uuidv4()}.json`;
+      if (!user?.token) return;
+      const jsonFile = await uploadFile(jsonBlob, jsonFileName, FileType.SIMULATION_MODEL_PROSIMOS_JSON, user?.token);
+      console.log("new simulation parameters file", jsonFile);
+
+      // update the simulation parameters for the asset
+      const fileIds = asset?.files_ids.filter((id) => id !== simulationParametersFile.id) ?? [];
+      const assetUpdate = {
+        files_ids: [...fileIds, jsonFile.id],
+      };
+      const updatedAsset = await patchAsset(assetUpdate, asset?.id, user?.token);
+      console.log("updated asset", updatedAsset);
+
+      // remove the old file if all is successful
+      if (updatedAsset) {
+        await deleteFile(simulationParametersFile.id, user?.token);
+        console.log("deleted old file", simulationParametersFile.id);
+      }
+    },
+    [asset, simulationParameters, simulationParametersFile, user?.token]
+  );
 
   const tabs = [
     { name: "Case Arrival", component: <TabCaseArrival /> },
@@ -111,7 +155,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
               </Tab.Panels>
             </Tab.Group>
             {methods.formState.errors && <FormErrors errors={methods.formState.errors} />}
-            <button type="submit">Submit</button>
+            <button type="submit">Save</button>
           </form>
         </BpmnDataContext.Provider>
       </FormProvider>

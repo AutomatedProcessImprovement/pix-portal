@@ -1,4 +1,5 @@
 import * as yup from "yup";
+import { formatDate } from "./shared";
 
 const distributionSchema = {
   distribution_name: yup.string().required(),
@@ -24,10 +25,16 @@ const calendarPeriod = yup.object({
 });
 
 export const prosimosConfigurationSchema = yup.object({
-  // total_casea and start_time have a soft requirement, they must be present when submitting data,
+  model_type: yup.string().default("CRISP"),
+  process_model: yup.string(),
+  granule_size: yup.object({
+    time_unit: yup.string().default("MINUTES"),
+    value: yup.number().positive().integer().default(30),
+  }),
+  // total_cases and start_time have a soft requirement, they must be present when submitting data,
   // but can be omitted when loading data from custom parameters files
   total_cases: yup.number().positive().integer(),
-  start_time: yup.date(),
+  start_time: yup.string().default(formatDate(new Date())),
   arrival_time_distribution: yup.object().shape(distributionSchema),
   arrival_time_calendar: yup.array().of(calendarPeriod).required().min(1, "At least one arrival calendar is required"),
   resource_calendars: yup
@@ -69,6 +76,7 @@ export const prosimosConfigurationSchema = yup.object({
           }),
       })
     )
+    .required()
     .min(1, "At least one resource profile is required"),
   task_resource_distribution: yup
     .array()
@@ -167,66 +175,65 @@ export const prosimosConfigurationSchema = yup.object({
             .test("unique", "Firing rules must have unique attributes", testUniqueAttributes)
         )
         .min(1),
-      case_attributes: yup.array().of(
-        yup.object({
-          name: yup
-            .string()
-            .trim()
-            .matches(
-              /^[a-zA-Z0-9-_,.`':]+$/g,
-              "Invalid name. Allowed characters include [a-z], [A-Z], [0-9], and [_,.-:`']"
-            )
-            .required(),
-          type: yup.string().required(),
-          values: yup.mixed().when("type", (type: string | string[], _) => {
-            switch (type) {
-              case "continuous":
-                return yup.object().shape(distributionSchema);
-              case "discrete":
-                return yup
-                  .array()
-                  .of(
-                    yup.object({
-                      key: yup.string().required(),
-                      value: yup.number().required(),
-                    })
-                  )
-                  .min(1)
-                  .test("sum", "Case attributes values probabilities must sum to 1", testProbabilitiesSum);
-              default:
-                throw new Error(`Invalid type: ${type}`);
-            }
-          }),
-        })
-      ),
-      prioritization_rules: yup.array().of(
-        yup.object({
-          priority_level: yup.number().required().min(1),
-          rules: yup
+    })
+  ),
+  case_attributes: yup.array().of(
+    yup.object({
+      name: yup
+        .string()
+        .trim()
+        .matches(
+          /^[a-zA-Z0-9-_,.`':]+$/g,
+          "Invalid name. Allowed characters include [a-z], [A-Z], [0-9], and [_,.-:`']"
+        )
+        .required(),
+      type: yup.string().required(),
+      values: yup.mixed().when("type", (type: string | string[], _) => {
+        switch (type) {
+          case "continuous":
+            return yup.object().shape(distributionSchema);
+          case "discrete":
+            return yup
+              .array()
+              .of(
+                yup.object({
+                  key: yup.string().required(),
+                  value: yup.number().required(),
+                })
+              )
+              .min(1)
+              .test("sum", "Case attributes values probabilities must sum to 1", testProbabilitiesSum);
+          default:
+            throw new Error(`Invalid case attribute type: ${type}`);
+        }
+      }),
+    })
+  ),
+  prioritization_rules: yup.array().of(
+    yup.object({
+      priority_level: yup.number().required().min(1),
+      rules: yup
+        .array()
+        .of(
+          yup
             .array()
             .of(
-              yup
-                .array()
-                .of(
-                  yup.object({
-                    attribute: yup.string().required(),
-                    comparison: yup.string().required(),
-                    value: yup
-                      .mixed<
-                        | yup.InferType<typeof prioritizationStringSchema>
-                        | yup.InferType<typeof prioritizationNumbersSchema>
-                      >()
-                      .test("shape", "Invalid values", (value) => {
-                        prioritizationStringSchema.isValidSync(value) || prioritizationNumbersSchema.isValidSync(value);
-                      }),
-                  })
-                )
-                .min(1)
-                .test("unique", "Prioritization rules must have unique attributes", testUniqueAttributes)
+              yup.object({
+                attribute: yup.string().required(),
+                comparison: yup.string().required(),
+                value: yup
+                  .mixed<
+                    yup.InferType<typeof prioritizationStringSchema> | yup.InferType<typeof prioritizationNumbersSchema>
+                  >()
+                  .test("shape", "Invalid values", (value) => {
+                    prioritizationStringSchema.isValidSync(value) || prioritizationNumbersSchema.isValidSync(value);
+                  }),
+              })
             )
-            .min(1),
-        })
-      ),
+            .min(1)
+            .test("unique", "Prioritization rules must have unique attributes", testUniqueAttributes)
+        )
+        .min(1),
     })
   ),
 });
@@ -238,15 +245,17 @@ const prioritizationNumbersSchema = yup
   .required()
   .min(2, "At least two parameters are required");
 
-export enum WeekDay {
-  Monday = "Monday",
-  Tuesday = "Tuesday",
-  Wednesday = "Wednesday",
-  Thursday = "Thursday",
-  Friday = "Friday",
-  Saturday = "Saturday",
-  Sunday = "Sunday",
-}
+type Monday = "MONDAY" | "Monday" | "monday";
+type Tuesday = "TUESDAY" | "Tuesday" | "tuesday";
+type Wednesday = "WEDNESDAY" | "Wednesday" | "wednesday";
+type Thursday = "THURSDAY" | "Thursday" | "thursday";
+type Friday = "FRIDAY" | "Friday" | "friday";
+type Saturday = "SATURDAY" | "Saturday" | "saturday";
+type Sunday = "SUNDAY" | "Sunday" | "sunday";
+
+export type WeekDay = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday;
+
+export const weekDays = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] as WeekDay[];
 
 function testProbabilitiesSum(value: any) {
   if (!value) {

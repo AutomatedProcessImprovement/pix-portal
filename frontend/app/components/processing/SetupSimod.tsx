@@ -1,6 +1,6 @@
 import { Form, useNavigation } from "@remix-run/react";
 import { useContext, useEffect, useState } from "react";
-import { Asset } from "~/services/assets";
+import type { Asset } from "~/services/assets";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 import { SelectedAssetsContext } from "./contexts";
 
@@ -20,7 +20,7 @@ export default function SetupSimod() {
     setProcessModel(selectedAssets.find((asset) => asset.type === AssetTypeBackend.PROCESS_MODEL) || null);
   }, [selectedAssets]);
 
-  async function handleClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+  async function handleClick(_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     const assetsIds = selectedAssets.map((asset) => asset.id);
     setSelectedInputAssetsIdsRef(assetsIds);
   }

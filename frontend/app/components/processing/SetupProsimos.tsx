@@ -1,6 +1,7 @@
-import { Form, useNavigation } from "@remix-run/react";
+import { Form, useNavigation, useSubmit } from "@remix-run/react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Asset, getAsset } from "~/services/assets";
+import type { Asset } from "~/services/assets";
+import { getAsset } from "~/services/assets";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 import ProsimosConfiguration from "./ProsimosConfiguration";
 import { SelectedAssetsContext, UserContext } from "./contexts";
@@ -12,26 +13,33 @@ export default function SetupProsimos() {
   const user = useContext(UserContext);
 
   const selectedAssets = useContext(SelectedAssetsContext);
-  useEffect(() => {
-    selectedAssetsIdsRef.current!.value = selectedAssets.map((asset) => asset.id).join(",");
-    fetchSimulationModel();
-  }, [selectedAssets]);
 
   const fetchSimulationModel = useCallback(async () => {
     const simulationModel = selectedAssets.find((asset) => asset.type === AssetTypeBackend.SIMULATION_MODEL);
-    if (simulationModel) {
+    if (simulationModel && user?.token) {
       // this call populates the files field with the file objects, so we can find a BPMN model file and fetch its content
-      const asset = await getAsset(simulationModel.id, user?.token!, false);
+      const asset = await getAsset(simulationModel.id, user?.token, false);
       setSimulationModel(asset);
     } else {
       setSimulationModel(null);
     }
-  }, [selectedAssets]);
+  }, [selectedAssets, user?.token]);
+
+  useEffect(() => {
+    selectedAssetsIdsRef.current!.value = selectedAssets.map((asset) => asset.id).join(",");
+    fetchSimulationModel();
+  }, [selectedAssets, fetchSimulationModel]);
+
+  const submitProsimosSimulation = useSubmit();
 
   return (
     <section className="p-2 space-y-2">
       <h2 className="text-xl font-semibold">Simulation Setup</h2>
-      <Form method="post" className="flex flex-col space-y-2">
+      <Form
+        method="post"
+        className="flex flex-col space-y-2"
+        onChange={(e) => submitProsimosSimulation(e.currentTarget)}
+      >
         <input type="hidden" name="selectedInputAssetsIds" ref={selectedAssetsIdsRef} />
         <SimulationModelArea asset={simulationModel} />
         <button type="submit" disabled={simulationModel === null || navigation.state === "submitting"}>
