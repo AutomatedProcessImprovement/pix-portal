@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { Select } from "~/components/processing/prosimos/Select";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
-
-// TODO: add assignedTasks to the final form output in the post-processing stage
 
 export function TabResourceProfiles() {
   const name = "resource_profiles";
@@ -64,7 +62,7 @@ function ResourceProfile({ name, children }: { name: string; children?: React.Re
     name: `${name}.resource_list`,
   });
 
-  function handleAddTime() {
+  const handleAddTime = useCallback(() => {
     const id = fields.length + 1;
     append({
       id: `${id}`,
@@ -72,12 +70,12 @@ function ResourceProfile({ name, children }: { name: string; children?: React.Re
       cost_per_hour: 0,
       amount: 1,
     });
-  }
+  }, [append, fields.length]);
 
   // append one on render
   useEffect(() => {
     if (fields.length === 0) handleAddTime();
-  }, []);
+  }, [fields.length, handleAddTime]);
 
   const resourceCalendars = watch("resource_calendars");
 

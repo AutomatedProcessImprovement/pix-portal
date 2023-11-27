@@ -3,7 +3,7 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { BpmnDataContext } from "../contexts";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
-import { Gateway } from "./bpmn_types";
+import type { Gateway } from "./bpmn_types";
 
 export function TabGateways() {
   const name = "gateway_branching_probabilities";
@@ -42,7 +42,7 @@ function GatewayProbabilities({ name, gateway }: { name: string; gateway: Gatewa
         append({ path_id: outgoing.id, value: 0 });
       });
     }
-  }, []);
+  }, [fields.length, gateway, name, append, setValue]);
 
   return (
     <div className="p-2 border-4">

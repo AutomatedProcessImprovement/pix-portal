@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { Input } from "./Input";
-import { DistributionType } from "./distribution";
+import { distributionParameters } from "./schema";
 
 export function DistributionParametersInputs({
   name,
@@ -24,18 +24,9 @@ export function DistributionParametersInputs({
     name,
   });
 
-  const labelNames = {
-    [DistributionType.expon]: ["Mean (s)", "Min (s)", "Max (s)"],
-    [DistributionType.uniform]: ["Min (s)", "Max (s)"],
-    [DistributionType.fix]: ["Mean (s)"],
-    [DistributionType.gamma]: ["Mean", "Variance (s)", "Min (s)", "Max (s)"],
-    [DistributionType.lognorm]: ["Mean (s)", "Variance (s)", "Min (s)", "Max (s)"],
-    [DistributionType.norm]: ["Mean (s)", "Std Dev (s)", "Min (s)", "Max (s)"],
-  };
-
   useEffect(() => {
     // make sure we have the correct number of fields in the field array
-    const numOfLabels = labelNames[watchDistributionName as keyof typeof labelNames].length;
+    const numOfLabels = distributionParameters[watchDistributionName as keyof typeof distributionParameters].length;
     let params = getValues(distributionParamsKey);
     if (params && params.length > 1) {
       // if values are provided, use them
@@ -48,7 +39,7 @@ export function DistributionParametersInputs({
         })
       );
     }
-  }, [watchDistributionName]);
+  }, [watchDistributionName, distributionParamsKey, getValues, replace]);
 
   return (
     <>
@@ -59,7 +50,7 @@ export function DistributionParametersInputs({
               name={`${name}[${index}].value`}
               type="number"
               step="any"
-              label={labelNames[watchDistributionName as keyof typeof labelNames][index]}
+              label={distributionParameters[watchDistributionName as keyof typeof distributionParameters][index]}
             />
           </div>
         );

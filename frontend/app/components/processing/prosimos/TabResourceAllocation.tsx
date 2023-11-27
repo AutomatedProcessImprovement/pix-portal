@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { BpmnDataContext } from "../contexts";
 import { DistributionNameAndValues } from "./DistributionNameAndValues";
 import FormSection from "./FormSection";
 import { Select } from "./Select";
-import { DistributionType } from "./distribution";
+import { DistributionType } from "./schema";
 
 export function TabResourceAllocation() {
   const name = "task_resource_distribution";
@@ -39,7 +39,7 @@ export function TabResourceAllocation() {
         append({ task_id: task.id, resources: [] });
       });
     }
-  }, [bpmnData]);
+  }, [bpmnData, fields.length, append]);
 
   return (
     <div className="flex flex-col space-y-4">
@@ -80,6 +80,16 @@ function ResourceAllocation({
   // at least one resource profile is required for this component to render,
   // resource profiles are taken from resource pools
   const resourcePools = watch("resource_profiles");
+  /** Takes and flattens "resource_list" from all of the resource pools. */
+  const extractProfilesFromPools = useCallback(() => {
+    const profiles: any[] = [];
+    Object.entries(resourcePools).reduce((acc, [key, value]) => {
+      const pool = value as { resource_list: any[] };
+      acc.push(...pool.resource_list);
+      return acc;
+    }, profiles);
+    return profiles;
+  }, [resourcePools]);
   const [resourceProfiles, setResourceProfiles] = useState<any[]>([]);
   const [isEnabled, setIsEnabled] = useState(false);
   useEffect(() => {
@@ -90,31 +100,20 @@ function ResourceAllocation({
     } else {
       setIsEnabled(false);
     }
-  }, [resourcePools]);
+  }, [resourcePools, extractProfilesFromPools]);
 
-  /** Takes and flattens "resource_list" from all of the resource pools. */
-  function extractProfilesFromPools() {
-    const profiles: any[] = [];
-    Object.entries(resourcePools).reduce((acc, [key, value]) => {
-      const pool = value as { resource_list: any[] };
-      acc.push(...pool.resource_list);
-      return acc;
-    }, profiles);
-    return profiles;
-  }
-
-  // add one on render after resource profiles are loaded
-  useEffect(() => {
-    if (fields.length === 0 && resourceProfiles.length > 0) handleAddResourceActivityDistribution();
-  }, [resourceProfiles]);
-
-  function handleAddResourceActivityDistribution() {
+  const handleAddResourceActivityDistribution = useCallback(() => {
     append({
       resource_id: resourceProfiles && resourceProfiles[0].name,
       distribution_name: DistributionType.expon,
       distribution_params: [0, 0, 0, 0],
     });
-  }
+  }, [resourceProfiles, append]);
+
+  // add one on render after resource profiles are loaded
+  useEffect(() => {
+    if (fields.length === 0 && resourceProfiles.length > 0) handleAddResourceActivityDistribution();
+  }, [fields.length, resourceProfiles, handleAddResourceActivityDistribution]);
 
   return (
     <div className="border-4 p-4 space-y-2">

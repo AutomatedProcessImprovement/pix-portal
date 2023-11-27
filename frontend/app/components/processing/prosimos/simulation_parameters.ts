@@ -1,5 +1,5 @@
-import { ValidationError } from "yup";
-import { ProsimosConfiguration, prosimosConfigurationSchema } from "./schema";
+import type { ValidationError } from "yup";
+import { prosimosConfigurationSchema, type ProsimosConfiguration } from "./schema";
 
 type CalendarPeriod = {
   from: string;

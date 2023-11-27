@@ -128,7 +128,7 @@ function BatchingConfiguration({ name, children }: { name: string; children?: Re
         { key: 2, value: batchingProbability },
       ]);
     }
-  }, [batchingProbability]);
+  }, [batchingProbability, name, setError, replaceSizeField]);
 
   return (
     <div className="border-4 p-4 space-y-2">

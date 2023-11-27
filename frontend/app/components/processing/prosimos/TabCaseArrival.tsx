@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { DistributionNameAndValues } from "./DistributionNameAndValues";
 import FormSection from "./FormSection";
@@ -33,19 +33,19 @@ export function TabCaseArrival() {
     name: name,
   });
 
-  function handleAddTime() {
+  const handleAddTime = useCallback(() => {
     append({
       from: "Monday",
       to: "Friday",
       beginTime: "09:00",
       endTime: "17:00",
     });
-  }
+  }, [append]);
 
   // append one on render
   useEffect(() => {
     if (fields.length === 0) handleAddTime();
-  }, []);
+  }, [fields.length, handleAddTime]);
 
   const weekDays = Object.values(WeekDay);
 

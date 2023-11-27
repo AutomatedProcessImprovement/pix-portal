@@ -3,7 +3,7 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { DistributionNameAndValues } from "./DistributionNameAndValues";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
-import { DistributionType } from "./distribution";
+import { DistributionType } from "./schema";
 
 interface CaseAttribute {
   name: string;
@@ -70,7 +70,7 @@ function CaseAttribute({ name, children }: { name: string; children?: React.Reac
   useEffect(() => {
     const type = watch(`${name}.type`);
     setCaseType(type);
-  }, []);
+  }, [name, watch]);
 
   const { fields, append, remove } = useFieldArray({
     control,

@@ -106,14 +106,7 @@ function PrioritisationAndRules({ name, children }: { name: string; children?: R
   const { control, watch } = useFormContext();
 
   // track if there are any discrete case attributes' options
-  const [caseAttributesOptions, setCaseAttribtuesOptions] = React.useState<string[]>([]);
   const caseAttributes = watch(`case_attributes`);
-  useEffect(() => {
-    if (!caseAttributes) return;
-    const discreteCaseAttributes = caseAttributes.filter((attribute: any) => attribute.type === "discrete");
-    const options = discreteCaseAttributes.flatMap((attribute: any) => attribute.values.map((value: any) => value.key));
-    setCaseAttribtuesOptions(options);
-  }, [caseAttributes]);
 
   // track case attributes' names
   const [caseAttributesNames, setCaseAttributesNames] = React.useState<string[]>([]);
@@ -182,14 +175,14 @@ function PrioritisationAndRulesValuesField({ name }: { name: string }) {
   useEffect(() => {
     const fieldsLength = watch(`${name}.value`).length;
     if (fieldsLength === 0) append({ value: 0 });
-  }, []);
+  }, [name, append, watch]);
 
   const [attributeType, setAttributeType] = useState<string | undefined>(undefined);
   useEffect(() => {
     const caseAttribute = caseAttributes.find((attr: any) => attr.name === attributeName);
     if (!caseAttribute) return;
     setAttributeType(caseAttribute.type);
-  }, [attributeName]);
+  }, [attributeName, caseAttributes]);
 
   const attributeOperator = watch(`${name}.comparison`);
   useEffect(() => {
@@ -204,7 +197,7 @@ function PrioritisationAndRulesValuesField({ name }: { name: string }) {
         }
       }
     }
-  }, [attributeOperator]);
+  }, [attributeOperator, attributeType, append, name, remove, watch]);
 
   function getCaseAttributeOptions(attribute: string) {
     const caseAttribute = caseAttributes.find((attr: any) => attr.name === attribute);

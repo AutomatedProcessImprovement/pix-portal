@@ -1,5 +1,4 @@
 import * as yup from "yup";
-import { DistributionType, getNumOfParamsPerDistr } from "./distribution";
 
 const distributionSchema = {
   distribution_name: yup.string().required(),
@@ -13,7 +12,7 @@ const distributionSchema = {
         })
       )
       .required()
-      .min(getNumOfParamsPerDistr(dtype), `Missed required parameters for ${distributionName}`);
+      .min(distributionParametersLength(dtype), `Missed required parameters for ${distributionName}`);
   }),
 };
 
@@ -51,7 +50,7 @@ export const prosimosConfigurationSchema = yup.object({
           .array()
           .of(
             yup.object({
-              id: yup.string().required(), // TODO: this ID should be globally unique
+              id: yup.string().required(),
               name: yup.string().required(),
               cost_per_hour: yup.number().required(),
               amount: yup.number().positive().integer().required(),
@@ -60,9 +59,13 @@ export const prosimosConfigurationSchema = yup.object({
             })
           )
           .min(1, "At least one resource is required")
-          .test("unique", "Resource profiles must have globally unique names", (resourceList) => {
+          .test("unique", "Resource profiles must have unique names", (resourceList) => {
             const namesArr = resourceList?.map(({ name }) => name ?? "");
             return isStrArrUnique(namesArr);
+          })
+          .test("unique", "Resource profiles must have unique ids", (resourceList) => {
+            const idsArr = resourceList?.map(({ id }) => id ?? "");
+            return isStrArrUnique(idsArr);
           }),
       })
     )
@@ -270,6 +273,28 @@ const isStrArrUnique = (values: string[] | undefined): boolean => {
   if (!arrLength || arrLength === 0) return true;
   const set = new Set(values);
   return arrLength === set.size;
+};
+
+export enum DistributionType {
+  expon = "expon",
+  fix = "fix",
+  gamma = "gamma",
+  lognorm = "lognorm",
+  norm = "norm",
+  uniform = "uniform",
+}
+
+export const distributionParameters = {
+  [DistributionType.expon]: ["Mean (s)", "Min (s)", "Max (s)"],
+  [DistributionType.uniform]: ["Min (s)", "Max (s)"],
+  [DistributionType.fix]: ["Mean (s)"],
+  [DistributionType.gamma]: ["Mean", "Variance (s)", "Min (s)", "Max (s)"],
+  [DistributionType.lognorm]: ["Mean (s)", "Variance (s)", "Min (s)", "Max (s)"],
+  [DistributionType.norm]: ["Mean (s)", "Std Dev (s)", "Min (s)", "Max (s)"],
+};
+
+export const distributionParametersLength = (distr_func: DistributionType) => {
+  return distributionParameters[distr_func].length;
 };
 
 export type ProsimosConfiguration = yup.InferType<typeof prosimosConfigurationSchema>;

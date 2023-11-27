@@ -1,6 +1,6 @@
 import { DistributionParametersInputs } from "./DistributionParametersInputs";
 import { Select } from "./Select";
-import { DistributionType } from "./distribution";
+import { DistributionType } from "./schema";
 
 export function DistributionNameAndValues({ name }: { name: string }) {
   return (

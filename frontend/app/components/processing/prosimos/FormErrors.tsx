@@ -1,4 +1,4 @@
-import { FieldErrors } from "react-hook-form";
+import { type FieldErrors } from "react-hook-form";
 
 export function FormErrors({ errors }: { errors?: FieldErrors }) {
   function extractMessageFromObject(error: any): string | null {
@@ -11,6 +11,8 @@ export function FormErrors({ errors }: { errors?: FieldErrors }) {
         .map((key) => {
           if (error[key] instanceof Object) {
             return extractMessageFromObject(error[key]);
+          } else {
+            return error[key];
           }
         })
         .join(", ");

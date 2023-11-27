@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
@@ -19,11 +19,6 @@ export function TabResourceCalendars() {
     const id = fields.length + 1;
     append({ id: `${id}`, name: `calendar ${id}`, time_periods: [] });
   }
-
-  // append one on render
-  // useEffect(() => {
-  //   if (fields.length === 0) handleAddCalendar();
-  // }, [fields]);
 
   return (
     <div className="flex flex-col space-y-4">
@@ -55,19 +50,19 @@ function ResourceCalendar({ name, children }: { name: string; children?: React.R
     name: `${name}.time_periods`,
   });
 
-  function handleAddTime() {
+  const handleAddTime = useCallback(() => {
     append({
       from: "Monday",
       to: "Friday",
       beginTime: "09:00",
       endTime: "17:00",
     });
-  }
+  }, [append]);
 
   // append one on render
   useEffect(() => {
     if (fields.length === 0) handleAddTime();
-  }, []);
+  }, [fields.length, handleAddTime]);
 
   const weekDays = Object.values(WeekDay);
 
