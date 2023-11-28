@@ -19,7 +19,7 @@ opentelemetry-instrumentation-logging = "^0.42b0"
 opentelemetry-instrumentation-httpx = "^0.42b0"
 opentelemetry-exporter-prometheus = "^1.12.0rc1"
 httpx = "^0.25.0"
-pix-portal-lib = { path = "lib/pix_portal_lib-0.1.37-py3-none-any.whl" }
+pix-portal-lib = { path = "lib/pix_portal_lib-0.1.40-py3-none-any.whl" }
 pyyaml = "^6.0.1"
 
 [tool.poetry.group.dev.dependencies]

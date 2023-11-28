@@ -9,10 +9,12 @@ from pix_portal_lib.exceptions.fastapi_handlers import general_exception_handler
 from pix_portal_lib.middleware.request_logging import RequestLoggingMiddleware
 from pix_portal_lib.open_telemetry_utils import instrument_app
 from pix_portal_lib.persistence.alembic import migrate_to_latest
+from pix_portal_lib.service_clients.auth import AuthServiceClient
 from pix_portal_lib.service_clients.fastapi import add_user_to_app_state_if_present
+from starlette.middleware.cors import CORSMiddleware
+
 from processing_requests.controllers import processing_requests
 from processing_requests.settings import settings
-from starlette.middleware.cors import CORSMiddleware
 
 logger = logging.getLogger()
 
@@ -40,6 +42,23 @@ app.add_middleware(
 app.add_middleware(RequestLoggingMiddleware)
 app.add_exception_handler(Exception, general_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
+
+
+@app.middleware("http")
+async def add_user(
+    request: Request,
+    call_next,
+):
+    token = request.headers.get("authorization", "").split(" ")[1]
+    auth_service = AuthServiceClient()
+    ok, user = await auth_service.verify_token(token)
+    if not ok:
+        user = None
+    request.app.state.user = user
+
+    response = await call_next(request)
+
+    return response
 
 
 @app.exception_handler(Exception)

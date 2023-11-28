@@ -6,6 +6,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.types import ASGIApp
 
+from pix_portal_lib.utils import get_user_id
+
 logger = logging.getLogger()
 
 meter = metrics.get_meter(__name__)
@@ -34,10 +36,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         end = time.time()
 
-        user_id = "anonymous"
-        if hasattr(request.app.state, "user"):
-            user = request.app.state.user or {}
-            user_id = user.get("id", "anonymous")
+        user_id = get_user_id(request)
 
         logger.info(
             f"scope=request "
