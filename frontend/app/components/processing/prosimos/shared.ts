@@ -14,3 +14,6 @@ export function formatDate(date: Date) {
 
   return `${year}-${monthString}-${dayString}T${hourString}:${minuteString}`;
 }
+export function makeTitleCase(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}

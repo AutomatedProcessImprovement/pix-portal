@@ -47,15 +47,11 @@ export async function parseSimulationParameters(
 
 function postProcessCalendarPeriod(calendarPeriod: CalendarPeriod) {
   return {
-    from: makeTitleCase(calendarPeriod.from),
-    to: makeTitleCase(calendarPeriod.to),
+    from: calendarPeriod.from.toUpperCase(),
+    to: calendarPeriod.to.toUpperCase(),
     beginTime: removeFractionalTimePart(calendarPeriod.beginTime),
     endTime: removeFractionalTimePart(calendarPeriod.endTime),
   };
-}
-
-export function makeTitleCase(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
 function removeFractionalTimePart(str: string) {

@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
 import { Select } from "./Select";
 import { weekDays } from "./schema";
-import { makeTitleCase } from "./simulation_parameters";
+import { makeTitleCase } from "./shared";
 
 export function TabResourceCalendars() {
   const name = "resource_calendars";
@@ -65,7 +65,8 @@ function ResourceCalendar({ name, children }: { name: string; children?: React.R
     if (fields.length === 0) handleAddTime();
   }, [fields.length, handleAddTime]);
 
-  const weekDays_: string[] = weekDays.map((day) => makeTitleCase(day));
+  const weekDays_: string[] = weekDays.map((day) => day.toUpperCase());
+  const weekDaysLabels = useMemo(() => weekDays_.map((day) => makeTitleCase(day)), [weekDays_]);
 
   return (
     <div className="border-4 p-4 space-y-2">
@@ -74,8 +75,20 @@ function ResourceCalendar({ name, children }: { name: string; children?: React.R
         {fields.map((field, index) => {
           return (
             <div key={field.id} className="flex space-x-2">
-              <Select name={`${name}.time_periods.[${index}].from`} options={weekDays_} label="From" pure={true} />
-              <Select name={`${name}.time_periods.[${index}].to`} options={weekDays_} label="To" pure={true} />
+              <Select
+                name={`${name}.time_periods.[${index}].from`}
+                options={weekDays_}
+                optionLabels={weekDaysLabels}
+                label="From"
+                pure={true}
+              />
+              <Select
+                name={`${name}.time_periods.[${index}].to`}
+                options={weekDays_}
+                optionLabels={weekDaysLabels}
+                label="To"
+                pure={true}
+              />
               <Input
                 name={`${name}.time_periods.[${index}].beginTime`}
                 type="time"
