@@ -1,7 +1,7 @@
 import { createContext } from "react";
-import { Asset } from "~/services/assets";
-import { User } from "~/services/auth";
-import { BpmnData } from "./prosimos/bpmn";
+import type { Asset } from "~/services/assets";
+import type { User } from "~/services/auth";
+import type { BpmnData } from "./prosimos/bpmn";
 
 export const SelectedAssetsContext = createContext<Asset[]>([]);
 export const UserContext = createContext<User | null>(null);

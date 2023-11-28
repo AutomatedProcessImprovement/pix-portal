@@ -1,6 +1,7 @@
 import { Dialog } from "@headlessui/react";
 import { useNavigation } from "@remix-run/react";
-import { ReactNode, useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { DragAndDropForm } from "~/components/upload/DragAndDropForm";
 import UploadAssetSelect from "~/components/upload/UploadAssetSelect";
 import { ProcessingType } from "~/routes/projects.$projectId.$processingType";
@@ -17,13 +18,13 @@ export default function UploadAssetDialog({
   processingType,
 }: {
   trigger: ReactNode;
-  processingType: ProcessingType | null;
+  processingType?: ProcessingType;
 }) {
   let [isOpen, setIsOpen] = useState(false);
 
   const initialAssetType = processingTypeToAssetType(processingType);
   let [assetType, setAssetType] = useState(initialAssetType);
-  
+
   useEffect(() => {
     setAssetType(initialAssetType);
   }, [initialAssetType]);
@@ -95,7 +96,7 @@ function UploadAssetDetails({ assetType }: { assetType: AssetTypeBackend }) {
           children={
             <>
               BPMN file is an XML file containing a BPMN model according to the{" "}
-              <a href="https://www.omg.org/spec/BPMN/2.0/" target="_blank">
+              <a href="https://www.omg.org/spec/BPMN/2.0/" target="_blank" rel="noreferrer">
                 BPMN v2.0 standard
               </a>
               .
