@@ -1,7 +1,7 @@
 import type { ProcessingType } from "~/routes/projects.$projectId.$processingType";
 import type { Asset } from "~/services/assets";
 import type { AssetTypeBackend } from "~/shared/AssetTypeBackend";
-import UploadAssetButton from "../UploadAssetButton";
+import UploadAssetButton from "../upload/UploadAssetButton";
 import UploadAssetDialog from "../upload/UploadAssetDialog";
 
 export default function AssetsInput({

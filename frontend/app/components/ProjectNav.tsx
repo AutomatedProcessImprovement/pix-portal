@@ -2,7 +2,7 @@ import { ChevronRightIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { Link } from "@remix-run/react";
 import UploadAssetDialog from "~/components/upload/UploadAssetDialog";
 import type { Project } from "~/services/projects.server";
-import UploadAssetButton from "./UploadAssetButton";
+import UploadAssetButton from "./upload/UploadAssetButton";
 
 export default function ProjectNav({ project }: { project: Project }) {
   return (

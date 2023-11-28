@@ -1,11 +1,11 @@
 import { Dialog } from "@headlessui/react";
-import { useNavigation } from "@remix-run/react";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { DragAndDropForm } from "~/components/upload/DragAndDropForm";
 import UploadAssetSelect from "~/components/upload/UploadAssetSelect";
 import { ProcessingType } from "~/routes/projects.$projectId.$processingType";
 import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
+import { useDialog } from "./useDialog";
 
 const assetTypesForSelectMenu: AssetTypeBackend[] = [
   AssetTypeBackend.EVENT_LOG,
@@ -20,8 +20,6 @@ export default function UploadAssetDialog({
   trigger: ReactNode;
   processingType?: ProcessingType;
 }) {
-  let [isOpen, setIsOpen] = useState(false);
-
   const initialAssetType = processingTypeToAssetType(processingType);
   let [assetType, setAssetType] = useState(initialAssetType);
 
@@ -29,31 +27,14 @@ export default function UploadAssetDialog({
     setAssetType(initialAssetType);
   }, [initialAssetType]);
 
-  const navigation = useNavigation();
-  useEffect(() => {
-    if (navigation.state === "loading") {
-      setIsOpen(false);
-    }
-  }, [navigation.state]);
-
-  useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-      }
-    };
-    window.addEventListener("keydown", handleEsc);
-    return () => {
-      window.removeEventListener("keydown", handleEsc);
-    };
-  }, []);
+  const { isOpen, open, close } = useDialog();
 
   return (
     <>
-      <span onClick={() => setIsOpen(true)} className="w-fit">
+      <span onClick={() => open()} className="w-fit">
         {trigger}
       </span>
-      <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-50">
+      <Dialog open={isOpen} onClose={() => close()} className="relative z-50">
         {/* The backdrop, rendered as a fixed sibling to the panel container */}
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
