@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { ProcessingRequest } from "~/services/processing_requests";
+import type { ProcessingRequest } from "~/services/processing_requests";
 
 export function ProcessingRequestCard({ request }: { request: ProcessingRequest }) {
   function parseDate(dateString: string) {

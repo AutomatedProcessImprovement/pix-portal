@@ -5,7 +5,7 @@ import ProcessingMenu from "~/components/processing/ProcessingMenu";
 import { UserContext } from "~/components/processing/contexts";
 import type { Asset } from "~/services/assets";
 import { getAssetsForProject } from "~/services/assets.server";
-import type { ProcessingRequest} from "~/services/processing_requests";
+import type { ProcessingRequest } from "~/services/processing_requests";
 import { ProcessingRequestType } from "~/services/processing_requests";
 import { createProcessingRequest, getProcessingRequestsForProject } from "~/services/processing_requests.server";
 import { requireLoggedInUser } from "~/session.server";

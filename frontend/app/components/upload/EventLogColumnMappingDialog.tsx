@@ -1,6 +1,7 @@
-import { ChangeEvent, ReactNode, useEffect, useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { Form } from "@remix-run/react";
+import type { ChangeEvent, ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { EventLogColumnMapping } from "~/components/upload/column_mapping";
 
 export default function EventLogColumnMappingDialog({
@@ -33,13 +34,7 @@ export default function EventLogColumnMappingDialog({
     const valid = columnMapping.isValid();
     setSubmitEnabled(valid);
     setColumnMappingFilledIn(valid);
-  }, [
-    columnMapping.caseId,
-    columnMapping.activity,
-    columnMapping.resource,
-    columnMapping.startTimestamp,
-    columnMapping.endTimestamp,
-  ]);
+  }, [columnMapping, setColumnMappingFilledIn]);
 
   function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
     const { name, value } = event.target;

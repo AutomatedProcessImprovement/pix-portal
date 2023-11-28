@@ -18,7 +18,7 @@ import { TabResourceCalendars } from "./prosimos/TabResourceCalendars";
 import { TabResourceProfiles } from "./prosimos/TabResourceProfiles";
 import type { BpmnData } from "./prosimos/bpmn";
 import { parseBpmn } from "./prosimos/bpmn";
-import type { ProsimosConfiguration } from "./prosimos/schema";
+import type { ProsimosConfiguration as TProsimosConfiguration } from "./prosimos/schema";
 import { prosimosConfigurationSchema } from "./prosimos/schema";
 import { parseSimulationParameters } from "./prosimos/simulation_parameters";
 
@@ -31,7 +31,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
   const user = useContext(UserContext);
 
   const [bpmnData, setBpmnData] = useState<BpmnData | null>(null);
-  const [simulationParameters, setSimulationParameters] = useState<ProsimosConfiguration | null>(null);
+  const [simulationParameters, setSimulationParameters] = useState<TProsimosConfiguration | null>(null);
   const [simulationParametersFile, setSimulationParametersFile] = useState<File_ | null>(null);
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
 
   const onSubmit = useCallback(
     async (data: any) => {
-      const newSimulationParameters = data as ProsimosConfiguration;
+      const newSimulationParameters = data as TProsimosConfiguration;
       console.log("newSimulationParameters", newSimulationParameters);
       console.log("simulationParameters", simulationParameters);
 

@@ -57,7 +57,7 @@ export function DragAndDropForm({ assetType }: { assetType: AssetTypeBackend }) 
         setSubmitEnabled(!!processModelFile && !!simulationModelFile);
         break;
     }
-  }, [assetType, eventLogFile, processModelFile, simulationModelFile, eventLogColumnMappingFilledIn]);
+  }, [assetType, eventLogFile, processModelFile, simulationModelFile, eventLogColumnMappingFilledIn, navigation.state]);
 
   function getValidFileTypes(assetType: AssetTypeBackend) {
     switch (assetType) {
@@ -336,7 +336,7 @@ function DragAndDropContainer(props: {
   return (
     <div
       className={`${
-        props.dragActiveFlag ? "bg-blue-100" : "bg-gray-50" + " " + props.className
+        props.dragActiveFlag ? `bg-blue-100 ${props.className}` : `bg-gray-50 ${props.className}`
       } border-4 border-blue-100 hover:border-blue-500 py-3 px-4 rounded-lg text-center flex flex-col items-center justify-center space-y-5`}
       onDragEnter={props.onDragEnter}
       onDragOver={props.onDragEnter}

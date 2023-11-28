@@ -1,5 +1,6 @@
 import { useContext } from "react";
-import { ProcessingRequest, ProcessingRequestStatus } from "~/services/processing_requests";
+import type { ProcessingRequest } from "~/services/processing_requests";
+import { ProcessingRequestStatus } from "~/services/processing_requests";
 import { AssetCardAsync } from "./AssetCardAsync";
 import { ProcessingRequestCard } from "./ProcessingRequestCard";
 import { UserContext } from "./contexts";

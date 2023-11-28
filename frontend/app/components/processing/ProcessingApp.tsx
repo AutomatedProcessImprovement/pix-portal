@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { ProcessingType } from "~/routes/projects.$projectId.$processingType";
-import { Asset } from "~/services/assets";
-import { ProcessingRequest } from "~/services/processing_requests";
+import type { ProcessingType } from "~/routes/projects.$projectId.$processingType";
+import type { Asset } from "~/services/assets";
+import type { ProcessingRequest } from "~/services/processing_requests";
 import AssetsInput from "./AssetsInput";
 import AssetsOutput from "./AssetsOutput";
 import ProcessingSetup from "./ProcessingSetup";
@@ -33,7 +33,7 @@ export default function ProcessingApp({
           <ProcessingSetup processingType={processingType} />
         </div>
         <div className="border-2 border-red-400 px-2 py-1 bg-yellow-50">
-          <AssetsOutput processingRequests={processingRequests}/>
+          <AssetsOutput processingRequests={processingRequests} />
         </div>
       </SelectedAssetsContext.Provider>
     </>

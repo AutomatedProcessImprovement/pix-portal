@@ -1,9 +1,11 @@
 import { ArrowDownTrayIcon } from "@heroicons/react/20/solid";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { Asset, getAsset } from "~/services/assets";
-import { User } from "~/services/auth";
-import { File, getFile, getFileLocation } from "~/services/files";
+import type { Asset } from "~/services/assets";
+import { getAsset } from "~/services/assets";
+import type { User } from "~/services/auth";
+import type { File } from "~/services/files";
+import { getFile, getFileLocation } from "~/services/files";
 
 export function AssetCardAsync({ assetId, user }: { assetId: string; user: User | null }) {
   const [asset, setAsset] = useState<Asset | null>(null);
@@ -11,7 +13,7 @@ export function AssetCardAsync({ assetId, user }: { assetId: string; user: User 
   useEffect(() => {
     if (!user) return;
     getAsset(assetId, user.token!).then((asset) => setAsset(asset));
-  }, [assetId]);
+  }, [assetId, user]);
 
   return (
     <div className="bg-teal-200 m-2 p-2">
@@ -45,7 +47,7 @@ function FileCardAsync({ assetId, fileId, user }: { assetId: string; fileId: str
     if (!user) return;
     getFile(fileId, user.token!).then((file) => setFile(file));
     getFileLocation(fileId, user.token!).then((fileLocation) => setFileLocation(fileLocation.location));
-  }, [assetId, fileId]);
+  }, [assetId, fileId, user]);
 
   useEffect(() => {
     // programmatically click the hidden link to trigger download

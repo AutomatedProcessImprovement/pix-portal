@@ -1,16 +1,8 @@
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  json,
-  redirect,
-  unstable_createMemoryUploadHandler,
-  unstable_parseMultipartFormData,
-} from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 import ProjectNav from "~/components/ProjectNav";
-import { Asset } from "~/services/assets";
-import { getAssetsForProject } from "~/services/assets.server";
 import { getProject } from "~/services/projects.server";
 import { requireLoggedInUser } from "~/session.server";
 import { createAssetsFromForm } from "~/shared/file_upload.server";
@@ -26,13 +18,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return handleThrow(request, async () => {
     const project = await getProject(projectId, user.token!);
-    const assets = await getAssetsForProject(projectId, user.token!);
-    return json({ user, project, assets });
+    return json({ user, project });
   });
 }
 
 export default function ProjectPage() {
-  const { user, project, assets } = useLoaderData<typeof loader>();
+  const { user, project } = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -40,38 +31,6 @@ export default function ProjectPage() {
       <ProjectNav project={project} />
       <Outlet />
     </>
-  );
-}
-
-function AssetsTable({ assets }: { assets: Asset[] }) {
-  return (
-    <section className="p-4 flex flex-col space-y-8">
-      <section className="flex flex-col space-y-2">
-        <h2 className="text-xl font-semibold">Assets</h2>
-        <div className="max-w-fit overflow-scroll border-4 border-blue-100">
-          <table className="">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Creation time</th>
-                <th>Files</th>
-              </tr>
-            </thead>
-            <tbody>
-              {assets.map((asset: Asset) => (
-                <tr key={asset.id}>
-                  <td className="truncate px-1">{asset.name}</td>
-                  <td className="truncate px-1">{asset.type}</td>
-                  <td className="truncate px-1">{asset.creation_time}</td>
-                  <td className="truncate px-1">{asset.files_ids.length}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </section>
   );
 }
 

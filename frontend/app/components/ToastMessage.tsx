@@ -1,4 +1,4 @@
-import { FlashMessage } from "~/shared/flash_message";
+import type { FlashMessage } from "~/shared/flash_message";
 
 export default function ToastMessage({ message }: { message: FlashMessage }) {
   return (
@@ -6,11 +6,7 @@ export default function ToastMessage({ message }: { message: FlashMessage }) {
       id="global-message"
       className={
         "relative p-4 text-white transition-all duration-500" +
-        (message.type === "error"
-          ? " bg-red-500"
-          : message.type === "warning"
-          ? " bg-yellow-500"
-          : " bg-green-500")
+        (message.type === "error" ? " bg-red-500" : message.type === "warning" ? " bg-yellow-500" : " bg-green-500")
       }
       role={message.type === "error" || "warning" ? "alert" : ""}
     >

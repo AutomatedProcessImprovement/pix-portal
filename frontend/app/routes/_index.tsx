@@ -4,7 +4,7 @@ import { Link, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 import ToastMessage from "~/components/ToastMessage";
 import { getSession, sessionStorage } from "~/session.server";
-import { FlashMessage as FlashMessageType } from "~/shared/flash_message";
+import type { FlashMessage as FlashMessageType } from "~/shared/flash_message";
 import { useOptionalUser } from "~/utils";
 
 export const meta: MetaFunction = () => {

@@ -1,7 +1,8 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { Fragment, useEffect, useState } from "react";
-import { AssetTypeBackend, assetTypeToString } from "~/shared/AssetTypeBackend";
+import type { AssetTypeBackend } from "~/shared/AssetTypeBackend";
+import { assetTypeToString } from "~/shared/AssetTypeBackend";
 
 export default function UploadAssetSelect({
   selected,
@@ -17,7 +18,7 @@ export default function UploadAssetSelect({
   useEffect(() => {
     setSelectedAssetType(selectedAssetType);
     onChange(selectedAssetType);
-  }, [selectedAssetType]);
+  }, [selectedAssetType, onChange]);
 
   return (
     <div className="w-64 z-50">
