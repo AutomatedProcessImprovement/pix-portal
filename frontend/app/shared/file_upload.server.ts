@@ -1,18 +1,18 @@
 import { EventLogColumnMapping } from "~/components/upload/column_mapping";
+import { AssetType } from "~/services/assets";
 import { createAsset, deleteAsset } from "~/services/assets.server";
 import type { File as File_ } from "~/services/files";
 import { FileType, deleteFile, uploadFile } from "~/services/files.server";
-import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 
 export async function createAssetsFromForm(formData: FormData, projectId: string, token: string) {
-  const assetType = formData.get("assetType") as AssetTypeBackend;
+  const assetType = formData.get("assetType") as AssetType;
 
   switch (assetType) {
-    case AssetTypeBackend.EVENT_LOG:
+    case AssetType.EVENT_LOG:
       return await createEventLogFromForm(formData, projectId, token);
-    case AssetTypeBackend.PROCESS_MODEL:
+    case AssetType.PROCESS_MODEL:
       return await createProcessModelFromForm(formData, projectId, token);
-    case AssetTypeBackend.SIMULATION_MODEL:
+    case AssetType.SIMULATION_MODEL:
       return await createSimulationModelFromForm(formData, projectId, token);
     default:
       throw new Error(`Unknown asset type ${assetType}`);
@@ -69,7 +69,7 @@ async function uploadAndCreateEventLog(
     {
       name: eventLog.name,
       files: uploadedFiles,
-      type: AssetTypeBackend.EVENT_LOG,
+      type: AssetType.EVENT_LOG,
       projectID: projectID,
     },
     token
@@ -82,7 +82,7 @@ async function uploadAndCreateProcessModel(processModel: File, projectID: string
     {
       name: processModel.name,
       files: uploadedFiles,
-      type: AssetTypeBackend.PROCESS_MODEL,
+      type: AssetType.PROCESS_MODEL,
       projectID: projectID,
     },
     token
@@ -107,7 +107,7 @@ async function uploadAndCreateSimulationModel(
     {
       name: name,
       files: uploadedFiles,
-      type: AssetTypeBackend.SIMULATION_MODEL,
+      type: AssetType.SIMULATION_MODEL,
       projectID: projectID,
     },
     token
@@ -153,7 +153,7 @@ async function uploadFiles(files: FilePayload[], token: string) {
 type AssetPayload = {
   name: string;
   files: File_[];
-  type: AssetTypeBackend;
+  type: AssetType;
   projectID: string;
 };
 

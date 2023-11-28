@@ -1,19 +1,19 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { Fragment, useEffect, useState } from "react";
-import type { AssetTypeBackend } from "~/shared/AssetTypeBackend";
-import { assetTypeToString } from "~/shared/AssetTypeBackend";
+import type { AssetType } from "~/services/assets";
+import { assetTypeToString } from "~/services/assets";
 
 export default function UploadAssetSelect({
   selected,
   onChange,
   assetTypes,
 }: {
-  selected: AssetTypeBackend;
-  onChange: (value: AssetTypeBackend) => void;
-  assetTypes: AssetTypeBackend[];
+  selected: AssetType;
+  onChange: (value: AssetType) => void;
+  assetTypes: AssetType[];
 }) {
-  const [selectedAssetType, setSelectedAssetType] = useState<AssetTypeBackend>(selected);
+  const [selectedAssetType, setSelectedAssetType] = useState<AssetType>(selected);
 
   useEffect(() => {
     setSelectedAssetType(selectedAssetType);

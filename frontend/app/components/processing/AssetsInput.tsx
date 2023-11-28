@@ -1,6 +1,5 @@
 import type { ProcessingType } from "~/routes/projects.$projectId.$processingType";
-import type { Asset } from "~/services/assets";
-import type { AssetTypeBackend } from "~/shared/AssetTypeBackend";
+import type { Asset, AssetType } from "~/services/assets";
 import UploadAssetButton from "../upload/UploadAssetButton";
 import UploadAssetDialog from "../upload/UploadAssetDialog";
 
@@ -20,9 +19,9 @@ export default function AssetsInput({
 
     if (selectedAssets.includes(asset)) {
       // if the asset is already selected, deselect it
-      setSelectedAssets([...filterOutAssetType(selectedAssets, asset.type as AssetTypeBackend)]);
+      setSelectedAssets([...filterOutAssetType(selectedAssets, asset.type as AssetType)]);
     } else {
-      setSelectedAssets([...filterOutAssetType(selectedAssets, asset.type as AssetTypeBackend), asset]);
+      setSelectedAssets([...filterOutAssetType(selectedAssets, asset.type as AssetType), asset]);
     }
   }
 
@@ -45,6 +44,6 @@ export default function AssetsInput({
   );
 }
 
-function filterOutAssetType(assets: Asset[], assetType: AssetTypeBackend) {
+function filterOutAssetType(assets: Asset[], assetType: AssetType) {
   return assets.filter((asset) => asset.type !== assetType);
 }

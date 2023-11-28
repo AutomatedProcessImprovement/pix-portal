@@ -4,14 +4,10 @@ import { useEffect, useState } from "react";
 import { DragAndDropForm } from "~/components/upload/DragAndDropForm";
 import UploadAssetSelect from "~/components/upload/UploadAssetSelect";
 import { ProcessingType } from "~/routes/projects.$projectId.$processingType";
-import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
+import { AssetType } from "~/services/assets";
 import { useDialog } from "./useDialog";
 
-const assetTypesForSelectMenu: AssetTypeBackend[] = [
-  AssetTypeBackend.EVENT_LOG,
-  AssetTypeBackend.PROCESS_MODEL,
-  AssetTypeBackend.SIMULATION_MODEL,
-];
+const assetTypesForSelectMenu: AssetType[] = [AssetType.EVENT_LOG, AssetType.PROCESS_MODEL, AssetType.SIMULATION_MODEL];
 
 export default function UploadAssetDialog({
   trigger,
@@ -55,9 +51,9 @@ export default function UploadAssetDialog({
   );
 }
 
-function UploadAssetDetails({ assetType }: { assetType: AssetTypeBackend }) {
+function UploadAssetDetails({ assetType }: { assetType: AssetType }) {
   switch (assetType) {
-    case AssetTypeBackend.EVENT_LOG:
+    case AssetType.EVENT_LOG:
       return (
         <UploadAssetDetailsForAssetType
           assetType={assetType}
@@ -70,7 +66,7 @@ function UploadAssetDetails({ assetType }: { assetType: AssetTypeBackend }) {
           }
         />
       );
-    case AssetTypeBackend.PROCESS_MODEL:
+    case AssetType.PROCESS_MODEL:
       return (
         <UploadAssetDetailsForAssetType
           assetType={assetType}
@@ -86,7 +82,7 @@ function UploadAssetDetails({ assetType }: { assetType: AssetTypeBackend }) {
         />
       );
 
-    case AssetTypeBackend.SIMULATION_MODEL:
+    case AssetType.SIMULATION_MODEL:
       return (
         <UploadAssetDetailsForAssetType
           assetType={assetType}
@@ -102,7 +98,7 @@ function UploadAssetDetails({ assetType }: { assetType: AssetTypeBackend }) {
   }
 }
 
-function UploadAssetDetailsForAssetType({ assetType, children }: { assetType: AssetTypeBackend; children: ReactNode }) {
+function UploadAssetDetailsForAssetType({ assetType, children }: { assetType: AssetType; children: ReactNode }) {
   return (
     <div className="flex flex-col items-center">
       <p className="max-w-prose">{children}</p>
@@ -111,18 +107,18 @@ function UploadAssetDetailsForAssetType({ assetType, children }: { assetType: As
   );
 }
 
-function processingTypeToAssetType(type: ProcessingType | undefined | null): AssetTypeBackend {
+function processingTypeToAssetType(type: ProcessingType | undefined | null): AssetType {
   if (!type) {
-    return AssetTypeBackend.EVENT_LOG;
+    return AssetType.EVENT_LOG;
   }
 
   switch (type) {
     case ProcessingType.Discovery:
-      return AssetTypeBackend.EVENT_LOG;
+      return AssetType.EVENT_LOG;
     case ProcessingType.Simulation:
-      return AssetTypeBackend.SIMULATION_MODEL;
+      return AssetType.SIMULATION_MODEL;
     case ProcessingType.WaitingTime:
-      return AssetTypeBackend.EVENT_LOG;
+      return AssetType.EVENT_LOG;
     default:
       throw new Error("Invalid processing type");
   }

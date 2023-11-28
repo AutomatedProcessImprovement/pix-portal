@@ -16,6 +16,31 @@ export type Asset = {
   files?: File[];
 };
 
+export enum AssetType {
+  EVENT_LOG = "event_log",
+  PROCESS_MODEL = "process_model",
+  SIMULATION_MODEL = "simulation_model",
+  SIMOD_CONFIGURATION = "simod_configuration",
+  OPTIMOS_CONFIGURATION = "optimos_configuration",
+}
+
+export function assetTypeToString(type: AssetType): string {
+  switch (type) {
+    case AssetType.EVENT_LOG:
+      return "Event Log";
+    case AssetType.PROCESS_MODEL:
+      return "Process Model";
+    case AssetType.SIMULATION_MODEL:
+      return "Simulation Model";
+    case AssetType.SIMOD_CONFIGURATION:
+      return "SIMOD Configuration";
+    case AssetType.OPTIMOS_CONFIGURATION:
+      return "OPTIMOS Configuration";
+    default:
+      throw new Error(`Unknown asset type ${type}`);
+  }
+}
+
 export async function getAsset(assetId: string, token: string, lazy: boolean = true) {
   const url = `/assets/${assetId}`;
   const response = await clientSideHttp.get(url, {

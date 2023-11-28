@@ -4,12 +4,12 @@ import ProcessingApp from "~/components/processing/ProcessingApp";
 import ProcessingMenu from "~/components/processing/ProcessingMenu";
 import { UserContext } from "~/components/processing/contexts";
 import type { Asset } from "~/services/assets";
+import { AssetType } from "~/services/assets";
 import { getAssetsForProject } from "~/services/assets.server";
 import type { ProcessingRequest } from "~/services/processing_requests";
 import { ProcessingRequestType } from "~/services/processing_requests";
 import { createProcessingRequest, getProcessingRequestsForProject } from "~/services/processing_requests.server";
 import { requireLoggedInUser } from "~/session.server";
-import { AssetTypeBackend } from "~/shared/AssetTypeBackend";
 import { handleThrow } from "~/utils";
 
 export enum ProcessingType {
@@ -87,13 +87,11 @@ export function ErrorBoundary() {
 function filterAssetsByType(assets: Asset[], processingType: ProcessingType) {
   switch (processingType) {
     case ProcessingType.Discovery:
-      return assets.filter(
-        (asset) => asset.type === AssetTypeBackend.EVENT_LOG || asset.type === AssetTypeBackend.PROCESS_MODEL
-      );
+      return assets.filter((asset) => asset.type === AssetType.EVENT_LOG || asset.type === AssetType.PROCESS_MODEL);
     case ProcessingType.Simulation:
-      return assets.filter((asset) => asset.type === AssetTypeBackend.SIMULATION_MODEL);
+      return assets.filter((asset) => asset.type === AssetType.SIMULATION_MODEL);
     case ProcessingType.WaitingTime:
-      return assets.filter((asset) => asset.type === AssetTypeBackend.EVENT_LOG);
+      return assets.filter((asset) => asset.type === AssetType.EVENT_LOG);
     default:
       throw new Error("Invalid processing type");
   }
