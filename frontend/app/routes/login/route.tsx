@@ -3,8 +3,9 @@ import { json, redirect } from "@remix-run/node";
 import { Form, useSearchParams } from "@remix-run/react";
 import Header from "~/components/Header";
 import { getJWT, getUserInfo } from "~/services/auth.server";
-import { createUserSession, getSessionUserInfo } from "~/session.server";
-import { handleThrow, safeRedirect } from "~/utils";
+import { createUserSession, getSessionUserInfo } from "~/shared/session.server";
+import { handleThrow } from "~/shared/utils";
+import { safeRedirect } from "./utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   // TODO: need a better way to identify a valid user with non-expired token

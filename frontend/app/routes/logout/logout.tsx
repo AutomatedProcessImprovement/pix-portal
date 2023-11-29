@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { logout } from "~/session.server";
+import { logout } from "~/shared/session.server";
 
 export const loader = async () => {
   return redirect("/");

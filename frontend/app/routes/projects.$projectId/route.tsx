@@ -5,9 +5,9 @@ import Header from "~/components/Header";
 import ProjectNav from "~/components/ProjectNav";
 import { ProjectContext, UserContext } from "~/components/processing/contexts";
 import { getProject } from "~/services/projects.server";
-import { requireLoggedInUser } from "~/session.server";
-import { createAssetsFromForm } from "~/shared/file_upload.server";
-import { handleThrow } from "~/utils";
+import { requireLoggedInUser } from "~/shared/session.server";
+import { handleThrow } from "~/shared/utils";
+import { createAssetsFromForm } from "./file_upload.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const projectId = params.projectId;

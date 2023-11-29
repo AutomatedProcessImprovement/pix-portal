@@ -5,8 +5,8 @@ import Header from "~/components/Header";
 import ProjectCard from "~/components/ProjectCard";
 import type { Project } from "~/services/projects";
 import { listProjectsForUser } from "~/services/projects.server";
-import { requireLoggedInUser } from "~/session.server";
-import { handleThrow } from "~/utils";
+import { requireLoggedInUser } from "~/shared/session.server";
+import { handleThrow } from "~/shared/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireLoggedInUser(request);

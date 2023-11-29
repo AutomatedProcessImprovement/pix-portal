@@ -1,7 +1,7 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 
-import { FlashMessage } from "~/shared/flash_message";
-import { User } from "./services/auth";
+import type { FlashMessage } from "~/shared/flash_message";
+import type { User } from "../services/auth";
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {

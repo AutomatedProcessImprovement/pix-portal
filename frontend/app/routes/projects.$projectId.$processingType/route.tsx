@@ -8,9 +8,9 @@ import { getAssetsForProject } from "~/services/assets.server";
 import type { ProcessingRequest } from "~/services/processing_requests";
 import { ProcessingRequestType } from "~/services/processing_requests";
 import { createProcessingRequest, getProcessingRequestsForProject } from "~/services/processing_requests.server";
-import { requireLoggedInUser } from "~/session.server";
-import { handleThrow } from "~/utils";
-import { ProcessingType } from "../shared/processing_type";
+import { requireLoggedInUser } from "~/shared/session.server";
+import { handleThrow } from "~/shared/utils";
+import { ProcessingType } from "../../shared/processing_type";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const processingType = params.processingType as string;
