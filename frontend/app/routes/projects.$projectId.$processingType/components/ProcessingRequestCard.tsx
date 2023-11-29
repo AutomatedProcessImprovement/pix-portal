@@ -27,7 +27,7 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
   const duration = request.end_time ? formatDuration(getDuration(request.creation_time, request.end_time)) : "";
 
   return (
-    <div className={`px-2 flex flex-col`}>
+    <div className="px-2 flex flex-col break-words">
       <Suspense fallback={<div>Loading...</div>}>
         {parseDate(request.creation_time)}
         {request.end_time ? "–" + parseDate(request.end_time!) : ""}: {request.status}{" "}

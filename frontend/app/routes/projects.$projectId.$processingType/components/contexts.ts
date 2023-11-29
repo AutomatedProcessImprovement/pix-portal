@@ -6,3 +6,4 @@ import type { BpmnData } from "./prosimos/bpmn";
 export const SelectedAssetsContext = createContext<Asset[]>([]);
 export const UserContext = createContext<User | null>(null);
 export const BpmnDataContext = createContext<BpmnData | null>(null);
+export const AssetsContext = createContext<Asset[]>([]);

@@ -26,7 +26,7 @@ export default function SetupSimod() {
   }
 
   return (
-    <section className="p-2 space-y-2">
+    <section className="p-2 space-y-2 flex flex-col items-center">
       <h2 className="text-xl font-semibold">Discovery Setup</h2>
       <Form method="post" className="flex flex-col space-y-2">
         <input type="hidden" name="selectedInputAssetsIds" value={selectedInputAssetsIdsRef.join(",")} />

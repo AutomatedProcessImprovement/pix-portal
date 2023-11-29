@@ -1,10 +1,11 @@
+import { useCallback } from "react";
 import { ProcessingType } from "~/shared/processing_type";
 import SetupKronos from "./SetupKronos";
 import SetupProsimos from "./SetupProsimos";
 import SetupSimod from "./SetupSimod";
 
 export default function ProcessingSetup({ processingType }: { processingType: ProcessingType }) {
-  function chooseProcessingSetup() {
+  const getProcessingSetup = useCallback(() => {
     switch (processingType) {
       case ProcessingType.Discovery:
         return <SetupSimod />;
@@ -15,7 +16,9 @@ export default function ProcessingSetup({ processingType }: { processingType: Pr
       default:
         throw new Error("Invalid processing type");
     }
-  }
+  }, [processingType]);
 
-  return <>{chooseProcessingSetup()}</>;
+  const processingSetup = getProcessingSetup();
+
+  return <>{processingSetup}</>;
 }

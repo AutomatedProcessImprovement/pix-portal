@@ -126,21 +126,22 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
 
   if (!asset) return null;
   return (
-    <section className="p-2 space-y-2 border-4 border-blue-100">
-      <p>
-        {asset.id} ({asset.type})
-      </p>
+    <section className="flex flex-col items-center space-y-2">
+      <h3 className="text-2xl font-semibold">Configuration</h3>
       <FormProvider {...methods}>
         <BpmnDataContext.Provider value={bpmnData}>
-          <form onSubmit={methods.handleSubmit(onSubmit)} className="flex flex-col space-y-2">
-            <Tab.Group defaultIndex={0}>
-              <Tab.List>
+          <form
+            onSubmit={methods.handleSubmit(onSubmit)}
+            className="flex flex-col items-center space-y-8 p-4 border border-slate-200 bg-slate-50 rounded-lg"
+          >
+            <Tab.Group defaultIndex={6}>
+              <Tab.List className="flex flex-wrap justify-center">
                 {tabs.map((tab) => (
                   <Tab
                     key={tab.name}
                     className={({ selected }) =>
-                      `px-2 py-1 mr-1 mb-1 hover:bg-blue-200  text-slate-900 rounded-none ${
-                        selected ? "bg-blue-200" : "bg-blue-50"
+                      `px-2 py-1 mr-1 mb-1 hover:bg-blue-200 border-2  text-slate-900 rounded-lg ${
+                        selected ? "bg-slate-50  border-slate-300" : "bg-slate-200 border-slate-50"
                       }`
                     }
                   >
@@ -154,8 +155,12 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
                 ))}
               </Tab.Panels>
             </Tab.Group>
-            {methods.formState.errors && <FormErrors errors={methods.formState.errors} />}
-            <button type="submit">Save</button>
+            {methods.formState.errors && Object.keys(methods.formState.errors).length > 0 && (
+              <FormErrors errors={methods.formState.errors} />
+            )}
+            <button type="submit" className="w-1/3 bg-emerald-500 hover:bg-emerald-600 text-lg">
+              Save Configuration
+            </button>
           </form>
         </BpmnDataContext.Provider>
       </FormProvider>

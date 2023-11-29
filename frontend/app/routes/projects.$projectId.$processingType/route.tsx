@@ -58,7 +58,7 @@ export default function ProcessingPage() {
   const { processingType, assets, processingRequests, projectId } = useLoaderData<typeof loader>();
 
   return (
-    <main className="grid grid-cols-[3rem_minmax(0,2fr)_minmax(0,8fr)_minmax(0,2fr)]">
+    <main className="grid grid-cols-[3rem_minmax(0,3fr)_minmax(0,9fr)_minmax(0,3fr)]">
       <ProcessingMenu projectId={projectId} />
       <ProcessingApp assets={assets} processingType={processingType} processingRequests={processingRequests} />
     </main>

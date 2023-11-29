@@ -16,7 +16,7 @@ export function AssetCardAsync({ assetId, user }: { assetId: string; user: User 
   }, [assetId, user]);
 
   return (
-    <div className="bg-teal-200 m-2 p-2">
+    <div className="bg-teal-200 m-2 p-2 break-all">
       {asset && (
         <div className="flex flex-col">
           <div className="">

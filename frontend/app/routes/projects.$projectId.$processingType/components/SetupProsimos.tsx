@@ -9,8 +9,8 @@ export default function SetupProsimos() {
   const navigation = useNavigation();
   const selectedAssetsIdsRef = useRef<HTMLInputElement>(null);
   const [simulationModel, setSimulationModel] = useState<Asset | null>(null);
-  const user = useContext(UserContext);
 
+  const user = useContext(UserContext);
   const selectedAssets = useContext(SelectedAssetsContext);
 
   const fetchSimulationModel = useCallback(async () => {
@@ -32,34 +32,28 @@ export default function SetupProsimos() {
   const submitProsimosSimulation = useSubmit();
 
   return (
-    <section className="p-2 space-y-2">
-      <h2 className="text-xl font-semibold">Simulation Setup</h2>
+    <section className="p-2 flex flex-col items-center">
+      <h2 className="text-2xl font-semibold">Simulation</h2>
       <Form
         method="post"
-        className="flex flex-col space-y-2"
+        className="flex flex-col w-2/3 items-center my-4 mb-12"
         onChange={(e) => submitProsimosSimulation(e.currentTarget)}
       >
         <input type="hidden" name="selectedInputAssetsIds" ref={selectedAssetsIdsRef} />
-        <SimulationModelArea asset={simulationModel} />
-        <button type="submit" disabled={simulationModel === null || navigation.state === "submitting"}>
-          Start simulation
-        </button>
+
+        {!simulationModel && <p className="py-2">Select a simulation model from the input assets on the left.</p>}
+        {simulationModel && (
+          <button
+            className="w-2/3 text-lg"
+            type="submit"
+            disabled={simulationModel === null || navigation.state === "submitting"}
+          >
+            Start simulation
+          </button>
+        )}
       </Form>
+
       <ProsimosConfiguration asset={simulationModel} />
     </section>
-  );
-}
-
-function SimulationModelArea({ asset }: { asset: Asset | null }) {
-  return (
-    <div className="p-2 border-4 border-blue-100">
-      {asset ? (
-        <div>
-          <div>Simulation model: {asset.name}</div>
-        </div>
-      ) : (
-        <div>No simulation model selected</div>
-      )}
-    </div>
   );
 }

@@ -1,20 +1,15 @@
-import { useParams } from "@remix-run/react";
+import { useContext } from "react";
+import UploadAssetButton from "~/components/asset-upload/UploadAssetButton";
+import UploadAssetDialog from "~/components/asset-upload/UploadAssetDialog";
 import type { Asset, AssetType } from "~/services/assets";
-import { processingTypeToAssetType, type ProcessingType } from "~/shared/processing_type";
-import UploadAssetButton from "../../../components/asset-upload/UploadAssetButton";
-import UploadAssetDialog from "../../../components/asset-upload/UploadAssetDialog";
+import { processingTypeToAssetType } from "~/shared/processing_type";
+import { AssetsContext, SelectedAssetsContext } from "./contexts";
+import { useProcessingType } from "./useProcessingType";
 
-export default function InputAssets({
-  assets,
-  selectedAssets,
-  setSelectedAssets,
-}: {
-  assets: Asset[];
-  selectedAssets: Asset[];
-  setSelectedAssets: (assets: Asset[]) => void;
-}) {
-  const params = useParams();
-  const processingType = params.processingType as ProcessingType;
+export default function InputAssets({ setSelectedAssets }: { setSelectedAssets: (assets: Asset[]) => void }) {
+  const processingType = useProcessingType();
+  const assets = useContext(AssetsContext);
+  const selectedAssets = useContext(SelectedAssetsContext);
 
   function handleClick(asset: Asset) {
     // allow only one asset of each type to be selected at the same time
@@ -29,14 +24,14 @@ export default function InputAssets({
 
   return (
     <div className="flex flex-col items-center p-2 space-y-2">
-      <h2 className="text-xl font-semibold">Input Assets</h2>
+      <h2 className="text-2xl font-semibold">Input Assets</h2>
       {assets.sort().map((asset: Asset) => (
         <div
           key={asset.id}
-          className={`px-2 bg-teal-200 ${selectedAssets.includes(asset) ? "bg-teal-400 border-2 border-teal-800" : ""}`}
-          onClick={() => {
-            handleClick(asset);
-          }}
+          className={`break-all px-2 bg-teal-200 ${
+            selectedAssets.includes(asset) ? "bg-teal-400 border-2 border-teal-800" : ""
+          }`}
+          onClick={() => handleClick(asset)}
         >
           {asset.name}
         </div>

@@ -5,7 +5,7 @@ import type { ProcessingType } from "~/shared/processing_type";
 import InputAssets from "./InputAssets";
 import OutputAssets from "./OutputAssets";
 import ProcessingSetup from "./ProcessingSetup";
-import { SelectedAssetsContext } from "./contexts";
+import { AssetsContext, SelectedAssetsContext } from "./contexts";
 
 export default function ProcessingApp({
   assets,
@@ -19,18 +19,18 @@ export default function ProcessingApp({
   const [selectedAssets, setSelectedAssets] = useState<Asset[]>([]);
 
   return (
-    <>
+    <AssetsContext.Provider value={assets}>
       <SelectedAssetsContext.Provider value={selectedAssets}>
         <section className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
-          <InputAssets assets={assets} selectedAssets={selectedAssets} setSelectedAssets={setSelectedAssets} />
+          <InputAssets setSelectedAssets={setSelectedAssets} />
         </section>
         <section className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
           <ProcessingSetup processingType={processingType} />
         </section>
-        <section className="border-2 border-red-400 px-2 py-1 bg-yellow-50">
+        <section className="border-2 border-red-400 bg-yellow-50">
           <OutputAssets processingRequests={processingRequests} />
         </section>
       </SelectedAssetsContext.Provider>
-    </>
+    </AssetsContext.Provider>
   );
 }

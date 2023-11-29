@@ -377,7 +377,7 @@ function DroppedFile(props: { file?: any; onRemove: () => void }) {
           <div className="flex items-center">
             <DocumentArrowUpIcon className="h-10 w-auto text-blue-500" />
           </div>
-          <div className="flex flex-column flex-wrap max-w-sm overflow-hidden">
+          <div className="flex flex-col flex-wrap max-w-sm overflow-hidden">
             <p className="truncate font-semibold text-blue-900">{props.file.name}</p>
             <div
               className="flex text-blue-500 hover:text-blue-600 cursor-pointer text-sm font-semibold"
