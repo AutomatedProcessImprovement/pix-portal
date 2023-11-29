@@ -1,16 +1,5 @@
 import { http, projectsURL } from "~/services/shared.server";
-
-export interface Project {
-  id: string;
-  name: string;
-  description?: string;
-  creation_time: string;
-  modification_time?: string;
-  deletion_time?: string;
-  users_ids: string[];
-  assets_ids: string[];
-  processing_requests_ids: string[];
-}
+import type { Project } from "./projects";
 
 export async function listProjectsForUser(userId: string, token: string): Promise<Project[]> {
   const response = await http.get(projectsURL, {

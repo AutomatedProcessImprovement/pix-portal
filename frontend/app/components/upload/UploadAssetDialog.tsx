@@ -1,26 +1,35 @@
 import { Dialog } from "@headlessui/react";
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { DragAndDropForm } from "~/components/upload/DragAndDropForm";
-import UploadAssetSelect from "~/components/upload/UploadAssetSelect";
-import { ProcessingType } from "~/routes/projects.$projectId.$processingType";
-import { AssetType } from "~/services/assets";
+import { AssetType, assetTypeToString } from "~/services/assets";
+import SelectList from "../SelectList";
+import { SelectedAssetTypeContext } from "../processing/contexts";
+import type { ILabeledAny } from "../shared";
+import { makeLabeledAny } from "../shared";
 import { useDialog } from "./useDialog";
-
-const assetTypesForSelectMenu: AssetType[] = [AssetType.EVENT_LOG, AssetType.PROCESS_MODEL, AssetType.SIMULATION_MODEL];
 
 export default function UploadAssetDialog({
   trigger,
-  processingType,
+  initialAssetType,
 }: {
   trigger: ReactNode;
-  processingType?: ProcessingType;
+  initialAssetType?: AssetType;
 }) {
-  const initialAssetType = processingTypeToAssetType(processingType);
-  let [assetType, setAssetType] = useState(initialAssetType);
+  let [assetType, setAssetType] = useState(
+    makeLabeledAny(initialAssetType, assetTypeToString) || makeLabeledAny(AssetType.EVENT_LOG, assetTypeToString)
+  );
+
+  const assetTypes = useMemo(() => {
+    const options = [AssetType.EVENT_LOG, AssetType.PROCESS_MODEL, AssetType.SIMULATION_MODEL].map((assetType) => ({
+      label: assetTypeToString(assetType),
+      value: assetType,
+    }));
+    return options;
+  }, []);
 
   useEffect(() => {
-    setAssetType(initialAssetType);
+    makeLabeledAny(initialAssetType, assetTypeToString) || makeLabeledAny(AssetType.EVENT_LOG, assetTypeToString);
   }, [initialAssetType]);
 
   const { isOpen, open, close } = useDialog();
@@ -37,12 +46,13 @@ export default function UploadAssetDialog({
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
           <Dialog.Panel className="mx-auto max-w-screen-xl rounded-2xl bg-white p-6 shadow-2xl ">
             <div className="flex flex-col space-y-4 items-center">
-              <div className="flex items-baseline text-xl font-semibold">
-                <span className="mr-2">Upload</span>
-                <UploadAssetSelect assetTypes={assetTypesForSelectMenu} selected={assetType} onChange={setAssetType} />
-              </div>
-
-              <UploadAssetDetails assetType={assetType} />
+              <SelectedAssetTypeContext.Provider value={{ assetType, assetTypes }}>
+                <div className="flex items-baseline text-xl font-semibold">
+                  <span className="mr-2">Upload</span>
+                  <UploadAssetSelect onChange={setAssetType} />
+                </div>
+                <UploadAssetDetails />
+              </SelectedAssetTypeContext.Provider>
             </div>
           </Dialog.Panel>
         </div>
@@ -51,7 +61,17 @@ export default function UploadAssetDialog({
   );
 }
 
-function UploadAssetDetails({ assetType }: { assetType: AssetType }) {
+function UploadAssetSelect({ onChange }: { onChange: (value: ILabeledAny | undefined) => void }) {
+  const context = useContext(SelectedAssetTypeContext);
+  if (!context) return <></>;
+  return <SelectList selected={context.assetType} onChange={onChange} options={context.assetTypes} className="w-64" />;
+}
+
+function UploadAssetDetails() {
+  const context = useContext(SelectedAssetTypeContext);
+  if (!context) return <></>;
+  const assetType = context.assetType?.value;
+
   switch (assetType) {
     case AssetType.EVENT_LOG:
       return (
@@ -105,21 +125,4 @@ function UploadAssetDetailsForAssetType({ assetType, children }: { assetType: As
       <DragAndDropForm assetType={assetType} />
     </div>
   );
-}
-
-function processingTypeToAssetType(type: ProcessingType | undefined | null): AssetType {
-  if (!type) {
-    return AssetType.EVENT_LOG;
-  }
-
-  switch (type) {
-    case ProcessingType.Discovery:
-      return AssetType.EVENT_LOG;
-    case ProcessingType.Simulation:
-      return AssetType.SIMULATION_MODEL;
-    case ProcessingType.WaitingTime:
-      return AssetType.EVENT_LOG;
-    default:
-      throw new Error("Invalid processing type");
-  }
 }

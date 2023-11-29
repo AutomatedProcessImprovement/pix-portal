@@ -1,5 +1,5 @@
-import type { Project } from "~/services/projects.server";
 import { EllipsisHorizontalIcon } from "@heroicons/react/20/solid";
+import type { Project } from "~/services/projects";
 
 export default function ProjectCard({ project }: { project: Project }) {
   return (

@@ -1,8 +1,7 @@
 import { json, redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
-import { isRouteErrorResponse, useLoaderData, useRouteError } from "@remix-run/react";
+import { isRouteErrorResponse, useLoaderData, useOutletContext, useRouteError } from "@remix-run/react";
 import ProcessingApp from "~/components/processing/ProcessingApp";
 import ProcessingMenu from "~/components/processing/ProcessingMenu";
-import { UserContext } from "~/components/processing/contexts";
 import type { Asset } from "~/services/assets";
 import { AssetType } from "~/services/assets";
 import { getAssetsForProject } from "~/services/assets.server";
@@ -11,12 +10,7 @@ import { ProcessingRequestType } from "~/services/processing_requests";
 import { createProcessingRequest, getProcessingRequestsForProject } from "~/services/processing_requests.server";
 import { requireLoggedInUser } from "~/session.server";
 import { handleThrow } from "~/utils";
-
-export enum ProcessingType {
-  Discovery = "discovery",
-  Simulation = "simulation",
-  WaitingTime = "waiting-time",
-}
+import { ProcessingType } from "../shared/processing_type";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const processingType = params.processingType as string;
@@ -62,15 +56,15 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
 export default function ProcessingPage() {
   const { processingType, assets, processingRequests, user, projectId } = useLoaderData<typeof loader>();
+  const outletContext = useOutletContext();
+  console.log("outletContext", outletContext);
 
   return (
     <div className="grid grid-cols-[3rem_2fr_8fr_2fr]">
       <div className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
         <ProcessingMenu projectId={projectId} />
       </div>
-      <UserContext.Provider value={user}>
-        <ProcessingApp assets={assets} processingType={processingType} processingRequests={processingRequests} />
-      </UserContext.Provider>
+      <ProcessingApp assets={assets} processingType={processingType} processingRequests={processingRequests} />
     </div>
   );
 }

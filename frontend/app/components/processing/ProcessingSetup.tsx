@@ -1,4 +1,4 @@
-import { ProcessingType } from "~/routes/projects.$projectId.$processingType";
+import { ProcessingType } from "~/shared/processing_type";
 import SetupKronos from "./SetupKronos";
 import SetupProsimos from "./SetupProsimos";
 import SetupSimod from "./SetupSimod";

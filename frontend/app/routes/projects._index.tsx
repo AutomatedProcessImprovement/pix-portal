@@ -3,7 +3,7 @@ import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 import ProjectCard from "~/components/ProjectCard";
-import type { Project } from "~/services/projects.server";
+import type { Project } from "~/services/projects";
 import { listProjectsForUser } from "~/services/projects.server";
 import { requireLoggedInUser } from "~/session.server";
 import { handleThrow } from "~/utils";

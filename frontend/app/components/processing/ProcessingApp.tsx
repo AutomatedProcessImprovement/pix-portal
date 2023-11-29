@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ProcessingType } from "~/routes/projects.$projectId.$processingType";
+import type { ProcessingType } from "~/shared/processing_type";
 import type { Asset } from "~/services/assets";
 import type { ProcessingRequest } from "~/services/processing_requests";
 import AssetsInput from "./AssetsInput";

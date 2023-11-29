@@ -3,6 +3,7 @@ import { json, redirect, unstable_createMemoryUploadHandler, unstable_parseMulti
 import { Outlet, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 import ProjectNav from "~/components/ProjectNav";
+import { ProjectContext, UserContext } from "~/components/processing/contexts";
 import { getProject } from "~/services/projects.server";
 import { requireLoggedInUser } from "~/session.server";
 import { createAssetsFromForm } from "~/shared/file_upload.server";
@@ -20,18 +21,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const project = await getProject(projectId, user.token!);
     return json({ user, project });
   });
-}
-
-export default function ProjectPage() {
-  const { user, project } = useLoaderData<typeof loader>();
-
-  return (
-    <>
-      <Header userEmail={user.email} />
-      <ProjectNav project={project} />
-      <Outlet />
-    </>
-  );
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -59,4 +48,20 @@ async function handleNewAssets(request: Request, projectId: string, token: strin
   });
   const formData = await unstable_parseMultipartFormData(request, uploadHandler);
   return await createAssetsFromForm(formData, projectId, token);
+}
+
+export default function ProjectPage() {
+  const { user, project } = useLoaderData<typeof loader>();
+
+  return (
+    <>
+      <Header userEmail={user.email} />
+      <UserContext.Provider value={user}>
+        <ProjectContext.Provider value={project}>
+          <ProjectNav project={project} />
+          <Outlet context={{ user, project }} />
+        </ProjectContext.Provider>
+      </UserContext.Provider>
+    </>
+  );
 }

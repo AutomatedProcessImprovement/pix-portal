@@ -1,5 +1,5 @@
-import type { ProcessingType } from "~/routes/projects.$projectId.$processingType";
 import type { Asset, AssetType } from "~/services/assets";
+import { processingTypeToAssetType, type ProcessingType } from "~/shared/processing_type";
 import UploadAssetButton from "../upload/UploadAssetButton";
 import UploadAssetDialog from "../upload/UploadAssetDialog";
 
@@ -39,7 +39,7 @@ export default function AssetsInput({
           {asset.name}
         </div>
       ))}
-      <UploadAssetDialog trigger={<UploadAssetButton />} processingType={processingType} />
+      <UploadAssetDialog trigger={<UploadAssetButton />} initialAssetType={processingTypeToAssetType(processingType)} />
     </div>
   );
 }
