@@ -16,9 +16,7 @@ export default function UploadAssetDialog({
   trigger: ReactNode;
   initialAssetType?: AssetType;
 }) {
-  let [assetType, setAssetType] = useState(
-    makeLabeledAny(initialAssetType, assetTypeToString) || makeLabeledAny(AssetType.EVENT_LOG, assetTypeToString)
-  );
+  let [assetType, setAssetType] = useState<ILabeledAny | undefined>();
 
   const assetTypes = useMemo(() => {
     const options = [AssetType.EVENT_LOG, AssetType.PROCESS_MODEL, AssetType.SIMULATION_MODEL].map((assetType) => ({
@@ -29,7 +27,9 @@ export default function UploadAssetDialog({
   }, []);
 
   useEffect(() => {
-    makeLabeledAny(initialAssetType, assetTypeToString) || makeLabeledAny(AssetType.EVENT_LOG, assetTypeToString);
+    setAssetType(
+      makeLabeledAny(initialAssetType, assetTypeToString) || makeLabeledAny(AssetType.EVENT_LOG, assetTypeToString)
+    );
   }, [initialAssetType]);
 
   const { isOpen, open, close } = useDialog();
@@ -49,7 +49,7 @@ export default function UploadAssetDialog({
               <SelectedAssetTypeContext.Provider value={{ assetType, assetTypes }}>
                 <div className="flex items-baseline text-xl font-semibold">
                   <span className="mr-2">Upload</span>
-                  <UploadAssetSelect onChange={setAssetType} />
+                  <UploadAssetSelect assetType={assetType} onChange={setAssetType} />
                 </div>
                 <UploadAssetDetails />
               </SelectedAssetTypeContext.Provider>
@@ -61,10 +61,16 @@ export default function UploadAssetDialog({
   );
 }
 
-function UploadAssetSelect({ onChange }: { onChange: (value: ILabeledAny | undefined) => void }) {
+function UploadAssetSelect({
+  assetType,
+  onChange,
+}: {
+  assetType?: ILabeledAny;
+  onChange: (value: ILabeledAny | undefined) => void;
+}) {
   const context = useContext(SelectedAssetTypeContext);
   if (!context) return <></>;
-  return <SelectList selected={context.assetType} onChange={onChange} options={context.assetTypes} className="w-64" />;
+  return <SelectList selected={assetType} onChange={onChange} options={context.assetTypes} className="w-64" />;
 }
 
 function UploadAssetDetails() {
