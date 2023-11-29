@@ -2,7 +2,7 @@ import { Dialog } from "@headlessui/react";
 import { Form } from "@remix-run/react";
 import type { ChangeEvent, ReactNode } from "react";
 import { useEffect, useState } from "react";
-import { EventLogColumnMapping } from "~/components/upload/column_mapping";
+import { EventLogColumnMapping } from "~/components/asset-upload/column_mapping";
 
 export default function EventLogColumnMappingDialog({
   trigger,

@@ -1,4 +1,4 @@
-import { EventLogColumnMapping } from "~/components/upload/column_mapping";
+import { EventLogColumnMapping } from "~/components/asset-upload/column_mapping";
 import { AssetType } from "~/services/assets";
 import { createAsset, deleteAsset } from "~/services/assets.server";
 import type { File as File_ } from "~/services/files";

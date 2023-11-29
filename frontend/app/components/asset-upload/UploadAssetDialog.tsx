@@ -1,12 +1,12 @@
 import { Dialog } from "@headlessui/react";
 import type { ReactNode } from "react";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { DragAndDropForm } from "~/components/upload/DragAndDropForm";
+import { DragAndDropForm } from "~/components/asset-upload/DragAndDropForm";
 import { AssetType, assetTypeToString } from "~/services/assets";
 import SelectList from "../SelectList";
-import { SelectedAssetTypeContext } from "../processing/contexts";
 import type { ILabeledAny } from "../shared";
 import { makeLabeledAny } from "../shared";
+import { SelectedAssetTypeContext } from "./contexts";
 import { useDialog } from "./useDialog";
 
 export default function UploadAssetDialog({

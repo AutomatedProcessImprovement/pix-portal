@@ -3,8 +3,8 @@ import { DocumentArrowUpIcon } from "@heroicons/react/24/outline";
 import { ArrowDownIcon } from "@heroicons/react/24/solid";
 import { Form, useNavigation } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
-import EventLogColumnMappingDialog from "~/components/upload/EventLogColumnMappingDialog";
-import { EventLogColumnMapping } from "~/components/upload/column_mapping";
+import EventLogColumnMappingDialog from "~/components/asset-upload/EventLogColumnMappingDialog";
+import { EventLogColumnMapping } from "~/components/asset-upload/column_mapping";
 import { AssetType, assetTypeToString } from "~/services/assets";
 
 export function DragAndDropForm({ assetType }: { assetType: AssetType }) {

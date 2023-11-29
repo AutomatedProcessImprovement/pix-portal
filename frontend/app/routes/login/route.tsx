@@ -39,25 +39,6 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col h-screen">
       <Header userEmail={null} />
-      {/*<div className="flex items-center justify-center min-h-screen">*/}
-      {/*  <Form method="post" className="bg-white shadow-md rounded-2xl p-6">*/}
-      {/*    <div className="p-4">*/}
-      {/*      <label htmlFor="email">Email</label>*/}
-      {/*      <input id="email" name="email" type="email" autoComplete="email" required />*/}
-      {/*    </div>*/}
-      {/*    <div className="p-4">*/}
-      {/*      <label htmlFor="password">Password</label>*/}
-      {/*      <input id="password" name="password" type="password" autoComplete="current-password" required />*/}
-      {/*    </div>*/}
-      {/*    <button type="submit">Login</button>*/}
-      {/*    <div className="p-4">*/}
-      {/*      <input id="remember" name="remember" type="checkbox" />*/}
-      {/*      <label htmlFor="remember">Remember me</label>*/}
-      {/*    </div>*/}
-      {/*    <input type="hidden" name="redirectTo" value={redirectTo} />*/}
-      {/*  </Form>*/}
-      {/*</div>*/}
-
       <div className="flex flex-1 flex-col items-center justify-center">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { Select } from "~/components/processing/prosimos/Select";
+import { Select } from "~/routes/projects.$projectId.$processingType/components/prosimos/Select";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
 

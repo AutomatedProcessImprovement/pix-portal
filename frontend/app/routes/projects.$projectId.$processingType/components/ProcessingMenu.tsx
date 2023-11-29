@@ -9,7 +9,7 @@ export default function ProcessingMenu({ projectId }: { projectId: string }) {
   }
 
   return (
-    <nav className="flex flex-col items-center">
+    <aside className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
       <div className="p-2 bg-teal-100 border-b-2 border-red-400 flex w-12 justify-center text-2xl font-bold">
         <NavLink to={`/projects/${projectId}/discovery`} className={navLinkClasses}>
           D
@@ -25,6 +25,6 @@ export default function ProcessingMenu({ projectId }: { projectId: string }) {
           T
         </NavLink>
       </div>
-    </nav>
+    </aside>
   );
 }

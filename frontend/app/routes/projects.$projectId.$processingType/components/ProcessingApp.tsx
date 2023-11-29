@@ -1,9 +1,9 @@
 import { useState } from "react";
-import type { ProcessingType } from "~/shared/processing_type";
 import type { Asset } from "~/services/assets";
 import type { ProcessingRequest } from "~/services/processing_requests";
-import AssetsInput from "./AssetsInput";
-import AssetsOutput from "./AssetsOutput";
+import type { ProcessingType } from "~/shared/processing_type";
+import InputAssets from "./InputAssets";
+import OutputAssets from "./OutputAssets";
 import ProcessingSetup from "./ProcessingSetup";
 import { SelectedAssetsContext } from "./contexts";
 
@@ -21,20 +21,15 @@ export default function ProcessingApp({
   return (
     <>
       <SelectedAssetsContext.Provider value={selectedAssets}>
-        <div className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
-          <AssetsInput
-            assets={assets}
-            selectedAssets={selectedAssets}
-            setSelectedAssets={setSelectedAssets}
-            processingType={processingType}
-          />
-        </div>
-        <div className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
+        <section className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
+          <InputAssets assets={assets} selectedAssets={selectedAssets} setSelectedAssets={setSelectedAssets} />
+        </section>
+        <section className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
           <ProcessingSetup processingType={processingType} />
-        </div>
-        <div className="border-2 border-red-400 px-2 py-1 bg-yellow-50">
-          <AssetsOutput processingRequests={processingRequests} />
-        </div>
+        </section>
+        <section className="border-2 border-red-400 px-2 py-1 bg-yellow-50">
+          <OutputAssets processingRequests={processingRequests} />
+        </section>
       </SelectedAssetsContext.Provider>
     </>
   );

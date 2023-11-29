@@ -5,7 +5,7 @@ import { AssetCardAsync } from "./AssetCardAsync";
 import { ProcessingRequestCard } from "./ProcessingRequestCard";
 import { UserContext } from "./contexts";
 
-export default function AssetsOutput({ processingRequests }: { processingRequests: ProcessingRequest[] }) {
+export default function OutputAssets({ processingRequests }: { processingRequests: ProcessingRequest[] }) {
   const user = useContext(UserContext);
 
   function byCreationTime(a: ProcessingRequest, b: ProcessingRequest) {

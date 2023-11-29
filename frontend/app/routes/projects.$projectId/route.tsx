@@ -2,11 +2,12 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
-import ProjectNav from "~/components/ProjectNav";
-import { ProjectContext, UserContext } from "~/components/processing/contexts";
+import { UserContext } from "~/routes/projects.$projectId.$processingType/components/contexts";
 import { getProject } from "~/services/projects.server";
 import { requireLoggedInUser } from "~/shared/session.server";
 import { handleThrow } from "~/shared/utils";
+import ProjectNav from "./ProjectNav";
+import { ProjectContext } from "./contexts";
 import { createAssetsFromForm } from "./file_upload.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

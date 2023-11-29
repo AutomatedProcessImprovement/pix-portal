@@ -1,19 +1,21 @@
+import { useParams } from "@remix-run/react";
 import type { Asset, AssetType } from "~/services/assets";
 import { processingTypeToAssetType, type ProcessingType } from "~/shared/processing_type";
-import UploadAssetButton from "../upload/UploadAssetButton";
-import UploadAssetDialog from "../upload/UploadAssetDialog";
+import UploadAssetButton from "../../../components/asset-upload/UploadAssetButton";
+import UploadAssetDialog from "../../../components/asset-upload/UploadAssetDialog";
 
-export default function AssetsInput({
+export default function InputAssets({
   assets,
   selectedAssets,
   setSelectedAssets,
-  processingType,
 }: {
   assets: Asset[];
   selectedAssets: Asset[];
   setSelectedAssets: (assets: Asset[]) => void;
-  processingType: ProcessingType;
 }) {
+  const params = useParams();
+  const processingType = params.processingType as ProcessingType;
+
   function handleClick(asset: Asset) {
     // allow only one asset of each type to be selected at the same time
 

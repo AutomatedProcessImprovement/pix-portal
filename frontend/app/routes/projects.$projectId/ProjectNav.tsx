@@ -1,12 +1,13 @@
 import { ChevronRightIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { Link, useParams } from "@remix-run/react";
 import { useContext, useEffect, useState } from "react";
-import UploadAssetDialog from "~/components/upload/UploadAssetDialog";
+import UploadAssetDialog from "~/components/asset-upload/UploadAssetDialog";
 import { type Project } from "~/services/projects";
-import SelectList from "./SelectList";
-import { ProjectContext, UserContext } from "./processing/contexts";
-import type { ILabeledAny } from "./shared";
-import UploadAssetButton from "./upload/UploadAssetButton";
+import SelectList from "../../components/SelectList";
+import UploadAssetButton from "../../components/asset-upload/UploadAssetButton";
+import type { ILabeledAny } from "../../components/shared";
+import { UserContext } from "../projects.$projectId.$processingType/components/contexts";
+import { ProjectContext } from "./contexts";
 import { useProjects } from "./useProjects";
 
 export default function ProjectNav({ project }: { project?: Project }) {

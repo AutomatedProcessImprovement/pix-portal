@@ -2,9 +2,9 @@ import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
-import ToastMessage from "~/components/ToastMessage";
-import { getSession, sessionStorage } from "~/shared/session.server";
 import type { FlashMessage as FlashMessageType } from "~/shared/flash_message";
+import { getSession, sessionStorage } from "~/shared/session.server";
+import ToastMessage from "./ToastMessage";
 import { useOptionalUser } from "./utils";
 
 export const meta: MetaFunction = () => {
