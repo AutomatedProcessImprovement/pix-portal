@@ -2,12 +2,12 @@ import { ChevronRightIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { Link, useParams } from "@remix-run/react";
 import { useContext, useEffect, useState } from "react";
 import UploadAssetDialog from "~/components/upload/UploadAssetDialog";
-import type { User } from "~/services/auth";
-import { listProjectsForUser, type Project } from "~/services/projects";
+import { type Project } from "~/services/projects";
 import SelectList from "./SelectList";
 import { ProjectContext, UserContext } from "./processing/contexts";
 import type { ILabeledAny } from "./shared";
 import UploadAssetButton from "./upload/UploadAssetButton";
+import { useProjects } from "./useProjects";
 
 export default function ProjectNav({ project }: { project?: Project }) {
   if (!project) return null;
@@ -38,27 +38,11 @@ function ProjectsSelect() {
   const project = useContext(ProjectContext);
   const params = useParams();
 
-  const [projects, setProjects] = useState<ILabeledAny[]>([]);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const fetchProjects = async (user: User) => {
-      const projects = await listProjectsForUser(user.id, user.token!);
-      const projectsLabeled = projects.map((project) => ({
-        label: project.name,
-        value: project,
-      }));
-      return projectsLabeled;
-    };
-
-    fetchProjects(user).then(setProjects);
-  }, [user]);
+  const projects = useProjects(user);
 
   const [selectedProject, setSelectedProject] = useState<ILabeledAny | undefined>(undefined);
 
   useEffect(() => {
-    console.log("ProjectsSelect project", project);
     if (selectedProject) return; // set only when undefined
     setSelectedProject(makeLabeledProject(project));
   }, [project, selectedProject]);
@@ -72,9 +56,7 @@ function ProjectsSelect() {
         if (!projectLabeled) return;
         if (selectedProject?.value.id === projectLabeled?.value.id) return;
         setSelectedProject(projectLabeled);
-        console.log("params", params);
         const href = `/projects/${selectedProject?.value?.id}/${params.processingType}` ?? "/projects";
-        console.log("href", href);
         window.location.href = href;
       }}
       options={projects}
