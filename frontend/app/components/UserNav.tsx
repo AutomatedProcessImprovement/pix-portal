@@ -15,7 +15,7 @@ export default function UserNav({ userEmail }: HeaderProps) {
       {!userEmail && (
         <>
           <a href="/login">Login</a>
-          <a href="/signup">Signup</a>
+          <span className="text-slate-300">Signup</span>
         </>
       )}
     </nav>

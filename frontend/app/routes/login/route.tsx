@@ -69,9 +69,7 @@ export default function LoginPage() {
                   Password
                 </label>
                 <div>
-                  <a href="#" className="font-semibold">
-                    Forgot password?
-                  </a>
+                  <span className="font-semibold text-slate-300">Forgot password?</span>
                 </div>
               </div>
               <input
@@ -102,9 +100,7 @@ export default function LoginPage() {
 
           <p className="mt-10 text-center text-gray-500">
             Not a member?
-            <a href="#" className="font-semibold mx-2">
-              Sign up now
-            </a>
+            <span className="font-semibold mx-2 text-slate-300">Sign up now</span>
           </p>
         </div>
       </div>

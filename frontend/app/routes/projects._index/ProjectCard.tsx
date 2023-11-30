@@ -1,39 +1,29 @@
-import { EllipsisHorizontalIcon } from "@heroicons/react/20/solid";
+import { Link } from "react-router-dom";
 import type { Project } from "~/services/projects";
 
 export default function ProjectCard({ project }: { project: Project }) {
   return (
-    <div className="w-full max-w-sm bg-gray-50 hover:bg-gray-100 cursor-pointer border border-gray-200 rounded-xl">
-      <div id="project-card-header" className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-        <h2 className="text-lg text-gray-700 font-semibold capitalize">{project.name}</h2>
-        <div
-          className="inline-block text-gray-500 hover:bg-gray-200 cursor-pointer focus:ring-4 focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-1.5"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        >
-          <span className="sr-only">Open dropdown</span>
-          <EllipsisHorizontalIcon className="w-5 h-5" />
+    <Link
+      to={`/projects/${project.id}/discovery`}
+      className="border-none flex flex-col bg-white border border-slate-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-slate-100"
+    >
+      <div className="flex flex-grow flex-col justify-between p-4 space-y-2 leading-normal text-slate-900">
+        <div className="">
+          <h5 className="text-2xl font-bold tracking-tight text-slate-900">{project.name}</h5>
+          <p className="text-sm text-slate-400">{parseDate(project.creation_time)}</p>
+        </div>
+        <div className="font-normal text-slate-600 text-md">
+          <div className="flex space-x-4">
+            <p className="font-semibold w-2">{project.assets_ids.length}</p>
+            <p>Assets</p>
+          </div>
+          <div className="flex space-x-4">
+            <p className="font-semibold w-2">{project.processing_requests_ids.length}</p>
+            <p>Processing requests</p>
+          </div>
         </div>
       </div>
-      <div className="flex flex-col">
-        <div
-          id="project-info-item"
-          className="bg-white last:rounded-b-xl text-gray-500 text-sm px-4 py-3 flex justify-between border-b last:border-none"
-        >
-          <p>Created</p>
-          <p>{parseDate(project.creation_time)}</p>
-        </div>
-        <div
-          id="project-info-item"
-          className="bg-white last:rounded-b-xl text-gray-500 text-sm px-4 py-3 flex justify-between border-b last:border-none"
-        >
-          <p>Number of assets</p>
-          <p>{project.assets_ids.length}</p>
-        </div>
-      </div>
-    </div>
+    </Link>
   );
 }
 

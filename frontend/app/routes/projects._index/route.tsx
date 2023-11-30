@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 import type { Project } from "~/services/projects";
 import { listProjectsForUser } from "~/services/projects.server";
@@ -26,9 +26,7 @@ export default function ProjectsPage() {
         <div className="flex justify-center">
           <ul className="flex-grow grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-6">
             {projects.map((project: Project) => (
-              <Link key={project.id} to={`/projects/${project.id}/discovery`} className="border-none">
-                <ProjectCard key={project.id} project={project} />
-              </Link>
+              <ProjectCard key={project.id} project={project} />
             ))}
           </ul>
         </div>
