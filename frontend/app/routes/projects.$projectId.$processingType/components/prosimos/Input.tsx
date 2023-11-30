@@ -31,15 +31,16 @@ export function Input({
 
   const inputId = useId();
 
+  const error = errors[name];
+
   const innerContent = (
     <>
-      {!noLabel && <label htmlFor={inputId}>{label || name}</label>}
-      <input
-        id={inputId}
-        {...register(name)}
-        {...rest}
-        className={`truncate ${rest.className ? rest.className : ""}`}
-      />
+      {!noLabel && (
+        <label className="block" htmlFor={inputId}>
+          {label || name}
+        </label>
+      )}
+      <input id={inputId} {...register(name)} {...rest} className={`block truncate ${error ? "border-red-500" : ""}`} />
       <ErrorMessage
         errors={errors}
         name={name}

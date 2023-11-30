@@ -42,19 +42,18 @@ export function DistributionParametersInputs({
   }, [watchDistributionName, distributionParamsKey, getValues, replace]);
 
   return (
-    <>
+    <div className={`grid grid-cols-${fields.length} gap-2`}>
       {fields.map((field, index) => {
         return (
-          <div key={field.id} className="flex flex-col space-y-1">
-            <Input
-              name={`${name}[${index}].value`}
-              type="number"
-              step="any"
-              label={distributionParameters[watchDistributionName as keyof typeof distributionParameters][index]}
-            />
-          </div>
+          <Input
+            key={field.id}
+            name={`${name}[${index}].value`}
+            type="number"
+            step="any"
+            label={distributionParameters[watchDistributionName as keyof typeof distributionParameters][index]}
+          />
         );
       })}
-    </>
+    </div>
   );
 }

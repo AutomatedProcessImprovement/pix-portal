@@ -4,7 +4,7 @@ import { DistributionType } from "./schema";
 
 export function DistributionNameAndValues({ name }: { name: string }) {
   return (
-    <>
+    <div className="flex flex-col space-y-2">
       <Select
         name={`${name}.distribution_name`}
         label="Distribution Type"
@@ -17,6 +17,6 @@ export function DistributionNameAndValues({ name }: { name: string }) {
         distributionParamsKey={`${name}.distribution_params`}
         defaultValue={DistributionType.expon}
       />
-    </>
+    </div>
   );
 }

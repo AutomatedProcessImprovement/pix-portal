@@ -83,7 +83,7 @@ function ResourceProfile({ name, children }: { name: string; children?: React.Re
     <div className="border-4 p-4 space-y-2">
       <div className="space-y-2">
         <Input name={`${name}.name`} label="Pool Name" />
-        <div className="flex flex-col space-y-2 ptt-4">
+        <div className="flex flex-col space-y-2">
           <div className="grid grid-cols-5 gap-2">
             <div>Profile Name</div>
             <div>Cost per hour</div>

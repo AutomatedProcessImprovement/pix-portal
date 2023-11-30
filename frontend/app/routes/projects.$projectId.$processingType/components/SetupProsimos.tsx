@@ -32,11 +32,11 @@ export default function SetupProsimos() {
   const submitProsimosSimulation = useSubmit();
 
   return (
-    <section className="p-2 flex flex-col items-center">
+    <section className="p-2">
       <h2 className="text-2xl font-semibold">Simulation</h2>
       <Form
         method="post"
-        className="flex flex-col w-2/3 items-center my-4 mb-12"
+        className="w-2/3 my-4 mb-12"
         onChange={(e) => submitProsimosSimulation(e.currentTarget)}
       >
         <input type="hidden" name="selectedInputAssetsIds" ref={selectedAssetsIdsRef} />
