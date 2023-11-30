@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { DistributionNameAndValues } from "./DistributionNameAndValues";
-import { FieldArrayRemoveButton } from "./FieldArrayRemoveButton";
+import { FieldArrayRemoveIconButton } from "./FieldArrayRemoveIconButton";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
 import { Select } from "./Select";
@@ -38,27 +38,30 @@ export function TabCaseArrival() {
   return (
     <div className="flex flex-col space-y-4">
       <FormSection title="Scenario Specification">
-        <Input name="total_cases" label="Total Cases" type="number" defaultValue={100} />
-        <Input name="start_time" type="datetime-local" label="Start Time" defaultValue={formatDate(new Date())} />
+        <div className="grid grid-cols-2 gap-2">
+          <Input name="total_cases" label="Total Cases" type="number" defaultValue={100} />
+          <Input name="start_time" type="datetime-local" label="Start Time" defaultValue={formatDate(new Date())} />
+        </div>
         <DistributionNameAndValues name="arrival_time_distribution" />
       </FormSection>
       <FormSection title="Arrival Time Calendar">
-        <div className="grid grid-cols-5 gap-2">
-          <span>From</span>
-          <span>To</span>
-          <span>Begin at</span>
-          <span>End at</span>
-          <span></span>
+        <div className="flex space-x-2">
+          <span className="w-[23%]">From</span>
+          <span className="w-[23%]">To</span>
+          <span className="w-[23%]">Begin at</span>
+          <span className="w-[23%]">End at</span>
+          <span className="w-[8%]"></span>
         </div>
         {fields.map((field, index) => {
           return (
-            <div key={field.id} className="grid grid-cols-5 gap-2">
+            <div key={field.id} className="flex space-x-2">
               <Select
                 name={`${name}[${index}].from`}
                 options={weekDays_}
                 optionLabels={weekDaysLabels}
                 label="From"
                 pure={true}
+                className="w-[23%]"
               />
               <Select
                 name={`${name}[${index}].to`}
@@ -66,6 +69,7 @@ export function TabCaseArrival() {
                 optionLabels={weekDaysLabels}
                 label="To"
                 pure={true}
+                className="w-[23%]"
               />
               <Input
                 name={`${name}[${index}].beginTime`}
@@ -74,6 +78,7 @@ export function TabCaseArrival() {
                 step="1"
                 label="Begin at"
                 pure={true}
+                className="w-[23%]"
               />
               <Input
                 name={`${name}[${index}].endTime`}
@@ -82,16 +87,19 @@ export function TabCaseArrival() {
                 step="1"
                 label="End at"
                 pure={true}
+                className="w-[23%]"
               />
-              <div>
-                <FieldArrayRemoveButton removeFunction={() => remove(index)} />
+              <div className="flex w-[8%]">
+                <FieldArrayRemoveIconButton removeFunction={() => remove(index)} />
               </div>
             </div>
           );
         })}
-        <button type="button" onClick={handleAddTime}>
-          Add Time
-        </button>
+        <div className="flex justify-center">
+          <button className="mt-4 w-1/3" type="button" onClick={handleAddTime}>
+            Add Time
+          </button>
+        </div>
       </FormSection>
     </div>
   );

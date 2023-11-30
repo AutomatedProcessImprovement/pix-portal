@@ -38,9 +38,14 @@ export function Select({
   const innerContent = (
     <>
       {!noLabel && <label htmlFor={selectId}>{label || name}</label>}
-      <select id={selectId} {...register(name)} {...rest} className="truncate">
+      <select
+        id={selectId}
+        {...register(name)}
+        {...rest}
+        className={`truncate ${pure && rest.className ? rest.className : ""}`}
+      >
         {options.map((option, index) => (
-                <option key={option} value={option}>
+          <option key={option} value={option}>
             {optionLabels ? optionLabels[index] : option}
           </option>
         ))}
@@ -56,6 +61,6 @@ export function Select({
   if (noWrapper) {
     return innerContent;
   } else {
-    return <div className="flex flex-col space-y-1">{innerContent}</div>;
+    return <div className={`flex flex-col space-y-1 ${rest.className ? rest.className : ""}`}>{innerContent}</div>;
   }
 }

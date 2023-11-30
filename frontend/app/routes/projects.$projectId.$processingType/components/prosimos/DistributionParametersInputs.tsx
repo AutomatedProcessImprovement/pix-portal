@@ -42,7 +42,7 @@ export function DistributionParametersInputs({
   }, [watchDistributionName, distributionParamsKey, getValues, replace]);
 
   return (
-    <div className={`grid grid-cols-${fields.length} gap-2`}>
+    <div className={`grid grid-cols-2 gap-2`}>
       {fields.map((field, index) => {
         return (
           <Input

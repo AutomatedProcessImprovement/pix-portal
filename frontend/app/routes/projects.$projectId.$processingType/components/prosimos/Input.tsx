@@ -40,7 +40,12 @@ export function Input({
           {label || name}
         </label>
       )}
-      <input id={inputId} {...register(name)} {...rest} className={`block truncate ${error ? "border-red-500" : ""}`} />
+      <input
+        id={inputId}
+        {...register(name)}
+        {...rest}
+        className={`block truncate ${error ? "border-red-500" : ""} ${pure && rest.className ? rest.className : ""}`}
+      />
       <ErrorMessage
         errors={errors}
         name={name}

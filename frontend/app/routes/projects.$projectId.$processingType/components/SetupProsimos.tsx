@@ -32,19 +32,18 @@ export default function SetupProsimos() {
   const submitProsimosSimulation = useSubmit();
 
   return (
-    <section className="p-2">
+    <section className="p-2 flex flex-col items-center">
       <h2 className="text-2xl font-semibold">Simulation</h2>
       <Form
         method="post"
-        className="w-2/3 my-4 mb-12"
+        className="flex flex-col items-center w-full my-4 mb-12"
         onChange={(e) => submitProsimosSimulation(e.currentTarget)}
       >
         <input type="hidden" name="selectedInputAssetsIds" ref={selectedAssetsIdsRef} />
-
         {!simulationModel && <p className="py-2">Select a simulation model from the input assets on the left.</p>}
         {simulationModel && (
           <button
-            className="w-2/3 text-lg"
+            className="w-2/3 xl:w-1/3 text-lg"
             type="submit"
             disabled={simulationModel === null || navigation.state === "submitting"}
           >
@@ -52,7 +51,6 @@ export default function SetupProsimos() {
           </button>
         )}
       </Form>
-
       <ProsimosConfiguration asset={simulationModel} />
     </section>
   );

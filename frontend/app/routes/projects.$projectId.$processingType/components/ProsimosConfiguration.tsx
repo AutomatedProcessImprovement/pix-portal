@@ -126,13 +126,13 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
 
   if (!asset) return null;
   return (
-    <section className="space-y-2">
+    <section className="space-y-2 flex flex-col items-center">
       <h3 className="text-2xl font-semibold">Configuration</h3>
       <FormProvider {...methods}>
         <BpmnDataContext.Provider value={bpmnData}>
           <form
             onSubmit={methods.handleSubmit(onSubmit)}
-            className="space-y-8 p-4 border border-slate-200 bg-slate-50 rounded-lg"
+            className="flex flex-col items-center space-y-8 p-4 border border-slate-200 bg-slate-50 rounded-lg"
           >
             <Tab.Group defaultIndex={0}>
               <Tab.List className="flex flex-wrap justify-center">
