@@ -17,42 +17,42 @@ export function DistributionParametersInputs({
   distributionParamsKey: string;
 } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) {
   const { control, watch, getValues } = useFormContext();
-  const watchDistributionName = watch(distributionNameKey, rest.defaultValue);
 
   const { fields, replace } = useFieldArray({
     control,
     name,
   });
 
+  const [labels, setLabels] = React.useState<string[]>([]);
+  const distributionName = watch(distributionNameKey);
   useEffect(() => {
-    // make sure we have the correct number of fields in the field array
-    const numOfLabels = distributionParameters[watchDistributionName as keyof typeof distributionParameters].length;
-    let params = getValues(distributionParamsKey);
-    if (params && params.length > 1) {
+    setLabels(distributionParameters[distributionName as keyof typeof distributionParameters]);
+  }, [distributionName]);
+
+  useEffect(() => {
+    if (!labels || labels.length === 0) return;
+    const distributionParams = getValues(distributionParamsKey);
+    if (distributionParams) {
       // if values are provided, use them
-      replace(params.slice(0, numOfLabels));
+      replace(
+        Array.from({ length: labels.length }, (_, index) => {
+          return { value: distributionParams[index]?.value || 0 };
+        })
+      );
     } else {
       // otherwise, use default values
       replace(
-        Array.from({ length: numOfLabels }, () => {
+        Array.from({ length: labels.length }, () => {
           return { value: 0 };
         })
       );
     }
-  }, [watchDistributionName, distributionParamsKey, getValues, replace]);
+  }, [labels, distributionParamsKey, getValues, replace]);
 
   return (
     <div className={`grid grid-cols-2 gap-2`}>
       {fields.map((field, index) => {
-        return (
-          <Input
-            key={field.id}
-            name={`${name}[${index}].value`}
-            type="number"
-            step="any"
-            label={distributionParameters[watchDistributionName as keyof typeof distributionParameters][index]}
-          />
-        );
+        return <Input key={field.id} name={`${name}[${index}].value`} type="number" step="any" label={labels[index]} />;
       })}
     </div>
   );
