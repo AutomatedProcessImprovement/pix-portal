@@ -1,6 +1,6 @@
-export function FieldArrayRemoveButton({ label, removeFunction }: { label?: string; removeFunction: () => void }) {
+export function FieldArrayRemoveButton({ label, onClick }: { label?: string; onClick: () => void }) {
   return (
-    <button className="bg-slate-400" type="button" onClick={removeFunction}>
+    <button className="bg-slate-200 hover:bg-slate-300 text-slate-700" type="button" onClick={onClick}>
       {label || "Remove"}
     </button>
   );

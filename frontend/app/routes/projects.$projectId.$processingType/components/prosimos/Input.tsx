@@ -57,6 +57,8 @@ export function Input({
   if (noWrapper) {
     return innerContent;
   } else {
-    return <div className="flex flex-col space-y-1">{innerContent}</div>;
+    return (
+      <div className={`flex flex-col space-y-1 ${!pure && rest.className ? rest.className : ""}`}>{innerContent}</div>
+    );
   }
 }

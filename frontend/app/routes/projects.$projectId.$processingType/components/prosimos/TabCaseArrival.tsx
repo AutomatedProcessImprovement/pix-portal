@@ -90,7 +90,7 @@ export function TabCaseArrival() {
                 className="w-[23%]"
               />
               <div className="flex w-[8%]">
-                <FieldArrayRemoveIconButton removeFunction={() => remove(index)} />
+                <FieldArrayRemoveIconButton onClick={() => remove(index)} />
               </div>
             </div>
           );

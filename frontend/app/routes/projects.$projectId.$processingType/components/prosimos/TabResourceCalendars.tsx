@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { FieldArrayRemoveButton } from "./FieldArrayRemoveButton";
+import { FieldArrayRemoveIconButton } from "./FieldArrayRemoveIconButton";
 import FormSection from "./FormSection";
 import { Input } from "./Input";
 import { Select } from "./Select";
@@ -26,13 +28,9 @@ export function TabResourceCalendars() {
       <FormSection title="Resource Calendars">
         {fields.map((field, index) => {
           return (
-            <div key={field.id}>
-              <ResourceCalendar name={`${name}[${index}]`}>
-                <button type="button" onClick={() => remove(index)} className="bg-slate-400">
-                  Remove Calendar
-                </button>
-              </ResourceCalendar>
-            </div>
+            <ResourceCalendar key={field.id} name={`${name}[${index}]`}>
+              <FieldArrayRemoveButton label="Remove Calendar" onClick={() => remove(index)} />
+            </ResourceCalendar>
           );
         })}
         <button type="button" onClick={handleAddCalendar}>
@@ -69,9 +67,19 @@ function ResourceCalendar({ name, children }: { name: string; children?: React.R
   const weekDaysLabels = useMemo(() => weekDays_.map((day) => makeTitleCase(day)), [weekDays_]);
 
   return (
-    <div className="border-4 p-4 space-y-2">
-      <div className="space-y-2">
-        <Input name={`${name}.name`} label="Calendar Name" />
+    <div className="p-4 bg-slate-100 rounded-2xl space-y-2">
+      <div className="space-y-2 flex flex-col">
+        <div className="mb-4 flex items-end space-x-4">
+          <Input className="w-2/3" name={`${name}.name`} label="Calendar Name" />
+          <div className="">{children}</div>
+        </div>
+        <div className="flex space-x-2">
+          <span className="w-[23%]">From</span>
+          <span className="w-[23%]">To</span>
+          <span className="w-[23%]">Begin at</span>
+          <span className="w-[23%]">End at</span>
+          <span className="w-[8%]"></span>
+        </div>
         {fields.map((field, index) => {
           return (
             <div key={field.id} className="flex space-x-2">
@@ -81,6 +89,7 @@ function ResourceCalendar({ name, children }: { name: string; children?: React.R
                 optionLabels={weekDaysLabels}
                 label="From"
                 pure={true}
+                className="w-[23%]"
               />
               <Select
                 name={`${name}.time_periods.[${index}].to`}
@@ -88,32 +97,38 @@ function ResourceCalendar({ name, children }: { name: string; children?: React.R
                 optionLabels={weekDaysLabels}
                 label="To"
                 pure={true}
+                className="w-[23%]"
               />
               <Input
                 name={`${name}.time_periods.[${index}].beginTime`}
                 type="time"
                 defaultValue="09:00"
+                step="1"
                 label="Begin at"
                 pure={true}
+                className="w-[23%]"
               />
               <Input
                 name={`${name}.time_periods.[${index}].endTime`}
                 type="time"
                 defaultValue="17:00"
+                step="1"
                 label="End at"
                 pure={true}
+                className="w-[23%]"
               />
-              <button type="button" onClick={() => remove(index)} className="bg-slate-400">
-                Remove
-              </button>
+              <div className="flex w-[8%]">
+                <FieldArrayRemoveIconButton onClick={() => remove(index)} />
+              </div>
             </div>
           );
         })}
-        <button type="button" onClick={handleAddTime}>
-          Add time
-        </button>
+        <div className="flex justify-center">
+          <button className="mt-4 w-1/3" type="button" onClick={handleAddTime}>
+            Add time
+          </button>
+        </div>
       </div>
-      {children}
     </div>
   );
 }
