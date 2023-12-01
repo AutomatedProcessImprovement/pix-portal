@@ -132,7 +132,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
         <BpmnDataContext.Provider value={bpmnData}>
           <form
             onSubmit={methods.handleSubmit(onSubmit)}
-            className="flex flex-col items-center space-y-8 p-4 border-4 border-slate-200 bg-slate-50 rounded-lg"
+            className="flex flex-col items-center space-y-8 p-4 border-4 border-slate-200 bg-slate-50 rounded-xl"
           >
             <Tab.Group defaultIndex={0}>
               <Tab.List className="flex flex-wrap justify-center">
@@ -140,7 +140,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
                   <Tab
                     key={tab.name}
                     className={({ selected }) =>
-                      `px-2 py-1 mr-1 mb-1 hover:bg-blue-200 border-2  text-slate-900 rounded-lg ${
+                      `px-2 py-1 mr-1 mb-1 hover:bg-blue-200 border-2  text-slate-900 rounded-xl ${
                         selected ? "bg-slate-50  border-slate-300" : "bg-slate-200 border-slate-50"
                       }`
                     }

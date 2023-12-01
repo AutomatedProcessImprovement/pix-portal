@@ -2,6 +2,7 @@ import { Form, useNavigation } from "@remix-run/react";
 import { useContext, useEffect, useState } from "react";
 import type { Asset } from "~/services/assets";
 import { AssetType } from "~/services/assets";
+import { AssetCard } from "./AssetCard";
 import { ProcessingAppSection } from "./ProcessingAppSection";
 import { SelectedAssetsContext } from "./contexts";
 
@@ -34,11 +35,15 @@ export default function SetupSimod() {
         </p>
       )}
       {eventLog && (
-        <Form method="post" className="flex flex-col space-y-2">
+        <Form method="post" className="flex flex-col items-center w-full my-4">
           <input type="hidden" name="selectedInputAssetsIds" value={selectedInputAssetsIdsRef.join(",")} />
-          <EventLogArea eventLog={eventLog} />
-          <ProcessModelArea processModel={processModel} />
-          <button type="submit" disabled={eventLog === null || navigation.state === "submitting"} onClick={handleClick}>
+          <SimodConfiguration eventLog={eventLog} processModel={processModel} />
+          <button
+            className="mt-8 mb-6 w-2/3 xl:w-1/3 text-lg"
+            type="submit"
+            disabled={eventLog === null || navigation.state === "submitting"}
+            onClick={handleClick}
+          >
             Start discovery
           </button>
         </Form>
@@ -47,30 +52,11 @@ export default function SetupSimod() {
   );
 }
 
-function EventLogArea({ eventLog }: { eventLog: Asset | null }) {
+function SimodConfiguration({ eventLog, processModel }: { eventLog: Asset; processModel: Asset | null }) {
   return (
-    <div className="p-2 border-4 border-blue-100">
-      {eventLog ? (
-        <div>
-          <div>Event log: {eventLog.name}</div>
-        </div>
-      ) : (
-        <div>No event log selected</div>
-      )}
-    </div>
-  );
-}
-
-function ProcessModelArea({ processModel }: { processModel: Asset | null }) {
-  return (
-    <div className="p-2 border-4 border-blue-100">
-      {processModel ? (
-        <div>
-          <div>Process model: {processModel.name}</div>
-        </div>
-      ) : (
-        <div>No process model selected</div>
-      )}
+    <div className="flex flex-col items-center space-y-3 p-4 border-4 border-slate-200 bg-slate-50 rounded-xl">
+      <AssetCard asset={eventLog} isActive={false} isInteractive={false} />
+      {processModel && <AssetCard asset={processModel} isActive={false} isInteractive={false} />}
     </div>
   );
 }

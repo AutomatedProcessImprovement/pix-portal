@@ -4,16 +4,21 @@ import { parseDate } from "~/shared/utils";
 export function AssetCard({
   asset,
   isActive,
+  isInteractive = true,
   ...rest
-}: { asset: Asset; isActive: boolean } & React.HTMLAttributes<HTMLDivElement>) {
+}: { asset: Asset; isActive: boolean; isInteractive?: boolean } & React.HTMLAttributes<HTMLDivElement>) {
   const restWithoutClassName = { ...rest };
   delete restWithoutClassName.className;
 
+  if (!isInteractive) {
+    delete restWithoutClassName.onClick;
+  }
+
   return (
     <div
-      className={`cursor-pointer flex flex-col rounded-lg shadow border-2 hover:bg-slate-100 ${
-        isActive ? "bg-slate-100 border-blue-400" : "bg-white border-slate-100"
-      }`}
+      className={`flex flex-col rounded-lg shadow border-2 ${
+        isInteractive ? "cursor-pointer hover:bg-slate-100" : ""
+      } ${isActive ? "bg-slate-100 border-blue-400" : "bg-white border-slate-100"}`}
       {...restWithoutClassName}
     >
       <div
