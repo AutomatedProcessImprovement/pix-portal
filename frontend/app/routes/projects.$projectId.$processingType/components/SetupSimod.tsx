@@ -2,6 +2,7 @@ import { Form, useNavigation } from "@remix-run/react";
 import { useContext, useEffect, useState } from "react";
 import type { Asset } from "~/services/assets";
 import { AssetType } from "~/services/assets";
+import { ProcessingAppSection } from "./ProcessingAppSection";
 import { SelectedAssetsContext } from "./contexts";
 
 export default function SetupSimod() {
@@ -26,16 +27,23 @@ export default function SetupSimod() {
   }
 
   return (
-    <section className="p-2 space-y-2 flex flex-col items-center">
-      <Form method="post" className="flex flex-col space-y-2">
-        <input type="hidden" name="selectedInputAssetsIds" value={selectedInputAssetsIdsRef.join(",")} />
-        <EventLogArea eventLog={eventLog} />
-        <ProcessModelArea processModel={processModel} />
-        <button type="submit" disabled={eventLog === null || navigation.state === "submitting"} onClick={handleClick}>
-          Start discovery
-        </button>
-      </Form>
-    </section>
+    <ProcessingAppSection heading="Discovery Configuration">
+      {!eventLog && (
+        <p className="py-2 prose prose-md prose-slate max-w-lg">
+          Select a event log and, optionally, a process model from the input assets on the left.
+        </p>
+      )}
+      {eventLog && (
+        <Form method="post" className="flex flex-col space-y-2">
+          <input type="hidden" name="selectedInputAssetsIds" value={selectedInputAssetsIdsRef.join(",")} />
+          <EventLogArea eventLog={eventLog} />
+          <ProcessModelArea processModel={processModel} />
+          <button type="submit" disabled={eventLog === null || navigation.state === "submitting"} onClick={handleClick}>
+            Start discovery
+          </button>
+        </Form>
+      )}
+    </ProcessingAppSection>
   );
 }
 

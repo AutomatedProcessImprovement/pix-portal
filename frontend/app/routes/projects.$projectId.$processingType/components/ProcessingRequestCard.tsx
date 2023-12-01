@@ -1,18 +1,8 @@
 import { Suspense } from "react";
 import type { ProcessingRequest } from "~/services/processing_requests";
+import { parseDate } from "~/shared/utils";
 
 export function ProcessingRequestCard({ request }: { request: ProcessingRequest }) {
-  function parseDate(dateString: string) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-EE", {
-      year: "numeric",
-      month: "numeric",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-    });
-  }
-
   function getDuration(start: string, end: string) {
     const startDate = new Date(start);
     const endDate = new Date(end);

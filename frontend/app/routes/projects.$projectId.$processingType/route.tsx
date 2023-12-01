@@ -60,8 +60,7 @@ export default function ProcessingPage() {
   console.log("ProcessingPage", matches);
 
   return (
-    <main className="grid grid-cols-[minmax(0,3fr)_minmax(0,9fr)_minmax(0,3fr)]">
-      {/* <ProcessingMenu projectId={projectId} /> */}
+    <main className="grid grid-cols-[minmax(0,3fr)_minmax(0,9fr)_minmax(0,3fr)] bg-slate-50">
       <ProcessingApp assets={assets} processingType={processingType} processingRequests={processingRequests} />
     </main>
   );

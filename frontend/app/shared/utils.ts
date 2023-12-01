@@ -31,3 +31,14 @@ export async function handleThrow(request: Request, func: () => Promise<any>) {
     });
   }
 }
+
+export function parseDate(dateString: string) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-EE", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  });
+}

@@ -2,6 +2,7 @@ import { useContext } from "react";
 import type { ProcessingRequest } from "~/services/processing_requests";
 import { ProcessingRequestStatus } from "~/services/processing_requests";
 import { AssetCardAsync } from "./AssetCardAsync";
+import { ProcessingAppSection } from "./ProcessingAppSection";
 import { ProcessingRequestCard } from "./ProcessingRequestCard";
 import { UserContext } from "./contexts";
 
@@ -30,8 +31,8 @@ export default function OutputAssets({ processingRequests }: { processingRequest
   }
 
   return (
-    <div className="flex flex-col items-center p-2 space-y-2">
-      <h2 className="text-2xl font-semibold">Output Assets</h2>
+    <ProcessingAppSection>
+      <h2 className="text-xl text-slate-500 font-semibold">Output Assets</h2>
       {processingRequests.sort(byCreationTime).map((request: ProcessingRequest) => (
         <div
           key={request.id}
@@ -42,6 +43,6 @@ export default function OutputAssets({ processingRequests }: { processingRequest
             request.output_assets_ids.map((assetId) => <AssetCardAsync key={assetId} assetId={assetId} user={user} />)}
         </div>
       ))}
-    </div>
+    </ProcessingAppSection>
   );
 }

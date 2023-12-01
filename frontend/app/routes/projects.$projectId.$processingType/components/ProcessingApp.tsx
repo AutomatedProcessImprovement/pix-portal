@@ -21,15 +21,9 @@ export default function ProcessingApp({
   return (
     <AssetsContext.Provider value={assets}>
       <SelectedAssetsContext.Provider value={selectedAssets}>
-        <section className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
-          <InputAssets setSelectedAssets={setSelectedAssets} />
-        </section>
-        <section className="border-l-2 border-t-2 border-b-2 border-red-400 bg-yellow-50">
-          <ProcessingSetup processingType={processingType} />
-        </section>
-        <section className="border-2 border-red-400 bg-yellow-50">
-          <OutputAssets processingRequests={processingRequests} />
-        </section>
+        <InputAssets setSelectedAssets={setSelectedAssets} />
+        <ProcessingSetup processingType={processingType} />
+        <OutputAssets processingRequests={processingRequests} />
       </SelectedAssetsContext.Provider>
     </AssetsContext.Provider>
   );

@@ -9,7 +9,7 @@ export default function ProjectCard({ project }: { project: Project }) {
     >
       <div className="flex flex-grow flex-col justify-between p-4 space-y-2 leading-normal text-slate-900">
         <div className="">
-          <h5 className="text-2xl font-bold tracking-tight text-slate-900">{project.name}</h5>
+          <h5 className="text-xl font-bold tracking-normal text-slate-900">{project.name}</h5>
           <p className="text-sm text-slate-400">{parseDate(project.creation_time)}</p>
         </div>
         <div className="font-normal text-slate-600 text-md">

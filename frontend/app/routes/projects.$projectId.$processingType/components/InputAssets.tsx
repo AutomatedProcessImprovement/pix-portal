@@ -3,6 +3,8 @@ import UploadAssetButton from "~/components/asset-upload/UploadAssetButton";
 import UploadAssetDialog from "~/components/asset-upload/UploadAssetDialog";
 import type { Asset, AssetType } from "~/services/assets";
 import { processingTypeToAssetType } from "~/shared/processing_type";
+import { AssetCard } from "./AssetCard";
+import { ProcessingAppSection } from "./ProcessingAppSection";
 import { AssetsContext, SelectedAssetsContext } from "./contexts";
 import { useProcessingType } from "./useProcessingType";
 
@@ -23,21 +25,21 @@ export default function InputAssets({ setSelectedAssets }: { setSelectedAssets: 
   }
 
   return (
-    <div className="flex flex-col items-center p-2 space-y-2">
-      <h2 className="text-2xl font-semibold">Input Assets</h2>
+    <ProcessingAppSection>
+      <h2 className="text-xl text-slate-500 font-semibold">Input Assets</h2>
       {assets.sort().map((asset: Asset) => (
-        <div
+        <AssetCard
           key={asset.id}
-          className={`break-all px-2 bg-teal-200 ${
-            selectedAssets.includes(asset) ? "bg-teal-400 border-2 border-teal-800" : ""
-          }`}
-          onClick={() => handleClick(asset)}
-        >
-          {asset.name}
-        </div>
+          asset={asset}
+          isActive={selectedAssets.includes(asset)}
+          onClick={() => {
+            console.log("clicked asset", asset);
+            handleClick(asset);
+          }}
+        />
       ))}
       <UploadAssetDialog trigger={<UploadAssetButton />} initialAssetType={processingTypeToAssetType(processingType)} />
-    </div>
+    </ProcessingAppSection>
   );
 }
 

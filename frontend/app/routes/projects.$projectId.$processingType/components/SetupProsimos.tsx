@@ -2,6 +2,7 @@ import { Form, useNavigation, useSubmit } from "@remix-run/react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { Asset } from "~/services/assets";
 import { AssetType, getAsset } from "~/services/assets";
+import { ProcessingAppSection } from "./ProcessingAppSection";
 import ProsimosConfiguration from "./ProsimosConfiguration";
 import { SelectedAssetsContext, UserContext } from "./contexts";
 
@@ -32,7 +33,7 @@ export default function SetupProsimos() {
   const submitProsimosSimulation = useSubmit();
 
   return (
-    <section className="p-2 flex flex-col items-center">
+    <ProcessingAppSection heading="Simulation Configuration">
       <ProsimosConfiguration asset={simulationModel} />
       <Form
         method="post"
@@ -40,7 +41,11 @@ export default function SetupProsimos() {
         onChange={(e) => submitProsimosSimulation(e.currentTarget)}
       >
         <input type="hidden" name="selectedInputAssetsIds" ref={selectedAssetsIdsRef} />
-        {!simulationModel && <p className="py-2">Select a simulation model from the input assets on the left.</p>}
+        {!simulationModel && (
+          <p className="py-2 prose prose-md prose-slate max-w-lg">
+            Select a simulation model from the input assets on the left.
+          </p>
+        )}
         {simulationModel && (
           <button
             className="mt-8 mb-6 w-2/3 xl:w-1/3 text-lg"
@@ -51,6 +56,6 @@ export default function SetupProsimos() {
           </button>
         )}
       </Form>
-    </section>
+    </ProcessingAppSection>
   );
 }
