@@ -1,20 +1,26 @@
 import axios from "axios";
-import BpmnModdle, { Gateway, Task } from "bpmn-moddle";
+import type { Gateway, Task } from "bpmn-moddle";
+import BpmnModdle from "bpmn-moddle";
 import { getFileLocation } from "~/services/files";
-import { EventsFromModel, Gateway as Gateway_, ModelTask } from "./bpmn_types";
+import type { Gateway as Gateway_, ModelTask } from "./bpmn_types";
 
 export type BpmnData = {
   xmlStr: string;
   tasks: ModelTask[];
   gateways: Gateway_[];
-  eventsFromModel: EventsFromModel;
+  catchEvents: IntermediateCatchEvent[];
+};
+
+export type IntermediateCatchEvent = {
+  id: string;
+  name: string;
 };
 
 export async function parseBpmn(bpmnBlob: Blob) {
   let xmlStr: string;
   let tasks: ModelTask[];
   let gateways: Gateway_[];
-  let eventsFromModel: EventsFromModel;
+  let catchEvents: IntermediateCatchEvent[];
 
   xmlStr = await bpmnBlob.text();
 
@@ -56,18 +62,19 @@ export async function parseBpmn(bpmnBlob: Blob) {
       ];
     }, [] as Gateway_[]);
 
-  eventsFromModel = process?.flowElements
+  catchEvents = process?.flowElements
     ?.filter((e: { $type: string }) => e.$type === "bpmn:IntermediateCatchEvent")
-    .reduce((acc: {}, t: any) => {
-      return {
+    .reduce((acc: [], t: any) => {
+      return [
         ...acc,
-        [t.id]: {
+        {
+          id: t.id,
           name: t.name,
         },
-      };
-    }, {} as EventsFromModel);
+      ];
+    }, [] as IntermediateCatchEvent[]);
 
-  return { xmlStr, tasks, gateways, eventsFromModel };
+  return { xmlStr, tasks, gateways, catchEvents };
 }
 
 async function fetchFile(fileId: string, token: string) {

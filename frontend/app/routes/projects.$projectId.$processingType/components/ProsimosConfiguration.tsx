@@ -12,6 +12,7 @@ import { TabBatching } from "./prosimos/TabBatching";
 import { TabCaseArrival } from "./prosimos/TabCaseArrival";
 import { TabCaseAttributes } from "./prosimos/TabCaseAttributes";
 import { TabGateways } from "./prosimos/TabGateways";
+import { TabIntermediateEvents } from "./prosimos/TabIntermediateEvents";
 import { TabPrioritisation } from "./prosimos/TabPrioritisation";
 import { TabResourceAllocation } from "./prosimos/TabResourceAllocation";
 import { TabResourceCalendars } from "./prosimos/TabResourceCalendars";
@@ -118,10 +119,10 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
     { name: "Resources Profiles", component: <TabResourceProfiles /> },
     { name: "Resource Allocation", component: <TabResourceAllocation /> },
     { name: "Branching Probabilities", component: <TabGateways /> },
+    { name: "Intermediate Events", component: <TabIntermediateEvents /> },
     { name: "Batching", component: <TabBatching /> },
     { name: "Case Attributes", component: <TabCaseAttributes /> },
     { name: "Prioritisation", component: <TabPrioritisation /> },
-    { name: "Simulation Results", component: <div>Simulation Results</div> },
   ];
 
   if (!asset) return null;

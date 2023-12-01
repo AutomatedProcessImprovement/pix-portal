@@ -1,4 +1,4 @@
-import { FlowNode } from "bpmn-moddle";
+import type { FlowNode } from "bpmn-moddle";
 
 export interface ModelTask {
   id: string;
