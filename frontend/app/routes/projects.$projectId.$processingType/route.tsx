@@ -1,5 +1,5 @@
 import { json, redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
-import { isRouteErrorResponse, useLoaderData, useRouteError } from "@remix-run/react";
+import { isRouteErrorResponse, useLoaderData, useMatches, useRouteError } from "@remix-run/react";
 import type { Asset } from "~/services/assets";
 import { AssetType } from "~/services/assets";
 import { getAssetsForProject } from "~/services/assets.server";
@@ -10,7 +10,6 @@ import { requireLoggedInUser } from "~/shared/session.server";
 import { handleThrow } from "~/shared/utils";
 import { ProcessingType } from "../../shared/processing_type";
 import ProcessingApp from "./components/ProcessingApp";
-import ProcessingMenu from "./components/ProcessingMenu";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const processingType = params.processingType as string;
@@ -57,9 +56,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 export default function ProcessingPage() {
   const { processingType, assets, processingRequests, projectId } = useLoaderData<typeof loader>();
 
+  const matches = useMatches();
+  console.log("ProcessingPage", matches);
+
   return (
-    <main className="grid grid-cols-[3rem_minmax(0,3fr)_minmax(0,9fr)_minmax(0,3fr)]">
-      <ProcessingMenu projectId={projectId} />
+    <main className="grid grid-cols-[minmax(0,3fr)_minmax(0,9fr)_minmax(0,3fr)]">
+      {/* <ProcessingMenu projectId={projectId} /> */}
       <ProcessingApp assets={assets} processingType={processingType} processingRequests={processingRequests} />
     </main>
   );
