@@ -37,7 +37,7 @@ export function AssetCardAsync({ assetId, user }: { assetId: string; user: User 
   );
 }
 
-function FileCardAsync({ assetId, fileId, user }: { assetId: string; fileId: string; user: User | null }) {
+export function FileCardAsync({ assetId, fileId, user }: { assetId: string; fileId: string; user: User | null }) {
   const [file, setFile] = useState<File | null>(null);
   const [fileLocation, setFileLocation] = useState<string | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string>("");
@@ -82,7 +82,11 @@ function FileCardAsync({ assetId, fileId, user }: { assetId: string; fileId: str
           <span className="underline">{file.name}</span>
         </span>
         ({file.type})
-        {downloadUrl && <a href={downloadUrl} ref={hiddenAnchorRef} download={file.name} className="hidden" />}
+        {downloadUrl && (
+          <a href={downloadUrl} ref={hiddenAnchorRef} download={file.name} className="hidden">
+            Download
+          </a>
+        )}
       </div>
     );
   }
