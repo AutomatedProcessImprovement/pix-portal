@@ -140,7 +140,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
                   <Tab
                     key={tab.name}
                     className={({ selected }) =>
-                      `px-2 py-1 mr-1 mb-1 hover:bg-blue-200 border-2  text-slate-900 rounded-xl ${
+                      `px-2 py-1 mr-1 mb-1 hover:bg-blue-200 border-2 text-slate-900 rounded-xl ${
                         selected ? "bg-slate-50  border-slate-300" : "bg-slate-200 border-slate-50"
                       }`
                     }

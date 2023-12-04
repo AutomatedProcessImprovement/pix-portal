@@ -58,7 +58,7 @@ function AssetFilesDropdown({ asset, ...rest }: { asset: Asset } & React.HTMLAtt
         >
           <BarsArrowDownIcon className="w-4 " />
         </Popover.Button>
-        <Popover.Panel className="z-10 bg-white border-2 border-slate-200 rounded-lg absolute flex flex-col">
+        <Popover.Panel className="mt-1 shadow-xl z-10 bg-white border-2 border-slate-200 rounded-lg absolute flex flex-col">
           {asset.files_ids.map((fileId) => (
             <AssetFileAsync key={fileId} assetId={asset.id} fileId={fileId} />
           ))}
