@@ -1,5 +1,6 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 
+import fs from "fs";
 import type { FlashMessage } from "~/shared/flash_message";
 import type { User } from "../services/auth";
 
@@ -10,10 +11,18 @@ export const sessionStorage = createCookieSessionStorage({
     path: "/",
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
-    secrets: [process.env.SESSION_SECRET!],
+    secrets: [readSecretFromEnv("SESSION_SECRET_FILE")],
     maxAge: 60 * 60, // 1 hour
   },
 });
+
+function readSecretFromEnv(name: string): string {
+  const secretPath = process.env[name];
+  if (secretPath && !fs.existsSync(secretPath)) {
+    throw new Error(`Environmental variable ${name} does not exist at path ${secretPath}`);
+  }
+  return fs.readFileSync(secretPath!, "utf-8").trim();
+}
 
 export async function getSession(request: Request) {
   const cookie = request.headers.get("Cookie");

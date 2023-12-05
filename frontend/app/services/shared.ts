@@ -6,3 +6,15 @@ export const clientSideHttp = axios.create({
     "Content-Type": "application/json",
   },
 });
+clientSideHttp.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    console.error("Axios client failed:", error);
+    if (error.response.status === 401) {
+      console.error("Unauthorized:", error.response.data.message);
+    }
+    return Promise.reject(error);
+  }
+);

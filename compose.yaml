@@ -3,12 +3,12 @@ services:
     build:
       context: frontend
     secrets:
-      - session-secret
+      - session_secret
     environment:
       NODE_ENV: production
       PORT: 3030
       BACKEND_BASE_URL: http://caddy
-      SESSION_SECRET: ${session-secret}
+      SESSION_SECRET_FILE: /run/secrets/session_secret
     networks:
       - backend
     ports:
@@ -426,7 +426,7 @@ networks:
   backend:
     name: pix_backend
 secrets:
-  session-secret:
+  session_secret:
     file: ./frontend/session.secret
   mail_gmail_username:
     file: ./backend/workers/mail/.secret_gmail_username
