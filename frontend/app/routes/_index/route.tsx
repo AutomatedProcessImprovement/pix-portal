@@ -27,10 +27,12 @@ export default function Index() {
   const user = useOptionalUser();
   const { flashMessage } = useLoaderData<typeof loader>();
 
-  if (flashMessage) {
-    setTimeout(() => {
-      window && window.document.getElementById("global-message")?.remove();
-    }, 5000);
+  if (typeof window !== "undefined") {
+    if (flashMessage) {
+      setTimeout(() => {
+        window && window.document.getElementById("global-message")?.remove();
+      }, 5000);
+    }
   }
 
   if (user) {

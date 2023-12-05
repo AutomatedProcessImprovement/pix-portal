@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import { loginURL, userInfoURL } from "~/services/shared.server";
-import { User } from "./auth";
+import type { User } from "./auth";
 
 export async function getJWT(username: string, password: string): Promise<string> {
   const { data } = await axios.post(
