@@ -16,7 +16,7 @@ from opentelemetry import metrics
 from .db import User, get_users_db
 from .settings import settings
 
-SECRET = settings.secret_key
+SECRET = settings.secret_key_file.read_text().strip()
 
 logger = logging.getLogger()
 
