@@ -2,15 +2,15 @@ import { http, projectsURL } from "~/services/shared.server";
 import type { Project } from "./projects";
 
 export async function listProjectsForUser(userId: string, token: string): Promise<Project[]> {
-  const response = await http.get(projectsURL, {
+  const params = new URLSearchParams({ user_id: userId });
+  const response = await fetch(`${projectsURL}?${params}`, {
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    params: {
-      user_id: userId,
-    },
   });
-  return response.data as Project[];
+  const data = await response.json();
+  return data as Project[];
 }
 
 export async function getProject(projectId: string, token: string): Promise<Project> {

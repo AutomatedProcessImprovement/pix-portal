@@ -1,5 +1,5 @@
 import type { File } from "./files";
-import { clientSideHttp } from "./shared";
+import { clientSideHttp } from "./shared.client";
 
 export type Asset = {
   id: string;

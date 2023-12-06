@@ -1,4 +1,4 @@
-import { clientSideHttp } from "./shared";
+import { clientSideHttp } from "./shared.client";
 
 export interface Project {
   id: string;

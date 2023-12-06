@@ -1,7 +1,16 @@
 import axios from "axios";
 
+interface Window {
+  ENV: {
+    BACKEND_BASE_URL: string;
+  };
+}
+declare var window: Window;
+
+const BACKEND_BASE_URL = window.ENV.BACKEND_BASE_URL;
+
 export const clientSideHttp = axios.create({
-  baseURL: "http://localhost:9999/api/v1",
+  baseURL: BACKEND_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
