@@ -66,12 +66,12 @@ export default function EventLogColumnMappingDialog({
               <Form className="p-4 flex flex-col space-y-8 items-center">
                 <div className="flex flex-col space-y-4">
                   <div className="flex flex-col space-y-2">
-                    <label htmlFor="caseId">Case ID column:</label>
+                    <label htmlFor="case">Case ID column:</label>
                     <input
-                      id="caseId"
-                      name="caseId"
+                      id="case"
+                      name="case"
                       type="text"
-                      value={columnMapping.caseId}
+                      value={columnMapping.case}
                       onChange={handleInputChange}
                       placeholder="Enter case ID column name"
                       className="w-80"
@@ -102,24 +102,24 @@ export default function EventLogColumnMappingDialog({
                     />
                   </div>
                   <div className="flex flex-col space-y-2">
-                    <label htmlFor="startTimestamp">Start timestamp column:</label>
+                    <label htmlFor="start_time">Start timestamp column:</label>
                     <input
-                      id="startTimestamp"
-                      name="startTimestamp"
+                      id="start_time"
+                      name="start_time"
                       type="text"
-                      value={columnMapping.startTimestamp}
+                      value={columnMapping.start_time}
                       onChange={handleInputChange}
                       placeholder="Enter start timestamp column name"
                       className="w-80"
                     />
                   </div>
                   <div className="flex flex-col space-y-2">
-                    <label htmlFor="endTimestamp">Start timestamp column:</label>
+                    <label htmlFor="end_time">Start timestamp column:</label>
                     <input
-                      id="endTimestamp"
-                      name="endTimestamp"
+                      id="end_time"
+                      name="end_time"
                       type="text"
-                      value={columnMapping.endTimestamp}
+                      value={columnMapping.end_time}
                       onChange={handleInputChange}
                       placeholder="Enter end timestamp column name"
                       className="w-80"
