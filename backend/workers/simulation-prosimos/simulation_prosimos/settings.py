@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     asset_service_url: HttpUrl
     asset_base_dir: Path
     prosimos_results_base_dir: Path
-    system_username: str
-    system_password: str
+    system_email_file: Path
+    system_password_file: Path
     auth_service_url: HttpUrl
     file_service_url: HttpUrl
     processing_request_service_url: HttpUrl

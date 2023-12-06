@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     allowed_origins: str
     superuser_email_file: Path
     superuser_password_file: Path
+    system_email_file: Path
+    system_password_file: Path
 
     model_config = SettingsConfigDict(env_file=Path(__file__).parent.parent / ".env", extra="allow")
 
