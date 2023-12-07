@@ -19,9 +19,11 @@ from projects.services.project import (
     UserNotFound,
     get_project_service,
 )
+
 from .schemas import (
     AddAssetToProjectIn,
     AddUserToProjectIn,
+    AssetOut,
     ProjectIn,
     ProjectOut,
     ProjectPatchIn,
@@ -169,7 +171,7 @@ async def remove_user_from_project(
 # Project assets API
 
 
-@router.get("/{project_id}/assets", response_model=list[dict], tags=["project_assets"])
+@router.get("/{project_id}/assets", response_model=list[AssetOut], tags=["project_assets"])
 async def get_project_assets(
     project_id: uuid.UUID,
     project_service: ProjectService = Depends(get_project_service),
