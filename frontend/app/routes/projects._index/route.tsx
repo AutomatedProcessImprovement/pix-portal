@@ -4,7 +4,7 @@ import { useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 import type { Project } from "~/services/projects";
 import { listProjectsForUser } from "~/services/projects.server";
-import { requireLoggedInUser } from "~/shared/session.server";
+import { requireLoggedInUser } from "~/shared/guards.server";
 import { handleThrow } from "~/shared/utils";
 import ProjectCard from "./ProjectCard";
 

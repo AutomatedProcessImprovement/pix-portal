@@ -1,18 +1,18 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Outlet, useLoaderData, useMatches } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import Header from "~/components/Header";
 import { UserContext } from "~/routes/projects.$projectId.$processingType/components/contexts";
 import { getProject } from "~/services/projects.server";
+import { handleNewAssets } from "~/shared/file_upload_handler.server";
+import { requireLoggedInUser, requireProjectIdInParams } from "~/shared/guards.server";
 import { ProcessingTypes } from "~/shared/processing_type";
-import { requireLoggedInUser } from "~/shared/session.server";
 import { handleThrow } from "~/shared/utils";
 import { ProcessingCard } from "./ProcessingCard";
 import { ProcessingCardMini } from "./ProcessingCardMini";
 import ProjectNav from "./ProjectNav";
 import { ProjectContext } from "./contexts";
-import { createAssetsFromForm } from "./file_upload.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const projectId = params.projectId;
@@ -37,22 +37,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   return redirect(`/projects/${params.projectId}`);
-}
-
-async function requireProjectIdInParams(params: Record<string, string | undefined>) {
-  const projectId = params.projectId;
-  if (!projectId) {
-    throw new Error("No project ID in params");
-  }
-  return projectId;
-}
-
-async function handleNewAssets(request: Request, projectId: string, token: string) {
-  const uploadHandler = unstable_createMemoryUploadHandler({
-    maxPartSize: 500_000_000, // 500 MB
-  });
-  const formData = await unstable_parseMultipartFormData(request, uploadHandler);
-  return await createAssetsFromForm(formData, projectId, token);
 }
 
 export default function ProjectPage() {

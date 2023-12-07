@@ -1,10 +1,23 @@
+import { unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
 import { EventLogColumnMapping } from "~/components/asset-upload/column_mapping";
 import { AssetType } from "~/services/assets";
 import { createAsset, deleteAsset } from "~/services/assets.server";
 import type { File as File_ } from "~/services/files";
 import { FileType, deleteFile, uploadFile } from "~/services/files.server";
 
-export async function createAssetsFromForm(formData: FormData, projectId: string, token: string) {
+export async function handleNewAssets(request: Request, projectId: string, token: string) {
+  const uploadHandler = unstable_createMemoryUploadHandler({
+    maxPartSize: 500000000, // 500 MB
+  });
+  const formData = await unstable_parseMultipartFormData(request, uploadHandler);
+  return await createAssetsFromForm(formData, projectId, token);
+}
+
+export async function handleNewAssetsFromFormData(formData: FormData, projectId: string, token: string) {
+  return await createAssetsFromForm(formData, projectId, token);
+}
+
+async function createAssetsFromForm(formData: FormData, projectId: string, token: string) {
   const assetType = formData.get("assetType") as AssetType;
 
   switch (assetType) {

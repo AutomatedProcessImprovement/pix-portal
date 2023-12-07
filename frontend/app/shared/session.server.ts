@@ -73,15 +73,3 @@ export async function getSessionUserInfo(request: Request): Promise<User | undef
   }
   return user as User;
 }
-
-export async function requireLoggedInUser(
-  request: Request,
-  redirectTo: string = new URL(request.url).pathname
-): Promise<User> {
-  const user = await getSessionUserInfo(request);
-  if (!user) {
-    const params = new URLSearchParams({ redirectTo });
-    throw redirect(`/login?${params}`);
-  }
-  return user;
-}

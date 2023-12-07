@@ -1,4 +1,11 @@
-import { json, redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
+import {
+  json,
+  redirect,
+  unstable_createMemoryUploadHandler,
+  unstable_parseMultipartFormData,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
 import { isRouteErrorResponse, useLoaderData, useMatches, useRouteError } from "@remix-run/react";
 import type { Asset } from "~/services/assets";
 import { AssetType } from "~/services/assets";
@@ -6,7 +13,8 @@ import { getAssetsForProject } from "~/services/assets.server";
 import type { ProcessingRequest } from "~/services/processing_requests";
 import { ProcessingRequestType } from "~/services/processing_requests";
 import { createProcessingRequest, getProcessingRequestsForProject } from "~/services/processing_requests.server";
-import { requireLoggedInUser } from "~/shared/session.server";
+import { handleNewAssetsFromFormData } from "~/shared/file_upload_handler.server";
+import { requireLoggedInUser } from "~/shared/guards.server";
 import { handleThrow } from "~/shared/utils";
 import { ProcessingType } from "../../shared/processing_type";
 import ProcessingApp from "./components/ProcessingApp";
@@ -42,14 +50,28 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const projectId = params.projectId as string;
   ensureProcessingTypeValidOrRedirect(processingType, projectId);
 
-  const formData = await request.formData();
+  // Calling request.formData() and unstable_parseMultipartFormData() reads the request body twice,
+  // which crashes remix. See github.com/remix-run/remix/discussions/7660
+  const uploadHandler = unstable_createMemoryUploadHandler({
+    maxPartSize: 500000000, // 500 MB
+  });
+  const formData = await unstable_parseMultipartFormData(request, uploadHandler);
+
+  // either handle asset upload
+  const assetType = formData.get("assetType");
+  if (assetType) {
+    await handleThrow(request, async () => {
+      return await handleNewAssetsFromFormData(formData, projectId, user.token!);
+    });
+    return null;
+  }
+
+  // or handle processing request creation
   const selectedInputAssetsIdsString = formData.get("selectedInputAssetsIds") as string;
   const selectedInputAssetsIds = selectedInputAssetsIdsString.split(",");
-
   const requestType = processingTypeToProcessingRequestType(processingType as ProcessingType);
   const shouldNotify = true;
   await createProcessingRequest(requestType, projectId, selectedInputAssetsIds, shouldNotify, user.token!);
-
   return null;
 };
 
