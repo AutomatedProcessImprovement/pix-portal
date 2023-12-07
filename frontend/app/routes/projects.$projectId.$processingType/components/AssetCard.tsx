@@ -1,7 +1,7 @@
 import { Popover } from "@headlessui/react";
-import { ArrowDownTrayIcon, BarsArrowDownIcon } from "@heroicons/react/20/solid";
+import { ArrowDownTrayIcon, BarsArrowDownIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { useContext } from "react";
-import type { Asset } from "~/services/assets";
+import { deleteAsset, type Asset } from "~/services/assets";
 import { parseDate } from "~/shared/utils";
 import { UserContext } from "./contexts";
 import { useAssetFile } from "./useAssetFile";
@@ -36,12 +36,38 @@ export function AssetCard({
           <h5 className="pl-2 pt-2 pr-1 font-semibold tracking-normal text-sm text-slate-900 break-all">
             {asset.name}
           </h5>
-          <AssetFilesDropdown asset={asset} className="p-1 pt-1.5" />
+          <div className="flex">
+            <AssetFilesDropdown asset={asset} className="py-1 px-0.5 pt-1.5" />
+            <RemoveAssetButton asset={asset} className="py-1 px-0.5 pt-1.5" />
+          </div>
         </div>
         <div className="px-2 pb-2 flex space-x-2 font-normal text-slate-400 text-xs">
           <p className="">{parseDate(asset.creation_time)}</p>
           <p className="">{asset.type}</p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function RemoveAssetButton({ asset, ...rest }: { asset: Asset } & React.HTMLAttributes<HTMLDivElement>) {
+  const user = useContext(UserContext);
+
+  async function handleClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    e.stopPropagation();
+    if (!user) return;
+    if (!window.confirm("Are you sure you want to remove this asset?")) return;
+    await deleteAsset(asset.id, user.token!);
+    // refresh page
+    window.location.reload();
+  }
+
+  return (
+    <div className={`${rest.className ? rest.className : ""}`} onClick={handleClick}>
+      <div
+        className={`z-0 w-6 h-6 flex items-center place-content-center rounded-full text-slate-400 hover:text-red-500 border-2 border-slate-200 bg-white hover:bg-slate-100`}
+      >
+        <TrashIcon className="w-4 " />
       </div>
     </div>
   );

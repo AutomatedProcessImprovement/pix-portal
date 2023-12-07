@@ -80,3 +80,19 @@ export async function patchAsset(assetUpdate: AssetPatchIn, assetId: string, tok
   const data = await response.json();
   return data as Asset;
 }
+
+export async function deleteAsset(assetId: string, token: string) {
+  const url = `assets/${assetId}`;
+  const u = new URL(url, BACKEND_BASE_URL);
+  const response = await fetch(u, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to delete asset ${assetId}`);
+  }
+  console.log(`Deleted asset ${assetId}`);
+}

@@ -29,17 +29,20 @@ export default function InputAssets({ setSelectedAssets }: { setSelectedAssets: 
       <h2 className="text-xl text-slate-500 font-semibold mb-6">Input Assets</h2>
       {assets.length > 0 && (
         <div className="space-y-2 mb-6">
-          {assets.sort().map((asset: Asset) => (
-            <AssetCard
-              key={asset.id}
-              asset={asset}
-              isActive={selectedAssets.includes(asset)}
-              onClick={() => {
-                console.log("clicked asset", asset);
-                handleClick(asset);
-              }}
-            />
-          ))}
+          {assets
+            .sort()
+            .filter((assets: Asset) => assets.deletion_time === null)
+            .map((asset: Asset) => (
+              <AssetCard
+                key={asset.id}
+                asset={asset}
+                isActive={selectedAssets.includes(asset)}
+                onClick={() => {
+                  console.log("clicked asset", asset);
+                  handleClick(asset);
+                }}
+              />
+            ))}
         </div>
       )}
       <UploadAssetDialog
