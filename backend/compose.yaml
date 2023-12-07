@@ -6,6 +6,18 @@ services:
       - 8000:8000
     env_file:
       - services/users/.env
+    secrets:
+      - superuser_email
+      - superuser_password
+      - users_secret_key
+      - system_email
+      - system_password
+    environment:
+      SUPERUSER_EMAIL_FILE: /run/secrets/superuser_email
+      SUPERUSER_PASSWORD_FILE: /run/secrets/superuser_password
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
+      SECRET_KEY_FILE: /run/secrets/users_secret_key
     depends_on:
       - users-db
     networks:
@@ -18,6 +30,12 @@ services:
       - 8030:8000
     env_file:
       - services/projects/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     depends_on:
       - projects-db
       - assets
@@ -31,6 +49,12 @@ services:
       - 8040:8000
     env_file:
       - services/processing-requests/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     depends_on:
       - processing-requests-db
       - projects
@@ -48,6 +72,12 @@ services:
       - 8020:8000
     env_file:
       - services/assets/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     depends_on:
       - assets-db
       - files
@@ -61,6 +91,12 @@ services:
       - 8010:8000
     env_file:
       - services/files/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     depends_on:
       - files-db
     networks:
@@ -81,7 +117,7 @@ services:
     ports:
       - 5432:5432
     healthcheck:
-      test: [ "CMD", "pg_isready" ]
+      test: ["CMD", "pg_isready"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -100,7 +136,7 @@ services:
     ports:
       - 5435:5432
     healthcheck:
-      test: [ "CMD", "pg_isready" ]
+      test: ["CMD", "pg_isready"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -119,7 +155,7 @@ services:
     ports:
       - 5436:5432
     healthcheck:
-      test: [ "CMD", "pg_isready" ]
+      test: ["CMD", "pg_isready"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -138,7 +174,7 @@ services:
     ports:
       - 5433:5432
     healthcheck:
-      test: [ "CMD", "pg_isready" ]
+      test: ["CMD", "pg_isready"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -157,7 +193,7 @@ services:
     ports:
       - 5434:5432
     healthcheck:
-      test: [ "CMD", "pg_isready" ]
+      test: ["CMD", "pg_isready"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -165,13 +201,13 @@ services:
       - backend
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
-    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
       - "4317:4317"
-      - "8888:8888"  # Prometheus metrics exposed by the collector
-      - "8889:8889"  # Prometheus exporter metrics
+      - "8888:8888" # Prometheus metrics exposed by the collector
+      - "8889:8889" # Prometheus exporter metrics
     depends_on:
       - zipkin
       - loki
@@ -185,7 +221,7 @@ services:
       - "9411:9411"
     networks:
       - backend
-    command: [ "--zipkin.ui.basepath=/admin/zipkin" ]
+    command: ["--zipkin.ui.basepath=/admin/zipkin"]
     restart: on-failure
   loki:
     image: grafana/loki:latest
@@ -259,7 +295,7 @@ services:
     image: docker.io/bitnami/kafka:3.5
     ports:
       - "9092:9092"
-      - "9094:9094"  # This port must be exposed if we move workers to other machines
+      - "9094:9094" # This port must be exposed if we move workers to other machines
     volumes:
       - kafka_data:/bitnami
     environment:
@@ -269,7 +305,7 @@ services:
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
       - KAFKA_KRAFT_CLUSTER_ID=5Bj9tBcqQBypjM7jJaNAXw
       # Listeners
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094  # TODO: PLAINTEXT should be changed in production
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094 # TODO: PLAINTEXT should be changed in production
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092,EXTERNAL://kafka:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
@@ -298,6 +334,12 @@ services:
       context: workers/bps-discovery-simod
     env_file:
       - workers/bps-discovery-simod/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     volumes:
       - bps-discovery-simod-data:/var/tmp/bps-discovery-simod:rw
     depends_on:
@@ -310,6 +352,12 @@ services:
       context: workers/simulation-prosimos
     env_file:
       - workers/simulation-prosimos/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     volumes:
       - simulation-prosimos-data:/var/tmp/simulation-prosimos:rw
     depends_on:
@@ -349,6 +397,12 @@ services:
       context: workers/kronos
     env_file:
       - workers/kronos/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     volumes:
       - kronos-data:/var/tmp/kronos:rw
     depends_on:
@@ -363,6 +417,12 @@ services:
       - 8090:8000
     env_file:
       - services/kronos/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     depends_on:
       - kronos-db
     networks:
@@ -381,7 +441,7 @@ services:
     ports:
       - 5437:5432
     healthcheck:
-      test: [ "CMD", "pg_isready" ]
+      test: ["CMD", "pg_isready"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -409,3 +469,13 @@ secrets:
     file: ./workers/mail/.secret_gmail_username
   mail_gmail_password:
     file: ./workers/mail/.secret_gmail_app_password
+  superuser_email:
+    file: ./services/users/.superuser_email.secret
+  superuser_password:
+    file: ./services/users/.superuser_password.secret
+  users_secret_key:
+    file: ./services/users/.key.secret
+  system_email:
+    file: ./services/users/.system_email.secret
+  system_password:
+    file: ./services/users/.system_password.secret
