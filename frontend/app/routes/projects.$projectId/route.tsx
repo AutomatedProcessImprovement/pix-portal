@@ -49,7 +49,7 @@ export default function ProjectPage() {
   }, [matches]);
 
   return (
-    <>
+    <div className="h-full flex flex-col">
       <Header userEmail={user.email} />
       <UserContext.Provider value={user}>
         <ProjectContext.Provider value={project}>
@@ -71,6 +71,6 @@ export default function ProjectPage() {
           <Outlet context={{ user, project }} />
         </ProjectContext.Provider>
       </UserContext.Provider>
-    </>
+    </div>
   );
 }

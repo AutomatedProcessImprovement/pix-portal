@@ -3,6 +3,14 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    @apply h-full;
+  }
+
+  body {
+    @apply h-full;
+  }
+
   a {
     @apply text-blue-500;
     @apply border-b border-blue-500;
