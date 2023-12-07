@@ -70,7 +70,15 @@ function UploadAssetSelect({
 }) {
   const context = useContext(SelectedAssetTypeContext);
   if (!context) return <></>;
-  return <SelectList selected={assetType} onChange={onChange} options={context.assetTypes} className="w-64" />;
+  return (
+    <SelectList
+      selected={assetType}
+      onChange={onChange}
+      options={context.assetTypes}
+      className="w-64"
+      optionClassName="text-lg"
+    />
+  );
 }
 
 function UploadAssetDetails() {

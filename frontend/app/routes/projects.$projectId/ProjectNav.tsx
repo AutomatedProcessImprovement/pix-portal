@@ -52,6 +52,7 @@ function ProjectsSelect() {
   return (
     <SelectList
       className="text-xl font-semibold w-52"
+      optionClassName="text-lg"
       selected={selectedProject}
       onChange={(projectLabeled) => {
         if (!projectLabeled) return;
