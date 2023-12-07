@@ -1,7 +1,8 @@
 import { Popover } from "@headlessui/react";
 import { ArrowDownTrayIcon, BarsArrowDownIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { useContext } from "react";
-import { deleteAsset, type Asset } from "~/services/assets";
+import { type Asset } from "~/services/assets";
+import { removeAssetFromProject } from "~/services/projects";
 import { parseDate } from "~/shared/utils";
 import { UserContext } from "./contexts";
 import { useAssetFile } from "./useAssetFile";
@@ -57,7 +58,7 @@ function RemoveAssetButton({ asset, ...rest }: { asset: Asset } & React.HTMLAttr
     e.stopPropagation();
     if (!user) return;
     if (!window.confirm("Are you sure you want to remove this asset?")) return;
-    await deleteAsset(asset.id, user.token!);
+    await removeAssetFromProject(asset.id, asset.project_id, user.token!);
     // refresh page
     window.location.reload();
   }

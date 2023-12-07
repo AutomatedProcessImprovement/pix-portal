@@ -81,6 +81,7 @@ export async function patchAsset(assetUpdate: AssetPatchIn, assetId: string, tok
   return data as Asset;
 }
 
+// TODO: Use projects.removeAssetFromProject instead. This call doesn't remove the asset from the project.
 export async function deleteAsset(assetId: string, token: string) {
   const url = `assets/${assetId}`;
   const u = new URL(url, BACKEND_BASE_URL);

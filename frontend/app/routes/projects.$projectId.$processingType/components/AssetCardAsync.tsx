@@ -12,7 +12,10 @@ export function AssetCardAsync({ assetId, user }: { assetId: string; user: User 
 
   useEffect(() => {
     if (!user) return;
-    getAsset(assetId, user.token!).then((asset) => setAsset(asset));
+    getAsset(assetId, user.token!).then((asset) => {
+      if (asset.deletion_time !== null) return;
+      setAsset(asset);
+    });
   }, [assetId, user]);
 
   return (
