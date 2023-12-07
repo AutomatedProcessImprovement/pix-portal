@@ -11,17 +11,24 @@ export const sessionStorage = createCookieSessionStorage({
     path: "/",
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
-    secrets: [readSecretFromEnv("SESSION_SECRET_FILE")],
+    secrets: [readSecretFromEnv("SESSION_SECRET_FILE") ?? "secret"], // default secret for development
     maxAge: 60 * 60, // 1 hour
   },
 });
 
-function readSecretFromEnv(name: string): string {
+function readSecretFromEnv(name: string): string | undefined {
+  if (!process.env.hasOwnProperty(name)) return undefined;
   const secretPath = process.env[name];
-  if (secretPath && !fs.existsSync(secretPath)) {
-    throw new Error(`Environmental variable ${name} does not exist at path ${secretPath}`);
+  try {
+    if (secretPath && !fs.existsSync(secretPath)) {
+      throw new Error(`Environmental variable ${name} does not exist at path ${secretPath}`);
+    }
+    return fs.readFileSync(secretPath!, "utf-8").trim();
+  } catch (e) {
+    return undefined;
+  } finally {
+    delete process.env[name];
   }
-  return fs.readFileSync(secretPath!, "utf-8").trim();
 }
 
 export async function getSession(request: Request) {

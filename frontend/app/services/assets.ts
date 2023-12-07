@@ -1,5 +1,5 @@
 import type { File } from "./files";
-import { clientSideHttp } from "./shared.client";
+import { BACKEND_BASE_URL } from "./shared.client";
 
 export type Asset = {
   id: string;
@@ -42,16 +42,17 @@ export function assetTypeToString(type: AssetType): string {
 }
 
 export async function getAsset(assetId: string, token: string, lazy: boolean = true) {
-  const url = `/assets/${assetId}`;
-  const response = await clientSideHttp.get(url, {
+  const params = new URLSearchParams({ lazy: lazy.toString() }); // NOTE: if false, the call returns the asset with its files as objects, not just ids
+  const url = `assets/${assetId}?${params}`;
+  const u = new URL(url, BACKEND_BASE_URL);
+  const response = await fetch(u, {
     headers: {
       Authorization: `Bearer ${token}`,
-    },
-    params: {
-      lazy: lazy, // NOTE: if false, the call returns the asset with its files as objects, not just ids
+      Origin: window.location.origin,
     },
   });
-  return response.data as Asset;
+  const data = await response.json();
+  return data as Asset;
 }
 
 export type AssetPatchIn = {
@@ -65,12 +66,17 @@ export type AssetPatchIn = {
 };
 
 export async function patchAsset(assetUpdate: AssetPatchIn, assetId: string, token: string) {
-  const url = `/assets/${assetId}`;
-  const response = await clientSideHttp.patch(url, assetUpdate, {
+  const url = `assets/${assetId}`;
+  const u = new URL(url, BACKEND_BASE_URL);
+  const response = await fetch(u, {
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
     },
+    body: JSON.stringify(assetUpdate),
   });
-  return response.data as Asset;
+  const data = await response.json();
+  return data as Asset;
 }

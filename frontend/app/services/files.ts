@@ -1,4 +1,4 @@
-import { clientSideHttp } from "./shared.client";
+import { BACKEND_BASE_URL } from "./shared.client";
 
 export type File = {
   id: string;
@@ -24,13 +24,16 @@ export enum FileType {
 }
 
 export async function getFile(fileId: string, token: string) {
-  const url = `/files/${fileId}`;
-  const response = await clientSideHttp.get(url, {
+  const url = `files/${fileId}`;
+  const u = new URL(url, BACKEND_BASE_URL);
+  const response = await fetch(u, {
     headers: {
       Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
     },
   });
-  return response.data as File;
+  const data = await response.json();
+  return data as File;
 }
 
 export type FileLocation = {
@@ -38,47 +41,58 @@ export type FileLocation = {
 };
 
 export async function getFileLocation(fileId: string, token: string) {
-  const url = `/files/${fileId}/location`;
-  const response = await clientSideHttp.get(url, {
+  const url = `files/${fileId}/location`;
+  const u = new URL(url, BACKEND_BASE_URL);
+  const response = await fetch(u, {
     headers: {
       Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
     },
   });
-  return response.data as FileLocation;
+  const data = await response.json();
+  return data as FileLocation;
 }
 
 export async function getFileContent(fileId: string, token: string) {
-  const url = `/files/${fileId}/content`;
-  const response = await clientSideHttp.get(url, {
-    responseType: "blob",
+  const url = `files/${fileId}/content`;
+  const u = new URL(url, BACKEND_BASE_URL);
+  const response = await fetch(u, {
     headers: {
       Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
     },
   });
-  return response.data as Blob;
+  const data = await response.blob();
+  return data as Blob;
 }
 
 export async function uploadFile(file: Blob, file_name: string, file_type: FileType, token: string) {
-  const url = `/files/`;
   const bytes = await file.arrayBuffer();
-  const response = await clientSideHttp.post(url, bytes, {
+  const params = new URLSearchParams({ name: file_name, type: file_type });
+  const url = `files/?${params}`;
+  const u = new URL(url, BACKEND_BASE_URL);
+  const response = await fetch(u, {
+    method: "POST",
     headers: {
       "Content-Type": "application/octet-stream",
       Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
     },
-    params: {
-      name: file_name,
-      type: file_type,
-    },
+    body: bytes,
   });
-  return response.data as File;
+  const data = await response.json();
+  return data as File;
 }
 
 export async function deleteFile(fileId: string, token: string) {
-  const url = `/files/${fileId}`;
-  await clientSideHttp.delete(url, {
+  const url = `files/${fileId}`;
+  const u = new URL(url, BACKEND_BASE_URL);
+  const response = await fetch(u, {
+    method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
     },
   });
+  console.log(response);
 }

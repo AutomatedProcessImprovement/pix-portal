@@ -1,4 +1,4 @@
-import { clientSideHttp } from "./shared.client";
+import { BACKEND_BASE_URL } from "./shared.client";
 
 export interface Project {
   id: string;
@@ -13,14 +13,15 @@ export interface Project {
 }
 
 export async function listProjectsForUser(userId: string, token: string): Promise<Project[]> {
-  const url = `/projects/`;
-  const response = await clientSideHttp.get(url, {
+  const params = new URLSearchParams({ user_id: userId });
+  const url = `projects/?${params}`;
+  const u = new URL(url, BACKEND_BASE_URL);
+  const response = await fetch(u, {
     headers: {
       Authorization: `Bearer ${token}`,
-    },
-    params: {
-      user_id: userId,
+      Origin: window.location.origin,
     },
   });
-  return response.data as Project[];
+  const data = await response.json();
+  return data as Project[];
 }

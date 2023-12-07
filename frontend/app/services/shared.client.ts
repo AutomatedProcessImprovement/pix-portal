@@ -7,7 +7,7 @@ interface Window {
 }
 declare var window: Window;
 
-const BACKEND_BASE_URL = window.ENV.BACKEND_BASE_URL;
+export const BACKEND_BASE_URL = window.ENV.BACKEND_BASE_URL;
 
 export const clientSideHttp = axios.create({
   baseURL: BACKEND_BASE_URL,
@@ -21,9 +21,6 @@ clientSideHttp.interceptors.response.use(
   },
   (error) => {
     console.error("Axios client failed:", error);
-    if (error.response.status === 401) {
-      console.error("Unauthorized:", error.response.data.message);
-    }
     return Promise.reject(error);
   }
 );

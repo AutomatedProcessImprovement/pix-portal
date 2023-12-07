@@ -3,7 +3,7 @@ import type { Project } from "./projects";
 
 export async function listProjectsForUser(userId: string, token: string): Promise<Project[]> {
   const params = new URLSearchParams({ user_id: userId });
-  const response = await fetch(`${projectsURL}?${params}`, {
+  const response = await fetch(`${projectsURL}/?${params}`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,

@@ -17,7 +17,7 @@ services:
 #   db-data:
 secrets:
   session-secret:
-    file: ./session.secret
+    file: ./.session.secret
 networks:
   backend:
     name: pix_backend
