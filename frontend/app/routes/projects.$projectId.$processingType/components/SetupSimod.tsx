@@ -30,7 +30,7 @@ export default function SetupSimod() {
   return (
     <ProcessingAppSection heading="Discovery Configuration">
       {!eventLog && (
-        <p className="py-2 prose prose-md prose-slate max-w-lg">
+        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg">
           Select a event log and, optionally, a process model from the input assets on the left.
         </p>
       )}
