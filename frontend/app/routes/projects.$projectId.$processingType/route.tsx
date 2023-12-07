@@ -52,10 +52,15 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
   // Calling request.formData() and unstable_parseMultipartFormData() reads the request body twice,
   // which crashes remix. See github.com/remix-run/remix/discussions/7660
-  const uploadHandler = unstable_createMemoryUploadHandler({
-    maxPartSize: 500000000, // 500 MB
-  });
-  const formData = await unstable_parseMultipartFormData(request, uploadHandler);
+  let formData: FormData;
+  if (request.headers.get("content-type")?.startsWith("multipart/form-data")) {
+    const uploadHandler = unstable_createMemoryUploadHandler({
+      maxPartSize: 500000000, // 500 MB
+    });
+    formData = await unstable_parseMultipartFormData(request, uploadHandler);
+  } else {
+    formData = await request.formData();
+  }
 
   // either handle asset upload
   const assetType = formData.get("assetType");
