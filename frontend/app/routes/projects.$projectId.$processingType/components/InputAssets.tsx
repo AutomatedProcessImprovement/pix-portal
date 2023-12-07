@@ -30,7 +30,11 @@ export default function InputAssets({ setSelectedAssets }: { setSelectedAssets: 
       {assets.length > 0 && (
         <div className="space-y-2 mb-6">
           {assets
-            .sort()
+            .sort((a, b) => {
+              const aDate = new Date(a.creation_time);
+              const bDate = new Date(b.creation_time);
+              return aDate.getTime() - bDate.getTime();
+            })
             .filter((assets: Asset) => assets.deletion_time === null)
             .map((asset: Asset) => (
               <AssetCard
