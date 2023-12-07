@@ -3,12 +3,12 @@ import uuid
 from typing import AsyncGenerator, Optional, Sequence
 
 from fastapi import Depends
-from pix_portal_lib.service_clients.file import FileServiceClient, File
+from pix_portal_lib.service_clients.file import File, FileServiceClient
 from pix_portal_lib.service_clients.project import ProjectServiceClient
 
 from assets.controllers.schemas import AssetOut
 from assets.persistence.model import Asset, AssetType
-from assets.persistence.repository import get_asset_repository, AssetRepository
+from assets.persistence.repository import AssetRepository, get_asset_repository
 
 
 class AssetService:
@@ -97,9 +97,19 @@ class AssetService:
         await self.asset_repository.delete_asset(asset_id)
 
         for file_id in asset.files_ids:
+            involved_assets = await self.get_assets_by_file_id(file_id, token=token)
+
+            # guard to avoid deleting files that are used by other assets
+            involved_assets = [asset for asset in involved_assets if (asset.id != asset_id and not asset.deletion_time)]
+            if len(involved_assets) > 0:
+                continue
+
             deleted_ok = await self.file_service_client.delete_file(file_id, token=token)
             if not deleted_ok:
                 raise Exception("Asset deleted but files deletion failed")
+
+    async def get_assets_by_file_id(self, file_id: uuid.UUID, token: str) -> list[Asset]:
+        return await self.asset_repository.get_assets_by_file_id(file_id)
 
     async def get_files_by_asset_id(self, asset_id: uuid.UUID, token: str) -> list[dict]:
         asset = await self.get_asset(asset_id, token=token)
