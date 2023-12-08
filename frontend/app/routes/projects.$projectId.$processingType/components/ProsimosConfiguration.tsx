@@ -45,33 +45,36 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
       let jsonFile: File_ | undefined;
       for (const file of asset.files ?? []) {
         if (file.type === FileType.PROCESS_MODEL_BPMN) bpmnFile = file;
-        if (file.type === FileType.SIMULATION_MODEL_PROSIMOS_JSON) {
-          jsonFile = file;
-          setSimulationParametersFile(file);
-        } else {
-          setSimulationParametersFile(null);
-        }
+        if (file.type === FileType.SIMULATION_MODEL_PROSIMOS_JSON) jsonFile = file;
       }
 
       if (!bpmnFile) return;
       const bpmnBlob = await getFileContent(bpmnFile?.id, token);
       const bpmnData = await parseBpmn(bpmnBlob);
-      setBpmnData(bpmnData);
 
       if (!jsonFile) return;
       const jsonBlob = await getFileContent(jsonFile?.id, token);
-      const [jsonData, error] = await parseSimulationParameters(jsonBlob);
-      if (error) {
-        console.error("error parsing simulation parameters", Object.entries(error));
-        methods.setError("root", { message: error.message });
-        setSimulationParameters(null);
-      } else if (jsonData) {
-        methods.reset(jsonData);
-        setSimulationParameters(jsonData);
-      }
+      const [jsonData, parametersParsingError] = await parseSimulationParameters(jsonBlob);
+
+      return { bpmnData, jsonData, jsonFile, parametersParsingError };
     };
 
-    fetchAndParseFiles().then();
+    fetchAndParseFiles().then((result) => {
+      if (result) {
+        const { bpmnData, jsonData, jsonFile, parametersParsingError } = result;
+
+        if (parametersParsingError) {
+          console.error("error parsing simulation parameters", Object.entries(parametersParsingError));
+          methods.setError("root", { message: parametersParsingError.message });
+        } else if (jsonData) {
+          methods.reset(jsonData);
+        }
+
+        setBpmnData(bpmnData);
+        setSimulationParameters(jsonData);
+        setSimulationParametersFile(jsonFile);
+      }
+    });
   }, [asset, user, methods]);
 
   useEffect(() => {
@@ -82,10 +85,15 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
     async (data: any) => {
       const newSimulationParameters = data as TProsimosConfiguration;
       console.log("newSimulationParameters", newSimulationParameters);
-      console.log("simulationParameters", simulationParameters);
+      console.log("simulationParameters", simulationParameters, "simulationParametersFile", simulationParametersFile);
 
-      if (!simulationParameters || !simulationParametersFile || !asset?.id) {
-        console.log("no simulation parameters");
+      if (!simulationParametersFile) {
+        console.log("Simulation parameters file is not available yet.");
+        return;
+      }
+
+      if (!asset) {
+        console.error("Asset ID is not available.");
         return;
       }
 
@@ -110,7 +118,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
         console.log("deleted old file", simulationParametersFile.id);
       }
     },
-    [asset, simulationParameters, simulationParametersFile, user?.token]
+    [asset, user, simulationParametersFile, simulationParameters]
   );
 
   const tabs = [

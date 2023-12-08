@@ -41,6 +41,28 @@ export function assetTypeToString(type: AssetType): string {
   }
 }
 
+export async function createAsset(filesIds: string[], name: string, type: AssetType, projectId: string, token: string) {
+  const url = `assets/`;
+  const payload = {
+    name: name,
+    type: type,
+    project_id: projectId,
+    files_ids: filesIds,
+  };
+  const u = new URL(url, BACKEND_BASE_URL);
+  const response = await fetch(u, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  return data as Asset;
+}
+
 export async function getAsset(assetId: string, token: string, lazy: boolean = true) {
   const params = new URLSearchParams({ lazy: lazy.toString() }); // NOTE: if false, the call returns the asset with its files as objects, not just ids
   const url = `assets/${assetId}?${params}`;

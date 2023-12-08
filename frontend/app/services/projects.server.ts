@@ -10,6 +10,7 @@ export async function listProjectsForUser(userId: string, token: string): Promis
     },
   });
   const data = await response.json();
+  if ("message" in data) throw new Error(data.message);
   return data as Project[];
 }
 

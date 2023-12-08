@@ -54,7 +54,7 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
         setSubmitEnabled(!!processModelFile);
         break;
       case AssetType.SIMULATION_MODEL:
-        setSubmitEnabled(!!processModelFile && !!simulationModelFile);
+        setSubmitEnabled(!!processModelFile); // simulationModelFile is optional
         break;
     }
   }, [assetType, eventLogFile, processModelFile, simulationModelFile, eventLogColumnMappingFilledIn, navigation.state]);

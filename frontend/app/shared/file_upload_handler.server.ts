@@ -1,5 +1,7 @@
 import { unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
+import { v4 as uuidv4 } from "uuid";
 import { EventLogColumnMapping } from "~/components/asset-upload/column_mapping";
+import { prosimosConfigurationDefaultValues } from "~/routes/projects.$projectId.$processingType/components/prosimos/schema";
 import { AssetType } from "~/services/assets";
 import { createAsset, deleteAsset } from "~/services/assets.server";
 import type { File as File_ } from "~/services/files";
@@ -54,7 +56,14 @@ async function createProcessModelFromForm(formData: FormData, projectId: string,
 
 async function createSimulationModelFromForm(formData: FormData, projectId: string, token: string) {
   // simulation model has 2 files, simulation model (JSON) and process model (BPMN)
-  const simulationModel = formData.get("simulationModelFile") as File;
+  let simulationModel = formData.get("simulationModelFile") as File;
+
+  // if simulation model file missing, create a new one with default values
+  if (!simulationModel || simulationModel.size === 0) {
+    const jsonBlob = new Blob([JSON.stringify(prosimosConfigurationDefaultValues)], { type: "application/json" });
+    simulationModel = new File([jsonBlob], `${uuidv4()}.json`);
+  }
+
   const processModel = formData.get("processModelFile") as File;
   if (simulationModel && simulationModel.size > 0 && processModel && processModel.size > 0) {
     await uploadAndCreateSimulationModel(simulationModel as File, processModel as File, projectId, token);

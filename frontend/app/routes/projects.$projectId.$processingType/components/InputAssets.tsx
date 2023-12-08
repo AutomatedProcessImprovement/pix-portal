@@ -2,7 +2,7 @@ import { useContext } from "react";
 import UploadAssetButton from "~/components/asset-upload/UploadAssetButton";
 import UploadAssetDialog from "~/components/asset-upload/UploadAssetDialog";
 import type { Asset, AssetType } from "~/services/assets";
-import { processingTypeToAssetType } from "~/shared/processing_type";
+import { ProcessingType, processingTypeToAssetType } from "~/shared/processing_type";
 import { AssetCard } from "./AssetCard";
 import { ProcessingAppSection } from "./ProcessingAppSection";
 import { AssetsContext, SelectedAssetsContext } from "./contexts";
@@ -14,13 +14,26 @@ export default function InputAssets({ setSelectedAssets }: { setSelectedAssets: 
   const selectedAssets = useContext(SelectedAssetsContext);
 
   function handleClick(asset: Asset) {
-    // allow only one asset of each type to be selected at the same time
+    switch (processingType) {
+      case ProcessingType.Discovery:
+        // allow only one event log to be selected at the same time
 
-    if (selectedAssets.includes(asset)) {
-      // if the asset is already selected, deselect it
-      setSelectedAssets([...filterOutAssetType(selectedAssets, asset.type as AssetType)]);
-    } else {
-      setSelectedAssets([...filterOutAssetType(selectedAssets, asset.type as AssetType), asset]);
+        // allow only one asset of each type to be selected at the same time
+        if (selectedAssets.includes(asset)) {
+          // if the asset is already selected, deselect it
+          setSelectedAssets([...filterOutAssetType(selectedAssets, asset.type as AssetType)]);
+        } else {
+          setSelectedAssets([...filterOutAssetType(selectedAssets, asset.type as AssetType), asset]);
+        }
+        break;
+      case ProcessingType.Simulation:
+        if (selectedAssets.includes(asset)) setSelectedAssets([]);
+        else setSelectedAssets([asset]);
+        break;
+      case ProcessingType.WaitingTime:
+        if (selectedAssets.includes(asset)) setSelectedAssets([]);
+        else setSelectedAssets([asset]);
+        break;
     }
   }
 
@@ -42,7 +55,6 @@ export default function InputAssets({ setSelectedAssets }: { setSelectedAssets: 
                 asset={asset}
                 isActive={selectedAssets.includes(asset)}
                 onClick={() => {
-                  console.log("clicked asset", asset);
                   handleClick(asset);
                 }}
               />

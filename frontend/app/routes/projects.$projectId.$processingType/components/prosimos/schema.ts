@@ -307,3 +307,55 @@ export const distributionParametersLength = (distr_func: DistributionType) => {
 };
 
 export type ProsimosConfiguration = yup.InferType<typeof prosimosConfigurationSchema>;
+
+export const prosimosConfigurationDefaultValues: ProsimosConfiguration = {
+  model_type: "CRISP",
+  granule_size: {
+    time_unit: "MINUTES",
+    value: 30,
+  },
+  total_cases: 100,
+  start_time: formatDate(new Date()),
+  arrival_time_distribution: {
+    distribution_name: "expon",
+    distribution_params: [
+      {
+        value: 1,
+      },
+      {
+        value: 0,
+      },
+      {
+        value: 100,
+      },
+    ],
+  },
+  arrival_time_calendar: [
+    {
+      from: "MONDAY",
+      to: "FRIDAY",
+      beginTime: "09:00:00",
+      endTime: "17:00:00",
+    },
+  ],
+  resource_calendars: [
+    {
+      id: "resource_calendar_1",
+      name: "resource_calendar_1",
+      time_periods: [
+        {
+          from: "MONDAY",
+          to: "FRIDAY",
+          beginTime: "09:00:00",
+          endTime: "17:00:00",
+        },
+      ],
+    },
+  ],
+  resource_profiles: [],
+  task_resource_distribution: [],
+  gateway_branching_probabilities: [],
+  batch_processing: [],
+  case_attributes: [],
+  prioritization_rules: [],
+};
