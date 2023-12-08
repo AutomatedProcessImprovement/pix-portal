@@ -114,7 +114,14 @@ function AssetFileAsync({ assetId, fileId }: { assetId: string; fileId: string }
             </div>
           </div>
           {downloadUrl && (
-            <a href={downloadUrl} ref={hiddenAnchorRef} download={file.name} className="hidden">
+            <a
+              href={downloadUrl}
+              ref={hiddenAnchorRef}
+              download={file.name}
+              className="hidden"
+              target="_blank"
+              rel="noreferrer"
+            >
               Download
             </a>
           )}

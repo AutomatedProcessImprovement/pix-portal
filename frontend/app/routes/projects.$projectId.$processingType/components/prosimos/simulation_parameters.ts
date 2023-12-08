@@ -24,7 +24,7 @@ export async function parseSimulationParameters(
   try {
     simulationParameters = await prosimosConfigurationSchema.validate(json);
   } catch (e) {
-    return [null, e as ValidationError];
+    return [json, e as ValidationError];
   }
 
   simulationParameters.start_time = formatDate(new Date(simulationParameters.start_time));

@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { BpmnDataContext } from "../contexts";
 import { DistributionNameAndValues } from "./DistributionNameAndValues";
 import FormSection from "./FormSection";
+import { Input } from "./Input";
 import type { IntermediateCatchEvent } from "./bpmn";
 
 export function TabIntermediateEvents() {
@@ -31,6 +32,7 @@ function IntermediateEvent({ name, catchEvent }: { name: string; catchEvent: Int
     <div className="p-2 border-4">
       <h4 className="text-lg font-semibold mb-4">
         Event: {catchEvent.id} ({catchEvent.name})
+        <Input name={`${name}.event_id`} type="hidden" value={catchEvent.id} pure={true} />
       </h4>
       <DistributionNameAndValues name={`${name}`} />
     </div>

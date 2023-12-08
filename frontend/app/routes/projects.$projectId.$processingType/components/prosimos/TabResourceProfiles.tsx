@@ -27,7 +27,8 @@ export function TabResourceProfiles() {
 
   function handleAddPool() {
     const id = fields.length + 1;
-    append({ id: `${id}`, name: `pool ${id}`, resource_list: [] });
+    const name = `pool ${id}`;
+    append({ id: name, name: name, resource_list: [] });
   }
 
   return (
@@ -64,9 +65,10 @@ function ResourceProfile({ name, children }: { name: string; children?: React.Re
 
   const handleAddTime = useCallback(() => {
     const id = fields.length + 1;
+    const name = `profile ${id}`;
     append({
-      id: `${id}`,
-      name: `profile ${id}`,
+      id: name,
+      name: name,
       cost_per_hour: 0,
       amount: 1,
     });

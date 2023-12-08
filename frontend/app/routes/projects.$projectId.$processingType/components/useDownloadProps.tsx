@@ -17,7 +17,10 @@ export function useDownloadProps(fileLocation: string | null, user: User | undef
   async function handleClick(e: any) {
     e.preventDefault();
 
-    if (!fileLocation) return;
+    if (!fileLocation) {
+      console.error("fileLocation is null");
+      return;
+    }
 
     // download the file from the backend using the user's token
     const response = await axios.get(fileLocation, {

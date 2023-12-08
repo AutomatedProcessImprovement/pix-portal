@@ -116,7 +116,6 @@ export const prosimosConfigurationSchema = yup.object({
     )
     .required(),
   event_distribution: yup.array().of(
-    // TODO: where is it coming from?
     yup.object({
       event_id: yup.string().required(),
       ...distributionSchema,
@@ -297,7 +296,7 @@ export const distributionParameters = {
   [DistributionType.expon]: ["Mean (s)", "Min (s)", "Max (s)"],
   [DistributionType.uniform]: ["Min (s)", "Max (s)"],
   [DistributionType.fix]: ["Mean (s)"],
-  [DistributionType.gamma]: ["Mean", "Variance (s)", "Min (s)", "Max (s)"],
+  [DistributionType.gamma]: ["Mean (s)", "Variance (s)", "Min (s)", "Max (s)"],
   [DistributionType.lognorm]: ["Mean (s)", "Variance (s)", "Min (s)", "Max (s)"],
   [DistributionType.norm]: ["Mean (s)", "Std Dev (s)", "Min (s)", "Max (s)"],
 };

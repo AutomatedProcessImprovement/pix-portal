@@ -66,10 +66,9 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
         if (parametersParsingError) {
           console.error("error parsing simulation parameters", Object.entries(parametersParsingError));
           methods.setError("root", { message: parametersParsingError.message });
-        } else if (jsonData) {
-          methods.reset(jsonData);
         }
 
+        if (jsonData) methods.reset(jsonData);
         setBpmnData(bpmnData);
         setSimulationParameters(jsonData);
         setSimulationParametersFile(jsonFile);
