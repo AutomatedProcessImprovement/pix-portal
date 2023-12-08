@@ -8,16 +8,17 @@ from typing import Optional
 from uuid import UUID
 
 from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
-from pix_portal_lib.service_clients.asset import AssetServiceClient, AssetType, Asset, File_
+from pix_portal_lib.service_clients.asset import Asset, AssetServiceClient, AssetType, File_
 from pix_portal_lib.service_clients.file import FileType
 from pix_portal_lib.service_clients.processing_request import (
-    ProcessingRequestServiceClient,
     ProcessingRequest,
+    ProcessingRequestServiceClient,
     ProcessingRequestStatus,
 )
 from pix_portal_lib.service_clients.project import ProjectServiceClient
 from pix_portal_lib.service_clients.user import UserServiceClient
 from prosimos.simulation_engine import run_simulation
+
 from simulation_prosimos.settings import settings
 
 logger = logging.getLogger()
@@ -28,7 +29,7 @@ class InputAssetMissing(Exception):
         if message is not None:
             super().__init__(message)
         else:
-            super().__init__("Simod discovery failed. Input asset not found.")
+            super().__init__("Input asset not found.")
 
 
 class ProsimosSimulationFailed(Exception):
@@ -219,24 +220,28 @@ class ProsimosService:
         )
 
     async def _send_email_notification(self, processing_request: ProcessingRequest, is_success: bool):
-        email_notification_producer = EmailNotificationProducer(client_id="simulation-prosimos")
-        user = await self._user_service_client.get_user(user_id=UUID(processing_request.user_id))
-        user_email = str(user["email"])
-        if is_success:
-            msg = EmailNotificationRequest(
-                processing_request_id=processing_request.processing_request_id,
-                to_addrs=[user_email],
-                subject="[PIX Notification] BPS discovery and optimization with Simod has finished",
-                body=f"Processing request {processing_request.processing_request_id} has finished successfully.",
-            )
-        else:
-            msg = EmailNotificationRequest(
-                processing_request_id=processing_request.processing_request_id,
-                to_addrs=[user_email],
-                subject="[PIX Notification] BPS discovery and optimization with Simod has failed",
-                body=f"Processing request {processing_request.processing_request_id} has failed.",
-            )
-        email_notification_producer.send_message(msg)
+        try:
+            email_notification_producer = EmailNotificationProducer(client_id="simulation-prosimos")
+            user = await self._user_service_client.get_user(user_id=UUID(processing_request.user_id))
+            logger.info(f"Sending email notification to user: {user}")
+            user_email = str(user["email"])
+            if is_success:
+                msg = EmailNotificationRequest(
+                    processing_request_id=processing_request.processing_request_id,
+                    to_addrs=[user_email],
+                    subject="[PIX Notification] BPS discovery and optimization with Simod has finished",
+                    body=f"Processing request {processing_request.processing_request_id} has finished successfully.",
+                )
+            else:
+                msg = EmailNotificationRequest(
+                    processing_request_id=processing_request.processing_request_id,
+                    to_addrs=[user_email],
+                    subject="[PIX Notification] BPS discovery and optimization with Simod has failed",
+                    body=f"Processing request {processing_request.processing_request_id} has failed.",
+                )
+            email_notification_producer.send_message(msg)
+        except Exception as e:
+            logger.error(f"Failed to send email notification: {e}")
 
     def _write_default_prosimos_event_log_column_mapping_file(self) -> Path:
         default_prosimos_event_log_column_mapping = {

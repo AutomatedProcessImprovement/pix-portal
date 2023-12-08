@@ -10,11 +10,11 @@ from uuid import UUID
 
 import yaml
 from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
-from pix_portal_lib.service_clients.asset import AssetServiceClient, AssetType, File_, Asset
+from pix_portal_lib.service_clients.asset import Asset, AssetServiceClient, AssetType, File_
 from pix_portal_lib.service_clients.file import FileType
 from pix_portal_lib.service_clients.processing_request import (
-    ProcessingRequestServiceClient,
     ProcessingRequest,
+    ProcessingRequestServiceClient,
     ProcessingRequestStatus,
 )
 from pix_portal_lib.service_clients.project import ProjectServiceClient
@@ -30,7 +30,7 @@ class InputAssetMissing(Exception):
         if message is not None:
             super().__init__(message)
         else:
-            super().__init__("Simod discovery failed. Input asset not found.")
+            super().__init__("Input asset not found.")
 
 
 class SimodDiscoveryFailed(Exception):

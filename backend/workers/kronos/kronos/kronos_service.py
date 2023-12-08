@@ -6,20 +6,21 @@ from pathlib import Path
 from typing import Optional
 from uuid import UUID
 
-from kronos.kronos_http_client import KronosHTTPClient
-from kronos.settings import settings
 from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
-from pix_portal_lib.service_clients.asset import AssetServiceClient, Asset, File_
+from pix_portal_lib.service_clients.asset import Asset, AssetServiceClient, File_
 from pix_portal_lib.service_clients.file import FileType
 from pix_portal_lib.service_clients.processing_request import (
-    ProcessingRequestServiceClient,
     ProcessingRequest,
+    ProcessingRequestServiceClient,
     ProcessingRequestStatus,
 )
 from pix_portal_lib.service_clients.project import ProjectServiceClient
 from pix_portal_lib.service_clients.user import UserServiceClient
 from wta import EventLogIDs
 from wta.cli import _column_mapping, _run
+
+from kronos.kronos_http_client import KronosHTTPClient
+from kronos.settings import settings
 
 logger = logging.getLogger()
 
@@ -29,7 +30,7 @@ class InputAssetMissing(Exception):
         if message is not None:
             super().__init__(message)
         else:
-            super().__init__("Simod discovery failed. Input asset not found.")
+            super().__init__("Input asset not found.")
 
 
 class FailedCreatingTableFromCSV(Exception):

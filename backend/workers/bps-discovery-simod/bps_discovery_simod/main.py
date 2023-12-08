@@ -36,14 +36,13 @@ logger.info(
 
 simod_service = SimodService()
 
+event_loop = asyncio.new_event_loop()
+asyncio.set_event_loop(event_loop)
 
 # Simod processing can be resource demanding, so we don't want to run several of them processes concurrently.
 # Still, we need to wrap async code in asyncio.run().
 for message in consumer:
-    if not asyncio.get_event_loop() or asyncio.get_event_loop().is_closed():
-        asyncio.set_event_loop(asyncio.new_event_loop())
-
     logger.info(f"Kafka consumer {consumer_id} received a message from Kafka: {message}")
     processing_request_payload = ProcessingRequest(**message.value)
-    asyncio.run(simod_service.process(processing_request_payload))
+    event_loop.run_until_complete(simod_service.process(processing_request_payload))
     logger.info(f"Kafka consumer {consumer_id} finished processing the message: {message}")
