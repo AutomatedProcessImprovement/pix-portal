@@ -24,9 +24,11 @@ services:
     secrets:
       - superuser_email
       - superuser_password
+      - users_secret_key
     environment:
       SUPERUSER_EMAIL_FILE: /run/secrets/superuser_email
       SUPERUSER_PASSWORD_FILE: /run/secrets/superuser_password
+      USERS_SECRET_KEY_FILE: /run/secrets/users_secret_key
     depends_on:
       - users-db
     networks:
@@ -39,6 +41,12 @@ services:
       - 8030:8000
     env_file:
       - backend/services/projects/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     depends_on:
       - projects-db
       - assets
@@ -52,6 +60,12 @@ services:
       - 8040:8000
     env_file:
       - backend/services/processing-requests/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     depends_on:
       - processing-requests-db
       - projects
@@ -69,6 +83,12 @@ services:
       - 8020:8000
     env_file:
       - backend/services/assets/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     depends_on:
       - assets-db
       - files
@@ -82,6 +102,12 @@ services:
       - 8010:8000
     env_file:
       - backend/services/files/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     depends_on:
       - files-db
     networks:
@@ -427,7 +453,7 @@ networks:
     name: pix_backend
 secrets:
   session_secret:
-    file: ./frontend/session.secret
+    file: ./frontend/.session.secret
   mail_gmail_username:
     file: ./backend/workers/mail/.secret_gmail_username
   mail_gmail_password:
@@ -436,3 +462,9 @@ secrets:
     file: ./backend/services/users/.superuser_email.secret
   superuser_password:
     file: ./backend/services/users/.superuser_password.secret
+  users_secret_key:
+    file: ./backend/services/users/.key.secret
+  system_email:
+    file: ./backend/services/users/.system_email.secret
+  system_password:
+    file: ./backend/services/users/.system_password.secret
