@@ -36,3 +36,4 @@ dist-ssr
 **/.classpath
 **/*.secret
 **/.env
+ansible/secrets

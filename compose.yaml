@@ -25,10 +25,14 @@ services:
       - superuser_email
       - superuser_password
       - users_secret_key
+      - system_email
+      - system_password
     environment:
       SUPERUSER_EMAIL_FILE: /run/secrets/superuser_email
       SUPERUSER_PASSWORD_FILE: /run/secrets/superuser_password
-      USERS_SECRET_KEY_FILE: /run/secrets/users_secret_key
+      SECRET_KEY_FILE: /run/secrets/users_secret_key
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     depends_on:
       - users-db
     networks:
@@ -345,6 +349,12 @@ services:
       context: backend/workers/bps-discovery-simod
     env_file:
       - backend/workers/bps-discovery-simod/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     volumes:
       - bps-discovery-simod-data:/var/tmp/bps-discovery-simod:rw
     depends_on:
@@ -357,6 +367,12 @@ services:
       context: backend/workers/simulation-prosimos
     env_file:
       - backend/workers/simulation-prosimos/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     volumes:
       - simulation-prosimos-data:/var/tmp/simulation-prosimos:rw
     depends_on:
@@ -396,6 +412,12 @@ services:
       context: backend/workers/kronos
     env_file:
       - backend/workers/kronos/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     volumes:
       - kronos-data:/var/tmp/kronos:rw
     depends_on:
