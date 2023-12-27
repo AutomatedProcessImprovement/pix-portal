@@ -1,0 +1,20 @@
+- name: Docker Test
+  hosts:
+    - pix
+  remote_user: ubuntu
+  become: true
+
+  tasks:
+    - name: Pull nginx
+      community.docker.docker_image:
+        name: nginx
+        source: pull
+
+    - name: Run nginx
+      community.docker.docker_container:
+        name: nginx
+        image: nginx
+        state: started
+        ports:
+          - "80:80"
+        auto_remove: true
