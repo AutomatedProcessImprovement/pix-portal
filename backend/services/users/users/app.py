@@ -1,7 +1,10 @@
+import logging
 import threading
+from math import log
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi_users import exceptions
 from pix_portal_lib.exceptions.fastapi_handlers import general_exception_handler, http_exception_handler
 from pix_portal_lib.middleware.request_logging import RequestLoggingMiddleware
 from pix_portal_lib.open_telemetry_utils import instrument_app
@@ -12,7 +15,7 @@ from .db import User
 from .init_db import create_initial_user, create_system_user, migrate_to_latest
 from .schemas import UserCreate, UserRead, UserUpdate
 from .settings import settings
-from .users import auth_backend, current_active_user, fastapi_users
+from .users import UserManager, auth_backend, current_active_user, fastapi_users, get_user_manager
 
 app = FastAPI(
     title="PIX Portal Users",
@@ -20,6 +23,29 @@ app = FastAPI(
     # TODO: update version programmatically
     version="0.2.0",
 )
+
+logger = logging.getLogger(__name__)
+
+users_router = fastapi_users.get_users_router(UserRead, UserUpdate)
+
+
+@users_router.get("/", response_model=UserRead, tags=["users"])
+async def get_by_email(
+    email: str,
+    user: User = Depends(current_active_user),
+    manager: UserManager = Depends(get_user_manager),
+):
+    if not email:
+        raise HTTPException(status_code=400, detail="Email is required")
+    try:
+        user = await manager.get_by_email(email)
+    except exceptions.UserNotExists:
+        raise HTTPException(status_code=404, detail="User not found")
+    except Exception as e:
+        logger.exception(f"Error getting user by email: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+    return user
+
 
 app.include_router(
     fastapi_users.get_auth_router(auth_backend),
@@ -42,7 +68,7 @@ app.include_router(
     tags=["auth"],
 )
 app.include_router(
-    fastapi_users.get_users_router(UserRead, UserUpdate),
+    users_router,
     prefix="/users",
     tags=["users"],
 )
@@ -96,7 +122,9 @@ async def on_startup():
         lock = threading.Lock()
         with lock:
             await migrate_to_latest()
+            # initial user is required mostly for demo purposes and debugging
             await create_initial_user()
+            # system user is required for services to authenticate themselves
             await create_system_user()
     except Exception as e:
         print(e)
