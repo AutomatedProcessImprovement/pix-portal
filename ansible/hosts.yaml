@@ -1,0 +1,11 @@
+all:
+  hosts:
+    pix:
+      ansible_host: 193.40.11.243
+      ansible_ssh_private_key_file: ~/.ssh/pix
+    pix-w1:
+      ansible_host: 193.40.11.123
+      ansible_ssh_private_key_file: ~/.ssh/pix
+    pix-w2:
+      ansible_host: 193.40.11.119
+      ansible_ssh_private_key_file: ~/.ssh/pix

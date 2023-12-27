@@ -1,0 +1,82 @@
+- name: Build & Deploy
+  hosts:
+    - pix
+  remote_user: ubuntu
+  become: true
+  vars:
+    base_dir_remote: /srv/pix-portal
+
+  tasks:
+    - name: Copy backend source
+      ansible.posix.synchronize:
+        src: ../backend
+        dest: "{{ base_dir_remote }}/"
+        mode: "push"
+        delete: true
+        private_key: ~/.ssh/pix
+        rsync_opts:
+          - "--exclude=.git"
+          - "--exclude=.venv"
+          - "--exclude=dist"
+          - "--exclude=.DS_Store"
+
+    - name: Copy frontend source
+      ansible.posix.synchronize:
+        src: ../frontend
+        dest: "{{ base_dir_remote }}/"
+        mode: "push"
+        delete: true
+        private_key: ~/.ssh/pix
+        rsync_opts:
+          - "--exclude=.git"
+          - "--exclude=.idea"
+          - "--exclude=.vscode"
+          - "--exclude=build"
+          - "--exclude=node_modules"
+          - "--exclude=.DS_Store"
+
+    - name: Copy Caddyfile
+      ansible.builtin.copy:
+        src: ./Caddyfile
+        dest: "{{ base_dir_remote }}/"
+        mode: 0644
+
+    - name: Copy Docker Compose configuration
+      ansible.builtin.copy:
+        src: ./secrets/compose.yaml
+        dest: "{{ base_dir_remote }}/"
+        mode: 0644
+
+    - name: Copy secrets
+      ansible.builtin.copy:
+        src: ./secrets
+        dest: "{{ base_dir_remote }}/"
+        mode: 0644
+
+    - name: Create mount directories
+      ansible.builtin.file:
+        path: "/mnt/data/{{ item }}"
+        state: directory
+        mode: 0755
+      loop:
+        - pix-portal
+        - pix-portal/postgres-data
+        - pix-portal/postgres-data/users
+        - pix-portal/postgres-data/projects
+        - pix-portal/postgres-data/processing-requests
+        - pix-portal/postgres-data/files
+        - pix-portal/postgres-data/assets
+        - pix-portal/uploads
+        - pix-portal/kafka
+        - pix-portal/caddy
+        - pix-portal/caddy/data
+        - pix-portal/caddy/config
+        - pix-portal/simod
+        - pix-portal/prosimos
+        - pix-portal/kronos
+        - pix-portal/kronos-db
+
+    - name: Start Docker Compose
+      ansible.builtin.command: docker compose -f "{{ base_dir_remote }}/compose.yaml" up -d --build
+      args:
+        chdir: "{{ base_dir_remote }}"

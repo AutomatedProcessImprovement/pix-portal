@@ -1,27 +1,7 @@
 import { assetsURL, http } from "~/services/shared.server";
-import { AssetTypeBackend } from "../shared/AssetTypeBackend";
+import type { Asset, AssetType } from "./assets";
 
-export type Asset = {
-  id: string;
-  creation_time: string;
-  modification_time?: string;
-  deletion_time?: string;
-  name: string;
-  description?: string;
-  type: string;
-  project_id: string;
-  files_ids: string[];
-  users_ids: string[];
-  processing_requests_ids?: string[];
-};
-
-export async function createAsset(
-  filesIds: string[],
-  name: string,
-  type: AssetTypeBackend,
-  projectId: string,
-  token: string
-) {
+export async function createAsset(filesIds: string[], name: string, type: AssetType, projectId: string, token: string) {
   const url = `${assetsURL}/`;
   const payload = {
     name: name,

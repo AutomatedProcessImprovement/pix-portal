@@ -1,0 +1,28 @@
+- name: Set Up Docker
+  hosts:
+    - pix
+    - pix-w1
+    - pix-w2
+  remote_user: ubuntu
+  become: true
+
+  tasks:
+    - name: Create partition
+      community.general.parted:
+        device: /dev/sdb
+        number: 1
+        state: present
+        fs_type: ext4
+
+    - name: Create filesystem
+      community.general.filesystem:
+        fstype: ext4
+        dev: /dev/sdb1
+
+    - name: Mount /dev/sdb to /mnt/data
+      ansible.posix.mount:
+        path: /mnt/data
+        src: /dev/sdb1
+        fstype: ext4
+        opts: defaults
+        state: mounted

@@ -1,0 +1,11 @@
+- name: Docker Test
+  hosts:
+    - pix
+  remote_user: ubuntu
+  become: true
+
+  tasks:
+    - name: Stop and remove nginx
+      community.docker.docker_container:
+        name: nginx
+        state: absent

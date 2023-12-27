@@ -67,13 +67,15 @@ async def create_asset(
 @router.get("/{asset_id}", response_model=AssetOut)
 async def get_asset(
     asset_id: uuid.UUID,
+    lazy: bool = True,
     asset_service: AssetService = Depends(get_asset_service),
     user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    token: str = Depends(_get_token),
 ) -> Any:
     await _raise_no_access(asset_service, user, asset_id)
 
     try:
-        return await asset_service.get_asset(asset_id)
+        return await asset_service.get_asset(asset_id, lazy=lazy, token=token)
     except AssetNotFound:
         raise HTTPException(status_code=404, detail="Asset not found")
 

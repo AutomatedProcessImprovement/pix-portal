@@ -6,8 +6,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     database_url: PostgresDsn
-    secret_key: str
+    secret_key_file: Path
     allowed_origins: str
+    superuser_email_file: Path
+    superuser_password_file: Path
+    system_email_file: Path
+    system_password_file: Path
 
     model_config = SettingsConfigDict(env_file=Path(__file__).parent.parent / ".env", extra="allow")
 

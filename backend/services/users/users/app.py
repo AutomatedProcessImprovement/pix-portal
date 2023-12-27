@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 
 from .db import User
-from .init_db import migrate_to_latest
+from .init_db import create_initial_user, create_system_user, migrate_to_latest
 from .schemas import UserCreate, UserRead, UserUpdate
 from .settings import settings
 from .users import auth_backend, current_active_user, fastapi_users
@@ -96,6 +96,8 @@ async def on_startup():
         lock = threading.Lock()
         with lock:
             await migrate_to_latest()
+            await create_initial_user()
+            await create_system_user()
     except Exception as e:
         print(e)
 

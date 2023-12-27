@@ -1,27 +1,17 @@
 import { http, projectsURL } from "~/services/shared.server";
-
-export interface Project {
-  id: string;
-  name: string;
-  description?: string;
-  creation_time: string;
-  modification_time?: string;
-  deletion_time?: string;
-  users_ids: string[];
-  assets_ids: string[];
-  processing_requests_ids: string[];
-}
+import type { Project } from "./projects";
 
 export async function listProjectsForUser(userId: string, token: string): Promise<Project[]> {
-  const response = await http.get(projectsURL, {
+  const params = new URLSearchParams({ user_id: userId });
+  const response = await fetch(`${projectsURL}/?${params}`, {
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    params: {
-      user_id: userId,
-    },
   });
-  return response.data as Project[];
+  const data = await response.json();
+  if ("message" in data) throw new Error(data.message);
+  return data as Project[];
 }
 
 export async function getProject(projectId: string, token: string): Promise<Project> {

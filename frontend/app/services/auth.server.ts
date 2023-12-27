@@ -2,21 +2,7 @@
 
 import axios from "axios";
 import { loginURL, userInfoURL } from "~/services/shared.server";
-
-export interface User {
-  email: string;
-  token?: string;
-  first_name: string;
-  last_name: string;
-  creation_time: string;
-  modification_time: string;
-  deletion_time: string;
-  last_login_time: string;
-  id: string;
-  is_active: boolean;
-  is_superuser: boolean;
-  is_verified: boolean;
-}
+import type { User } from "./auth";
 
 export async function getJWT(username: string, password: string): Promise<string> {
   const { data } = await axios.post(

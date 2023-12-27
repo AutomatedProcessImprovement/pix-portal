@@ -36,3 +36,18 @@ class AddUserToProjectIn(BaseModel):
 
 class AddAssetToProjectIn(BaseModel):
     asset_id: uuid.UUID
+
+
+class AssetOut(BaseModel):
+    id: uuid.UUID
+    creation_time: datetime
+    modification_time: Optional[datetime] = None
+    deletion_time: Optional[datetime] = None
+    name: str
+    description: Optional[str] = None
+    type: str
+    project_id: uuid.UUID
+    files_ids: list[uuid.UUID] = []
+    users_ids: list[uuid.UUID]
+    processing_requests_ids: list[uuid.UUID] = []
+    files: Optional[list[dict]] = None  # transient field not persisted in the database

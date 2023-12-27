@@ -34,3 +34,6 @@ dist-ssr
 **/__pycache__
 **/.venv
 **/.classpath
+**/*.secret
+**/.env
+ansible/secrets

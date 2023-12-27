@@ -1,4 +1,4 @@
-import { ProcessingRequest, ProcessingRequestType } from "./processing_requests";
+import type { ProcessingRequest, ProcessingRequestType } from "./processing_requests";
 import { http, processingRequestsURL } from "./shared.server";
 
 export async function getProcessingRequestsForProject(projectId: string, token: string) {

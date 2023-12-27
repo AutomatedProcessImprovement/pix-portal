@@ -1,0 +1,19 @@
+### List assets
+
+GET http://localhost:9999/api/v1/assets?project_id=9da8ed0b-1f3b-44b0-ab6e-f9319ef45e75
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDMxY2E0ZC00ZGYzLTQyZjQtYjAxMS0yN2Q0MGZmYTQwZmYiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTcwMTk2MzgwNH0.JNaAfPerstbzcJTlv1eYc6lG-93tOGAE_xm4eg7STPo
+
+### Get a project
+
+GET http://localhost:9999/api/v1/projects/9da8ed0b-1f3b-44b0-ab6e-f9319ef45e75
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDMxY2E0ZC00ZGYzLTQyZjQtYjAxMS0yN2Q0MGZmYTQwZmYiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTcwMTk2MzgwNH0.JNaAfPerstbzcJTlv1eYc6lG-93tOGAE_xm4eg7STPo
+
+### Get project assets
+
+GET http://localhost:9999/api/v1/projects/9da8ed0b-1f3b-44b0-ab6e-f9319ef45e75/assets
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDMxY2E0ZC00ZGYzLTQyZjQtYjAxMS0yN2Q0MGZmYTQwZmYiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTcwMTk2MzgwNH0.JNaAfPerstbzcJTlv1eYc6lG-93tOGAE_xm4eg7STPo
+
+### Delete a project asset
+
+DELETE http://localhost:9999/api/v1/projects/9da8ed0b-1f3b-44b0-ab6e-f9319ef45e75/assets/9b3e58f2-409e-4a41-8f4c-7001220c2d3b
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDMxY2E0ZC00ZGYzLTQyZjQtYjAxMS0yN2Q0MGZmYTQwZmYiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTcwMTk2MzgwNH0.JNaAfPerstbzcJTlv1eYc6lG-93tOGAE_xm4eg7STPo

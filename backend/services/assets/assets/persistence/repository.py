@@ -36,6 +36,10 @@ class AssetRepository:
         )
         return result.scalars().all()
 
+    async def get_assets_by_file_id(self, file_id: uuid.UUID) -> Sequence[Asset]:
+        result = await self.session.execute(select(Asset).where(Asset.files_ids.contains([file_id])))
+        return result.scalars().all()
+
     async def create_asset(
         self,
         name: str,

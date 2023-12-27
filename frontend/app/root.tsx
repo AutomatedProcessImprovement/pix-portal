@@ -11,7 +11,7 @@ import {
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
-import { getSessionUserInfo } from "~/session.server";
+import { getSessionUserInfo } from "~/shared/session.server";
 import twStyles from "~/tailwind.css";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: twStyles }];

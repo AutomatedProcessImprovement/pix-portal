@@ -2,18 +2,22 @@
 Commonly used authentication service for user authentication and authorization.
 """
 import logging
+from pathlib import Path
 from typing import Optional
 from urllib.parse import urljoin
 
 import httpx
-from pix_portal_lib.utils import get_env
 from pydantic import BaseModel
+
+from pix_portal_lib.utils import get_env
 
 logger = logging.getLogger()
 
 auth_service_url = get_env("AUTH_SERVICE_URL")
-system_username = get_env("SYSTEM_USERNAME")
-system_password = get_env("SYSTEM_PASSWORD")
+system_email_file = get_env("SYSTEM_EMAIL_FILE")
+system_password_file = get_env("SYSTEM_PASSWORD_FILE")
+system_username = Path(system_email_file).read_text().strip()
+system_password = Path(system_password_file).read_text().strip()
 
 
 class TokenVerificationResponse(BaseModel):
@@ -53,7 +57,7 @@ class AuthServiceClient:
         Get a JWT token for the system user. Used by other services to authenticate themselves.
         """
         if system_username is None or system_password is None:
-            raise ValueError("SYSTEM_USERNAME and SYSTEM_PASSWORD must be set in the environment")
+            raise ValueError("SYSTEM_EMAIL_FILE and SYSTEM_PASSWORD_FILE must be set in the environment")
 
         url = urljoin(self._base_url, "jwt/login")
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
