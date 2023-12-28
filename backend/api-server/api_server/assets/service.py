@@ -4,9 +4,9 @@ from typing import AsyncGenerator, Optional, Sequence
 
 from fastapi import Depends
 
-from api_server.assets.controllers.schemas import AssetOut
-from api_server.assets.persistence.model import Asset, AssetType
-from api_server.assets.persistence.repository import AssetRepository, get_asset_repository
+from api_server.assets.schemas import AssetOut
+from api_server.assets.model import Asset, AssetType
+from api_server.assets.repository import AssetRepository, get_asset_repository
 from api_server.utils.service_clients.file import File, FileServiceClient
 from api_server.utils.service_clients.project import ProjectServiceClient
 

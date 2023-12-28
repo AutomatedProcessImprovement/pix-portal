@@ -18,9 +18,9 @@ from api_server.utils.exceptions.http_exceptions import (
 )
 from api_server.utils.service_clients.fastapi import get_current_user
 
-from ..persistence.model import ProcessingRequest
-from ..persistence.repository import ProcessingRequestNotFound
-from ..services.processing_request import (
+from .model import ProcessingRequest
+from .repository import ProcessingRequestNotFound
+from .service import (
     AssetAlreadyExists,
     AssetAlreadyInOutputAssets,
     AssetDoesNotBelongToProject,

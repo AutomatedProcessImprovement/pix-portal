@@ -7,14 +7,13 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
-from api_server.assets.controllers import assets
-from api_server.files.controllers import files
-from api_server.processing_requests.controllers import processing_requests
-from api_server.projects.controllers import projects
+from api_server.assets.controller import router as assets_router
+from api_server.files.files_controller import router as files_router
+from api_server.processing_requests.controller import router as processing_router
+from api_server.projects.controller import router as projects_router
 from api_server.users.init_db import create_initial_user, create_system_user
 from api_server.users.schemas import UserCreate, UserRead
-from api_server.users.users import fastapi_users
-from api_server.users.users_controller import jwt_router, users_router
+from api_server.users.users import auth_backend, fastapi_users
 from api_server.utils.exceptions.fastapi_handlers import general_exception_handler, http_exception_handler
 from api_server.utils.middleware.request_logging import RequestLoggingMiddleware
 from api_server.utils.open_telemetry_utils import instrument_app
@@ -29,19 +28,19 @@ app = FastAPI(
     title="PIX API",
     description="PIX API Server",
     version="0.1.0",
-    dependencies=[Depends(add_user_to_app_state_if_present)],
+    # dependencies=[Depends(add_user_to_app_state_if_present)],
 )
 
 
-app.include_router(files.router, prefix="/files", tags=["files"])
-app.include_router(assets.router, prefix="/assets", tags=["assets"])
-app.include_router(projects.router, prefix="/projects", tags=["projects"])
-app.include_router(processing_requests.router, prefix="/processing_requests", tags=["processing_requests"])
-app.include_router(jwt_router, prefix="/auth/jwt", tags=["auth"])
+app.include_router(files_router, prefix="/files", tags=["files"])
+app.include_router(assets_router, prefix="/assets", tags=["assets"])
+app.include_router(projects_router, prefix="/projects", tags=["projects"])
+app.include_router(processing_router, prefix="/processing_requests", tags=["processing_requests"])
+app.include_router(fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"])
 app.include_router(fastapi_users.get_register_router(UserRead, UserCreate), prefix="/auth", tags=["auth"])
 app.include_router(fastapi_users.get_reset_password_router(), prefix="/auth", tags=["auth"])
 app.include_router(fastapi_users.get_verify_router(UserRead), prefix="/auth", tags=["auth"])
-app.include_router(users_router, prefix="/users", tags=["users"])
+app.include_router(fastapi_users.get_users_router(UserRead, UserCreate), prefix="/users", tags=["users"])
 
 app.add_middleware(
     CORSMiddleware,

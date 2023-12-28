@@ -6,10 +6,10 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
-from api_server.assets.persistence.model import Base as AssetsBase
-from api_server.files.persistence.model import Base as FilesBase
-from api_server.processing_requests.persistence.model import Base as ProcessingRequestsBase
-from api_server.projects.persistence.model import Base as ProjectsBase
+from api_server.assets.model import Base as AssetsBase
+from api_server.files.model import Base as FilesBase
+from api_server.processing_requests.model import Base as ProcessingRequestsBase
+from api_server.projects.model import Base as ProjectsBase
 from api_server.settings import settings
 from api_server.users.db import Base as UsersBase
 

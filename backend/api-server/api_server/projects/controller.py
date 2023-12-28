@@ -3,9 +3,9 @@ from typing import Annotated, Any, Optional, Sequence
 
 from fastapi import APIRouter, Depends, Header
 
-from api_server.projects.persistence.model import Project
-from api_server.projects.persistence.repository import ProjectNotFound
-from api_server.projects.services.project import (
+from api_server.projects.model import Project
+from api_server.projects.repository import ProjectNotFound
+from api_server.projects.service import (
     AssetNotFound,
     ProjectService,
     UserNotFound,

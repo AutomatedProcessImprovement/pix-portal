@@ -7,8 +7,8 @@ from api_server.utils.service_clients.asset import Asset, AssetServiceClient
 from api_server.utils.service_clients.fastapi import get_asset_service_client, get_user_service_client
 from api_server.utils.service_clients.user import UserServiceClient
 
-from ..persistence.model import Project
-from ..persistence.repository import ProjectRepository, get_project_repository
+from .model import Project
+from .repository import ProjectRepository, get_project_repository
 
 
 class UserNotFound(Exception):

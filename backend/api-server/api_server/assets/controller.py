@@ -3,9 +3,9 @@ from typing import Annotated, Any, Optional, Sequence
 
 from fastapi import APIRouter, Depends, Header, HTTPException
 
-from api_server.assets.persistence.model import Asset
-from api_server.assets.persistence.repository import AssetNotFound
-from api_server.assets.services.asset import AssetService, get_asset_service
+from api_server.assets.model import Asset
+from api_server.assets.repository import AssetNotFound
+from api_server.assets.service import AssetService, get_asset_service
 from api_server.utils.exceptions.http_exceptions import (
     InvalidAuthorizationHeader,
     NotEnoughPermissionsHTTP,

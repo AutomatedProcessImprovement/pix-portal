@@ -15,8 +15,8 @@ from api_server.utils.service_clients.fastapi import (
 from api_server.utils.service_clients.project import ProjectServiceClient
 from api_server.utils.service_clients.user import UserServiceClient
 
-from ..persistence.model import ProcessingRequest, ProcessingRequestStatus, ProcessingRequestType
-from ..persistence.repository import ProcessingRequestRepository, get_processing_request_repository
+from .model import ProcessingRequest, ProcessingRequestStatus, ProcessingRequestType
+from .repository import ProcessingRequestRepository, get_processing_request_repository
 from .kafka_producer import KafkaProducerService, get_kafka_service
 
 logger = logging.getLogger()

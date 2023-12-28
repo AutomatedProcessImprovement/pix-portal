@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse
 
-from api_server.files.services.file import FileService, get_file_service
+from api_server.files.service import FileService, get_file_service
 from api_server.utils.exceptions.http_exceptions import NotEnoughPermissionsHTTP
 from api_server.utils.service_clients.fastapi import get_current_user
 

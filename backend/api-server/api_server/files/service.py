@@ -6,8 +6,8 @@ from urllib.parse import urljoin
 
 from fastapi import Depends
 
-from api_server.files.persistence.model import File, FileType
-from api_server.files.persistence.repository import FileRepository, get_file_repository
+from api_server.files.model import File, FileType
+from api_server.files.repository import FileRepository, get_file_repository
 from api_server.settings import settings
 
 

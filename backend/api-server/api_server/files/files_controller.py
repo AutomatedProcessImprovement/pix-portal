@@ -4,12 +4,12 @@ from typing import Annotated, Any, Optional, Sequence
 from fastapi import APIRouter, Body, Depends, HTTPException, Response
 from fastapi.responses import FileResponse
 
-from api_server.files.persistence.model import File, FileType
-from api_server.files.services.file import FileExists, FileService, get_file_service
+from api_server.files.model import File, FileType
+from api_server.files.service import FileExists, FileService, get_file_service
 from api_server.utils.exceptions.http_exceptions import NotEnoughPermissionsHTTP
 from api_server.utils.service_clients.fastapi import get_current_user
 
-from .schemas import FileOut, LocationOut
+from ..schemas import FileOut, LocationOut
 
 router = APIRouter()
 
