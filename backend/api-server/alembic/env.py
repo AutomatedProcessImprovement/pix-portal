@@ -1,20 +1,30 @@
 import asyncio
 from logging.config import fileConfig
 
-from api_server.db_base import Base
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
+from api_server.assets.persistence.model import Base as AssetsBase
+from api_server.files.persistence.model import Base as FilesBase
+from api_server.processing_requests.persistence.model import Base as ProcessingRequestsBase
+from api_server.projects.persistence.model import Base as ProjectsBase
 from api_server.settings import settings
+from api_server.users.db import Base as UsersBase
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-target_metadata = Base.metadata
+target_metadata = [
+    AssetsBase.metadata,
+    FilesBase.metadata,
+    ProjectsBase.metadata,
+    UsersBase.metadata,
+    ProcessingRequestsBase.metadata,
+]
 
 # Update the sqlalchemy.url value to use the environment variable DATABASE_URL
 config.set_main_option("sqlalchemy.url", settings.database_url.unicode_string())
