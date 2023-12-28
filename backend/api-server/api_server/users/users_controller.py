@@ -16,7 +16,6 @@ users_router = fastapi_users.get_users_router(UserRead, UserUpdate)
 @users_router.get("/", response_model=UserRead)
 async def get_by_email(
     email: str,
-    user: User = Depends(current_active_user),
     manager: UserManager = Depends(get_user_manager),
 ):
     if not email:

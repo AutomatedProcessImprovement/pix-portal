@@ -1,9 +1,10 @@
 import threading
 import traceback
 from pathlib import Path
+from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
@@ -13,22 +14,26 @@ from api_server.processing_requests.controller import router as processing_route
 from api_server.projects.controller import router as projects_router
 from api_server.users.init_db import create_initial_user, create_system_user
 from api_server.users.schemas import UserCreate, UserRead
-from api_server.users.users import auth_backend, fastapi_users
+from api_server.users.users import auth_backend, fastapi_users, current_optional_user
 from api_server.utils.exceptions.fastapi_handlers import general_exception_handler, http_exception_handler
 from api_server.utils.middleware.request_logging import RequestLoggingMiddleware
 from api_server.utils.open_telemetry_utils import instrument_app
 from api_server.utils.persistence.alembic import migrate_to_latest
 from .settings import settings
-
-# from api_server.utils.service_clients.fastapi import add_user_to_app_state_if_present
+from .users.db import User
 
 load_dotenv()
+
+
+def set_current_user(request: Request, current_user: Optional[User] = Depends(current_optional_user)):
+    request.state.current_user = current_user
+
 
 app = FastAPI(
     title="PIX API",
     description="PIX API Server",
     version="0.1.0",
-    # dependencies=[Depends(add_user_to_app_state_if_present)],
+    dependencies=[Depends(set_current_user)],
 )
 
 
