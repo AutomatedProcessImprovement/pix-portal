@@ -6,9 +6,8 @@ from fastapi import Depends
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api_server.processing_requests.model import ProcessingRequest, ProcessingRequestStatus
 from api_server.utils.persistence.sqlalchemy import get_async_session
-
-from .model import ProcessingRequest, ProcessingRequestStatus
 
 
 class ProcessingRequestNotFound(Exception):

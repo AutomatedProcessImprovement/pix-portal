@@ -4,7 +4,7 @@ import traceback
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 
-from api_server.utils.utils import get_user_id
+# from api_server.utils.utils import get_user_id
 
 logger = logging.getLogger()
 
@@ -34,7 +34,7 @@ def http_exception_handler(request: Request, exc: HTTPException):
 
 def _log_request(request: Request, exc: Exception) -> str:
     traceback_str = _traceback_str(exc)
-    user_id = get_user_id(request)
+    user_id = _get_user_id(request)
 
     logger.error(
         f"scope=request "
@@ -54,3 +54,11 @@ def _log_request(request: Request, exc: Exception) -> str:
 
 def _traceback_str(exc: Exception) -> str:
     return "".join(traceback.format_exception(etype=type(exc), value=exc, tb=exc.__traceback__))
+
+
+def _get_user_id(request: Request) -> str:
+    user_id = "anonymous"
+    if hasattr(request.app.state, "user"):
+        user = request.app.state.user or {}
+        user_id = user.get("id", "anonymous")
+    return user_id

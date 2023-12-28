@@ -22,6 +22,7 @@ class FileService:
         self.base_dir = settings.base_dir
         self.file_repository = file_repository
         self._blobs_base_public_url = settings.blobs_base_public_url.unicode_string()
+        self._blobs_base_internal_url = settings.blobs_base_internal_url.unicode_string()
 
         self.base_dir.mkdir(parents=True, exist_ok=True)
 
@@ -93,6 +94,16 @@ class FileService:
         users_ids = [str(user_id) for user_id in users_ids]
         files_users_ids = [str(user_id) for user_id in file.users_ids]
         return all(user_id in files_users_ids for user_id in users_ids)
+
+    async def is_deleted(self, file_id: uuid.UUID) -> bool:
+        file = await self.get_file(file_id)
+        return file.deletion_time is not None
+
+    def get_absolute_url(self, relative_url: str, is_internal: bool) -> str:
+        # TODO: this smells
+        base = self._blobs_base_internal_url if is_internal else self._blobs_base_public_url
+        relative_url = relative_url.removeprefix("/blobs/")
+        return urljoin(base, relative_url)
 
     @staticmethod
     def _compute_sha256(content: bytes) -> str:

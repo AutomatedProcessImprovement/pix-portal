@@ -1,26 +1,19 @@
 import uuid
-from typing import Annotated, Any, Optional
+from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 
-from api_server.utils.exceptions.http_exceptions import (
-    AssetAlreadyExistsHTTP,
-    AssetAlreadyInInputAssetsHTTP,
-    AssetAlreadyInOutputAssetsHTTP,
-    AssetDoesNotBelongToProjectHTTP,
-    AssetNotFoundHTTP,
-    InvalidAuthorizationHeader,
-    NotEnoughPermissionsHTTP,
-    ProcessingRequestNotFoundHTTP,
-    ProjectNotFoundHTTP,
-    UserNotFoundHTTP,
+from api_server.processing_requests.model import ProcessingRequest
+from api_server.processing_requests.repository import ProcessingRequestNotFound
+from api_server.processing_requests.schemas import (
+    AssetIn,
+    AssetsOut,
+    PatchProcessingRequest,
+    ProcessingRequestIn,
+    ProcessingRequestOut,
 )
-from api_server.utils.service_clients.fastapi import get_current_user
-
-from .model import ProcessingRequest
-from .repository import ProcessingRequestNotFound
-from .service import (
+from api_server.processing_requests.service import (
     AssetAlreadyExists,
     AssetAlreadyInOutputAssets,
     AssetDoesNotBelongToProject,
@@ -32,16 +25,21 @@ from .service import (
     UserNotFound,
     get_processing_request_service,
 )
-from .schemas import AssetIn, AssetsOut, PatchProcessingRequest, ProcessingRequestIn, ProcessingRequestOut
+from api_server.users.db import User
+from api_server.users.users import current_user
+from api_server.utils.exceptions.http_exceptions import (
+    AssetAlreadyExistsHTTP,
+    AssetAlreadyInInputAssetsHTTP,
+    AssetAlreadyInOutputAssetsHTTP,
+    AssetDoesNotBelongToProjectHTTP,
+    AssetNotFoundHTTP,
+    NotEnoughPermissionsHTTP,
+    ProcessingRequestNotFoundHTTP,
+    ProjectNotFoundHTTP,
+    UserNotFoundHTTP,
+)
 
 router = APIRouter()
-
-
-def _get_token(authorization: Annotated[str, Header()]) -> str:
-    try:
-        return authorization.split(" ")[1]
-    except IndexError:
-        raise InvalidAuthorizationHeader()
 
 
 # General API
@@ -55,13 +53,12 @@ async def get_processing_requests(
     input_asset_id: Optional[uuid.UUID] = None,
     output_asset_id: Optional[uuid.UUID] = None,
     processing_request_service: ProcessingRequestService = Depends(get_processing_request_service),
-    user: dict = Depends(get_current_user),
-    token: str = Depends(_get_token),
+    user: User = Depends(current_user),
 ) -> Any:
     """
     Get processing requests either by user_id, project_id or asset_id. Superusers can get all processing requests.
     """
-    current_user_id = str(user["id"])
+    current_user_id = str(user.id)
     requested_user_id = str(user_id) if user_id is not None else None
 
     # Processing requests of other users can be accessed only by superusers
@@ -71,7 +68,7 @@ async def get_processing_requests(
 
     if project_id is not None:
         try:
-            return await processing_request_service.get_processing_requests_by_project_id(project_id, user, token)
+            return await processing_request_service.get_processing_requests_by_project_id(project_id, user.__dict__)
         except NotEnoughPermissions:
             raise NotEnoughPermissionsHTTP()
 
@@ -84,15 +81,14 @@ async def get_processing_requests(
     if output_asset_id is not None:
         return await processing_request_service.get_processing_requests_by_output_asset_id(output_asset_id)
 
-    return await processing_request_service.get_processing_requests_by_user_id(user["id"])
+    return await processing_request_service.get_processing_requests_by_user_id(user.id)
 
 
 @router.post("/", response_model=ProcessingRequestOut, tags=["processing_requests"], status_code=201)
 async def create_processing_request(
     processing_request_data: ProcessingRequestIn,
     processing_request_service: ProcessingRequestService = Depends(get_processing_request_service),
-    user: dict = Depends(get_current_user),
-    token: str = Depends(_get_token),
+    user: User = Depends(current_user),
 ) -> Any:
     """
     Create a processing request for the authenticated user.
@@ -100,12 +96,11 @@ async def create_processing_request(
     try:
         return await processing_request_service.create_processing_request(
             type=processing_request_data.type,
-            user_id=user["id"],
+            user_id=user.id,
             project_id=processing_request_data.project_id,
             input_assets_ids=processing_request_data.input_assets_ids,
             should_notify=processing_request_data.should_notify,
-            token=token,
-            current_user=user,
+            current_user=user.__dict__,
         )
     except UserNotFound:
         raise UserNotFoundHTTP()
@@ -123,7 +118,7 @@ async def create_processing_request(
 async def get_processing_request(
     processing_request_id: uuid.UUID,
     processing_request_service: ProcessingRequestService = Depends(get_processing_request_service),
-    user: dict = Depends(get_current_user),
+    user: User = Depends(current_user),
 ) -> Any:
     """
     Get a processing request by its id.
@@ -141,7 +136,7 @@ async def update_processing_request(
     processing_request_id: uuid.UUID,
     processing_request_data: PatchProcessingRequest,
     processing_request_service: ProcessingRequestService = Depends(get_processing_request_service),
-    user: dict = Depends(get_current_user),
+    user: User = Depends(current_user),
 ) -> Any:
     """
     Patch a processing request by its ID.
@@ -164,7 +159,7 @@ async def update_processing_request(
 async def get_input_assets_of_processing_request(
     processing_request_id: uuid.UUID,
     processing_request_service: ProcessingRequestService = Depends(get_processing_request_service),
-    user: dict = Depends(get_current_user),
+    user: User = Depends(current_user),
 ) -> Any:
     """
     Get the input assets of a processing request.
@@ -185,8 +180,7 @@ async def add_input_asset_to_processing_request(
     processing_request_id: uuid.UUID,
     input_asset_data: AssetIn,
     processing_request_service: ProcessingRequestService = Depends(get_processing_request_service),
-    user: dict = Depends(get_current_user),
-    token: str = Depends(_get_token),
+    user: User = Depends(current_user),
 ) -> Any:
     """
     Add an input asset to a processing request.
@@ -200,7 +194,6 @@ async def add_input_asset_to_processing_request(
         return await processing_request_service.add_input_asset_to_processing_request(
             processing_request_id=processing_request_id,
             asset_id=input_asset_data.asset_id,
-            token=token,
         )
     except AssetNotFound as e:
         raise AssetNotFoundHTTP(f"Asset not found: {e.asset_id}")
@@ -216,7 +209,7 @@ async def add_input_asset_to_processing_request(
 async def get_output_assets_of_processing_request(
     processing_request_id: uuid.UUID,
     processing_request_service: ProcessingRequestService = Depends(get_processing_request_service),
-    user: dict = Depends(get_current_user),
+    user: User = Depends(current_user),
 ) -> Any:
     """
     Get the output assets of a processing request.
@@ -237,8 +230,7 @@ async def add_output_asset_to_processing_request(
     processing_request_id: uuid.UUID,
     output_asset_data: AssetIn,
     processing_request_service: ProcessingRequestService = Depends(get_processing_request_service),
-    user: dict = Depends(get_current_user),
-    token: str = Depends(_get_token),
+    user: User = Depends(current_user),
 ) -> Any:
     """
     Add an output asset to a processing request.
@@ -252,7 +244,6 @@ async def add_output_asset_to_processing_request(
         return await processing_request_service.add_output_asset_to_processing_request(
             processing_request_id=processing_request_id,
             asset_id=output_asset_data.asset_id,
-            token=token,
         )
     except AssetNotFound as e:
         raise AssetNotFoundHTTP(f"Asset not found: {e.asset_id}")
@@ -264,16 +255,16 @@ async def add_output_asset_to_processing_request(
         raise AssetAlreadyInInputAssetsHTTP()
 
 
-def _raise_for_no_access_to_processing_request(processing_request: ProcessingRequest, user: dict) -> None:
-    if user["is_superuser"]:
+def _raise_for_no_access_to_processing_request(processing_request: ProcessingRequest, user: User) -> None:
+    if user.is_superuser:
         return
 
     processing_request_user_id = str(processing_request.user_id)
-    user_id = str(user["id"])
+    user_id = str(user.id)
     if user_id != processing_request_user_id:
         raise NotEnoughPermissionsHTTP()
 
 
-def _raise_for_not_superuser(user: dict) -> None:
-    if not user["is_superuser"]:
+def _raise_for_not_superuser(user: User) -> None:
+    if not user.is_superuser:
         raise NotEnoughPermissionsHTTP()

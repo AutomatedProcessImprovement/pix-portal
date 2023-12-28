@@ -14,7 +14,6 @@ from fastapi_users.db import SQLAlchemyUserDatabase
 from opentelemetry import metrics
 
 from api_server.settings import settings
-
 from .db import User, get_users_db
 
 SECRET = settings.secret_key_file.read_text().strip()
@@ -111,4 +110,6 @@ auth_backend = AuthenticationBackend(
 
 fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
 
+current_user = fastapi_users.current_user()
 current_active_user = fastapi_users.current_user(active=True)
+current_superuser = fastapi_users.current_user(active=True, superuser=True)

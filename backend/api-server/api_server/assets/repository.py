@@ -6,7 +6,7 @@ from fastapi import Depends
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_server.assets.persistence.model import Asset, AssetType
+from api_server.assets.model import Asset, AssetType
 from api_server.utils.persistence.sqlalchemy import get_async_session
 
 
@@ -24,6 +24,10 @@ class AssetRepository:
 
     async def get_assets(self) -> Sequence[Asset]:
         result = await self.session.execute(select(Asset))
+        return result.scalars().all()
+
+    async def get_assets_by_ids(self, assets_ids: list[uuid.UUID]) -> Sequence[Asset]:
+        result = await self.session.execute(select(Asset).where(Asset.id.in_(assets_ids)))
         return result.scalars().all()
 
     async def get_assets_by_project_id(self, project_id: uuid.UUID) -> Sequence[Asset]:
@@ -102,6 +106,12 @@ class AssetRepository:
 
     async def delete_asset(self, asset_id: uuid.UUID) -> None:
         await self.session.execute(update(Asset).where(Asset.id == asset_id).values(deletion_time=datetime.utcnow()))
+        await self.session.commit()
+
+    async def delete_assets(self, assets_ids: list[uuid.UUID]) -> None:
+        await self.session.execute(
+            update(Asset).where(Asset.id.in_(assets_ids)).values(deletion_time=datetime.utcnow())
+        )
         await self.session.commit()
 
 

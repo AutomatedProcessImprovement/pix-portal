@@ -5,11 +5,11 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Response
 from fastapi.responses import FileResponse
 
 from api_server.files.model import File, FileType
+from api_server.files.schemas import FileOut, LocationOut
 from api_server.files.service import FileExists, FileService, get_file_service
+from api_server.users.db import User
+from api_server.users.users import current_user, current_superuser
 from api_server.utils.exceptions.http_exceptions import NotEnoughPermissionsHTTP
-from api_server.utils.service_clients.fastapi import get_current_user
-
-from ..schemas import FileOut, LocationOut
 
 router = APIRouter()
 
@@ -21,7 +21,7 @@ async def create_file(
     content: Annotated[bytes, Body()],
     response: Response,
     file_service: FileService = Depends(get_file_service),
-    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated,
+    user: User = Depends(current_user),  # raises 401 if user is not authenticated,
     users_ids: Optional[str] = None,  # list of users ids separated by commas
 ) -> Any:
     if not type.is_valid():
@@ -29,7 +29,7 @@ async def create_file(
 
     try:
         if users_ids is None:
-            users_ids = [uuid.UUID(user["id"])]
+            users_ids = [str(user.id)]
         else:
             users_ids = [uuid.UUID(user_id.strip()) for user_id in users_ids.split(",")]
         result = await file_service.save_file(name=name, file_type=type, file_bytes=content, users_ids=users_ids)
@@ -43,9 +43,8 @@ async def create_file(
 @router.get("/", response_model=list[FileOut])
 async def get_files(
     file_service: FileService = Depends(get_file_service),
-    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    _=Depends(current_superuser),  # raises 401 if user is not authenticated
 ) -> Sequence[File]:
-    _raise_for_not_superuser(user)
     result = await file_service.get_files()
     return result
 
@@ -54,7 +53,7 @@ async def get_files(
 async def get_file(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
-    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    user: User = Depends(current_user),  # raises 401 if user is not authenticated
 ) -> Any:
     await _raise_no_access(file_service, user, file_id)
 
@@ -69,7 +68,7 @@ async def get_file(
 async def delete_file(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
-    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    user: User = Depends(current_user),  # raises 401 if user is not authenticated
 ) -> None:
     await _raise_no_access(file_service, user, file_id)
 
@@ -83,7 +82,7 @@ async def delete_file(
 async def get_file_location(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
-    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    user: User = Depends(current_user),  # raises 401 if user is not authenticated
 ) -> LocationOut:
     await _raise_no_access(file_service, user, file_id)
 
@@ -98,7 +97,7 @@ async def get_file_location(
 async def get_file_content(
     file_id: uuid.UUID,
     file_service: FileService = Depends(get_file_service),
-    user: dict = Depends(get_current_user),  # raises 401 if user is not authenticated
+    user: User = Depends(current_user),  # raises 401 if user is not authenticated
 ) -> FileResponse:
     await _raise_no_access(file_service, user, file_id)
 
@@ -109,13 +108,8 @@ async def get_file_content(
         raise HTTPException(status_code=404, detail="File not found")
 
 
-def _raise_for_not_superuser(user: dict) -> None:
-    if not user["is_superuser"]:
-        raise NotEnoughPermissionsHTTP()
-
-
-async def _raise_no_access(file_service: FileService, user: dict, file_id: uuid.UUID) -> None:
-    if user["is_superuser"] is True:
+async def _raise_no_access(file_service: FileService, user: User, file_id: uuid.UUID) -> None:
+    if user.is_superuser is True:
         return
-    if not await file_service.user_has_access_to_file(user_id=user["id"], file_id=file_id):
+    if not await file_service.user_has_access_to_file(user_id=user.id, file_id=file_id):
         raise NotEnoughPermissionsHTTP()

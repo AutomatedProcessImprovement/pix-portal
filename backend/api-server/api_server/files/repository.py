@@ -6,9 +6,8 @@ from fastapi import Depends
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api_server.files.model import File, FileType
 from api_server.utils.persistence.sqlalchemy import get_async_session
-
-from .model import File, FileType
 
 
 class FileRepository:

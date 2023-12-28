@@ -3,7 +3,7 @@ import traceback
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
@@ -18,9 +18,9 @@ from api_server.utils.exceptions.fastapi_handlers import general_exception_handl
 from api_server.utils.middleware.request_logging import RequestLoggingMiddleware
 from api_server.utils.open_telemetry_utils import instrument_app
 from api_server.utils.persistence.alembic import migrate_to_latest
-from api_server.utils.service_clients.fastapi import add_user_to_app_state_if_present
-
 from .settings import settings
+
+# from api_server.utils.service_clients.fastapi import add_user_to_app_state_if_present
 
 load_dotenv()
 
@@ -35,7 +35,7 @@ app = FastAPI(
 app.include_router(files_router, prefix="/files", tags=["files"])
 app.include_router(assets_router, prefix="/assets", tags=["assets"])
 app.include_router(projects_router, prefix="/projects", tags=["projects"])
-app.include_router(processing_router, prefix="/processing_requests", tags=["processing_requests"])
+app.include_router(processing_router, prefix="/processing-requests", tags=["processing_requests"])
 app.include_router(fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"])
 app.include_router(fastapi_users.get_register_router(UserRead, UserCreate), prefix="/auth", tags=["auth"])
 app.include_router(fastapi_users.get_reset_password_router(), prefix="/auth", tags=["auth"])
