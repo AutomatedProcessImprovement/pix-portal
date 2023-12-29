@@ -248,7 +248,7 @@ class ProcessingRequestService:
     async def does_asset_belong_to_project(self, processing_request_id: uuid.UUID, asset_id: uuid.UUID) -> bool:
         processing_request = await self._processing_request_repository.get_processing_request(processing_request_id)
         project = await self._project_service.get_project(processing_request.project_id)
-        project_assets_ids = [str(pid) for pid in project["assets_ids"]]
+        project_assets_ids = [str(pid) for pid in project.assets_ids]
         return str(asset_id) in project_assets_ids
 
     async def _raise_for_assets_not_in_project(self, project_id: uuid.UUID, assets_ids: list[uuid.UUID]) -> None:
@@ -256,7 +256,7 @@ class ProcessingRequestService:
         Check if all assets belong to the project.
         """
         project = await self._project_service.get_project(project_id)
-        project_assets_ids = [str(pid) for pid in project["assets_ids"]]
+        project_assets_ids = [str(pid) for pid in project.assets_ids]
         for asset_id in assets_ids:
             if str(asset_id) not in project_assets_ids:
                 raise AssetDoesNotBelongToProject(asset_id=asset_id)

@@ -113,7 +113,9 @@ class AssetService:
 
     async def does_asset_exist(self, asset_id: uuid.UUID) -> bool:
         asset = await self.asset_repository.get_asset(asset_id)
-        return asset.deletion_time is not None
+        if not asset or asset.deletion_time is not None:
+            return False
+        return True
 
     async def get_assets_by_file_id(self, file_id: uuid.UUID) -> Sequence[Asset]:
         return await self.asset_repository.get_assets_by_file_id(file_id)

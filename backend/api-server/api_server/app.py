@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
 from api_server.assets.controller import router as assets_router
+from api_server.files.blobs_controller import router as blobs_router
 from api_server.files.files_controller import router as files_router
 from api_server.processing_requests.controller import router as processing_router
 from api_server.projects.controller import router as projects_router
@@ -38,6 +39,7 @@ app = FastAPI(
 
 
 app.include_router(files_router, prefix="/files", tags=["files"])
+app.include_router(blobs_router, prefix="/blobs", tags=["blobs"])
 app.include_router(assets_router, prefix="/assets", tags=["assets"])
 app.include_router(projects_router, prefix="/projects", tags=["projects"])
 app.include_router(processing_router, prefix="/processing-requests", tags=["processing_requests"])
