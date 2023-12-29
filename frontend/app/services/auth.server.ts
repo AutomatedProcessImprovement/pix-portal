@@ -1,11 +1,10 @@
 // Auth and users backend API.
 
-import axios from "axios";
-import { loginURL, userInfoURL } from "~/services/shared.server";
+import { http, loginURL, userInfoURL } from "~/services/shared.server";
 import type { User } from "./auth";
 
-export async function getJWT(username: string, password: string): Promise<string> {
-  const { data } = await axios.post(
+export async function getJWT(username: string, password: string): Promise<string | undefined> {
+  const { data } = await http.post(
     loginURL,
     {
       username: username,
@@ -21,7 +20,7 @@ export async function getJWT(username: string, password: string): Promise<string
 }
 
 export async function getUserInfo(token: string): Promise<User> {
-  const { data } = await axios.get(userInfoURL, {
+  const { data } = await http.get(userInfoURL, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

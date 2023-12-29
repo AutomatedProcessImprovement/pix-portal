@@ -3,9 +3,7 @@ import axios from "axios";
 
 assert.ok(process.env.BACKEND_BASE_URL, "BACKEND_BASE_URL is not set");
 assert.ok(process.env.BACKEND_BASE_URL!.length > 0, "BACKEND_BASE_URL is empty");
-
 console.log("Environment variables:", process.env);
-
 const backendBaseURL = process.env.BACKEND_BASE_URL || "http://localhost:9999/api/v1/";
 console.log("Backend base URL:", backendBaseURL);
 export const loginURL = new URL("/api/v1/auth/jwt/login", backendBaseURL).toString();
@@ -34,11 +32,10 @@ http.interceptors.response.use(
 );
 http.interceptors.request.use(
   (config) => {
-    console.log("Axios client request:", config);
     return config;
   },
   (error) => {
-    console.error("Axios client request failed:", error);
+    console.error("Axios client request failed on the backend side:", error);
     return Promise.reject(error);
   }
 );

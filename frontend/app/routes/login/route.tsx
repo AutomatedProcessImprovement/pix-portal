@@ -20,14 +20,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   return handleThrow(request, async () => {
+    console.log("A");
     const formData = await request.formData();
+    console.log("B");
     const email = formData.get("email") as string;
+    console.log("C");
     const password = formData.get("password") as string;
+    console.log("D");
     const remember = formData.get("remember") === "on";
+    console.log("E");
     const redirectTo = safeRedirect(formData.get("redirectTo"));
+    console.log("F");
     const token = await getJWT(email, password);
+    if (!token) throw Error(`Can get token for ${email}`);
+    console.log("G");
     const user = await getUserInfo(token);
     user.token = token;
+    console.log("H");
     return createUserSession(request, remember, user, redirectTo);
   });
 }

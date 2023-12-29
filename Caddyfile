@@ -1,61 +1,67 @@
 http://localhost, http://caddy
 
-handle /api/v1/* {
-  uri strip_prefix /api/v1
+handle_path /* {
+	handle /* {
+		reverse_proxy frontend:3030
+	}
 
-  handle /users/* {
-    reverse_proxy users:8000
-  }
+	handle /api/v1/* {
+		uri strip_prefix /api/v1
 
-  handle /auth/* {
-    reverse_proxy users:8000
-  }
+		handle /users/* {
+			reverse_proxy api-server:8000
+		}
 
-  handle /authenticated-route {
-    reverse_proxy users:8000
-  }
+		handle /auth/* {
+			reverse_proxy api-server:8000
+		}
 
-  handle /projects* {
-    reverse_proxy projects:8000
-  }
+		handle /authenticated-route {
+			reverse_proxy api-server:8000
+		}
 
-  handle /processing-requests* {
-    reverse_proxy processing-requests:8000
-  }
+		handle /projects* {
+			reverse_proxy api-server:8000
+		}
 
-  handle /assets* {
-    reverse_proxy assets:8000
-  }
+		handle /processing-requests* {
+			reverse_proxy api-server:8000
+		}
 
-  handle /files* {
-    reverse_proxy files:8000
-  }
+		handle /assets* {
+			reverse_proxy api-server:8000
+		}
 
-  handle /blobs* {
-    reverse_proxy files:8000
-  }
+		handle /files* {
+			reverse_proxy api-server:8000
+		}
 
-  handle /kronos* {
-    reverse_proxy kronos-http:8000
-  }
+		handle /blobs* {
+			reverse_proxy api-server:8000
+		}
+
+		handle /kronos* {
+			reverse_proxy kronos-http:8000
+		}
+	}
 }
 
 handle /admin/grafana/* {
-  reverse_proxy grafana:3000
+	reverse_proxy grafana:3000
 }
 
 handle /admin/zipkin/* {
-  uri strip_prefix /admin
-  reverse_proxy zipkin:9411
-  header X-Forwarded-Host {host}
-  header X-Forwarded-For {remote}
-  header X-Real-IP {remote}
+	uri strip_prefix /admin
+	reverse_proxy zipkin:9411
+	header X-Forwarded-Host {host}
+	header X-Forwarded-For {remote}
+	header X-Real-IP {remote}
 }
 
 handle /admin/kafka-ui/* {
-  reverse_proxy kafka-ui:8080
+	reverse_proxy kafka-ui:8080
 }
 
 handle /admin/prometheus/* {
-  reverse_proxy prometheus:9090
+	reverse_proxy prometheus:9090
 }

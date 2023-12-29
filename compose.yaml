@@ -7,20 +7,20 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3030
-      BACKEND_BASE_URL: http://caddy
+      BACKEND_BASE_URL: http://caddy/api/v1/
       SESSION_SECRET_FILE: /run/secrets/session_secret
     networks:
       - backend
     ports:
       - 3030:3030
     restart: on-failure
-  users:
+  api-server:
     build:
-      context: backend/services/users
+      context: backend/api-server
     ports:
       - 8000:8000
     env_file:
-      - backend/services/users/.env
+      - backend/api-server/.env
     secrets:
       - superuser_email
       - superuser_password
@@ -33,180 +33,28 @@ services:
       SECRET_KEY_FILE: /run/secrets/users_secret_key
       SYSTEM_EMAIL_FILE: /run/secrets/system_email
       SYSTEM_PASSWORD_FILE: /run/secrets/system_password
-    depends_on:
-      - users-db
-    networks:
-      - backend
-    restart: on-failure
-  projects:
-    build:
-      context: backend/services/projects
-    ports:
-      - 8030:8000
-    env_file:
-      - backend/services/projects/.env
-    secrets:
-      - system_email
-      - system_password
-    environment:
-      SYSTEM_EMAIL_FILE: /run/secrets/system_email
-      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
-    depends_on:
-      - projects-db
-      - assets
-    networks:
-      - backend
-    restart: on-failure
-  processing-requests:
-    build:
-      context: backend/services/processing-requests
-    ports:
-      - 8040:8000
-    env_file:
-      - backend/services/processing-requests/.env
-    secrets:
-      - system_email
-      - system_password
-    environment:
-      SYSTEM_EMAIL_FILE: /run/secrets/system_email
-      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
-    depends_on:
-      - processing-requests-db
-      - projects
-      - users
-      - files
-      - assets
-      - kafka
-    networks:
-      - backend
-    restart: on-failure
-  assets:
-    build:
-      context: backend/services/assets
-    ports:
-      - 8020:8000
-    env_file:
-      - backend/services/assets/.env
-    secrets:
-      - system_email
-      - system_password
-    environment:
-      SYSTEM_EMAIL_FILE: /run/secrets/system_email
-      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
-    depends_on:
-      - assets-db
-      - files
-    networks:
-      - backend
-    restart: on-failure
-  files:
-    build:
-      context: backend/services/files
-    ports:
-      - 8010:8000
-    env_file:
-      - backend/services/files/.env
-    secrets:
-      - system_email
-      - system_password
-    environment:
-      SYSTEM_EMAIL_FILE: /run/secrets/system_email
-      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
-    depends_on:
-      - files-db
-    networks:
-      - backend
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/pix
     volumes:
       - uploads:/var/tmp/uploads:rw
+    depends_on:
+      - postgres
+    networks:
+      - backend
     restart: on-failure
-  users-db:
+  postgres:
     image: postgres
     restart: on-failure
     user: postgres
     volumes:
-      - users-db-data:/var/lib/postgresql/data
-    env_file:
-      - backend/services/users/.env
+      - pix-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=pix
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     expose:
       - 5432
     ports:
       - 5432:5432
-    healthcheck:
-      test: ["CMD", "pg_isready"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - backend
-  projects-db:
-    image: postgres
-    restart: on-failure
-    user: postgres
-    volumes:
-      - projects-db-data:/var/lib/postgresql/data
-    env_file:
-      - backend/services/projects/.env
-    expose:
-      - 5432
-    ports:
-      - 5435:5432
-    healthcheck:
-      test: ["CMD", "pg_isready"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - backend
-  processing-requests-db:
-    image: postgres
-    restart: on-failure
-    user: postgres
-    volumes:
-      - processing-requests-db-data:/var/lib/postgresql/data
-    env_file:
-      - backend/services/processing-requests/.env
-    expose:
-      - 5432
-    ports:
-      - 5436:5432
-    healthcheck:
-      test: ["CMD", "pg_isready"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - backend
-  files-db:
-    image: postgres
-    restart: on-failure
-    user: postgres
-    volumes:
-      - files-db-data:/var/lib/postgresql/data
-    env_file:
-      - backend/services/files/.env
-    expose:
-      - 5432
-    ports:
-      - 5433:5432
-    healthcheck:
-      test: ["CMD", "pg_isready"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - backend
-  assets-db:
-    image: postgres
-    restart: on-failure
-    user: postgres
-    volumes:
-      - assets-db-data:/var/lib/postgresql/data
-    env_file:
-      - backend/services/assets/.env
-    expose:
-      - 5432
-    ports:
-      - 5434:5432
     healthcheck:
       test: ["CMD", "pg_isready"]
       interval: 5s
@@ -457,11 +305,7 @@ services:
     networks:
       - backend
 volumes:
-  users-db-data:
-  files-db-data:
-  assets-db-data:
-  projects-db-data:
-  processing-requests-db-data:
+  pix-db-data:
   uploads:
   kafka_data:
   caddy_data:
@@ -481,12 +325,12 @@ secrets:
   mail_gmail_password:
     file: ./backend/workers/mail/.secret_gmail_app_password
   superuser_email:
-    file: ./backend/services/users/.superuser_email.secret
+    file: ./backend/api-server/.superuser_email.secret
   superuser_password:
-    file: ./backend/services/users/.superuser_password.secret
+    file: ./backend/api-server/.superuser_password.secret
   users_secret_key:
-    file: ./backend/services/users/.key.secret
+    file: ./backend/api-server/.key.secret
   system_email:
-    file: ./backend/services/users/.system_email.secret
+    file: ./backend/api-server/.system_email.secret
   system_password:
-    file: ./backend/services/users/.system_password.secret
+    file: ./backend/api-server/.system_password.secret

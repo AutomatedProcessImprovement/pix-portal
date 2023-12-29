@@ -48,6 +48,8 @@ RUN npm run build
 # where the necessary files are copied from the build stage.
 FROM base as final
 
+RUN apk add curl
+
 # Use production node environment by default.
 ENV NODE_ENV production
 

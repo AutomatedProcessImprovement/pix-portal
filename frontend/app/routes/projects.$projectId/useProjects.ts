@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { User } from "~/services/auth";
 import { listProjectsForUser } from "~/services/projects";
-import type { ILabeledAny } from "../../components/shared";
+import type { ILabeledAny } from "~/components/shared";
 
 export function useProjects(user: User | null) {
   const [projects, setProjects] = useState<ILabeledAny[]>([]);
