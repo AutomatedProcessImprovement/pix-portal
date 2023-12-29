@@ -5,6 +5,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from api_server.assets.model import AssetType
+from api_server.files.schemas import FileOut
 
 
 class AssetIn(BaseModel):
@@ -29,7 +30,7 @@ class AssetOut(BaseModel):
     files_ids: list[uuid.UUID] = []
     users_ids: list[uuid.UUID]
     processing_requests_ids: list[uuid.UUID] = []
-    files: Optional[list[dict]] = None  # transient field not persisted in the database
+    files: Optional[list[FileOut]] = None  # transient field not persisted in the database
 
 
 class AssetPatchIn(BaseModel):

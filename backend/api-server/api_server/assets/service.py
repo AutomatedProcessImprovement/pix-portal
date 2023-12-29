@@ -60,11 +60,9 @@ class AssetService:
         return asset
 
     async def get_asset(self, asset_id: uuid.UUID, lazy: bool = True) -> AssetOut:
-        if lazy:
-            asset = await self.asset_repository.get_asset(asset_id)
-            return AssetOut(**asset.__dict__)
-
         asset = await self.asset_repository.get_asset(asset_id)
+        if lazy:
+            return AssetOut(**asset.__dict__)
         result = await self._post_process([asset])
         return result[0]
 
@@ -120,11 +118,11 @@ class AssetService:
     async def get_assets_by_file_id(self, file_id: uuid.UUID) -> Sequence[Asset]:
         return await self.asset_repository.get_assets_by_file_id(file_id)
 
-    async def get_files_by_asset_id(self, asset_id: uuid.UUID) -> list[dict]:
+    async def get_files_by_asset_id(self, asset_id: uuid.UUID) -> list[File]:
         asset = await self.get_asset(asset_id)
         return await self._fetch_files(asset.files_ids)
 
-    async def _fetch_files(self, files_ids: Optional[list[uuid.UUID]]) -> list[dict]:
+    async def _fetch_files(self, files_ids: Optional[list[uuid.UUID]]) -> list[File]:
         if not files_ids or len(files_ids) == 0:
             return []
         files = await asyncio.gather(*[self.file_service.get_file(file_id) for file_id in files_ids])
