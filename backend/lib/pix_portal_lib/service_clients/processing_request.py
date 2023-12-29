@@ -6,6 +6,7 @@ from typing import Optional
 from urllib.parse import urljoin
 
 import httpx
+
 from pix_portal_lib.utils import get_env
 
 from .self_authenticating_client import SelfAuthenticatingClient
@@ -26,7 +27,6 @@ class ProcessingRequest:
     project_id: str
     input_assets_ids: list[str]
     output_assets_ids: list[str]
-    jwt_token: str
     should_notify: bool
 
 

@@ -9,6 +9,7 @@ from typing import Optional
 from uuid import UUID
 
 import yaml
+from bps_discovery_simod.settings import settings
 from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
 from pix_portal_lib.service_clients.asset import Asset, AssetServiceClient, AssetType, File_
 from pix_portal_lib.service_clients.file import FileType
@@ -19,8 +20,6 @@ from pix_portal_lib.service_clients.processing_request import (
 )
 from pix_portal_lib.service_clients.project import ProjectServiceClient
 from pix_portal_lib.service_clients.user import UserServiceClient
-
-from bps_discovery_simod.settings import settings
 
 logger = logging.getLogger()
 
