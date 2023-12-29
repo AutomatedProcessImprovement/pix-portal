@@ -41,7 +41,6 @@ export default function OutputAssets({ processingRequests }: { processingRequest
               className={`flex flex-col border-2 border-teal-800 ${classNamesGivenStatus(request.status)}`}
             >
               <ProcessingRequestCard request={request} />
-              <p>assets_ids: {request.output_assets_ids.toString()}</p>
               {request.output_assets_ids.length > 0 &&
                 request.output_assets_ids.map((assetId) => (
                   <AssetCardAsync key={assetId} assetId={assetId} user={user} />
