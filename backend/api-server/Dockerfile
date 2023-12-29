@@ -47,5 +47,9 @@ COPY . .
 # Expose the port that the application listens on.
 EXPOSE 8000
 
+# Provide access to the folder for uploading files which is attached in compose.yaml
+ARG UPLOADS_DIR=/var/tmp/uploads
+RUN mkdir -p ${UPLOADS_DIR} && chown -R appuser:appuser ${UPLOADS_DIR}
+
 # Run the application.
 CMD opentelemetry-instrument --log_level debug uvicorn api_server.app:app --lifespan on --host=0.0.0.0 --port=8000 --log-level=info --proxy-headers --workers 2 --root-path=/api/v1
