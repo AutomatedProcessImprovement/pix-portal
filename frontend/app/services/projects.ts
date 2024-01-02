@@ -1,5 +1,3 @@
-import { BACKEND_BASE_URL } from "./shared.client";
-
 export interface Project {
   id: string;
   name: string;
@@ -15,7 +13,7 @@ export interface Project {
 export async function listProjectsForUser(userId: string, token: string): Promise<Project[]> {
   const params = new URLSearchParams({ user_id: userId });
   const url = `projects/?${params}`;
-  const u = new URL(url, BACKEND_BASE_URL);
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
   const response = await fetch(u, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -28,7 +26,7 @@ export async function listProjectsForUser(userId: string, token: string): Promis
 
 export async function removeAssetFromProject(assetId: string, projectId: string, token: string) {
   const url = `projects/${projectId}/assets/${assetId}`;
-  const u = new URL(url, BACKEND_BASE_URL);
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
   const response = await fetch(u, {
     method: "DELETE",
     headers: {

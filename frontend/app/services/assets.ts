@@ -1,5 +1,4 @@
 import type { File } from "./files";
-import { BACKEND_BASE_URL } from "./shared.client";
 
 export type Asset = {
   id: string;
@@ -49,7 +48,7 @@ export async function createAsset(filesIds: string[], name: string, type: AssetT
     project_id: projectId,
     files_ids: filesIds,
   };
-  const u = new URL(url, BACKEND_BASE_URL);
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
   const response = await fetch(u, {
     method: "POST",
     headers: {
@@ -66,7 +65,7 @@ export async function createAsset(filesIds: string[], name: string, type: AssetT
 export async function getAsset(assetId: string, token: string, lazy: boolean = true) {
   const params = new URLSearchParams({ lazy: lazy.toString() }); // NOTE: if false, the call returns the asset with its files as objects, not just ids
   const url = `assets/${assetId}?${params}`;
-  const u = new URL(url, BACKEND_BASE_URL);
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
   const response = await fetch(u, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -89,7 +88,7 @@ export type AssetPatchIn = {
 
 export async function patchAsset(assetUpdate: AssetPatchIn, assetId: string, token: string) {
   const url = `assets/${assetId}`;
-  const u = new URL(url, BACKEND_BASE_URL);
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
   const response = await fetch(u, {
     method: "PATCH",
     headers: {
@@ -106,7 +105,7 @@ export async function patchAsset(assetUpdate: AssetPatchIn, assetId: string, tok
 // TODO: Use projects.removeAssetFromProject instead. This call doesn't remove the asset from the project.
 export async function deleteAsset(assetId: string, token: string) {
   const url = `assets/${assetId}`;
-  const u = new URL(url, BACKEND_BASE_URL);
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
   const response = await fetch(u, {
     method: "DELETE",
     headers: {

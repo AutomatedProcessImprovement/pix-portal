@@ -1,5 +1,3 @@
-import { BACKEND_BASE_URL } from "./shared.client";
-
 export type File = {
   id: string;
   name: string;
@@ -25,7 +23,7 @@ export enum FileType {
 
 export async function getFile(fileId: string, token: string) {
   const url = `files/${fileId}`;
-  const u = new URL(url, BACKEND_BASE_URL);
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
   const response = await fetch(u, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -42,7 +40,7 @@ export type FileLocation = {
 
 export async function getFileLocation(fileId: string, token: string) {
   const url = `files/${fileId}/location`;
-  const u = new URL(url, BACKEND_BASE_URL);
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
   const response = await fetch(u, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -55,7 +53,7 @@ export async function getFileLocation(fileId: string, token: string) {
 
 export async function getFileContent(fileId: string, token: string) {
   const url = `files/${fileId}/content`;
-  const u = new URL(url, BACKEND_BASE_URL);
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
   const response = await fetch(u, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -70,7 +68,7 @@ export async function uploadFile(file: Blob, file_name: string, file_type: FileT
   const bytes = await file.arrayBuffer();
   const params = new URLSearchParams({ name: file_name, type: file_type });
   const url = `files/?${params}`;
-  const u = new URL(url, BACKEND_BASE_URL);
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
   const response = await fetch(u, {
     method: "POST",
     headers: {
@@ -86,7 +84,7 @@ export async function uploadFile(file: Blob, file_name: string, file_type: FileT
 
 export async function deleteFile(fileId: string, token: string) {
   const url = `files/${fileId}`;
-  const u = new URL(url, BACKEND_BASE_URL);
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
   const response = await fetch(u, {
     method: "DELETE",
     headers: {

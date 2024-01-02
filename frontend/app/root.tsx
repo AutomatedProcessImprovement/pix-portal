@@ -1,13 +1,13 @@
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
+  isRouteErrorResponse,
   Links,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
-  isRouteErrorResponse,
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
@@ -21,7 +21,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return json({
     user,
     ENV: {
-      BACKEND_BASE_URL: process.env.BACKEND_BASE_URL,
+      BACKEND_BASE_URL_PUBLIC: process.env.BACKEND_BASE_URL_PUBLIC,
     },
   });
 };
