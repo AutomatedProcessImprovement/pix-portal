@@ -17,11 +17,11 @@ services:
     restart: on-failure
   api-server:
     build:
-      context: backend/api-server
+      context: backend/services/api-server
     ports:
       - 8000:8000
     env_file:
-      - backend/api-server/.env
+      - backend/services/api-server/.env
     secrets:
       - superuser_email
       - superuser_password
@@ -326,12 +326,12 @@ secrets:
   mail_gmail_password:
     file: ./backend/workers/mail/.secret_gmail_app_password
   superuser_email:
-    file: ./backend/api-server/.superuser_email.secret
+    file: ./backend/services/api-server/.superuser_email.secret
   superuser_password:
-    file: ./backend/api-server/.superuser_password.secret
+    file: ./backend/services/api-server/.superuser_password.secret
   users_secret_key:
-    file: ./backend/api-server/.key.secret
+    file: ./backend/services/api-server/.key.secret
   system_email:
-    file: ./backend/api-server/.system_email.secret
+    file: ./backend/services/api-server/.system_email.secret
   system_password:
-    file: ./backend/api-server/.system_password.secret
+    file: ./backend/services/api-server/.system_password.secret
