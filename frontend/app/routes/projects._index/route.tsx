@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 import type { Project } from "~/services/projects";
@@ -11,7 +11,13 @@ import ProjectCard from "./ProjectCard";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireLoggedInUser(request);
   return handleThrow(request, async () => {
-    const projects = await listProjectsForUser(user.id, user.token!);
+    let projects;
+    try {
+      projects = await listProjectsForUser(user.id, user.token!);
+    } catch (error) {
+      console.error(error);
+      throw redirect("/login");
+    }
     return json({ user, projects });
   });
 };
