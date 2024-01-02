@@ -1,10 +1,10 @@
 import {
-  type ActionFunctionArgs,
   json,
-  type LoaderFunctionArgs,
   redirect,
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { isRouteErrorResponse, useLoaderData, useMatches, useRouteError } from "@remix-run/react";
 import type { Asset } from "~/services/assets";
@@ -15,8 +15,8 @@ import { ProcessingRequestType } from "~/services/processing_requests";
 import { createProcessingRequest, getProcessingRequestsForProject } from "~/services/processing_requests.server";
 import { handleNewAssetsFromFormData } from "~/shared/file_upload_handler.server";
 import { requireLoggedInUser } from "~/shared/guards.server";
-import { handleThrow } from "~/shared/utils";
 import { ProcessingType } from "~/shared/processing_type";
+import { handleThrow } from "~/shared/utils";
 import ProcessingApp from "./components/ProcessingApp";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -50,9 +50,10 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const projectId = params.projectId as string;
   ensureProcessingTypeValidOrRedirect(processingType, projectId);
 
-  // Calling request.formData() and unstable_parseMultipartFormData() reads the request body twice,
-  // which crashes remix. See github.com/remix-run/remix/discussions/7660
+  // Either handle asset upload --
   let formData: FormData;
+  // calling request.formData() and unstable_parseMultipartFormData() reads the request body twice,
+  // which crashes remix. See github.com/remix-run/remix/discussions/7660
   if (request.headers.get("content-type")?.startsWith("multipart/form-data")) {
     const uploadHandler = unstable_createMemoryUploadHandler({
       maxPartSize: 500000000, // 500 MB
@@ -61,8 +62,6 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   } else {
     formData = await request.formData();
   }
-
-  // either handle asset upload
   const assetType = formData.get("assetType");
   if (assetType) {
     await handleThrow(request, async () => {
@@ -71,7 +70,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     return null;
   }
 
-  // or handle processing request creation
+  // -- or handle processing request creation
   const selectedInputAssetsIdsString = formData.get("selectedInputAssetsIds") as string;
   const selectedInputAssetsIds = selectedInputAssetsIdsString.split(",");
   const requestType = processingTypeToProcessingRequestType(processingType as ProcessingType);

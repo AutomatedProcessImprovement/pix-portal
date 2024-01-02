@@ -1,31 +1,24 @@
 import { Form, useNavigation } from "@remix-run/react";
-import { useContext, useEffect, useState } from "react";
+import { useState } from "react";
 import type { Asset } from "~/services/assets";
 import { AssetType } from "~/services/assets";
 import { AssetCard } from "./AssetCard";
 import { ProcessingAppSection } from "./ProcessingAppSection";
-import { SelectedAssetsContext } from "./contexts";
+import { useSelectedInputAsset } from "./useSelectedInputAsset";
 
 export default function SetupSimod() {
   // Simod requires one event log and, optionally, a process model
-
-  const navigation = useNavigation();
-
-  const [eventLog, setEventLog] = useState<Asset | null>(null);
-  const [processModel, setProcessModel] = useState<Asset | null>(null);
+  const eventLog = useSelectedInputAsset(AssetType.EVENT_LOG);
+  const processModel = useSelectedInputAsset(AssetType.PROCESS_MODEL);
 
   const [selectedInputAssetsIdsRef, setSelectedInputAssetsIdsRef] = useState<string[]>([]);
-
-  const selectedAssets = useContext(SelectedAssetsContext);
-  useEffect(() => {
-    setEventLog(selectedAssets.find((asset) => asset.type === AssetType.EVENT_LOG) || null);
-    setProcessModel(selectedAssets.find((asset) => asset.type === AssetType.PROCESS_MODEL) || null);
-  }, [selectedAssets]);
-
   async function handleClick(_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    const selectedAssets = [eventLog, processModel].filter((asset) => asset !== null) as Asset[];
     const assetsIds = selectedAssets.map((asset) => asset.id);
     setSelectedInputAssetsIdsRef(assetsIds);
   }
+
+  const navigation = useNavigation();
 
   return (
     <ProcessingAppSection heading="Discovery Configuration">
