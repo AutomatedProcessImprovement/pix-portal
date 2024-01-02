@@ -10,8 +10,7 @@ export function ProcessingCardMini({
   processingType: ProcessingType;
 }) {
   function navLinkClasses({ isActive, isPending }: { isActive: boolean; isPending: boolean }) {
-    let classes =
-      "group/card border-none flex flex-col hover:bg-slate-100 border border-slate-200 md:flex-row md:max-w-xl";
+    let classes = "group/card border-none flex flex-col hover:bg-slate-100 border border-slate-200 md:flex-row";
     if (isPending) classes += " bg-white text-red-600 animate-pulse";
     if (isActive) classes += " bg-slate-100";
     return classes;
