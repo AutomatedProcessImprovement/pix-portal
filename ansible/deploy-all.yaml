@@ -61,11 +61,7 @@
       loop:
         - pix-portal
         - pix-portal/postgres-data
-        - pix-portal/postgres-data/users
-        - pix-portal/postgres-data/projects
-        - pix-portal/postgres-data/processing-requests
-        - pix-portal/postgres-data/files
-        - pix-portal/postgres-data/assets
+        - pix-portal/postgres-data/pix
         - pix-portal/uploads
         - pix-portal/kafka
         - pix-portal/caddy
