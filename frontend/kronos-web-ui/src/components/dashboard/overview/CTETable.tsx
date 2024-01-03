@@ -127,9 +127,9 @@ export default function CTETable({data}: { data: any }) {
     function CustomToolbar() {
         return (
             <GridToolbarContainer>
-                <GridToolbarColumnsButton/>
-                <GridToolbarFilterButton/>
-                <GridToolbarDensitySelector/>
+                <GridToolbarColumnsButton onResize={undefined} onResizeCapture={undefined}/>
+                <GridToolbarFilterButton onResize={undefined} onResizeCapture={undefined}/>
+                <GridToolbarDensitySelector onResize={undefined} onResizeCapture={undefined}/>
                 {/*<GridToolbarHeatmap/>*/}
             </GridToolbarContainer>
         );

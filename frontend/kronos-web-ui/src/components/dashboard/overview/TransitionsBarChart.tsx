@@ -49,7 +49,7 @@ function TransitionsBarChart({data, selectedWTType}: Props) {
         dataArray = data;
     } else if (data && !Array.isArray(data)) {
         dataArray = [data];
-    } else if (data === []) {
+    } else if (data.length === 0) {
         return <div>No data present</div>;
     } else {
         return <div>No data available</div>;
