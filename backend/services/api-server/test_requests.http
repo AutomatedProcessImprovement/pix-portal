@@ -3,8 +3,7 @@
 POST http://localhost:8000/auth/jwt/login
 Content-Type: application/x-www-form-urlencoded
 
-username = {{user_name}} &
-password = {{user_password}}
+username={{user_name}}&password={{user_password}}
 
 ### User profile
 
@@ -37,3 +36,8 @@ Authorization: Bearer {{token}}
 {
   "name": "project one"
 }
+
+### Get user's projects
+
+GET http://localhost:8000/projects/?user_id=85f310ce-7404-4e36-93a7-52f87b99b96e
+Authorization: Bearer {{token}}

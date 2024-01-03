@@ -25,13 +25,15 @@ export async function createProcessingRequest(
     input_assets_ids: inputAssetsIds,
     should_notify: shouldNotify,
   };
-  const response = await http.post(url, payload, {
+  const response = await fetch(url, {
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
+    body: JSON.stringify(payload),
   });
-  return response.data as ProcessingRequest;
+  return (await response.json()) as ProcessingRequest;
 }
 
 export async function getProcessingRequest(processingRequestId: string, token: string) {
