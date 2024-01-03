@@ -1,0 +1,277 @@
+{
+  "num_cases": 200,
+  "num_activities": 5,
+  "num_activity_instances": 400,
+  "num_transitions": 5,
+  "num_transition_instances": 300,
+  "total_wt": 155213,
+  "total_batching_wt": 27979,
+  "total_prioritization_wt": 15805,
+  "total_contention_wt": 52468,
+  "total_unavailability_wt": 28592,
+  "total_extraneous_wt": 30369,
+  "report": [
+    {
+      "source_activity": "Activity A",
+      "target_activity": "Activity B",
+      "case_freq": 39,
+      "total_freq": 78,
+      "total_wt": 19002,
+      "batching_wt": 4954,
+      "prioritization_wt": 2047,
+      "contention_wt": 7200,
+      "unavailability_wt": 2469,
+      "extraneous_wt": 2332,
+      "wt_by_resource": [
+        {
+          "source_resource": "Res1",
+          "target_resource": "Res2",
+          "case_freq": 21,
+          "total_freq": 42,
+          "total_wt": 11546,
+          "batching_wt": 3463,
+          "prioritization_wt": 1212,
+          "contention_wt": 4122,
+          "unavailability_wt": 1649,
+          "extraneous_wt": 1100
+        },
+        {
+          "source_resource": "Res1",
+          "target_resource": "Res3",
+          "case_freq": 18,
+          "total_freq": 36,
+          "total_wt": 7456,
+          "batching_wt": 1491,
+          "prioritization_wt": 835,
+          "contention_wt": 3078,
+          "unavailability_wt": 820,
+          "extraneous_wt": 1232
+        }
+      ]
+    },
+    {
+      "source_activity": "Activity A",
+      "target_activity": "Activity C",
+      "case_freq": 61,
+      "total_freq": 122,
+      "total_wt": 42759,
+      "batching_wt": 7076,
+      "prioritization_wt": 4267,
+      "contention_wt": 15391,
+      "unavailability_wt": 7946,
+      "extraneous_wt": 8079,
+      "wt_by_resource": [
+        {
+          "source_resource": "Res1",
+          "target_resource": "Res2",
+          "case_freq": 12,
+          "total_freq": 24,
+          "total_wt": 15432,
+          "batching_wt": 1543,
+          "prioritization_wt": 1388,
+          "contention_wt": 6250,
+          "unavailability_wt": 3125,
+          "extraneous_wt": 3126
+        },
+        {
+          "source_resource": "Res1",
+          "target_resource": "Res3",
+          "case_freq": 14,
+          "total_freq": 28,
+          "total_wt": 11324,
+          "batching_wt": 2264,
+          "prioritization_wt": 1177,
+          "contention_wt": 4729,
+          "unavailability_wt": 1577,
+          "extraneous_wt": 1577
+        },
+        {
+          "source_resource": "Res1",
+          "target_resource": "Res4",
+          "case_freq": 17,
+          "total_freq": 34,
+          "total_wt": 7654,
+          "batching_wt": 765,
+          "prioritization_wt": 826,
+          "contention_wt": 2425,
+          "unavailability_wt": 1455,
+          "extraneous_wt": 2183
+        },
+        {
+          "source_resource": "Res1",
+          "target_resource": "Res5",
+          "case_freq": 18,
+          "total_freq": 36,
+          "total_wt": 8349,
+          "batching_wt": 2504,
+          "prioritization_wt": 876,
+          "contention_wt": 1987,
+          "unavailability_wt": 1789,
+          "extraneous_wt": 1193
+        }
+      ]
+    },
+    {
+      "source_activity": "Activity B",
+      "target_activity": "Activity D",
+      "case_freq": 39,
+      "total_freq": 78,
+      "total_wt": 13300,
+      "batching_wt": 1682,
+      "prioritization_wt": 1471,
+      "contention_wt": 4350,
+      "unavailability_wt": 3385,
+      "extraneous_wt": 2412,
+      "wt_by_resource": [
+        {
+          "source_resource": "Res2",
+          "target_resource": "Res6",
+          "case_freq": 21,
+          "total_freq": 42,
+          "total_wt": 9121,
+          "batching_wt": 912,
+          "prioritization_wt": 985,
+          "contention_wt": 2889,
+          "unavailability_wt": 2601,
+          "extraneous_wt": 1734
+        },
+        {
+          "source_resource": "Res3",
+          "target_resource": "Res7",
+          "case_freq": 11,
+          "total_freq": 22,
+          "total_wt": 1764,
+          "batching_wt": 529,
+          "prioritization_wt": 160,
+          "contention_wt": 537,
+          "unavailability_wt": 322,
+          "extraneous_wt": 216
+        },
+        {
+          "source_resource": "Res3",
+          "target_resource": "Res8",
+          "case_freq": 7,
+          "total_freq": 14,
+          "total_wt": 2415,
+          "batching_wt": 241,
+          "prioritization_wt": 326,
+          "contention_wt": 924,
+          "unavailability_wt": 462,
+          "extraneous_wt": 462
+        }
+      ]
+    },
+    {
+      "source_activity": "Activity C",
+      "target_activity": "Activity D",
+      "case_freq": 61,
+      "total_freq": 122,
+      "total_wt": 47421,
+      "batching_wt": 9011,
+      "prioritization_wt": 4906,
+      "contention_wt": 15338,
+      "unavailability_wt": 8225,
+      "extraneous_wt": 9941,
+      "wt_by_resource": [
+        {
+          "source_resource": "Res2",
+          "target_resource": "Res6",
+          "case_freq": 12,
+          "total_freq": 24,
+          "total_wt": 9233,
+          "batching_wt": 923,
+          "prioritization_wt": 831,
+          "contention_wt": 2991,
+          "unavailability_wt": 2244,
+          "extraneous_wt": 2244
+        },
+        {
+          "source_resource": "Res3",
+          "target_resource": "Res6",
+          "case_freq": 14,
+          "total_freq": 28,
+          "total_wt": 16834,
+          "batching_wt": 1683,
+          "prioritization_wt": 2121,
+          "contention_wt": 5212,
+          "unavailability_wt": 3127,
+          "extraneous_wt": 4691
+        },
+        {
+          "source_resource": "Res4",
+          "target_resource": "Res7",
+          "case_freq": 17,
+          "total_freq": 34,
+          "total_wt": 10243,
+          "batching_wt": 3072,
+          "prioritization_wt": 788,
+          "contention_wt": 3829,
+          "unavailability_wt": 1532,
+          "extraneous_wt": 1022
+        },
+        {
+          "source_resource": "Res5",
+          "target_resource": "Res8",
+          "case_freq": 18,
+          "total_freq": 36,
+          "total_wt": 11111,
+          "batching_wt": 3333,
+          "prioritization_wt": 1166,
+          "contention_wt": 3306,
+          "unavailability_wt": 1322,
+          "extraneous_wt": 1984
+        }
+      ]
+    },
+    {
+      "source_activity": "Activity D",
+      "target_activity": "Activity E",
+      "case_freq": 100,
+      "total_freq": 200,
+      "total_wt": 32731,
+      "batching_wt": 5256,
+      "prioritization_wt": 3114,
+      "contention_wt": 10189,
+      "unavailability_wt": 6567,
+      "extraneous_wt": 7605,
+      "wt_by_resource": [
+        {
+          "source_resource": "Res6",
+          "target_resource": "Res9",
+          "case_freq": 47,
+          "total_freq": 94,
+          "total_wt": 20131,
+          "batching_wt": 2013,
+          "prioritization_wt": 1992,
+          "contention_wt": 6450,
+          "unavailability_wt": 3870,
+          "extraneous_wt": 5806
+        },
+        {
+          "source_resource": "Res7",
+          "target_resource": "Res9",
+          "case_freq": 28,
+          "total_freq": 56,
+          "total_wt": 5357,
+          "batching_wt": 1071,
+          "prioritization_wt": 514,
+          "contention_wt": 1508,
+          "unavailability_wt": 1358,
+          "extraneous_wt": 906
+        },
+        {
+          "source_resource": "Res8",
+          "target_resource": "Res9",
+          "case_freq": 25,
+          "total_freq": 50,
+          "total_wt": 7243,
+          "batching_wt": 2172,
+          "prioritization_wt": 608,
+          "contention_wt": 2231,
+          "unavailability_wt": 1339,
+          "extraneous_wt": 893
+        }
+      ]
+    }
+  ]
+}
