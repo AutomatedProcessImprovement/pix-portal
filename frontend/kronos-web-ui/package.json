@@ -72,7 +72,8 @@
   "devDependencies": {
     "@types/highcharts": "^7.0.0",
     "@types/lodash.clonedeep": "^4.5.7",
-    "@types/node": "^16.11.43"
+    "@types/node": "^16.11.43",
+    "prettier": "3.1.1"
   },
   "browser": {
     "fs": false
