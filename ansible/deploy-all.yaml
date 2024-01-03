@@ -22,7 +22,7 @@
 
     - name: Copy frontend source
       ansible.posix.synchronize:
-        src: ../frontend
+        src: ../frontend/pix-web-ui
         dest: "{{ base_dir_remote }}/"
         mode: "push"
         delete: true

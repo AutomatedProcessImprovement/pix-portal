@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "pix-web-ui",
   "private": true,
   "sideEffects": false,
   "type": "module",

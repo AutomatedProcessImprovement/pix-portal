@@ -2,7 +2,7 @@ http://localhost, http://caddy
 
 handle_path /* {
 	handle /* {
-		reverse_proxy frontend:3030
+		reverse_proxy pix-web-ui:3030
 	}
 
 	handle /api/v1/* {
