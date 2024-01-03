@@ -1,25 +1,24 @@
-import React, { useState } from "react";
-import { Box, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from "@mui/material";
-import Tooltip from "@mui/material/Tooltip";
-import IconButton from "@mui/material/IconButton";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import { Box, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import Infobox from "../Infobox";
-import PieChartBox from "../PieChartBox";
-import WaitingTimeframe from "./WaitingTimeframe";
-import TransitionsBarChart from "./TransitionsBarChart";
-import TransitionsTable from "./TransitionsTable";
+import React, { useState } from "react";
 import { secondsToDhm } from "../../../helpers/SecondsToDhm";
 import { dhmToString } from "../../../helpers/dhmToString";
 import { useFetchData } from "../../../helpers/useFetchData";
-import GaugeChart from "./GaugeChart";
-import PotentialCteChart from "./PotentialCteChart";
+import Infobox from "../Infobox";
+import PieChartBox from "../PieChartBox";
 import CTEHeatmap from "./CTEHeatmap";
 import CTETable from "./CTETable";
-import Chat from "./Chat";
+import GaugeChart from "./GaugeChart";
+import PotentialCteChart from "./PotentialCteChart";
+import TransitionsBarChart from "./TransitionsBarChart";
+import TransitionsTable from "./TransitionsTable";
+import WaitingTimeframe from "./WaitingTimeframe";
 
 interface AllTransitionsLayoutProps {
   jobId: string;

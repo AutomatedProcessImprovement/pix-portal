@@ -9,7 +9,6 @@ import {
 } from "@mui/x-data-grid";
 import RowDialog from "../RowDialog";
 import { Typography } from "@mui/material";
-import { useFetchData } from "../../../helpers/useFetchData";
 
 const columns: GridColDef[] = [
   { field: "id", headerName: "ID", hide: true, flex: 0.01 },
@@ -94,8 +93,8 @@ const add_index = (data: any) => {
 
 export default function CTETable({ data }: { data: any }) {
   let [open, setOpen] = React.useState(false);
-  const [selectedValue, setSelectedValue] = React.useState<string[]>([]);
-  const [selectedTitle, setSelectedTitle] = React.useState<string>("");
+  const [selectedValue] = React.useState<string[]>([]);
+  const [selectedTitle] = React.useState<string>("");
 
   let table_data = add_index(data.data);
 

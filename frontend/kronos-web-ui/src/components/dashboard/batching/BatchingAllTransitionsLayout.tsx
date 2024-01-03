@@ -1,23 +1,18 @@
-import React, { useState } from "react";
-import { Box, FormControl, Grid, InputLabel, MenuItem, Select, Typography, SelectChangeEvent } from "@mui/material";
-import HighchartsReact from "highcharts-react-official";
-import Highcharts from "highcharts";
-import { dhmToString } from "../../../helpers/dhmToString";
-import { secondsToDhm } from "../../../helpers/SecondsToDhm";
-import { useFetchData } from "../../../helpers/useFetchData";
-import WaitingTimeframe from "../overview/WaitingTimeframe";
-import TransitionsBarChart from "../overview/TransitionsBarChart";
-import Tooltip from "@mui/material/Tooltip";
-import IconButton from "@mui/material/IconButton";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import BatchingComponent from "./BatchingComponent";
+import { Box, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
+import React, { useState } from "react";
+import { secondsToDhm } from "../../../helpers/SecondsToDhm";
+import { dhmToString } from "../../../helpers/dhmToString";
+import { useFetchData } from "../../../helpers/useFetchData";
 import ResourcesBarChart from "../ResourcesBarChart";
+import TransitionsBarChart from "../overview/TransitionsBarChart";
+import WaitingTimeframe from "../overview/WaitingTimeframe";
 
-interface BatchingAllTransitionsLayoutProps {
-  jobId: string;
-}
-
-const BatchingAllTransitionsLayout: React.FC<BatchingAllTransitionsLayoutProps> = ({ jobId }) => {
+const BatchingAllTransitionsLayout: React.FC<{ jobId: string }> = ({ jobId }) => {
   const overviewData = useFetchData(`/wt_overview/${jobId}/batching`);
   const timeFrameData = useFetchData(`/daily_summary/${jobId}`);
   const activityResourceWT = useFetchData(`/activity_resource_wt/${jobId}`);

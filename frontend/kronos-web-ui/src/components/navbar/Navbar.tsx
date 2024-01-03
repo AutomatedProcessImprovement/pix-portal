@@ -1,11 +1,11 @@
-import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
 import { Link } from "react-router-dom";
+import paths from "../../router/paths";
 import logo from "./kronos-logo.png";
 
 interface MenuOptions {
@@ -13,10 +13,7 @@ interface MenuOptions {
   to: string;
 }
 
-const menuOptions: Array<MenuOptions> = [
-  { title: "Find a result", to: "/search" },
-  { title: "Upload event log", to: "/upload" },
-];
+const menuOptions: Array<MenuOptions> = [{ title: "Find a result", to: paths.SEARCH_PATH }];
 
 function NavBar() {
   return (
@@ -44,7 +41,7 @@ function NavBar() {
               to={to}
               sx={{ my: 2, color: "white", display: "block" }}
             >
-              {title} |
+              {title}
             </Button>
           ))}
         </Toolbar>

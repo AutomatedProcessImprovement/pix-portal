@@ -1,8 +1,6 @@
-import * as React from "react";
-import HighchartsReact from "highcharts-react-official";
 import * as Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 import HighchartsHeatmap from "highcharts/modules/heatmap";
-import { useFetchData } from "../../../helpers/useFetchData";
 
 require("moment");
 HighchartsHeatmap(Highcharts);
