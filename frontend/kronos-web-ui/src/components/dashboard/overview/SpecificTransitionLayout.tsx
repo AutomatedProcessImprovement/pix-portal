@@ -1,17 +1,16 @@
-import React from "react";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { Box, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { secondsToDhm } from "../../../helpers/SecondsToDhm";
-import { dhmToString } from "../../../helpers/dhmToString";
+import React from "react";
 import { useFetchData } from "../../../helpers/useFetchData";
-import TransitionsBarChart from "./TransitionsBarChart";
-import WaitingTimeframe from "./WaitingTimeframe";
+import { dhmToString, secondsToDhm } from "../../../helpers/utils";
 import GaugeChart from "./GaugeChart";
 import PotentialCteChart from "./PotentialCteChart";
-import Tooltip from "@mui/material/Tooltip";
-import IconButton from "@mui/material/IconButton";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import TransitionsBarChart from "./TransitionsBarChart";
+import WaitingTimeframe from "./WaitingTimeframe";
 
 interface SpecificTransitionLayoutProps {
   jobId: string;

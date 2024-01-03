@@ -1,57 +1,34 @@
-import { useQuery } from "react-query";
+import { useEffect, useState } from "react";
 
-const BASE_URL = "http://193.40.11.233/db-api";
+const BASE_URL = process.env.REACT_APP_KRONOS_HTTP_URL;
+console.log("Kronos HTTP URL:", BASE_URL);
 
 export function useFetchData(endpoint: string) {
-  const fullUrl = `${BASE_URL}${endpoint}`;
+  const [data, setData] = useState<any>(null);
+  useEffect(() => {
+    const fullUrl = `${BASE_URL}${endpoint}`;
+    (async () => {
+      const data = await fetchBackend(fullUrl);
+      setData(data);
+    })();
+  }, [endpoint]);
+  return data;
+}
 
-  const { data, isLoading, isError, error } = useQuery(
-    endpoint,
-    async () => {
-      const response = await fetch(fullUrl, {
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      const text = await response.text();
-      console.log("Raw response:", text);
-
-      if (!response.ok) {
-        console.error("Error status:", response.status);
-        console.error("Error status text:", response.statusText);
-        console.error("Error response body:", text);
-        throw new Error(`Network error: ${response.status} - ${text}`);
-      }
-
-      let jsonData;
-      try {
-        jsonData = JSON.parse(text);
-      } catch (jsonError) {
-        console.error("JSON parsing error:", jsonError);
-        throw jsonError;
-      }
-
-      console.log("Parsed data:", jsonData);
-      return jsonData;
+export async function fetchBackend(endpoint: string) {
+  const url = new URL(endpoint, BASE_URL);
+  console.log("Fetching", url);
+  const response = await fetch(url, {
+    headers: {
+      Accept: "application/json",
     },
-    {
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    },
-  );
-
-  console.log("React-Query state:", { data, isLoading, isError, error });
-
-  if (data === undefined) {
-    console.warn("Fetched data is undefined.");
+  });
+  if (!response.ok) {
+    console.error(`Request to ${url} failed with status ${response.status}:`, response.statusText);
+    const text = await response.text();
+    console.log("Response body:", text);
+    throw new Error(`Network error: ${response.status} - ${text}`);
   }
-
-  if (isLoading) return null;
-  if (isError) {
-    console.error(error);
-    return null;
-  }
-
+  const data = response.json();
   return data;
 }

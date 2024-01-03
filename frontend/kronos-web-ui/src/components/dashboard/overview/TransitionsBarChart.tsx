@@ -1,9 +1,7 @@
-import React from "react";
-import HighchartsReact from "highcharts-react-official";
 import * as Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 import stockInit from "highcharts/modules/stock";
-import { secondsToDhm } from "../../../helpers/SecondsToDhm";
-import { dhmToString } from "../../../helpers/dhmToString";
+import { dhmToString, secondsToDhm } from "../../../helpers/utils";
 
 require("moment-duration-format");
 

@@ -1,11 +1,10 @@
-import * as React from "react";
+import { Card, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { SelectChangeEvent } from "@mui/material/Select";
 import * as Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { Card, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
-import { SelectChangeEvent } from "@mui/material/Select";
 import moment from "moment";
-import { secondsToDhm } from "../../../helpers/SecondsToDhm";
-import { dhmToString } from "../../../helpers/dhmToString";
+import * as React from "react";
+import { dhmToString, secondsToDhm } from "../../../helpers/utils";
 
 const _colorDict = {
   batching: "#6C8EBF",

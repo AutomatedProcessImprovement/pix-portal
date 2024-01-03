@@ -7,9 +7,8 @@ import Tooltip from "@mui/material/Tooltip";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import React, { useState } from "react";
-import { secondsToDhm } from "../../../helpers/SecondsToDhm";
-import { dhmToString } from "../../../helpers/dhmToString";
 import { useFetchData } from "../../../helpers/useFetchData";
+import { dhmToString, secondsToDhm } from "../../../helpers/utils";
 import Infobox from "../Infobox";
 import PieChartBox from "../PieChartBox";
 import CTEHeatmap from "./CTEHeatmap";
@@ -26,6 +25,8 @@ interface AllTransitionsLayoutProps {
 
 const AllTransitionsLayout: React.FC<AllTransitionsLayoutProps> = ({ jobId }) => {
   const overviewData = useFetchData(`/overview/${jobId}`);
+  console.log("overviewData", overviewData);
+  console.log("type of overviewData", typeof overviewData);
   const potentialCteData = useFetchData(`/potential_cte/${jobId}`);
   const cteTableData = useFetchData(`/cte_improvement/${jobId}`);
   const timeframeData = useFetchData(`/daily_summary/${jobId}`);

@@ -1,19 +1,10 @@
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { Link } from "react-router-dom";
-import paths from "../../router/paths";
 import logo from "./kronos-logo.png";
-
-interface MenuOptions {
-  title: string;
-  to: string;
-}
-
-const menuOptions: Array<MenuOptions> = [{ title: "Find a result", to: paths.SEARCH_PATH }];
 
 function NavBar() {
   return (
@@ -34,16 +25,6 @@ function NavBar() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Kronos
           </Typography>
-          {menuOptions.map(({ title, to }, index) => (
-            <Button
-              key={`menu_item_btn_${index}`}
-              component={Link}
-              to={to}
-              sx={{ my: 2, color: "white", display: "block" }}
-            >
-              {title}
-            </Button>
-          ))}
         </Toolbar>
       </AppBar>
     </Box>

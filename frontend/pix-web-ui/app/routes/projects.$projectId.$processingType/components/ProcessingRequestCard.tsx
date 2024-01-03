@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react";
 import { Suspense } from "react";
-import { ProcessingRequestType, type ProcessingRequest } from "~/services/processing_requests";
+import { ProcessingRequestStatus, ProcessingRequestType, type ProcessingRequest } from "~/services/processing_requests";
 import { parseDate } from "~/shared/utils";
 
 export function ProcessingRequestCard({ request }: { request: ProcessingRequest }) {
@@ -25,11 +25,12 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
           Status: <span className="font-semibold">{request.status}</span>
         </div>
         {duration ? <div>Duration {duration}</div> : <></>}
-        {request.type === ProcessingRequestType.WAITING_TIME_ANALYSIS_KRONOS && (
-          <Link to={`/kronos/results/${request.id}`} target="_blank" className="shrink w-fit">
-            Switch to Kronos
-          </Link>
-        )}
+        {request.type === ProcessingRequestType.WAITING_TIME_ANALYSIS_KRONOS &&
+          request.status === ProcessingRequestStatus.FINISHED && (
+            <Link to={`/kronos/results/${request.id}`} target="_blank" className="shrink w-fit">
+              Switch to Kronos
+            </Link>
+          )}
       </Suspense>
     </div>
   );

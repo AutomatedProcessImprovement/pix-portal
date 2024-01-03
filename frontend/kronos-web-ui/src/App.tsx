@@ -1,8 +1,8 @@
-import { BrowserRouter } from "react-router-dom";
-import "./App.css";
-import Navbar from "./components/navbar/Navbar";
-import AppRouter from "./router/AppRouter";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import "./App.css";
+import Dashboard from "./components/Dashboard";
+import Navbar from "./components/navbar/Navbar";
 
 const queryClient = new QueryClient();
 
@@ -12,7 +12,9 @@ function App() {
       <BrowserRouter>
         <Navbar />
         <div className="App">
-          <AppRouter />
+          <Routes>
+            <Route path="/kronos/results/:id" element={<Dashboard />} />
+          </Routes>
         </div>
       </BrowserRouter>
     </QueryClientProvider>

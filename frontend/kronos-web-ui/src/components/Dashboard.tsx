@@ -1,7 +1,5 @@
-import React, { useEffect, useState, Suspense } from "react";
-import axios from "axios";
-import { useLocation } from "react-router-dom";
-import { useFetchData } from "../helpers/useFetchData";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import Download from "@mui/icons-material/CloudDownloadOutlined";
 import {
   Box,
   Button,
@@ -21,8 +19,10 @@ import {
   Tooltip,
 } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material/Select";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import Download from "@mui/icons-material/CloudDownloadOutlined";
+import axios from "axios";
+import React, { Suspense, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { fetchBackend } from "../helpers/useFetchData";
 
 const Overview = React.lazy(() => import("./dashboard/overview/Overview"));
 const Batching = React.lazy(() => import("./dashboard/batching/Batching"));
@@ -43,15 +43,14 @@ interface ActivityPair {
 }
 
 const useFetchActivityPairs = (jobId: string) => {
+  // const fetchedData = useFetchData(`/activity_pairs/${jobId}`);
   const [activityPairs, setActivityPairs] = useState<ActivityPair[]>([]);
-  const fetchedData = useFetchData(`/activity_pairs/${jobId}`);
-
   useEffect(() => {
-    if (fetchedData) {
-      setActivityPairs(fetchedData);
-    }
-  }, [fetchedData]);
-
+    (async () => {
+      const data = await fetchBackend(`/activity_pairs/${jobId}`);
+      setActivityPairs(data as ActivityPair[]);
+    })();
+  }, [jobId]);
   return activityPairs;
 };
 
@@ -126,14 +125,15 @@ const onDownload = (type: number, jobId: string) => {
 const options = ["Download as CSV", "Download as JSON"];
 
 const BasicTabs = () => {
+  const { id } = useParams<"id">();
+  const jobId = id!;
   const [value, setValue] = useState(0);
   const [open, setOpen] = useState(false);
   const anchorRef = React.useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedActivityPair, setSelectedActivityPair] = useState<string>("All transitions");
-  const { state } = useLocation();
-  const { jobId } = state as { jobId: string };
   const activityPairsData = useFetchActivityPairs(jobId);
+  console.log("activityPairsData", activityPairsData);
 
   if (!activityPairsData) {
     return <div>Loading...</div>;
@@ -240,16 +240,15 @@ const BasicTabs = () => {
                     zIndex: 100000,
                   }}
                 >
-                  <Paper sx={{ zIndex: 100000 }}>
-                    <ClickAwayListener onClickAway={handleClose} sx={{ zIndex: 100000 }}>
-                      <MenuList id="split-button-menu" autoFocusItem sx={{ zIndex: 100000 }}>
+                  <Paper>
+                    <ClickAwayListener onClickAway={handleClose}>
+                      <MenuList id="split-button-menu" autoFocusItem>
                         {options.map((option, index) => (
                           <MenuItem
                             key={option}
                             disabled={index === 2}
                             selected={index === selectedIndex}
                             onClick={(event) => handleMenuItemClick(event, index)}
-                            sx={{ zIndex: 100000 }}
                           >
                             {option}
                           </MenuItem>

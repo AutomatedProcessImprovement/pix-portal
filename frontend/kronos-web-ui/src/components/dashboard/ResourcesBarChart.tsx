@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { Card, MenuItem, Select, Typography } from "@mui/material";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { Card, Select, MenuItem, Typography } from "@mui/material";
-import { secondsToDhm } from "../../helpers/SecondsToDhm";
-import { dhmToString } from "../../helpers/dhmToString";
+import { useEffect, useState } from "react";
+import { dhmToString, secondsToDhm } from "../../helpers/utils";
 
 interface ResourcesBarChartProps {
   data: Array<any>;
