@@ -12,8 +12,16 @@ services:
       SESSION_SECRET_FILE: /run/secrets/session_secret
     networks:
       - backend
-    ports:
-      - 3030:3030
+    restart: on-failure
+  kronos-web-ui:
+    build:
+      context: frontend/kronos-web-ui
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_KRONOS_HTTP_URL: http://caddy/api/v1/kronos/
+    networks:
+      - backend
     restart: on-failure
   api-server:
     build:
