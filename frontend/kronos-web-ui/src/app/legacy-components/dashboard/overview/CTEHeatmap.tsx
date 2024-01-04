@@ -3,12 +3,18 @@ import HighchartsReact from "highcharts-react-official";
 import HighchartsHeatmap from "highcharts/modules/heatmap";
 
 require("moment");
-HighchartsHeatmap(Highcharts);
+
+// https://github.com/highcharts/highcharts/issues/10588
+if (typeof Highcharts === "object") {
+  HighchartsHeatmap(Highcharts);
+}
+
 require("moment-duration-format");
+
 export default function CTEHeatmap({ data }: { data: any }) {
   let report_data = [...data.data];
   let sorted_report = report_data.sort((p1: any, p2: any) =>
-    p1.cte_impact_total < p2.cte_impact_total ? 1 : p1.cte_impact_total > p2.cte_impact_total ? -1 : 0,
+    p1.cte_impact_total < p2.cte_impact_total ? 1 : p1.cte_impact_total > p2.cte_impact_total ? -1 : 0
   );
 
   let heatmap_data = sorted_report.slice(0, 10);

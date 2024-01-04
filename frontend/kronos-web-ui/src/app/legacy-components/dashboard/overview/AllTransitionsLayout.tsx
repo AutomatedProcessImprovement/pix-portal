@@ -25,8 +25,6 @@ interface AllTransitionsLayoutProps {
 
 const AllTransitionsLayout: React.FC<AllTransitionsLayoutProps> = ({ jobId }) => {
   const overviewData = useFetchData(`/overview/${jobId}`);
-  console.log("overviewData", overviewData);
-  console.log("type of overviewData", typeof overviewData);
   const potentialCteData = useFetchData(`/potential_cte/${jobId}`);
   const cteTableData = useFetchData(`/cte_improvement/${jobId}`);
   const timeframeData = useFetchData(`/daily_summary/${jobId}`);
@@ -253,7 +251,10 @@ const AllTransitionsLayout: React.FC<AllTransitionsLayoutProps> = ({ jobId }) =>
                 : `Average Cycle Time: ${dhmToString(secondsToDhm(avgCycleTime))}`}
             </div>
 
-            <HighchartsReact key={displayMode} highcharts={Highcharts} options={cycleTimeOptions} />
+            {/* // https://github.com/highcharts/highcharts/issues/10588 */}
+            {typeof Highcharts === "object" && (
+              <HighchartsReact key={displayMode} highcharts={Highcharts} options={cycleTimeOptions} />
+            )}
           </div>
         </Grid>
         <Grid item xs={6}>

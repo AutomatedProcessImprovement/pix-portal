@@ -1,11 +1,14 @@
-import React from "react";
-import Highcharts from "highcharts/highcharts.js";
-import highchartsMore from "highcharts/highcharts-more.js";
-import solidGauge from "highcharts/modules/solid-gauge.js";
 import HighchartsReact from "highcharts-react-official";
+import highchartsMore from "highcharts/highcharts-more.js";
+import Highcharts from "highcharts/highcharts.js";
+import solidGauge from "highcharts/modules/solid-gauge.js";
+import React from "react";
 
-highchartsMore(Highcharts);
-solidGauge(Highcharts);
+// https://github.com/highcharts/highcharts/issues/10588
+if (typeof Highcharts === "object") {
+  highchartsMore(Highcharts);
+  solidGauge(Highcharts);
+}
 
 interface GaugeChartProps {
   value: number;

@@ -5,7 +5,10 @@ import { dhmToString, secondsToDhm } from "../../../helpers/utils";
 
 require("moment-duration-format");
 
-stockInit(Highcharts);
+// https://github.com/highcharts/highcharts/issues/10588
+if (typeof Highcharts === "object") {
+  stockInit(Highcharts);
+}
 
 type DataObject = {
   name: any;
