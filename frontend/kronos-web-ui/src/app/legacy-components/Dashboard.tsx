@@ -1,3 +1,5 @@
+"use client";
+
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import Download from "@mui/icons-material/CloudDownloadOutlined";
 import {
@@ -21,7 +23,6 @@ import {
 import { SelectChangeEvent } from "@mui/material/Select";
 import axios from "axios";
 import React, { Suspense, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import { fetchBackend } from "../helpers/useFetchData";
 
 const Overview = React.lazy(() => import("./dashboard/overview/Overview"));
@@ -124,9 +125,7 @@ const onDownload = (type: number, jobId: string) => {
 
 const options = ["Download as CSV", "Download as JSON"];
 
-const BasicTabs = () => {
-  const { id } = useParams<"id">();
-  const jobId = id!;
+const Dashboard = ({ jobId }: { jobId: string }) => {
   const [value, setValue] = useState(0);
   const [open, setOpen] = useState(false);
   const anchorRef = React.useRef<HTMLDivElement>(null);
@@ -298,4 +297,4 @@ const BasicTabs = () => {
   );
 };
 
-export default BasicTabs;
+export default Dashboard;

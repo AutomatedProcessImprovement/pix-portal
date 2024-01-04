@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const BASE_URL = process.env.REACT_APP_KRONOS_HTTP_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_KRONOS_HTTP_URL;
 console.log("Kronos HTTP URL:", BASE_URL);
 
 export function useFetchData(endpoint: string) {
@@ -16,7 +16,14 @@ export function useFetchData(endpoint: string) {
 }
 
 export async function fetchBackend(endpoint: string) {
-  const url = new URL(endpoint, BASE_URL);
+  let url;
+  try {
+    url = new URL(endpoint, BASE_URL);
+  } catch (e) {
+    console.error("Cannot compose URL:", BASE_URL, endpoint);
+    throw e;
+  }
+
   console.log("Fetching", url);
   const response = await fetch(url, {
     headers: {
