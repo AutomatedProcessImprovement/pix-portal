@@ -1,22 +1,12 @@
-FROM node:12.22.9 as build
+FROM node:slim
 
 WORKDIR /app
-RUN npm install -g npm@8.5.1
-COPY package.json package.json
-COPY package-lock.json package-lock.json
-RUN npm ci
 
-COPY tsconfig.json tsconfig.json
-COPY ./public/ ./public
-COPY config-overrides.js config-overrides.js
-COPY ./src/ ./src
-COPY ./nginx/ ./nginx
+COPY . ./
+RUN npm install --legacy-peer-deps
 RUN npm run build
 
-FROM nginx:stable-alpine as production
-COPY --from=build /app/build /usr/share/nginx/html
+EXPOSE 3000
 
-COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-EXPOSE 443
-CMD ["nginx", "-g", "daemon off;"]
+RUN npm install serve
+CMD ["serve", "-s", "build", "-l", "3000"]
