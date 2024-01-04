@@ -2,10 +2,10 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-Install using `--legacy-peer-deps` to avoid errors with old dependencies:
+Install with `npm`
 
 ```bash
-npm install
+npm install  # use --legacy-peer-deps if you get dependencies errors
 ```
 
 Build the project:
@@ -27,11 +27,9 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000/kronos/results/:jobId](http://localhost:3000/kronos/results/:jobId) with your browser to see the result. Use the `jobId` of a job (processing request) that has been submitted to the PIX Portal. This `jobId` is also part of the table name in the Kronos database. The table must already exist in the database.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Google fonts.
 
 ## Learn More
 
@@ -42,8 +40,11 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The application is deployed as part of the PIX Portal. However, to deploy it separately, run:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```bash
+docker build -t kronos-web-ui .
+docker run -p 3000:3000 kronos-web-ui
+```
