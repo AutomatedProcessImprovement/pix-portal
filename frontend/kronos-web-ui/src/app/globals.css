@@ -9,3 +9,7 @@
 body {
   color: rgb(var(--foreground-rgb));
 }
+
+a {
+  @apply text-blue-500 underline hover:text-blue-700;
+}
