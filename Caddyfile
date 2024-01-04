@@ -1,8 +1,12 @@
 http://localhost, http://caddy
 
 handle_path /* {
+	handle /kronos/* {
+		reverse_proxy kronos-web-ui:3000
+	}
+
 	handle /* {
-		reverse_proxy frontend:3030
+		reverse_proxy pix-web-ui:3030
 	}
 
 	handle /api/v1/* {
@@ -41,6 +45,7 @@ handle_path /* {
 		}
 
 		handle /kronos* {
+			uri strip_prefix /kronos
 			reverse_proxy kronos-http:8000
 		}
 	}

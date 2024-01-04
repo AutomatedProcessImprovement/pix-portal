@@ -5,12 +5,12 @@ from urllib.parse import urlparse
 
 import psycopg2
 import requests
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from pix_framework.discovery.batch_processing.batch_characteristics import discover_batch_processing_and_characteristics
 from pix_framework.enhancement.start_time_estimator.config import (
-    Configuration,
     ConcurrencyOracleType,
+    Configuration,
     ReEstimationMethod,
     ResourceAvailabilityType,
 )
@@ -20,24 +20,8 @@ from psycopg2 import sql
 
 ALLOWED_ORIGINS = ["*"]
 
-URL_PREFIX = "/kronos"
-
 app = Flask(__name__)
-resources = {
-    f"{URL_PREFIX}/overview/*": {"origins": ALLOWED_ORIGINS},
-    f"{URL_PREFIX}/case_overview/*": {"origins": ALLOWED_ORIGINS},
-    f"{URL_PREFIX}/daily_summary/*": {"origins": ALLOWED_ORIGINS},
-    f"{URL_PREFIX}/activity_transitions/*": {"origins": ALLOWED_ORIGINS},
-    f"{URL_PREFIX}/activity_date_range_global/*": {"origins": ALLOWED_ORIGINS},
-    f"{URL_PREFIX}/activity_pairs/*": {"origins": ALLOWED_ORIGINS},
-    f"{URL_PREFIX}/activity_transitions_by_resource/*": {"origins": ALLOWED_ORIGINS},
-    f"{URL_PREFIX}/potential_cte/*": {"origins": ALLOWED_ORIGINS},
-    f"{URL_PREFIX}/cte_improvement/*": {"origins": ALLOWED_ORIGINS},
-    f"{URL_PREFIX}/wt_overview/*": {"origins": ALLOWED_ORIGINS},
-    f"{URL_PREFIX}/process_csv/*": {"origins": ALLOWED_ORIGINS},
-}
-
-CORS(app, resources=resources)
+CORS(app)
 
 
 class DBHandler:
@@ -72,7 +56,7 @@ class DBHandler:
             return None
 
 
-@app.route(f"{URL_PREFIX}/create_table/<jobid>", methods=["POST"])
+@app.route("/create_table/<jobid>", methods=["POST"])
 def create_table(jobid):
     csv_data = request.data.decode("utf-8")
 
@@ -141,7 +125,7 @@ def create_table(jobid):
         cur.close()
     except Exception as e:
         print("Error creating table:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
     # import CSV
     try:
@@ -160,8 +144,19 @@ def create_table(jobid):
     return jsonify({"message": "Table created successfully", "table_name": table_name})
 
 
-@app.route(f"{URL_PREFIX}/process_csv/<jobid>", methods=["GET"])
-def process_csv(jobid):
+@app.route("/batching_strategies/<jobid>", methods=["GET"])
+def batching_strategies(jobid):
+    # Fetch column_mapping first
+    job_url = f"http://154.56.63.127:8080/jobs/{jobid}"
+    response = requests.get(job_url)
+
+    if response.status_code != 200:
+        return jsonify({"error": f"Failed to retrieve job details for jobid {jobid}"}), 500
+
+    job_data = response.json()
+    column_mapping = job_data.get("column_mapping", {})
+
+    # Fetch the CSV
     csv_url = f"http://154.56.63.127:8080/assets/results/{jobid}/event_log.csv"
     response = requests.get(csv_url)
 
@@ -173,31 +168,26 @@ def process_csv(jobid):
     with open(csv_file, "w") as f:
         f.write(csv_data)
 
-    case_column = request.args.get("case", default="case")
-    activity_column = request.args.get("activity", default="activity")
-    start_time_column = request.args.get("start_timestamp", default="start_time")
-    end_time_column = request.args.get("end_timestamp", default="end_time")
-    resource_column = request.args.get("resource", default="resource")
-
+    # Process the CSV using column_mapping
     event_log = read_csv_log(
         log_path=csv_file,
         log_ids=EventLogIDs(
-            case=case_column,
-            activity=activity_column,
-            start_time=start_time_column,
-            end_time=end_time_column,
-            resource=resource_column,
+            case=column_mapping.get("case", "case"),
+            activity=column_mapping.get("activity", "activity"),
+            start_time=column_mapping.get("start_timestamp", "start_time"),
+            end_time=column_mapping.get("end_timestamp", "end_time"),
+            resource=column_mapping.get("resource", "resource"),
         ),
         sort=False,
     )
 
     configuration = Configuration(
         log_ids=EventLogIDs(
-            case=case_column,
-            activity=activity_column,
-            start_time=start_time_column,
-            end_time=end_time_column,
-            resource=resource_column,
+            case=column_mapping.get("case", "case"),
+            activity=column_mapping.get("activity", "activity"),
+            start_time=column_mapping.get("start_timestamp", "start_time"),
+            end_time=column_mapping.get("end_timestamp", "end_time"),
+            resource=column_mapping.get("resource", "resource"),
         ),
         concurrency_oracle_type=ConcurrencyOracleType.HEURISTICS,
         re_estimation_method=ReEstimationMethod.MODE,
@@ -206,16 +196,15 @@ def process_csv(jobid):
 
     print(configuration)
 
-    # Step 3: Process the data using your library/methods
     extended_event_log = StartTimeEstimator(event_log, configuration).estimate()
     batch_characteristics = discover_batch_processing_and_characteristics(
         event_log=extended_event_log,
         log_ids=EventLogIDs(
-            case=case_column,
-            activity=activity_column,
-            start_time=start_time_column,
-            end_time=end_time_column,
-            resource=resource_column,
+            case=column_mapping.get("case", "case"),
+            activity=column_mapping.get("activity", "activity"),
+            start_time=column_mapping.get("start_timestamp", "start_time"),
+            end_time=column_mapping.get("end_timestamp", "end_time"),
+            resource=column_mapping.get("resource", "resource"),
         ),
     )
 
@@ -224,7 +213,7 @@ def process_csv(jobid):
     return jsonify(batch_characteristics)
 
 
-@app.route(f"{URL_PREFIX}/overview/<jobid>", methods=["GET"])
+@app.route("/overview/<jobid>", methods=["GET"])
 def overview(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -305,17 +294,21 @@ def overview(jobid):
 
         # Sum(endtime - starttime)
         cur.execute(
-            sql.SQL("SELECT SUM(EXTRACT(EPOCH FROM (endtime - starttime)))::FLOAT FROM {}").format(
-                sql.Identifier(table_name)
-            )
+            sql.SQL(
+                """
+            SELECT SUM(EXTRACT(EPOCH FROM (endtime - starttime)))::FLOAT FROM {}
+        """
+            ).format(sql.Identifier(table_name))
         )
         processing_time = cur.fetchone()[0]
 
         # AVG (endtime - starttime)
         cur.execute(
-            sql.SQL("SELECT AVG(EXTRACT(EPOCH FROM (endtime - starttime)))::FLOAT FROM {}").format(
-                sql.Identifier(table_name)
-            )
+            sql.SQL(
+                """
+            SELECT AVG(EXTRACT(EPOCH FROM (endtime - starttime)))::FLOAT FROM {}
+        """
+            ).format(sql.Identifier(table_name))
         )
         processing_time_avg = cur.fetchone()[0]
 
@@ -338,10 +331,10 @@ def overview(jobid):
 
     except Exception as e:
         print("Error executing query:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
 
-@app.route(f"{URL_PREFIX}/wt_overview/<jobid>/<wt_type>", methods=["GET"])
+@app.route("/wt_overview/<jobid>/<wt_type>", methods=["GET"])
 def wt_overview(jobid, wt_type):
     # Validate wt_type
     valid_wt_types = ["batching", "prioritization", "extraneous", "contention", "unavailability"]
@@ -359,15 +352,17 @@ def wt_overview(jobid, wt_type):
     try:
         cur = conn.cursor()
 
-        # Calculate sum of specific wt_type
+        # Calculate sum and average of specific wt_type
         cur.execute(
-            sql.SQL("SELECT SUM({}) FROM {}").format(sql.Identifier("wt" + wt_type), sql.Identifier(table_name))
+            sql.SQL("SELECT SUM({}), AVG({}) FROM {}").format(
+                sql.Identifier("wt" + wt_type), sql.Identifier("wt" + wt_type), sql.Identifier(table_name)
+            )
         )
-        wt_sum = cur.fetchone()[0]
+        wt_sum, wt_avg = cur.fetchone()
 
-        # Calculate total wt
-        cur.execute(sql.SQL("SELECT SUM(wttotal) FROM {}").format(sql.Identifier(table_name)))
-        total_wttotal_sum = cur.fetchone()[0]
+        # Calculate total wt sum and average
+        cur.execute(sql.SQL("SELECT SUM(wttotal), AVG(wttotal) FROM {}").format(sql.Identifier(table_name)))
+        total_wttotal_sum, total_wttotal_avg = cur.fetchone()
 
         # Count unique elements in caseid column
         cur.execute(sql.SQL("SELECT COUNT(DISTINCT caseid) FROM {}").format(sql.Identifier(table_name)))
@@ -383,7 +378,7 @@ def wt_overview(jobid, wt_type):
         )
         distinct_cases_with_wt = len(cur.fetchall())
 
-        # Find the biggest pair of sourceactivity and destinationactivity for the specific wt_type
+        # For the biggest source-destination pair based on SUM:
         cur.execute(
             sql.SQL(
                 """
@@ -393,9 +388,21 @@ def wt_overview(jobid, wt_type):
         """
             ).format(sql.Identifier("wt" + wt_type), sql.Identifier(table_name), sql.Identifier("wt" + wt_type))
         )
-        biggest_source_dest_pair = cur.fetchone()
+        biggest_source_dest_pair_sum = list(cur.fetchone())
 
-        # Find the biggest resource with the specific wt_type
+        # For the biggest source-destination pair based on AVG:
+        cur.execute(
+            sql.SQL(
+                """
+            SELECT sourceactivity, destinationactivity, AVG({})
+            FROM {} GROUP BY sourceactivity, destinationactivity
+            ORDER BY AVG({}) DESC LIMIT 1
+        """
+            ).format(sql.Identifier("wt" + wt_type), sql.Identifier(table_name), sql.Identifier("wt" + wt_type))
+        )
+        biggest_source_dest_pair_avg = list(cur.fetchone())
+
+        # For the biggest resource based on SUM:
         cur.execute(
             sql.SQL(
                 """
@@ -405,7 +412,19 @@ def wt_overview(jobid, wt_type):
         """
             ).format(sql.Identifier("wt" + wt_type), sql.Identifier(table_name), sql.Identifier("wt" + wt_type))
         )
-        biggest_resource = cur.fetchone()
+        biggest_resource_sum = list(cur.fetchone())
+
+        # For the biggest resource based on AVG:
+        cur.execute(
+            sql.SQL(
+                """
+            SELECT destinationresource, AVG({})
+            FROM {} GROUP BY destinationresource
+            ORDER BY AVG({}) DESC LIMIT 1
+        """
+            ).format(sql.Identifier("wt" + wt_type), sql.Identifier(table_name), sql.Identifier("wt" + wt_type))
+        )
+        biggest_resource_avg = list(cur.fetchone())
 
         cur.close()
         conn.close()
@@ -413,20 +432,24 @@ def wt_overview(jobid, wt_type):
         return jsonify(
             {
                 "wt_sum": wt_sum,
+                "avg_wt": wt_avg,
                 "total_wt_sum": total_wttotal_sum,
+                "avg_total_wt": total_wttotal_avg,
                 "distinct_cases": distinct_cases_with_wt,
-                "biggest_source_dest_pair": biggest_source_dest_pair,
-                "biggest_resource": biggest_resource,
+                "biggest_source_dest_pair": biggest_source_dest_pair_sum,
+                "avg_biggest_source_dest_pair": biggest_source_dest_pair_avg,
+                "biggest_resource": biggest_resource_sum,
+                "avg_biggest_resource": biggest_resource_avg,
                 "cases": unique_caseid_count,
             }
         )
 
     except Exception as e:
         print("Error executing query:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
 
-@app.route(f"{URL_PREFIX}/wt_overview/<jobid>/<wt_type>/<sourceactivity>/<destinationactivity>", methods=["GET"])
+@app.route("/wt_overview/<jobid>/<wt_type>/<sourceactivity>/<destinationactivity>", methods=["GET"])
 def wt_overview_activity(jobid, wt_type, sourceactivity, destinationactivity):
     # Validate wt_type
     valid_wt_types = ["batching", "prioritization", "extraneous", "contention", "unavailability"]
@@ -454,9 +477,20 @@ def wt_overview_activity(jobid, wt_type, sourceactivity, destinationactivity):
         cur.execute(query, (sourceactivity, destinationactivity))
         wt_sum = cur.fetchone()[0]
 
+        # Calculate average of specific wt_type
+        avg_query = sql.SQL(
+            "SELECT AVG({column}) FROM {table_name} WHERE sourceactivity = %s AND destinationactivity = %s"
+        ).format(column=sql.Identifier("wt" + wt_type), table_name=sql.Identifier(table_name))
+        cur.execute(avg_query, (sourceactivity, destinationactivity))
+        avg_wt = cur.fetchone()[0]
+
         # Calculate total wt
         cur.execute(sql.SQL("SELECT SUM(wttotal) FROM {}").format(sql.Identifier(table_name)))
         total_wttotal_sum = cur.fetchone()[0]
+
+        # Calculate average total wt
+        cur.execute(sql.SQL("SELECT AVG(wttotal) FROM {}").format(sql.Identifier(table_name)))
+        avg_total_wttotal = cur.fetchone()[0]
 
         # Count unique elements in caseid column
         cur.execute(sql.SQL("SELECT COUNT(DISTINCT caseid) FROM {}").format(sql.Identifier(table_name)))
@@ -499,15 +533,45 @@ def wt_overview_activity(jobid, wt_type, sourceactivity, destinationactivity):
         cur.execute(query, (sourceactivity, destinationactivity))
         biggest_source_dest_resource_pair = cur.fetchone()
 
+        # Find the resource with the highest average of the specific wt_type
+        avg_query_resource = sql.SQL(
+            """
+            SELECT destinationresource, AVG({column_name})
+            FROM {table_name} WHERE sourceactivity = %s AND destinationactivity = %s
+            GROUP BY destinationresource
+            ORDER BY AVG({column_name}) DESC LIMIT 1
+        """
+        ).format(column_name=sql.Identifier("wt" + wt_type), table_name=sql.Identifier(table_name))
+
+        cur.execute(avg_query_resource, (sourceactivity, destinationactivity))
+        avg_biggest_resource = cur.fetchone()
+
+        # Find the sourceresource and destinationresource pair with the highest average wt time of our type
+        avg_query_resource_pair = sql.SQL(
+            """
+            SELECT sourceresource, destinationresource, AVG({column_name})
+            FROM {table_name} WHERE sourceactivity = %s AND destinationactivity = %s
+            GROUP BY sourceresource, destinationresource
+            ORDER BY AVG({column_name}) DESC LIMIT 1
+        """
+        ).format(column_name=sql.Identifier("wt" + wt_type), table_name=sql.Identifier(table_name))
+
+        cur.execute(avg_query_resource_pair, (sourceactivity, destinationactivity))
+        avg_biggest_source_dest_resource_pair = cur.fetchone()
+
         cur.close()
         conn.close()
 
         response_data = {
             "wt_sum": wt_sum,
+            "avg_wt": avg_wt,
             "total_wt_sum": total_wttotal_sum,
+            "avg_total_wt": avg_total_wttotal,
             "distinct_cases": distinct_cases_with_wt,
             "biggest_source_dest_resource_pair": biggest_source_dest_resource_pair,
+            "avg_biggest_source_dest_resource_pair": avg_biggest_source_dest_resource_pair,
             "biggest_resource": biggest_resource,
+            "avg_biggest_resource": avg_biggest_resource,
             "cases": unique_caseid_count,
         }
 
@@ -517,10 +581,10 @@ def wt_overview_activity(jobid, wt_type, sourceactivity, destinationactivity):
 
     except Exception as e:
         print("Error executing query:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
 
-@app.route(f"{URL_PREFIX}/potential_cte/<jobid>", methods=["GET"])
+@app.route("/potential_cte/<jobid>", methods=["GET"])
 def potential_cte(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -568,10 +632,10 @@ def potential_cte(jobid):
 
     except Exception as e:
         print("Error executing query:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
 
-@app.route(f"{URL_PREFIX}/potential_cte_filtered/<jobid>/<source_activity>/<destination_activity>", methods=["GET"])
+@app.route("/potential_cte_filtered/<jobid>/<source_activity>/<destination_activity>", methods=["GET"])
 def potential_cte_filtered(jobid, source_activity, destination_activity):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -630,10 +694,10 @@ def potential_cte_filtered(jobid, source_activity, destination_activity):
 
     except Exception as e:
         print(f"Error executing query: {e}")
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
 
-@app.route(f"{URL_PREFIX}/cte_improvement/<jobid>", methods=["GET"])
+@app.route("/cte_improvement/<jobid>", methods=["GET"])
 def cte_improvement(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -716,10 +780,10 @@ def cte_improvement(jobid):
 
     except Exception as e:
         print("Error executing query:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
 
-@app.route(f"{URL_PREFIX}/case_overview/<jobid>/<sourceactivity>/<destinationactivity>", methods=["GET"])
+@app.route("/case_overview/<jobid>/<sourceactivity>/<destinationactivity>", methods=["GET"])
 def case_overview(jobid, sourceactivity, destinationactivity):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -731,19 +795,35 @@ def case_overview(jobid, sourceactivity, destinationactivity):
     try:
         cur = conn.cursor()
 
+        # Maximum of the sum of wttotal for each pair of sourceresource and destinationresource
         cur.execute(
             sql.SQL(
                 """
-            SELECT sourceresource, destinationresource, MAX(wttotal)
+            SELECT sourceresource, destinationresource, SUM(wttotal) as total_sum
             FROM {} WHERE sourceactivity = %s AND destinationactivity = %s
             GROUP BY sourceresource, destinationresource
-            ORDER BY MAX(wttotal) DESC
+            ORDER BY total_sum DESC
             LIMIT 1
         """
             ).format(sql.Identifier(table_name)),
             (sourceactivity, destinationactivity),
         )
         max_wttotal_pair = cur.fetchone()
+
+        # Maximum of the average of wttotal for each pair of sourceresource and destinationresource
+        cur.execute(
+            sql.SQL(
+                """
+            SELECT sourceresource, destinationresource, AVG(wttotal) as avg_value
+            FROM {} WHERE sourceactivity = %s AND destinationactivity = %s
+            GROUP BY sourceresource, destinationresource
+            ORDER BY avg_value DESC
+            LIMIT 1
+        """
+            ).format(sql.Identifier(table_name)),
+            (sourceactivity, destinationactivity),
+        )
+        max_wttotal_avg_pair = cur.fetchone()
 
         # Count unique elements in caseid column where sourceactivity and destinationactivity match
         cur.execute(
@@ -806,6 +886,47 @@ def case_overview(jobid, sourceactivity, destinationactivity):
         time_diff = fetch_result[0] if fetch_result is not None else None
         processing_time = time_diff.total_seconds() if time_diff else 0
 
+        # Avg of wttotal where sourceactivity and destinationactivity match
+        cur.execute(
+            sql.SQL(
+                """
+            SELECT AVG(wttotal) FROM {} WHERE sourceactivity = %s AND destinationactivity = %s
+        """
+            ).format(sql.Identifier(table_name)),
+            (sourceactivity, destinationactivity),
+        )
+        avg_specific_wttotal = cur.fetchone()[0]
+        # avg_specific_wttotal = specific_wttotal_sum / specific_caseid_count if specific_caseid_count != 0 else 0
+        # avg_total_wttotal = total_wttotal_sum / total_caseid_count if total_caseid_count != 0 else 0
+        cur.execute(sql.SQL("SELECT AVG(wttotal) FROM {}").format(sql.Identifier(table_name)))
+        avg_total_wttotal = cur.fetchone()[0]
+
+        # specific_avg_dict = {
+        #     "contention_wt": specific_sum_dict["contention_wt"] / specific_caseid_count if specific_caseid_count != 0 else 0,
+        #     "batching_wt": specific_sum_dict["batching_wt"] / specific_caseid_count if specific_caseid_count != 0 else 0,
+        #     "prioritization_wt": specific_sum_dict["prioritization_wt"] / specific_caseid_count if specific_caseid_count != 0 else 0,
+        #     "unavailability_wt": specific_sum_dict["unavailability_wt"] / specific_caseid_count if specific_caseid_count != 0 else 0,
+        #     "extraneous_wt": specific_sum_dict["extraneous_wt"] / specific_caseid_count if specific_caseid_count != 0 else 0
+        # }
+
+        cur.execute(
+            sql.SQL(
+                """
+            SELECT AVG(wtcontention), AVG(wtbatching), AVG(wtprioritization), AVG(wtunavailability), AVG(wtextraneous)
+            FROM {} WHERE sourceactivity = %s AND destinationactivity = %s
+        """
+            ).format(sql.Identifier(table_name)),
+            (sourceactivity, destinationactivity),
+        )
+        specific_avg = cur.fetchone()
+        specific_avg_dict = {
+            "contention_wt": specific_avg[0],
+            "batching_wt": specific_avg[1],
+            "prioritization_wt": specific_avg[2],
+            "unavailability_wt": specific_avg[3],
+            "extraneous_wt": specific_avg[4],
+        }
+
         cur.close()
         conn.close()
 
@@ -814,19 +935,23 @@ def case_overview(jobid, sourceactivity, destinationactivity):
                 "specific_case_count": specific_caseid_count,
                 "total_case_count": total_caseid_count,
                 "specific_wttotal_sum": specific_wttotal_sum,
+                "avg_specific_wttotal": avg_specific_wttotal,
                 "total_wttotal_sum": total_wttotal_sum,
+                "avg_total_wttotal": avg_total_wttotal,
                 "specific_sums": specific_sum_dict,
+                "specific_avg": specific_avg_dict,
                 "max_wttotal_pair": max_wttotal_pair,
                 "processing_time": processing_time,
+                "max_wttotal_avg_pair": max_wttotal_avg_pair,
             }
         )
 
     except Exception as e:
         print("Error executing query:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
 
-@app.route(f"{URL_PREFIX}/daily_summary/<jobid>", methods=["GET"])
+@app.route("/daily_summary/<jobid>", methods=["GET"])
 def daily_summary(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -878,10 +1003,10 @@ def daily_summary(jobid):
 
     except Exception as e:
         print("Error executing query:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
 
-@app.route(f"{URL_PREFIX}/daily_summary/<jobid>/<sourceactivity>/<destinationactivity>", methods=["GET"])
+@app.route("/daily_summary/<jobid>/<sourceactivity>/<destinationactivity>", methods=["GET"])
 def daily_summary_specific_pair(jobid, sourceactivity, destinationactivity):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -934,11 +1059,11 @@ def daily_summary_specific_pair(jobid, sourceactivity, destinationactivity):
 
     except Exception as e:
         print("Error executing query:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
 
-@app.route(f"{URL_PREFIX}/activity_transitions/<jobid>", methods=["GET"])
-def activity_transitions(jobid):
+@app.route("/activity_transitions/<jobid>", methods=["GET"])
+def all_activity_transitions(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
 
@@ -963,6 +1088,61 @@ def activity_transitions(jobid):
                 SUM(wtextraneous) as extraneous_wt
             FROM {}
             GROUP BY sourceactivity, destinationactivity
+        """
+        ).format(sql.Identifier(table_name))
+
+        cur.execute(query)
+
+        results = []
+        rows = cur.fetchall()
+        for row in rows:
+            result = {
+                "source_activity": row[0],
+                "target_activity": row[1],
+                "total_wt": row[2],
+                "contention_wt": row[3],
+                "batching_wt": row[4],
+                "prioritization_wt": row[5],
+                "unavailability_wt": row[6],
+                "extraneous_wt": row[7],
+            }
+            results.append(result)
+
+        cur.close()
+        conn.close()
+
+        return jsonify(results)
+
+    except Exception as e:
+        print("Error executing query:", e)
+        return jsonify(error_response(e)), 500
+
+
+@app.route("/activity_wt/<jobid>", methods=["GET"])
+def activity_wt(jobid):
+    sanitized_jobid = DBHandler.sanitize_table_name(jobid)
+    table_name = f"result_{sanitized_jobid}"
+
+    conn = DBHandler.get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Could not connect to database"}), 500
+
+    try:
+        cur = conn.cursor()
+
+        # Group by only destinationactivity and sum the waiting times
+        query = sql.SQL(
+            """
+            SELECT
+                destinationactivity,
+                SUM(wttotal) as total_wt,
+                SUM(wtcontention) as contention_wt,
+                SUM(wtbatching) as batching_wt,
+                SUM(wtprioritization) as prioritization_wt,
+                SUM(wtunavailability) as unavailability_wt,
+                SUM(wtextraneous) as extraneous_wt
+            FROM {}
+            GROUP BY destinationactivity
             ORDER BY total_wt DESC
         """
         ).format(sql.Identifier(table_name))
@@ -975,8 +1155,123 @@ def activity_transitions(jobid):
         for row in rows:
             result.append(
                 {
-                    "source_activity": row[1],
-                    "target_activity": row[0],
+                    "activity": row[0],
+                    "total_wt": row[1],
+                    "contention_wt": row[2],
+                    "batching_wt": row[3],
+                    "prioritization_wt": row[4],
+                    "unavailability_wt": row[5],
+                    "extraneous_wt": row[6],
+                }
+            )
+
+        cur.close()
+        conn.close()
+
+        return jsonify(result)
+
+    except Exception as e:
+        print("Error executing query:", e)
+        return jsonify(error_response(e)), 500
+
+
+@app.route("/activity_avg_wt/<jobid>", methods=["GET"])
+def activity_avg_wt(jobid):
+    sanitized_jobid = DBHandler.sanitize_table_name(jobid)
+    table_name = f"result_{sanitized_jobid}"
+
+    conn = DBHandler.get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Could not connect to database"}), 500
+
+    try:
+        cur = conn.cursor()
+
+        # Group by only destinationactivity and average the waiting times
+        query = sql.SQL(
+            """
+            SELECT
+                destinationactivity,
+                AVG(wttotal) as total_wt,
+                AVG(wtcontention) as contention_wt,
+                AVG(wtbatching) as batching_wt,
+                AVG(wtprioritization) as prioritization_wt,
+                AVG(wtunavailability) as unavailability_wt,
+                AVG(wtextraneous) as extraneous_wt
+            FROM {}
+            GROUP BY destinationactivity
+            ORDER BY total_wt DESC
+        """
+        ).format(sql.Identifier(table_name))
+
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        # Convert the result to a list of dictionaries
+        result = []
+        for row in rows:
+            result.append(
+                {
+                    "activity": row[0],
+                    "total_wt": row[1],
+                    "contention_wt": row[2],
+                    "batching_wt": row[3],
+                    "prioritization_wt": row[4],
+                    "unavailability_wt": row[5],
+                    "extraneous_wt": row[6],
+                }
+            )
+
+        cur.close()
+        conn.close()
+
+        return jsonify(result)
+
+    except Exception as e:
+        print("Error executing query:", e)
+        return jsonify(error_response(e)), 500
+
+
+@app.route("/activity_transitions_average/<jobid>", methods=["GET"])
+def activity_transitions_average(jobid):
+    sanitized_jobid = DBHandler.sanitize_table_name(jobid)
+    table_name = f"result_{sanitized_jobid}"
+
+    conn = DBHandler.get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Could not connect to database"}), 500
+
+    try:
+        cur = conn.cursor()
+
+        # Compute average waiting times for all combinations of sourceactivity and destinationactivity
+        query = sql.SQL(
+            """
+            SELECT
+                sourceactivity,
+                destinationactivity,
+                AVG(wttotal) as avg_total_wt,
+                AVG(wtcontention) as avg_contention_wt,
+                AVG(wtbatching) as avg_batching_wt,
+                AVG(wtprioritization) as avg_prioritization_wt,
+                AVG(wtunavailability) as avg_unavailability_wt,
+                AVG(wtextraneous) as avg_extraneous_wt
+            FROM {}
+            GROUP BY sourceactivity, destinationactivity
+            ORDER BY avg_total_wt DESC
+        """
+        ).format(sql.Identifier(table_name))
+
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        # Convert the result to a list of dictionaries
+        result = []
+        for row in rows:
+            result.append(
+                {
+                    "source_activity": row[0],
+                    "target_activity": row[1],
                     "total_wt": row[2],
                     "contention_wt": row[3],
                     "batching_wt": row[4],
@@ -993,12 +1288,142 @@ def activity_transitions(jobid):
 
     except Exception as e:
         print("Error executing query:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
 
-@app.route(
-    f"{URL_PREFIX}/activity_transitions_by_resource/<jobid>/<sourceactivity>/<destinationactivity>", methods=["GET"]
-)
+@app.route("/activity_transitions_average_case/<jobid>", methods=["GET"])
+def activity_transitions_average_case(jobid):
+    sanitized_jobid = DBHandler.sanitize_table_name(jobid)
+    table_name = f"result_{sanitized_jobid}"
+
+    conn = DBHandler.get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Could not connect to database"}), 500
+
+    try:
+        cur = conn.cursor()
+
+        # Compute average waiting times for all combinations of sourceactivity and destinationactivity on a per-case basis, then average them
+        query = sql.SQL(
+            """
+            WITH case_avg AS (
+                SELECT
+                    sourceactivity,
+                    destinationactivity,
+                    caseid,
+                    AVG(wttotal) as avg_total_wt_case,
+                    AVG(wtcontention) as avg_contention_wt_case,
+                    AVG(wtbatching) as avg_batching_wt_case,
+                    AVG(wtprioritization) as avg_prioritization_wt_case,
+                    AVG(wtunavailability) as avg_unavailability_wt_case,
+                    AVG(wtextraneous) as avg_extraneous_wt_case
+                FROM {}
+                GROUP BY sourceactivity, destinationactivity, caseid
+            )
+            SELECT
+                sourceactivity,
+                destinationactivity,
+                AVG(avg_total_wt_case) as avg_total_wt,
+                AVG(avg_contention_wt_case) as avg_contention_wt,
+                AVG(avg_batching_wt_case) as avg_batching_wt,
+                AVG(avg_prioritization_wt_case) as avg_prioritization_wt,
+                AVG(avg_unavailability_wt_case) as avg_unavailability_wt,
+                AVG(avg_extraneous_wt_case) as avg_extraneous_wt
+            FROM case_avg
+            GROUP BY sourceactivity, destinationactivity
+            ORDER BY avg_total_wt DESC
+        """
+        ).format(sql.Identifier(table_name))
+
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        # Convert the result to a list of dictionaries
+        result = []
+        for row in rows:
+            result.append(
+                {
+                    "source_activity": row[0],
+                    "target_activity": row[1],
+                    "total_wt": row[2],
+                    "contention_wt": row[3],
+                    "batching_wt": row[4],
+                    "prioritization_wt": row[5],
+                    "unavailability_wt": row[6],
+                    "extraneous_wt": row[7],
+                }
+            )
+
+        cur.close()
+        conn.close()
+
+        return jsonify(result)
+
+    except Exception as e:
+        print("Error executing query:", e)
+        return jsonify(error_response(e)), 500
+
+
+@app.route("/activity_resource_wt/<jobid>", methods=["GET"])
+def activity_resource_wt(jobid):
+    sanitized_jobid = DBHandler.sanitize_table_name(jobid)
+    table_name = f"result_{sanitized_jobid}"
+
+    conn = DBHandler.get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Could not connect to database"}), 500
+
+    try:
+        cur = conn.cursor()
+
+        # Group by both destinationactivity and destinationresource and sum the waiting times
+        query = sql.SQL(
+            """
+            SELECT
+                destinationactivity,
+                destinationresource,
+                SUM(wttotal) as total_wt,
+                SUM(wtcontention) as contention_wt,
+                SUM(wtbatching) as batching_wt,
+                SUM(wtprioritization) as prioritization_wt,
+                SUM(wtunavailability) as unavailability_wt,
+                SUM(wtextraneous) as extraneous_wt
+            FROM {}
+            GROUP BY destinationactivity, destinationresource
+            ORDER BY total_wt DESC
+        """
+        ).format(sql.Identifier(table_name))
+
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        # Convert the result to a list of dictionaries
+        result = []
+        for row in rows:
+            result.append(
+                {
+                    "activity": row[0],
+                    "resource": row[1],
+                    "total_wt": row[2],
+                    "contention_wt": row[3],
+                    "batching_wt": row[4],
+                    "prioritization_wt": row[5],
+                    "unavailability_wt": row[6],
+                    "extraneous_wt": row[7],
+                }
+            )
+
+        cur.close()
+        conn.close()
+
+        return jsonify(result)
+
+    except Exception as e:
+        print("Error executing query:", e)
+        return jsonify(error_response(e)), 500
+
+
+@app.route("/activity_transitions_by_resource/<jobid>/<sourceactivity>/<destinationactivity>", methods=["GET"])
 def activity_transitions_by_resource(jobid, sourceactivity, destinationactivity):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -1055,10 +1480,70 @@ def activity_transitions_by_resource(jobid, sourceactivity, destinationactivity)
 
     except Exception as e:
         print("Error executing query:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
 
-@app.route(f"{URL_PREFIX}/activity_transitions/<jobid>/<sourceactivity>/<targetactivity>", methods=["GET"])
+@app.route("/activity_transitions_avg_by_resource/<jobid>/<sourceactivity>/<destinationactivity>", methods=["GET"])
+def activity_transitions_avg_by_resource(jobid, sourceactivity, destinationactivity):
+    sanitized_jobid = DBHandler.sanitize_table_name(jobid)
+    table_name = f"result_{sanitized_jobid}"
+
+    conn = DBHandler.get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Could not connect to database"}), 500
+
+    try:
+        cur = conn.cursor()
+
+        # Calculate average waiting times for all combinations of sourceresource and targetresource
+        query = sql.SQL(
+            """
+            SELECT
+                sourceresource,
+                destinationresource,
+                AVG(wttotal) as avg_total_wt,
+                AVG(wtcontention) as avg_contention_wt,
+                AVG(wtbatching) as avg_batching_wt,
+                AVG(wtprioritization) as avg_prioritization_wt,
+                AVG(wtunavailability) as avg_unavailability_wt,
+                AVG(wtextraneous) as avg_extraneous_wt
+            FROM {}
+            WHERE sourceactivity = %s AND destinationactivity = %s
+            GROUP BY sourceresource, destinationresource
+            ORDER BY avg_total_wt DESC
+        """
+        ).format(sql.Identifier(table_name))
+
+        cur.execute(query, (sourceactivity, destinationactivity))
+        rows = cur.fetchall()
+
+        # Convert the result to a list of dictionaries
+        result = []
+        for row in rows:
+            result.append(
+                {
+                    "source_resource": row[0],
+                    "target_resource": row[1],
+                    "total_wt": row[2],
+                    "contention_wt": row[3],
+                    "batching_wt": row[4],
+                    "prioritization_wt": row[5],
+                    "unavailability_wt": row[6],
+                    "extraneous_wt": row[7],
+                }
+            )
+
+        cur.close()
+        conn.close()
+
+        return jsonify(result)
+
+    except Exception as e:
+        print("Error executing query:", e)
+        return jsonify(error_response(e)), 500
+
+
+@app.route("/activity_transitions/<jobid>/<sourceactivity>/<targetactivity>", methods=["GET"])
 def specific_activity_transitions(jobid, sourceactivity, targetactivity):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -1095,8 +1580,8 @@ def specific_activity_transitions(jobid, sourceactivity, targetactivity):
             return jsonify({}), 200
 
         result = {
-            "source_activity": row[1],
-            "target_activity": row[0],
+            "source_activity": row[0],
+            "target_activity": row[1],
             "total_wt": row[2],
             "contention_wt": row[3],
             "batching_wt": row[4],
@@ -1112,10 +1597,10 @@ def specific_activity_transitions(jobid, sourceactivity, targetactivity):
 
     except Exception as e:
         print("Error executing query:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
 
-@app.route(f"{URL_PREFIX}/activity_date_range_global/<jobid>", methods=["GET"])
+@app.route("/activity_date_range_global/<jobid>", methods=["GET"])
 def activity_date_range_global(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -1172,10 +1657,10 @@ def activity_date_range_global(jobid):
 
     except Exception as e:
         print("Error executing query:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
 
 
-@app.route(f"{URL_PREFIX}/activity_pairs/<jobid>", methods=["GET"])
+@app.route("/activity_pairs/<jobid>", methods=["GET"])
 def activity_pairs(jobid):
     sanitized_jobid = DBHandler.sanitize_table_name(jobid)
     table_name = f"result_{sanitized_jobid}"
@@ -1213,7 +1698,11 @@ def activity_pairs(jobid):
 
     except Exception as e:
         print("Error executing query:", e)
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        return jsonify(error_response(e)), 500
+
+
+def error_response(exception: Exception, message: str = "An error occurred while processing your request") -> str:
+    return {"error": message, "exception": str(exception)}
 
 
 if __name__ == "__main__":
