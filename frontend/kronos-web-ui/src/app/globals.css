@@ -8,6 +8,7 @@
 
 body {
   color: rgb(var(--foreground-rgb));
+  font: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 a {

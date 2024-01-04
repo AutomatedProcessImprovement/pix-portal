@@ -1,5 +1,5 @@
 import React from "react";
-import { Select, MenuItem, Typography, Paper } from "@material-ui/core";
+import { Select, MenuItem, Typography, Paper } from "@mui/material";
 
 interface BatchingProps {
   data: {
