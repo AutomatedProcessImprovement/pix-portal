@@ -1,12 +1,11 @@
 import { DataGrid, GridColDef, GridEventListener, GridToolbar } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-import RowDialog from "../RowDialog";
 
 var moment = require("moment");
 require("moment-duration-format");
 
 const columns: GridColDef[] = [
-  { field: "id", headerName: "ID", flex: 0.01, hide: true },
+  { field: "id", headerName: "ID", flex: 0.01, hideable: true },
   { field: "source_activity", headerName: "Source activity", flex: 0.015 },
   { field: "target_activity", headerName: "Target activity", flex: 0.015 },
   {
@@ -88,8 +87,6 @@ export default function TransitionsTable({ data }: { data: any }) {
         autoHeight={true}
         rows={table_data}
         columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10]}
         components={{ Toolbar: GridToolbar }}
         onRowDoubleClick={onEvent}
         initialState={{
@@ -97,13 +94,6 @@ export default function TransitionsTable({ data }: { data: any }) {
             sortModel: [{ field: "total_wt", sort: "desc" }],
           },
         }}
-      />
-      <RowDialog
-        open={open}
-        onClose={handleClose}
-        selectedValue={add_index(selectedValue)}
-        selectedTitle={selectedTitle}
-        type={0}
       />
     </>
   );

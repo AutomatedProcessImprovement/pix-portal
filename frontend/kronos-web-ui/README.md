@@ -5,7 +5,14 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 Install using `--legacy-peer-deps` to avoid errors with old dependencies:
 
 ```bash
-npm install --legacy-peer-deps
+npm install
+```
+
+Build the project:
+
+```bash
+npm run build  # or 
+next build --experimental-turbo  # for faster builds
 ```
 
 First, run the development server:

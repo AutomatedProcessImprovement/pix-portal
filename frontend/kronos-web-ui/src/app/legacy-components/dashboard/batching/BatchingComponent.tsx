@@ -1,5 +1,5 @@
+import { MenuItem, Paper, Select, SelectChangeEvent, Typography } from "@mui/material";
 import React from "react";
-import { Select, MenuItem, Typography, Paper } from "@mui/material";
 
 interface BatchingProps {
   data: {
@@ -26,7 +26,7 @@ interface Rule {
 
 export default function BatchingComponent(props: BatchingProps) {
   const [selectedActivity, setSelectedActivity] = React.useState(
-    props.defaultActivity || (props.data && props.data.length > 0 ? props.data[0].activity : "N/A"),
+    props.defaultActivity || (props.data && props.data.length > 0 ? props.data[0].activity : "N/A")
   );
 
   const currentActivity = props.data.find((item: { activity: string }) => item.activity === selectedActivity) || {
@@ -42,7 +42,7 @@ export default function BatchingComponent(props: BatchingProps) {
     <div>
       <Select
         value={selectedActivity}
-        onChange={(e: React.ChangeEvent<{ value: unknown }>) => setSelectedActivity(e.target.value as string)}
+        onChange={(e: SelectChangeEvent<string>) => setSelectedActivity(e.target.value as string)}
       >
         {props.data && props.data.length > 0 ? (
           props.data.map((item: { activity: string }) => (
@@ -75,7 +75,7 @@ export default function BatchingComponent(props: BatchingProps) {
                       {(idx !== rules.length - 1 || idxInner !== ruleGroup.length - 1) && ", "}
                     </React.Fragment>
                   );
-                }),
+                })
               )}
               ]
             </span>

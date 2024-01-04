@@ -1,4 +1,4 @@
-import * as React from "react";
+import { Typography } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -7,11 +7,10 @@ import {
   GridToolbarDensitySelector,
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
-import RowDialog from "../RowDialog";
-import { Typography } from "@mui/material";
+import * as React from "react";
 
 const columns: GridColDef[] = [
-  { field: "id", headerName: "ID", hide: true, flex: 0.01 },
+  { field: "id", headerName: "ID", hideable: true, flex: 0.01 },
   { field: "source_activity", headerName: "Source activity", flex: 0.05 },
   { field: "target_activity", headerName: "Target activity", flex: 0.05 },
   // {
@@ -130,8 +129,6 @@ export default function CTETable({ data }: { data: any }) {
         autoHeight={true}
         rows={table_data}
         columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10]}
         components={{ Toolbar: CustomToolbar }}
         // onRowDoubleClick={onEvent}
         initialState={{
@@ -153,15 +150,6 @@ export default function CTETable({ data }: { data: any }) {
           },
         }}
       />
-      <RowDialog
-        open={open}
-        onClose={handleClose}
-        selectedValue={add_index_and_pt(selectedValue, data.total_pt, data.total_wt)}
-        selectedTitle={selectedTitle}
-        type={1}
-      />
-      {/*<TableHeatmap*/}
-      {/* onClose={handleHeatmapClose} open={heatmapOpen} values={table_data} p_cte={data.data.process_cte} />*/}
     </>
   );
 }
