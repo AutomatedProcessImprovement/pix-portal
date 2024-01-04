@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const BASE_URL = process.env.NEXT_PUBLIC_KRONOS_HTTP_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_KRONOS_HTTP_URL || "http://localhost:8090";
 console.log("Kronos HTTP URL:", BASE_URL);
 
 export function useFetchData(endpoint: string) {
