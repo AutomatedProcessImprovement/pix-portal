@@ -132,7 +132,6 @@ const Dashboard = ({ jobId }: { jobId: string }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedActivityPair, setSelectedActivityPair] = useState<string>("All transitions");
   const activityPairsData = useFetchActivityPairs(jobId);
-  console.log("activityPairsData", activityPairsData);
 
   if (!activityPairsData) {
     return <div>Loading...</div>;

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_KRONOS_HTTP_URL || "http://localhost:8090";
-console.log("Kronos HTTP URL:", BASE_URL);
 
 export function useFetchData(endpoint: string) {
   const [data, setData] = useState<any>(null);
@@ -24,7 +23,6 @@ export async function fetchBackend(endpoint: string) {
     throw e;
   }
 
-  console.log("Fetching", url);
   const response = await fetch(url, {
     headers: {
       Accept: "application/json",
