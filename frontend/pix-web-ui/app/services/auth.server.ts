@@ -1,6 +1,6 @@
 // Auth and users backend API.
 
-import { http, loginURL, userInfoURL } from "~/services/shared.server";
+import { loginURL, userInfoURL } from "~/services/shared.server";
 import type { User } from "./auth";
 
 export async function getJWT(username: string, password: string): Promise<string | undefined> {
@@ -16,10 +16,11 @@ export async function getJWT(username: string, password: string): Promise<string
 }
 
 export async function getUserInfo(token: string): Promise<User> {
-  const { data } = await http.get(userInfoURL, {
+  const response = await fetch(userInfoURL, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+  const data = await response.json();
   return data as User;
 }

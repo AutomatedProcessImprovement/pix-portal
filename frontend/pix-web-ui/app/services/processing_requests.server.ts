@@ -1,14 +1,16 @@
 import type { ProcessingRequest, ProcessingRequestType } from "./processing_requests";
-import { http, processingRequestsURL } from "./shared.server";
+import { processingRequestsURL } from "./shared.server";
 
 export async function getProcessingRequestsForProject(projectId: string, token: string) {
   const url = `${processingRequestsURL}/?project_id=${projectId}`;
-  const response = await http.get(url, {
+  const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  return response.data as ProcessingRequest[];
+  const data = await response.json();
+  if ("message" in data) throw new Error(data.message);
+  return data as ProcessingRequest[];
 }
 
 export async function createProcessingRequest(
@@ -38,10 +40,12 @@ export async function createProcessingRequest(
 
 export async function getProcessingRequest(processingRequestId: string, token: string) {
   const url = `${processingRequestsURL}/${processingRequestId}`;
-  const response = await http.get(url, {
+  const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  return response.data as ProcessingRequest;
+  const data = await response.json();
+  if ("message" in data) throw new Error(data.message);
+  return data as ProcessingRequest;
 }
