@@ -73,6 +73,6 @@
         - pix-portal/kronos-db
 
     - name: Start Docker Compose
-      ansible.builtin.command: docker compose -f "{{ base_dir_remote }}/compose.yaml" up -d --build
+      ansible.builtin.command: docker compose -f "{{ base_dir_remote }}/compose.yaml" up -d --build --remove-orphans
       args:
         chdir: "{{ base_dir_remote }}"
