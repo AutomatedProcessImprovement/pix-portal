@@ -12,6 +12,12 @@ export const projectsURL = new URL("projects", backendBaseURL).toString();
 export const filesURL = new URL("files", backendBaseURL).toString();
 export const assetsURL = new URL("assets", backendBaseURL).toString();
 export const processingRequestsURL = new URL("processing-requests", backendBaseURL).toString();
+console.log("Login URL:", loginURL);
+console.log("User info URL:", userInfoURL);
+console.log("Projects URL:", projectsURL);
+console.log("Files URL:", filesURL);
+console.log("Assets URL:", assetsURL);
+console.log("Processing requests URL:", processingRequestsURL);
 
 export const http = axios.create({
   headers: {

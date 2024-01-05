@@ -4,6 +4,7 @@ import { loginURL, userInfoURL } from "~/services/shared.server";
 import type { User } from "./auth";
 
 export async function getJWT(username: string, password: string): Promise<string | undefined> {
+  console.log("Fetching URL:", loginURL);
   const response = await fetch(loginURL, {
     method: "POST",
     headers: {
