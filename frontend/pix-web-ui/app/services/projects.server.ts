@@ -1,4 +1,4 @@
-import { projectsURL } from "~/services/shared.server";
+import { http, projectsURL } from "~/services/shared.server";
 import type { Project } from "./projects";
 
 export async function listProjectsForUser(userId: string, token: string): Promise<Project[]> {
@@ -15,12 +15,11 @@ export async function listProjectsForUser(userId: string, token: string): Promis
 }
 
 export async function getProject(projectId: string, token: string): Promise<Project> {
-  const response = await fetch(`${projectsURL}/${projectId}`, {
+  const url = `${projectsURL}/${projectId}`;
+  const response = await http.get(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  const data = await response.json();
-  if ("message" in data) throw new Error(data.message);
-  return data as Project;
+  return response.data as Project;
 }

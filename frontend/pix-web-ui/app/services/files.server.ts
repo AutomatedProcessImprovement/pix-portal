@@ -1,4 +1,4 @@
-import { filesURL } from "~/services/shared.server";
+import { filesURL, http } from "~/services/shared.server";
 import type { File } from "./files";
 
 export enum FileType {
@@ -16,31 +16,24 @@ export enum FileType {
 export async function uploadFile(file: Blob, file_name: string, file_type: FileType, token: string) {
   const url = `${filesURL}/`;
   const bytes = await file.arrayBuffer();
-  const response = await fetch(url, {
-    method: "POST",
+  const response = await http.post(url, bytes, {
     headers: {
       "Content-Type": "application/octet-stream",
       Authorization: `Bearer ${token}`,
     },
-    body: bytes,
+    params: {
+      name: file_name,
+      type: file_type,
+    },
   });
-  const data = await response.json();
-  if ("message" in data) throw new Error(data.message);
-  return data as File;
+  return response.data as File;
 }
 
 export async function deleteFile(fileId: string, token: string) {
   const url = `${filesURL}/${fileId}`;
-  const response = await fetch(url, {
+  await http.delete(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    method: "DELETE",
   });
-  try {
-    const data = await response.json();
-    if ("message" in data) throw new Error(data.message);
-  } catch (e) {
-    console.error(e);
-  }
 }
