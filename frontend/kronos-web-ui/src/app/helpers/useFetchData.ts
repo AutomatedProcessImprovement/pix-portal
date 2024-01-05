@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_KRONOS_HTTP_URL;
+console.log("env:", process.env);
 
 export function useFetchData(endpoint: string) {
   const [data, setData] = useState<any>(null);
