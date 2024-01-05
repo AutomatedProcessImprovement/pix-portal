@@ -4,18 +4,14 @@ import { http, loginURL, userInfoURL } from "~/services/shared.server";
 import type { User } from "./auth";
 
 export async function getJWT(username: string, password: string): Promise<string | undefined> {
-  const { data } = await http.post(
-    loginURL,
-    {
-      username: username,
-      password: password,
+  const response = await fetch(loginURL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
     },
-    {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    }
-  );
+    body: `username=${username}&password=${password}`,
+  });
+  const data = await response.json();
   return data.access_token;
 }
 

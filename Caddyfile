@@ -20,10 +20,6 @@ handle_path /* {
 			reverse_proxy api-server:8000
 		}
 
-		handle /authenticated-route {
-			reverse_proxy api-server:8000
-		}
-
 		handle /projects* {
 			reverse_proxy api-server:8000
 		}
