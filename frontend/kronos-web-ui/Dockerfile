@@ -27,6 +27,11 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED 1
 
+# Next.js inlines environment variables during `npm run build`,
+# https://nextjs.org/docs/app/building-your-application/deploying#environment-variables,
+# so we need to set them here and provide them during Docker build.
+ARG NEXT_PUBLIC_KRONOS_HTTP_URL
+ENV NEXT_PUBLIC_KRONOS_HTTP_URL $NEXT_PUBLIC_KRONOS_HTTP_URL
 RUN npm run build
 
 # Production image, copy all the files and run next
@@ -63,4 +68,4 @@ ENV HOSTNAME "0.0.0.0"
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output
 # NOTE: provide .env.local using volume mount
-CMD ["node", "--env-file", ".env.local", "server.js"]
+CMD ["node", "server.js"]

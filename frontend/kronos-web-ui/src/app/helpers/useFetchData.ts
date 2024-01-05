@@ -19,6 +19,7 @@ export async function fetchBackend(endpoint: string) {
   let url;
   try {
     url = new URL(endpoint, BASE_URL);
+    console.log("Fetching", url);
   } catch (e) {
     console.error("Cannot compose URL:", BASE_URL, endpoint);
     throw e;

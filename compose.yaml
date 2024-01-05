@@ -16,10 +16,11 @@ services:
   kronos-web-ui:
     build:
       context: frontend/kronos-web-ui
+      args:
+        - NEXT_PUBLIC_KRONOS_HTTP_URL=http://localhost:8090
     environment:
       NODE_ENV: production
       PORT: 3000
-      NEXT_PUBLIC_KRONOS_HTTP_URL: http://caddy/api/v1/kronos/
     networks:
       - backend
     restart: on-failure
