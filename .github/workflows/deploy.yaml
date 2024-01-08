@@ -31,15 +31,9 @@ jobs:
       - name: Set known hosts
         id: known_hosts
         run: |
-          ssh-keyscan -t rsa,ecdsa,ed25519 -H pix.cloud.ut.ee >> $GITHUB_OUTPUT
-          ssh-keyscan -t rsa,ecdsa,ed25519 -H pix-w1.cloud.ut.ee >> $GITHUB_OUTPUT
-          ssh-keyscan -t rsa,ecdsa,ed25519 -H pix-w2.cloud.ut.ee >> $GITHUB_OUTPUT
-
-      - name: Debug known hosts
-        env:
-          KNOWN_HOSTS: ${{ join(steps.known_hosts.outputs.*, '\n') }}
-        run: |
-          echo "${{ env.KNOWN_HOSTS }}"
+          ssh-keyscan -t rsa,ecdsa,ed25519 -H pix.cloud.ut.ee >> ~/.ssh/known_hosts 2>&1
+          ssh-keyscan -t rsa,ecdsa,ed25519 -H pix-w1.cloud.ut.ee >> ~/.ssh/known_hosts 2>&1
+          ssh-keyscan -t rsa,ecdsa,ed25519 -H pix-w2.cloud.ut.ee >> ~/.ssh/known_hosts 2>&1
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
@@ -48,22 +42,6 @@ jobs:
         with:
           key: "${{ secrets.PIX_SSH_KEY }}"
           name: "pix"
-          known_hosts: ${{ env.KNOWN_HOSTS }}
-          config: |
-            Host pix.cloud.ut.ee
-              HostName 193.40.11.243
-              User ubuntu
-              IdentityFile ~/.ssh/pix
-
-            Host pix-w1.cloud.ut.ee
-                HostName 193.40.11.123 
-                User ubuntu
-                IdentityFile ~/.ssh/pix
-
-            Host pix-w2.cloud.ut.ee
-                HostName 193.40.11.119
-                User ubuntu
-                IdentityFile ~/.ssh/pix
 
       - name: Unpack secrets to "./secrets/"
         run: |
