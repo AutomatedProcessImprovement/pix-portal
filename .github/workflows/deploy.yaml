@@ -31,23 +31,25 @@ jobs:
       - name: Set known hosts
         id: known_hosts
         run: |
-          {
-            echo 'KNOWN_HOSTS<<EOF'
-            ssh-keyscan -t rsa,ecdsa,ed25519 193.40.11.243
-            ssh-keyscan -t rsa,ecdsa,ed25519 193.40.11.123
-            ssh-keyscan -t rsa,ecdsa,ed25519 193.40.11.119
-            echo 'EOF'
-          } >> "$GITHUB_ENV"
+          echo "::set-output name=server1::$(ssh-keyscan -t rsa,ecdsa,ed25519 193.40.11.243)"
+          echo "::set-output name=server2::$(ssh-keyscan -t rsa,ecdsa,ed25519 193.40.11.123)"
+          echo "::set-output name=server3::$(ssh-keyscan -t rsa,ecdsa,ed25519 193.40.11.119)"
 
-      - name: Debug KNOWN_HOSTS
-        run: echo "$KNOWN_HOSTS"
+      - name: Debug
+        run: |
+          echo "${{ steps.known_hosts.outputs.server1 }}"
+          echo "${{ steps.known_hosts.outputs.server2 }}"
+          echo "${{ steps.known_hosts.outputs.server3 }}"
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
           key: "${{ secrets.PIX_SSH_KEY }}"
-          known_hosts: "$KNOWN_HOSTS"
           name: "pix"
+          known_hosts: |
+            ${{ steps.known_hosts.outputs.server1 }}
+            ${{ steps.known_hosts.outputs.server2 }}
+            ${{ steps.known_hosts.outputs.server3 }}
 
       - name: Unpack secrets to "./secrets/"
         run: |
