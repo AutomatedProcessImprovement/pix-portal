@@ -31,9 +31,9 @@ jobs:
       - name: Set known hosts
         id: known_hosts
         run: |
-          ssh-keyscan -t rsa pix.cloud.ut.ee > $GITHUB_OUTPUT
-          ssh-keyscan -t rsa pix-w1.cloud.ut.ee >> $GITHUB_OUTPUT
-          ssh-keyscan -t rsa pix-w2.cloud.ut.ee >> $GITHUB_OUTPUT
+          ssh-keyscan -t rsa 193.40.11.243 > $GITHUB_OUTPUT
+          ssh-keyscan -t rsa 193.40.11.123 >> $GITHUB_OUTPUT
+          ssh-keyscan -t rsa 193.40.11.119 >> $GITHUB_OUTPUT
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
