@@ -1,27 +1,7 @@
 "use client";
 
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import Download from "@mui/icons-material/CloudDownloadOutlined";
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  ClickAwayListener,
-  FormControl,
-  Grid,
-  Grow,
-  InputLabel,
-  MenuItem,
-  MenuList,
-  Paper,
-  Popper,
-  Select,
-  Tab,
-  Tabs,
-  Tooltip,
-} from "@mui/material";
+import { Box, FormControl, Grid, InputLabel, MenuItem, Select, Tab, Tabs } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material/Select";
-import axios from "axios";
 import React, { Suspense, useEffect, useState } from "react";
 import { fetchBackend } from "../helpers/useFetchData";
 
@@ -44,7 +24,6 @@ interface ActivityPair {
 }
 
 const useFetchActivityPairs = (jobId: string) => {
-  // const fetchedData = useFetchData(`/activity_pairs/${jobId}`);
   const [activityPairs, setActivityPairs] = useState<ActivityPair[]>([]);
   useEffect(() => {
     (async () => {
@@ -99,37 +78,8 @@ const ActivityPairSelector = ({ selectedActivityPair, handleActivityPairChange, 
   </FormControl>
 );
 
-const onDownload = (type: number, jobId: string) => {
-  switch (type) {
-    case 0:
-      window.location.href = `http://193.40.11.233/assets/results/${jobId}/event_log_transitions_report.csv`;
-      break;
-    case 1:
-      axios({
-        url: `http://193.40.11.233/assets/results/${jobId}/event_log_transitions_report.json`,
-        method: "GET",
-        responseType: "blob",
-      }).then((response) => {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", "event_log_transitions_report.json");
-        document.body.appendChild(link);
-        link.click();
-      });
-      break;
-    default:
-      break;
-  }
-};
-
-const options = ["Download as CSV", "Download as JSON"];
-
 const Dashboard = ({ jobId }: { jobId: string }) => {
   const [value, setValue] = useState(0);
-  const [open, setOpen] = useState(false);
-  const anchorRef = React.useRef<HTMLDivElement>(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedActivityPair, setSelectedActivityPair] = useState<string>("All transitions");
   const activityPairsData = useFetchActivityPairs(jobId);
 
@@ -152,28 +102,6 @@ const Dashboard = ({ jobId }: { jobId: string }) => {
     return nameA.localeCompare(nameB);
   });
 
-  const handleClick = () => {
-    onDownload(0, jobId);
-  };
-
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
-  };
-
-  const handleClose = (event: Event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement)) {
-      return;
-    }
-
-    setOpen(false);
-  };
-
-  const handleMenuItemClick = (event: React.MouseEvent<HTMLLIElement, MouseEvent>, index: number) => {
-    setSelectedIndex(index);
-    setOpen(false);
-    onDownload(index, jobId);
-  };
-
   return (
     <Box sx={{ width: "100%", mt: 1, zIndex: 100000 }}>
       <Box>
@@ -195,68 +123,6 @@ const Dashboard = ({ jobId }: { jobId: string }) => {
               <Tab label="Resource Unavailability" {...a11yProps(4)} />
               <Tab label="Extraneous Factors" {...a11yProps(5)} />
             </Tabs>
-          </Grid>
-          <Grid item>
-            <ButtonGroup variant="contained" ref={anchorRef} aria-label="split button" sx={{ zIndex: 100000 }}>
-              <Tooltip title={"Download as CSV"}>
-                <Button
-                  size="small"
-                  aria-controls={open ? "split-button-menu" : undefined}
-                  aria-expanded={open ? "true" : undefined}
-                  aria-label="select merge strategy"
-                  aria-haspopup="menu"
-                  onClick={handleClick}
-                >
-                  <Download />
-                </Button>
-              </Tooltip>
-              <Button
-                size="small"
-                aria-controls={open ? "split-button-menu" : undefined}
-                aria-expanded={open ? "true" : undefined}
-                aria-label="select merge strategy"
-                aria-haspopup="menu"
-                onClick={handleToggle}
-              >
-                <ArrowDropDownIcon />
-              </Button>
-            </ButtonGroup>
-            <Popper
-              open={open}
-              anchorEl={anchorRef.current}
-              role={undefined}
-              transition
-              disablePortal={false}
-              sx={{ zIndex: 100000 }}
-              style={{ zIndex: 100000 }}
-            >
-              {({ TransitionProps, placement }) => (
-                <Grow
-                  {...TransitionProps}
-                  style={{
-                    transformOrigin: placement === "bottom" ? "center top" : "center bottom",
-                    zIndex: 100000,
-                  }}
-                >
-                  <Paper>
-                    <ClickAwayListener onClickAway={handleClose}>
-                      <MenuList id="split-button-menu" autoFocusItem>
-                        {options.map((option, index) => (
-                          <MenuItem
-                            key={option}
-                            disabled={index === 2}
-                            selected={index === selectedIndex}
-                            onClick={(event) => handleMenuItemClick(event, index)}
-                          >
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </MenuList>
-                    </ClickAwayListener>
-                  </Paper>
-                </Grow>
-              )}
-            </Popper>
           </Grid>
         </Grid>
       </Box>
