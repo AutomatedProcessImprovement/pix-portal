@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List
+from typing import List, Optional
 
 from sqlalchemy import DateTime, String, Uuid
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -15,6 +15,7 @@ class AssetType(str, Enum):
     SIMULATION_MODEL = "simulation_model"
     SIMOD_CONFIGURATION = "simod_configuration"
     OPTIMOS_CONFIGURATION = "optimos_configuration"
+    KRONOS_REPORT = "kronos_report"
 
 
 class Base(AsyncAttrs, DeclarativeBase):

@@ -2,12 +2,13 @@ import json
 import logging
 import traceback
 from datetime import datetime
+from os import path
 from pathlib import Path
 from typing import Optional
 from uuid import UUID
 
 from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
-from pix_portal_lib.service_clients.asset import Asset, AssetServiceClient, File_
+from pix_portal_lib.service_clients.asset import Asset, AssetServiceClient, AssetType, File_
 from pix_portal_lib.service_clients.file import FileType
 from pix_portal_lib.service_clients.processing_request import (
     ProcessingRequest,
@@ -84,7 +85,7 @@ class KronosService:
             )
             output_dir = self._kronos_results_base_dir / processing_request.processing_request_id
             output_dir.mkdir(parents=True, exist_ok=True)
-            output_path = self._run_kronos(
+            csv_output_path, json_output_path = self._run_kronos(
                 event_log_path=event_log_file.path,
                 column_mapping_path=column_mapping_file.path,
                 output_dir=output_dir,
@@ -92,13 +93,39 @@ class KronosService:
             logger.info(
                 f"Kronos analysis has finished: "
                 f"processing_request_id={processing_request.processing_request_id}, "
-                f"output_path={output_path}, "
+                f"output_path={csv_output_path}, "
+            )
+
+            # upload output assets
+            report_asset_id = await self._asset_service_client.create_asset(
+                files=[
+                    File_(
+                        path=csv_output_path,
+                        type=FileType.WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV,
+                        name=csv_output_path.name,
+                    ),
+                    File_(
+                        path=json_output_path,
+                        type=FileType.WAITING_TIME_ANALYSIS_REPORT_KRONOS_JSON,
+                        name=json_output_path.name,
+                    ),
+                ],
+                project_id=processing_request.project_id,
+                asset_name=csv_output_path.stem,
+                asset_type=AssetType.KRONOS_REPORT,
+                users_ids=[UUID(processing_request.user_id)],
+            )
+            logger.info(
+                f"Kronos analysis report uploaded: "
+                f"processing_request_id={processing_request.processing_request_id}, "
+                f"output_path={csv_output_path}, "
+                f"asset_id={report_asset_id}"
             )
 
             # load the results into the database using KronosHTTP
             kronos_response = await self._kronos_http_client.create_table_from_path(
                 processing_request_id=processing_request.processing_request_id,
-                wta_report_csv_path=output_path,
+                wta_report_csv_path=csv_output_path,
             )
             if kronos_response.table_name is None:
                 raise FailedCreatingTableFromCSV(kronos_response.error)
@@ -179,8 +206,9 @@ class KronosService:
 
         _run(event_log_path, True, log_ids, output_dir)
 
-        output_path = (output_dir / (event_log_path.stem + "_transitions_report")).with_suffix(".csv")
-        return output_path
+        csv_output_path = (output_dir / (event_log_path.stem + "_transitions_report")).with_suffix(".csv")
+        json_output_path = (output_dir / (event_log_path.stem + "_transitions_report")).with_suffix(".json")
+        return csv_output_path, json_output_path
 
     @staticmethod
     def _post_process_log_ids(column_mapping_path: Path, log_ids: EventLogIDs):
