@@ -31,6 +31,8 @@ jobs:
       - name: Set known hosts
         id: known_hosts
         run: |
+          mkdir -p ~/.ssh
+          touch ~/.ssh/known_hosts
           ssh-keyscan -t rsa,ecdsa,ed25519 -H pix.cloud.ut.ee >> ~/.ssh/known_hosts 2>&1
           ssh-keyscan -t rsa,ecdsa,ed25519 -H pix-w1.cloud.ut.ee >> ~/.ssh/known_hosts 2>&1
           ssh-keyscan -t rsa,ecdsa,ed25519 -H pix-w2.cloud.ut.ee >> ~/.ssh/known_hosts 2>&1
