@@ -48,7 +48,7 @@ jobs:
       - name: Unpack secrets to "./secrets/"
         run: |
           echo "${{ secrets.SECRETS_TAR_GZ_B64 }}" | base64 -d | tar xz
-          echo "::set-env name=SECRETS_DIR::$(pwd)/secrets"
+          echo "SECRETS_DIR=`pwd`/secrets" >> $GITHUB_ENV
 
       - name: Debug SECRETS_DIR
         run: |
