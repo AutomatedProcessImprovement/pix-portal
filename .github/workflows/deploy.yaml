@@ -50,10 +50,6 @@ jobs:
           echo "${{ secrets.SECRETS_TAR_GZ_B64 }}" | base64 -d | tar xz
           echo "SECRETS_DIR=`pwd`/secrets" >> $GITHUB_ENV
 
-      - name: Debug SECRETS_DIR
-        run: |
-          echo $SECRETS_DIR
-
       - name: Deploy with Ansible
         env:
           SECRETS_DIR: ${{ env.SECRETS_DIR }}
