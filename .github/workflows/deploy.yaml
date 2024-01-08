@@ -36,6 +36,7 @@ jobs:
             ssh-keyscan -t rsa,ecdsa,ed25519 193.40.11.243
             ssh-keyscan -t rsa,ecdsa,ed25519 193.40.11.123
             ssh-keyscan -t rsa,ecdsa,ed25519 193.40.11.119
+            echo 'EOF'
           } >> "$GITHUB_ENV"
 
       - name: Debug KNOWN_HOSTS
