@@ -28,12 +28,21 @@ jobs:
           ansible --version
           docker --version
 
+      - name: Set known hosts
+        id: known_hosts
+        run: |
+          ssh-keyscan -t rsa pix.cloud.ut.ee > $GITHUB_OUTPUT
+          ssh-keyscan -t rsa pix-w1.cloud.ut.ee >> $GITHUB_OUTPUT
+          ssh-keyscan -t rsa pix-w2.cloud.ut.ee >> $GITHUB_OUTPUT
+
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
+        env:
+          KNOWN_HOSTS: ${{ join(steps.known_hosts.outputs.*, '\n') }}
         with:
           key: "${{ secrets.PIX_SSH_KEY }}"
           name: "pix"
-          known_hosts: "${{ secrets.PIX_KNOWN_HOSTS }}"
+          known_hosts: ${{ env.KNOWN_HOSTS }}
 
       - name: Unpack secrets to "./secrets/"
         run: |
