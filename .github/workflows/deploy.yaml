@@ -31,9 +31,15 @@ jobs:
       - name: Set known hosts
         id: known_hosts
         run: |
-          ssh-keyscan -t ed25519 193.40.11.243 >> $GITHUB_OUTPUT
-          ssh-keyscan -t ed25519 193.40.11.123 >> $GITHUB_OUTPUT
-          ssh-keyscan -t ed25519 193.40.11.119 >> $GITHUB_OUTPUT
+          ssh-keyscan -t rsa,ecdsa,ed25519 -H pix.cloud.ut.ee >> $GITHUB_OUTPUT
+          ssh-keyscan -t rsa,ecdsa,ed25519 -H pix-w1.cloud.ut.ee >> $GITHUB_OUTPUT
+          ssh-keyscan -t rsa,ecdsa,ed25519 -H pix-w2.cloud.ut.ee >> $GITHUB_OUTPUT
+
+      - name: Debug known hosts
+        env:
+          KNOWN_HOSTS: ${{ join(steps.known_hosts.outputs.*, '\n') }}
+        run: |
+          echo "${{ env.KNOWN_HOSTS }}"
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
