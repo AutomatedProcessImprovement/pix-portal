@@ -5,23 +5,25 @@
   become: true
   vars:
     base_dir_remote: /srv/pix-portal
+    secrets_dir: ./secrets
 
   tasks:
     - name: Copy Caddyfile
       ansible.builtin.copy:
-        src: ./secrets/Caddyfile
+        cwd:
+        src: "{{ secrets_dir }}/Caddyfile"
         dest: "{{ base_dir_remote }}/"
         mode: 0644
 
     - name: Copy Docker Compose configuration
       ansible.builtin.copy:
-        src: ./secrets/compose.yaml
+        src: "{{ secrets_dir }}/compose.yaml"
         dest: "{{ base_dir_remote }}/"
         mode: 0644
 
     - name: Copy secrets
       ansible.builtin.copy:
-        src: ./secrets
+        src: "{{ secrets_dir }}"
         dest: "{{ base_dir_remote }}/"
         mode: 0644
 

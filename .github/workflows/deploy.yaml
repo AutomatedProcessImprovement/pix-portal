@@ -35,12 +35,6 @@ jobs:
           echo "::set-output name=server2::$(ssh-keyscan -t rsa,ecdsa,ed25519 193.40.11.123)"
           echo "::set-output name=server3::$(ssh-keyscan -t rsa,ecdsa,ed25519 193.40.11.119)"
 
-      - name: Debug
-        run: |
-          echo "${{ steps.known_hosts.outputs.server1 }}"
-          echo "${{ steps.known_hosts.outputs.server2 }}"
-          echo "${{ steps.known_hosts.outputs.server3 }}"
-
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
@@ -54,7 +48,14 @@ jobs:
       - name: Unpack secrets to "./secrets/"
         run: |
           echo "${{ secrets.SECRETS_TAR_GZ_B64 }}" | base64 -d | tar xz
+          echo "::set-env name=SECRETS_DIR::$(pwd)/secrets"
+
+      - name: Debug SECRETS_DIR
+        run: |
+          echo $SECRETS_DIR
 
       - name: Deploy with Ansible
+        env:
+          SECRETS_DIR: ${{ env.SECRETS_DIR }}
         run: |
-          ansible-playbook -i ansible/hosts.yaml --private-key ~/.ssh/pix ansible/deploy.yaml
+          ansible-playbook -i ansible/hosts.yaml --private-key ~/.ssh/pix ansible/deploy.yaml --extra-vars "secrets_dir=${{ env.SECRETS_DIR }}"
