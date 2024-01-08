@@ -43,6 +43,21 @@ jobs:
           key: "${{ secrets.PIX_SSH_KEY }}"
           name: "pix"
           known_hosts: ${{ env.KNOWN_HOSTS }}
+          config: |
+            Host pix.cloud.ut.ee
+              HostName 193.40.11.243
+              User ubuntu
+              IdentityFile ~/.ssh/pix
+
+            Host pix-w1.cloud.ut.ee
+                HostName 193.40.11.123 
+                User ubuntu
+                IdentityFile ~/.ssh/pix
+
+            Host pix-w2.cloud.ut.ee
+                HostName 193.40.11.119
+                User ubuntu
+                IdentityFile ~/.ssh/pix
 
       - name: Unpack secrets to "./secrets/"
         run: |
