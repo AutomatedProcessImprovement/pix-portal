@@ -1,6 +1,14 @@
-# Ansible Scripts
+# Automated Configuration and Deployment
 
-## Setup
+For automation, we use Ansible (and GitHub Actions). With these Ansible scripts, you can:
+
+- configure machines in ETAIS (machines must be already provisioned)
+  - format a file system
+  - mount an additional disk
+  - set up Docker
+- deploy to production (GitHub Actions is configured to launch this)
+
+## Configuring
 
 Start with configuring machines by running:
 
@@ -23,10 +31,16 @@ Stop the nginx container by running:
 ansible-playbook -i ansible/hosts.yaml ansible/test-docker-stop.yaml
 ```
 
-### Deployment
+## Deploying
+
+(Optional) Pack secrets and set as a repository secret in GitHub ([GH CLI](https://cli.github.com/) needs to be installed and authorized):
+
+```shell
+./set-secrets-gh-repo-secrets.sh
+```
 
 To deploy the application, run:
 
 ```shell
-ansible-playbook -i ansible/hosts.yaml ansible/deploy-all.yaml
+ansible-playbook -i ansible/hosts.yaml ansible/deploy.yaml
 ```

@@ -1,0 +1,44 @@
+name: Deploy
+
+concurrency:
+  group: production
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://pix.cloud.ut.ee/
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Set up Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install --only-upgrade openssl
+          sudo apt-get install -y python3-pip
+          pip3 install -U pip ansible pyyaml
+          ansible --version
+          docker --version
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: "${{ secrets.PIX_SSH_KEY }}"
+          name: "pix"
+          known_hosts: "${{ secrets.PIX_KNOWN_HOSTS }}"
+
+      - name: Unpack secrets to "./secrets/"
+        run: |
+          echo "${{ secrets.SECRETS_TAR_GZ_B64 }}" | base64 -d | tar xz
+
+      - name: Deploy with Ansible
+        run: |
+          ansible-playbook -i ansible/hosts.yaml --private-key ~/.ssh/pix ansible/deploy.yaml

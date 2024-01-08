@@ -7,34 +7,6 @@
     base_dir_remote: /srv/pix-portal
 
   tasks:
-    # - name: Copy backend source
-    #   ansible.posix.synchronize:
-    #     src: ../backend
-    #     dest: "{{ base_dir_remote }}/"
-    #     mode: "push"
-    #     delete: true
-    #     private_key: ~/.ssh/pix
-    #     rsync_opts:
-    #       - "--exclude=.git"
-    #       - "--exclude=.venv"
-    #       - "--exclude=dist"
-    #       - "--exclude=.DS_Store"
-
-    # - name: Copy frontend source
-    #   ansible.posix.synchronize:
-    #     src: ../frontend/pix-web-ui
-    #     dest: "{{ base_dir_remote }}/"
-    #     mode: "push"
-    #     delete: true
-    #     private_key: ~/.ssh/pix
-    #     rsync_opts:
-    #       - "--exclude=.git"
-    #       - "--exclude=.idea"
-    #       - "--exclude=.vscode"
-    #       - "--exclude=build"
-    #       - "--exclude=node_modules"
-    #       - "--exclude=.DS_Store"
-
     - name: Copy Caddyfile
       ansible.builtin.copy:
         src: ./secrets/Caddyfile

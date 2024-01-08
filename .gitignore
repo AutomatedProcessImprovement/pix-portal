@@ -36,6 +36,6 @@ dist-ssr
 **/.classpath
 **/*.secret
 **/.env
-ansible/secrets
+ansible/secrets*
 **/*.env.json
 manual_tests
