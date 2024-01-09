@@ -51,7 +51,7 @@ FROM base as final
 RUN apk add curl
 
 # Use production node environment by default.
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 # Run the application as a non-root user.
 USER node
@@ -59,15 +59,17 @@ USER node
 # Copy package.json so that package manager commands can be used.
 COPY package.json .
 
+# Copy the application entry point.
+COPY server.js .
+
 # Copy the production dependencies from the deps stage and also
 # the built application from the build stage into the image.
 COPY --from=deps /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/build ./build
 COPY --from=build /usr/src/app/public ./public
 
-
 # Expose the port that the application listens on.
 EXPOSE 3030
 
 # Run the application.
-CMD npx remix-serve build/index.js
+CMD node server.js
