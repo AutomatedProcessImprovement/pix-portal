@@ -6,8 +6,7 @@ from fastapi import Depends
 from fastapi_users.exceptions import UserNotExists
 
 from api_server.assets.model import Asset
-from api_server.assets.service import AssetService
-from api_server.assets.service import get_asset_service
+from api_server.assets.service import AssetService, get_asset_service
 from api_server.projects.model import Project
 from api_server.projects.repository import ProjectRepository, get_project_repository
 from api_server.users.users import UserManager, get_user_manager
@@ -152,8 +151,9 @@ class ProjectService:
     async def delete_project(self, project_id: uuid.UUID) -> None:
         # TODO: cancel processing requests
 
-        assetes_deleted = await self._asset_service.delete_assets_by_project_id(project_id)
-        if not assetes_deleted:
+        try:
+            await self._asset_service.delete_assets_by_project_id(project_id)
+        except Exception:
             raise AssetDeletionFailed()
 
         await self._project_repository.delete_project(project_id)

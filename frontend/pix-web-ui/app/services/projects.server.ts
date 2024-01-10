@@ -11,7 +11,8 @@ export async function listProjectsForUser(userId: string, token: string): Promis
   });
   const data = await response.json();
   if ("message" in data) throw new Error(data.message);
-  return data as Project[];
+  const projects = data as Project[];
+  return projects.filter((p) => !p.deletion_time);
 }
 
 export async function getProject(projectId: string, token: string): Promise<Project> {

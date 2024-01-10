@@ -22,8 +22,8 @@ export async function listProjectsForUser(userId: string, token: string): Promis
       Origin: window.location.origin,
     },
   });
-  const data = await response.json();
-  return data as Project[];
+  const projects = (await response.json()) as Project[];
+  return projects.filter((p) => !p.deletion_time);
 }
 
 export async function removeAssetFromProject(assetId: string, projectId: string, token: string) {
@@ -59,4 +59,45 @@ export async function createProject(projectData: NewProjectSchema, token: string
   }
   const data = await response.json();
   return data as Project;
+}
+
+export async function patchProject(
+  projectId: string,
+  projectData: { name: string; description?: string },
+  token: string
+) {
+  const url = `projects/${projectId}`;
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
+  const response = await fetch(u, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
+    },
+    body: JSON.stringify({
+      name: projectData.name,
+      description: projectData.description,
+    }),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to patch project`);
+  }
+  const data = await response.json();
+  return data as Project;
+}
+
+export async function deleteProject(projectId: string, token: string) {
+  const url = `projects/${projectId}`;
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
+  const response = await fetch(u, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to delete project`);
+  }
 }

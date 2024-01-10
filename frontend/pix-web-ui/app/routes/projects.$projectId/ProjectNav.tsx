@@ -4,13 +4,29 @@ import { useContext, useEffect, useState } from "react";
 import UploadAssetButton from "~/components/asset-upload/UploadAssetButton";
 import UploadAssetDialog from "~/components/asset-upload/UploadAssetDialog";
 import type { ILabeledAny } from "~/components/shared";
-import { type Project } from "~/services/projects";
+import { deleteProject, type Project } from "~/services/projects";
 import SelectList from "../../components/SelectList";
 import { UserContext } from "../contexts";
+import { NewProjectDialog } from "../projects._index/NewProjectDialog";
+import { EditProjectDialog } from "./EditProjectDialog";
 import { ProjectContext } from "./contexts";
 import { useProjects } from "./useProjects";
 
 export default function ProjectNav({ project }: { project?: Project }) {
+  const user = useContext(UserContext);
+
+  async function handleDelete() {
+    if (!project || !user?.token) return;
+    const confirmed = window.confirm(`Are you sure you want to delete project ${project.name}?`);
+    if (!confirmed) return;
+    try {
+      await deleteProject(project.id, user.token);
+      window.location.href = "/projects";
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   if (!project) return null;
   return (
     <nav className="flex flex-wrap items-center px-6 bg-white border-b border-gray-200 h-14 space-x-2">
@@ -22,10 +38,22 @@ export default function ProjectNav({ project }: { project?: Project }) {
         <div className="flex items-center space-x-4">
           <ProjectsSelect />
           <div className="flex flex-wrap items-center space-x-3">
-            <span className="text-slate-400">New</span>
-            <span className="text-slate-400">Edit</span>
-            <span className="text-slate-400">Share</span>
-            <span className="text-slate-400">Delete</span>
+            <NewProjectDialog>
+              <span className="cursor-pointer transition ease-in-out duration-200 text-blue-500 hover:text-blue-800 border-b border-blue-500 hover:border-blue-800">
+                New
+              </span>
+            </NewProjectDialog>
+            <EditProjectDialog project={project}>
+              <span className="cursor-pointer transition ease-in-out duration-200 text-blue-500 hover:text-blue-800 border-b border-blue-500 hover:border-blue-800">
+                Edit
+              </span>
+            </EditProjectDialog>
+            <span
+              onClick={handleDelete}
+              className="cursor-pointer transition ease-in-out duration-200 text-blue-500 hover:text-blue-800 border-b border-blue-500 hover:border-blue-800"
+            >
+              Delete
+            </span>
           </div>
         </div>
         <UploadAssetDialog trigger={<UploadAssetButton />} />
