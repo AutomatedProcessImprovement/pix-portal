@@ -1,6 +1,6 @@
 import { type FieldErrors } from "react-hook-form";
 
-export function FormErrors({ errors }: { errors?: FieldErrors }) {
+export function FormErrors({ errors, ...rest }: { errors?: FieldErrors } & React.HTMLAttributes<HTMLDivElement>) {
   function extractMessageFromObject(error: any): string | null {
     if (error.message) {
       return error.message;
@@ -23,9 +23,16 @@ export function FormErrors({ errors }: { errors?: FieldErrors }) {
 
   if (!errors) return null;
   return (
-    <div className="text-red-500">
+    <div className={rest.className}>
       {Object.keys(errors).map((key) => {
-        return <div key={key}>{extractMessageFromObject(errors[key])}</div>;
+        return (
+          <p
+            key={key}
+            className="flex justify-center bg-red-50 px-4 py-2 border border-red-700 rounded-lg text-red-900"
+          >
+            {extractMessageFromObject(errors[key])}
+          </p>
+        );
       })}
     </div>
   );

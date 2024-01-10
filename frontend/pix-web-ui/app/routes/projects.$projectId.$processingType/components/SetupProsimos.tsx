@@ -1,10 +1,11 @@
 import { Form, useNavigation, useSubmit } from "@remix-run/react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { UserContext } from "~/routes/contexts";
 import type { Asset } from "~/services/assets";
 import { AssetType, getAsset } from "~/services/assets";
 import { ProcessingAppSection } from "./ProcessingAppSection";
 import ProsimosConfiguration from "./ProsimosConfiguration";
-import { SelectedAssetsContext, UserContext } from "./contexts";
+import { SelectedAssetsContext } from "./contexts";
 
 export default function SetupProsimos() {
   const navigation = useNavigation();

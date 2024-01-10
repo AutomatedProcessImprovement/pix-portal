@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { Input } from "../../../../components/Input";
 import { FieldArrayRemoveButton } from "./FieldArrayRemoveButton";
 import { FieldArrayRemoveIconButton } from "./FieldArrayRemoveIconButton";
 import FormSection from "./FormSection";
-import { Input } from "./Input";
 import { Select } from "./Select";
 import { weekDays } from "./schema";
 import { makeTitleCase } from "./shared";

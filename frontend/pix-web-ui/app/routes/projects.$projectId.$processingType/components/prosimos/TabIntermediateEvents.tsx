@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from "react";
+import { Input } from "../../../../components/Input";
 import { BpmnDataContext } from "../contexts";
 import { DistributionNameAndValues } from "./DistributionNameAndValues";
 import FormSection from "./FormSection";
-import { Input } from "./Input";
 import type { IntermediateCatchEvent } from "./bpmn";
 
 export function TabIntermediateEvents() {

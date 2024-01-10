@@ -5,6 +5,7 @@ import { useFormContext } from "react-hook-form";
 export function Input({
   name,
   label,
+  required,
   noLabel,
   noError,
   noWrapper,
@@ -13,6 +14,7 @@ export function Input({
 }: {
   name: string;
   label?: string;
+  required?: boolean;
   noLabel?: boolean;
   noError?: boolean;
   noWrapper?: boolean;
@@ -38,6 +40,7 @@ export function Input({
       {!noLabel && (
         <label className="block" htmlFor={inputId}>
           {label || name}
+          {required && <span className="text-red-500">*</span>}
         </label>
       )}
       <input

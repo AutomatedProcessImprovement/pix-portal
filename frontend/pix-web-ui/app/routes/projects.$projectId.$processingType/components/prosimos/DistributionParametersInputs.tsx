@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { Input } from "./Input";
+import { Input } from "../../../../components/Input";
 import { distributionParameters } from "./schema";
 
 export function DistributionParametersInputs({

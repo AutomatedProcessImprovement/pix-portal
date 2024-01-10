@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { Input } from "../../../../components/Input";
 import FormSection from "./FormSection";
-import { Input } from "./Input";
 import { Select } from "./Select";
 
 export function TabPrioritisation() {

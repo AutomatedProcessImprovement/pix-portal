@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useId, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { Input } from "../../../../components/Input";
 import { BpmnDataContext } from "../contexts";
 import FormSection from "./FormSection";
-import { Input } from "./Input";
 import { Select } from "./Select";
 
 enum BatchingType {

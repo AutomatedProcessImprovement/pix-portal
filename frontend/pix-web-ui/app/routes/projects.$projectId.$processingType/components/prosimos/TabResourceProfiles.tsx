@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { Select } from "~/routes/projects.$projectId.$processingType/components/prosimos/Select";
+import { Input } from "../../../../components/Input";
 import FormSection from "./FormSection";
-import { Input } from "./Input";
 
 export function TabResourceProfiles() {
   const name = "resource_profiles";

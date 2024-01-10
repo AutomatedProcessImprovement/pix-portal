@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { Input } from "../../../../components/Input";
 import { BpmnDataContext } from "../contexts";
 import FormSection from "./FormSection";
-import { Input } from "./Input";
 import type { Gateway } from "./bpmn_types";
 
 export function TabGateways() {

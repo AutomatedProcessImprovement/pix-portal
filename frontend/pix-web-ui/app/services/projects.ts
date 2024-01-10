@@ -1,3 +1,5 @@
+import type { NewProjectSchema } from "~/routes/projects._index/schema";
+
 export interface Project {
   id: string;
   name: string;
@@ -38,4 +40,23 @@ export async function removeAssetFromProject(assetId: string, projectId: string,
     throw new Error(`Failed to remove asset ${assetId} from project ${projectId}`);
   }
   console.log(`Removed asset ${assetId} from project ${projectId}`);
+}
+
+export async function createProject(projectData: NewProjectSchema, token: string) {
+  const url = `projects/`;
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
+  const response = await fetch(u, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
+    },
+    body: JSON.stringify(projectData),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to create project`);
+  }
+  const data = await response.json();
+  return data as Project;
 }

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { Input } from "../../../../components/Input";
 import { DistributionNameAndValues } from "./DistributionNameAndValues";
 import FormSection from "./FormSection";
-import { Input } from "./Input";
 import { DistributionType } from "./schema";
 
 interface CaseAttribute {

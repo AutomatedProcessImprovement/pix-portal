@@ -6,6 +6,8 @@ import type { Project } from "~/services/projects";
 import { listProjectsForUser } from "~/services/projects.server";
 import { requireLoggedInUser } from "~/shared/guards.server";
 import { handleThrow } from "~/shared/utils";
+import { UserContext } from "../contexts";
+import NewProjectCard from "./NewProjectCard";
 import ProjectCard from "./ProjectCard";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -27,14 +29,17 @@ export default function ProjectsPage() {
 
   return (
     <>
-      <Header userEmail={user.email} />
-      <section className="p-6 flex flex-col space-y-4">
-        <div className="flex justify-center">
-          <ul className="flex-grow grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-6">
-            {projects && projects.map((project: Project) => <ProjectCard key={project.id} project={project} />)}
-          </ul>
-        </div>
-      </section>
+      <UserContext.Provider value={user}>
+        <Header userEmail={user.email} />
+        <section className="p-6 flex flex-col space-y-4">
+          <div className="flex justify-center">
+            <ul className="flex-grow grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-6">
+              {projects && projects.map((project: Project) => <ProjectCard key={project.id} project={project} />)}
+              <NewProjectCard />
+            </ul>
+          </div>
+        </section>
+      </UserContext.Provider>
     </>
   );
 }

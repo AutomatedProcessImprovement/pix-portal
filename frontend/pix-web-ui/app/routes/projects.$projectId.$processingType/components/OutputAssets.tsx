@@ -1,10 +1,10 @@
 import { useContext } from "react";
+import { UserContext } from "~/routes/contexts";
 import type { ProcessingRequest } from "~/services/processing_requests";
 import { ProcessingRequestStatus } from "~/services/processing_requests";
 import { AssetCardAsync } from "./AssetCardAsync";
 import { ProcessingAppSection } from "./ProcessingAppSection";
 import { ProcessingRequestCard } from "./ProcessingRequestCard";
-import { UserContext } from "./contexts";
 
 export default function OutputAssets({ processingRequests }: { processingRequests: ProcessingRequest[] }) {
   const user = useContext(UserContext);

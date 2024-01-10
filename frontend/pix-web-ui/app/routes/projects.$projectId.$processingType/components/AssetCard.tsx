@@ -1,10 +1,10 @@
 import { Popover } from "@headlessui/react";
 import { ArrowDownTrayIcon, BarsArrowDownIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { useContext } from "react";
+import { UserContext } from "~/routes/contexts";
 import { type Asset } from "~/services/assets";
 import { removeAssetFromProject } from "~/services/projects";
 import { parseDate } from "~/shared/utils";
-import { UserContext } from "./contexts";
 import { useAssetFile } from "./useAssetFile";
 import { useDownloadProps } from "./useDownloadProps";
 
