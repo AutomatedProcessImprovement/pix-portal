@@ -20,7 +20,7 @@ from api_server.projects.service import (
     get_project_service,
 )
 from api_server.users.db import User
-from api_server.users.users import current_user, current_superuser
+from api_server.users.users import current_active_user, current_superuser, current_user
 from api_server.utils.exceptions.http_exceptions import (
     AssetNotFoundHTTP,
     InvalidAuthorizationHeader,
@@ -46,10 +46,12 @@ def _get_token(authorization: Annotated[str, Header()]) -> str:
 async def get_projects(
     user_id: Optional[uuid.UUID] = None,
     project_service: ProjectService = Depends(get_project_service),
-    _=Depends(current_superuser),  # raises 401 if user is not authenticated
+    _=Depends(current_active_user),  # raises 401 if user is not authenticated
 ) -> Sequence[Project]:
     if user_id:
         return await project_service.get_projects_by_user_id(user_id)
+    if not current_active_user.is_superuser:
+        return await project_service.get_projects_by_user_id(current_active_user.id)
     return await project_service.get_projects()
 
 

@@ -1,4 +1,4 @@
-import { Form } from "@remix-run/react";
+import { Form, NavLink } from "@remix-run/react";
 import type { HeaderProps } from "~/components/Header";
 
 export default function UserNav({ userEmail }: HeaderProps) {
@@ -14,8 +14,18 @@ export default function UserNav({ userEmail }: HeaderProps) {
       )}
       {!userEmail && (
         <>
-          <a href="/login">Login</a>
-          <span className="text-slate-300">Signup</span>
+          <NavLink
+            to="/login"
+            className={({ isActive }) => (isActive ? "text-slate-900 border-none hover:text-slate-900" : "")}
+          >
+            Login
+          </NavLink>
+          <NavLink
+            to="/signup"
+            className={({ isActive }) => (isActive ? "text-slate-900 border-none hover:text-slate-900" : "")}
+          >
+            Signup
+          </NavLink>
         </>
       )}
     </nav>

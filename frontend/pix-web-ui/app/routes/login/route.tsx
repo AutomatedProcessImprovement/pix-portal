@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useSearchParams } from "@remix-run/react";
+import { Form, Link, useSearchParams } from "@remix-run/react";
 import Header from "~/components/Header";
 import { getJWT, getUserInfo } from "~/services/auth.server";
 import { createUserSession, getSessionUserInfo } from "~/shared/session.server";
@@ -42,12 +42,12 @@ export default function LoginPage() {
       <Header userEmail={null} />
       <div className="flex flex-1 flex-col items-center justify-center">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+          <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Sign in to your account
           </h2>
         </div>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm text-sm">
+        <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-sm text-sm">
           <Form method="post" className="space-y-6">
             <input type="hidden" name="redirectTo" value={redirectTo} />
             <div className="space-y-1">
@@ -101,7 +101,9 @@ export default function LoginPage() {
 
           <p className="mt-10 text-center text-gray-500">
             Not a member?
-            <span className="font-semibold mx-2 text-slate-300">Sign up now</span>
+            <Link to={`/signup`} className="font-semibold mx-2 ">
+              Sign up now
+            </Link>
           </p>
         </div>
       </div>
