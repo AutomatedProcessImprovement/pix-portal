@@ -1,30 +1,28 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 import type { FlashMessage as FlashMessageType } from "~/shared/flash_message";
+import { optionalLoggedInUser } from "~/shared/guards.server";
 import { getSession, sessionStorage } from "~/shared/session.server";
 import ToastMessage from "./ToastMessage";
-import { useOptionalUser } from "./utils";
+import heroImage from "./pedro-lastra-Nyvq2juw4_o-unsplash.jpg";
 
 export const meta: MetaFunction = () => {
   return [{ title: "PIX" }, { name: "description", content: "Process Improvement Explorer" }];
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request);
-
-  let flashMessage;
-  const message = session.get("globalMessage");
-  if (message) {
-    flashMessage = message as FlashMessageType;
+  if (await optionalLoggedInUser(request)) {
+    return redirect("/projects");
   }
 
+  const session = await getSession(request);
+  const flashMessage = session.get("globalMessage") as FlashMessageType | undefined;
   return json({ flashMessage }, { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } });
 }
 
 export default function Index() {
-  const user = useOptionalUser();
   const { flashMessage } = useLoaderData<typeof loader>();
 
   if (typeof window !== "undefined") {
@@ -35,27 +33,30 @@ export default function Index() {
     }
   }
 
-  if (user) {
-    return (
-      <>
-        {flashMessage && <ToastMessage message={flashMessage} />}
-        <Header userEmail={user.email} />
-        <p>Logged in</p>
-        <p>Email: {user.email}</p>
-        <Link to={`/projects`}>Projects</Link>
-      </>
-    );
-  }
-
   return (
     <div className="flex flex-col h-screen">
       {flashMessage && <ToastMessage message={flashMessage} />}
       <Header userEmail={null} />
-      <section className="flex flex-1 flex-col space-y-4 items-center justify-center">
-        <div className="flex flex-col items-center p-6">
-          <p>Not logged in</p>
-          <Link to={`/login`}>Login</Link>
-        </div>
+      <section className="flex flex-1 flex-col items-center justify-center">
+        <Link to="/login" title="To Log In page">
+          <img src={heroImage} alt="City landscapte" className="max-w-screen-lg" />
+        </Link>
+        <p className="text-xs mt-2 text-slate-400">
+          Photo by{" "}
+          <a
+            className="text-slate-400 border-slate-400"
+            href="https://unsplash.com/@peterlaster?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
+          >
+            Pedro Lastra
+          </a>{" "}
+          on{" "}
+          <a
+            className="text-slate-400 border-slate-400"
+            href="https://unsplash.com/photos/white-and-brown-city-buildings-during-daytime-Nyvq2juw4_o?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
+          >
+            Unsplash
+          </a>
+        </p>
       </section>
     </div>
   );

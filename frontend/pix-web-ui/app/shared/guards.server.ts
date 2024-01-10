@@ -22,3 +22,7 @@ export async function requireLoggedInUser(
   }
   return user;
 }
+
+export async function optionalLoggedInUser(request: Request): Promise<User | undefined> {
+  return getSessionUserInfo(request);
+}
