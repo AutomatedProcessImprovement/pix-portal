@@ -33,7 +33,15 @@ ansible-playbook -i ansible/hosts.yaml ansible/test-docker-stop.yaml
 
 ## Deploying
 
-(Optional) Pack secrets and set as a repository secret in GitHub ([GH CLI](https://cli.github.com/) needs to be installed and authorized):
+### With GitHub Actions (default)
+
+```shell
+./run-gh-deploy.sh
+```
+
+### With Ansible
+
+(Optional) Pack secrets and set as a repository secret in GitHub ([GH CLI](https://cli.github.com/) needs to be installed and authorized). Run this step if anything in `./secrets` has been changed:
 
 ```shell
 ./set-secrets-gh-repo-secrets.sh
