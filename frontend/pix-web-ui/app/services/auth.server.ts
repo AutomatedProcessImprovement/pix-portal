@@ -1,6 +1,6 @@
 // Auth and users backend API.
 
-import { http, loginURL, userInfoURL } from "~/services/shared.server";
+import { http, loginURL, userInfoURL, verifyURL } from "~/services/shared.server";
 import type { User } from "./auth";
 
 export async function getJWT(username: string, password: string): Promise<string | undefined> {
@@ -23,4 +23,16 @@ export async function getUserInfo(token: string): Promise<User> {
     },
   });
   return data as User;
+}
+
+export async function verifyEmail(token: string): Promise<boolean> {
+  const response = await fetch(verifyURL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token }),
+  });
+  if (!response.ok) throw new Error(response.statusText);
+  return true;
 }

@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, Optional
 
+import urllib3
 from fastapi import Depends, Request, Response
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
@@ -14,6 +15,8 @@ from fastapi_users.db import SQLAlchemyUserDatabase
 from opentelemetry import metrics
 
 from api_server.settings import settings
+from api_server.utils.email import publish_email_event
+
 from .db import User, get_users_db
 
 SECRET = settings.secret_key_file.read_text().strip()
@@ -57,6 +60,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         new_users_counter.add(1, {"user_id": str(user.id)})
         timestamp = datetime.utcnow()
         await self.user_db.update(user, {"creation_time": timestamp})
+        await self.request_verify(user, request)
 
     async def on_after_update(self, user: User, update_dict: Dict[str, Any], request: Optional[Request] = None):
         logger.info(f"User {user.id} has been updated")
@@ -86,9 +90,21 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         passwords_reset_counter.add(1, {"user_id": str(user.id)})
 
     async def on_after_request_verify(self, user: User, token: str, request: Optional[Request] = None):
-        # TODO: implement verification email sending
         logger.info(f"Verification requested for user {user.id}. Verification token: {token}")
+        url = f"{settings.frontend_verify_public_url.unicode_string().strip('/')}/{token}"
+        try:
+            await publish_email_event(
+                subject="[PIX Registration] Email verification",
+                message=f"Please click on the link to verify your email: {url}",
+                email=user.email,
+            )
+        except Exception as e:
+            logger.error(f"Failed to send verification email to user {user.id}: {e}")
+            raise
         user_verifications_counter.add(1, {"user_id": str(user.id)})
+
+    async def on_after_verify(self, user: User, request: Optional[Request] = None):
+        logger.info(f"User {user.id} has been verified")
 
 
 async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_users_db)):

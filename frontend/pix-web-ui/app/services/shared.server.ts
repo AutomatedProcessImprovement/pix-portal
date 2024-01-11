@@ -7,6 +7,7 @@ console.log("Environment variables:", process.env);
 const backendBaseURL = process.env.BACKEND_BASE_URL || "http://localhost:9999/api/v1/";
 console.log("Backend base URL:", backendBaseURL);
 export const loginURL = new URL("auth/jwt/login", backendBaseURL).toString();
+export const verifyURL = new URL("auth/verify", backendBaseURL).toString();
 export const userInfoURL = new URL("users/me", backendBaseURL).toString();
 export const projectsURL = new URL("projects", backendBaseURL).toString();
 export const filesURL = new URL("files", backendBaseURL).toString();

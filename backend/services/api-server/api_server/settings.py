@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     superuser_password_file: Path
     system_email_file: Path
     system_password_file: Path
+    kafka_topic_email_notifications: str
+    frontend_verify_public_url: HttpUrl
 
     # processing requests
     kafka_bootstrap_servers: str

@@ -16,13 +16,14 @@ export async function requireLoggedInUser(
   redirectTo: string = new URL(request.url).pathname
 ): Promise<User> {
   const user = await getSessionUserInfo(request);
-  if (!user) {
-    const params = new URLSearchParams({ redirectTo });
-    throw redirect(`/login?${params}`);
-  }
+  const params = new URLSearchParams({ redirectTo });
+  if (!user || user.deletion_time) throw redirect(`/login?${params}`);
+  if (!user.is_verified) throw redirect(`/verify-email?${params}`);
   return user;
 }
 
 export async function optionalLoggedInUser(request: Request): Promise<User | undefined> {
-  return getSessionUserInfo(request);
+  const user = await getSessionUserInfo(request);
+  if (!user || user.deletion_time || !user.is_verified) return undefined;
+  return user;
 }

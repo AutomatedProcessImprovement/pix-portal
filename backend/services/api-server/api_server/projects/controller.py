@@ -20,7 +20,7 @@ from api_server.projects.service import (
     get_project_service,
 )
 from api_server.users.db import User
-from api_server.users.users import current_active_user, current_superuser, current_user
+from api_server.users.users import current_active_user, current_user
 from api_server.utils.exceptions.http_exceptions import (
     AssetNotFoundHTTP,
     InvalidAuthorizationHeader,

@@ -2,6 +2,7 @@ import smtplib
 import ssl
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 from mail.settings import settings
 
@@ -18,10 +19,10 @@ class EmailNotificationRequest:
     Email notification request from Kafka.
     """
 
-    processing_request_id: str
     to_addrs: list[str]
     subject: str
     body: str
+    processing_request_id: Optional[str] = None
 
 
 async def send_email(request: EmailNotificationRequest):

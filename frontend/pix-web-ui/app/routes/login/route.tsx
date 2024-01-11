@@ -9,14 +9,15 @@ import { Input } from "~/components/Input";
 import { getJWT, getUserInfo } from "~/services/auth.server";
 import { createUserSession, getSessionUserInfo } from "~/shared/session.server";
 import { handleThrow } from "~/shared/utils";
-import { LoginSchema, schema } from "./schema";
+import type { LoginSchema } from "./schema";
+import { schema } from "./schema";
 import { safeRedirect } from "./utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   // TODO: need a better way to identify a valid user with non-expired token
   const user = await getSessionUserInfo(request);
 
-  if (user && user.token !== null) {
+  if (user && user.token !== null && user.is_verified && !user.deletion_time) {
     return redirect("/projects");
   }
 

@@ -22,6 +22,20 @@ Content-Type: application/json
   "last_name": "Suvorau"
 }
 
+### Verify email
+
+POST http://localhost:8000/auth/request-verify-token
+Content-Type: application/json
+
+{
+  "email": "foo@example.com"
+}
+
+### Delete user
+
+DELETE http://localhost:8000/users/
+Authorization: Bearer {{token}}
+
 ### List projects
 
 GET http://localhost:8000/projects/

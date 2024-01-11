@@ -4,22 +4,25 @@ from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request, Depends
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
+from api_server import users
 from api_server.assets.controller import router as assets_router
 from api_server.files.blobs_controller import router as blobs_router
 from api_server.files.files_controller import router as files_router
 from api_server.processing_requests.controller import router as processing_router
 from api_server.projects.controller import router as projects_router
 from api_server.users.init_db import create_initial_user, create_system_user
-from api_server.users.schemas import UserCreate, UserRead
-from api_server.users.users import auth_backend, fastapi_users, current_optional_user
+from api_server.users.schemas import UserCreate, UserRead, UserUpdate
+from api_server.users.users import auth_backend, current_optional_user, fastapi_users
+from api_server.users.users_controller import users_router
 from api_server.utils.exceptions.fastapi_handlers import general_exception_handler, http_exception_handler
 from api_server.utils.middleware.request_logging import RequestLoggingMiddleware
 from api_server.utils.open_telemetry_utils import instrument_app
 from api_server.utils.persistence.alembic import migrate_to_latest
+
 from .settings import settings
 from .users.db import User
 
@@ -47,7 +50,7 @@ app.include_router(fastapi_users.get_auth_router(auth_backend), prefix="/auth/jw
 app.include_router(fastapi_users.get_register_router(UserRead, UserCreate), prefix="/auth", tags=["auth"])
 app.include_router(fastapi_users.get_reset_password_router(), prefix="/auth", tags=["auth"])
 app.include_router(fastapi_users.get_verify_router(UserRead), prefix="/auth", tags=["auth"])
-app.include_router(fastapi_users.get_users_router(UserRead, UserCreate), prefix="/users", tags=["users"])
+app.include_router(users_router, prefix="/users", tags=["users"])
 
 app.add_middleware(
     CORSMiddleware,

@@ -53,6 +53,9 @@ services:
       SYSTEM_EMAIL_FILE: /run/secrets/system_email
       SYSTEM_PASSWORD_FILE: /run/secrets/system_password
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/pix
+      KAFKA_TOPIC_EMAIL_NOTIFICATIONS: email_notifications.new_requests
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9094
+      FRONTEND_VERIFY_PUBLIC_URL: http://localhost:9999/verify-email/
     volumes:
       - uploads:/var/tmp/uploads:rw
     depends_on:

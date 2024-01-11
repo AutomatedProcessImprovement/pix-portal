@@ -39,3 +39,32 @@ export async function createUser({
   if ("message" in data) throw new Error(data.message);
   return data as User;
 }
+
+export async function requestEmailVerification(email: string) {
+  const url = `auth/request-verify-token`;
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
+  const response = await fetch(u, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Origin: window.location.origin,
+    },
+    body: JSON.stringify({ email }),
+  });
+  if (!response.ok) throw new Error(response.statusText);
+  return true;
+}
+
+export async function deleteUser(token: string) {
+  const url = `users/`;
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
+  const response = await fetch(u, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
+    },
+  });
+  if (!response.ok) throw new Error(response.statusText);
+  return true;
+}

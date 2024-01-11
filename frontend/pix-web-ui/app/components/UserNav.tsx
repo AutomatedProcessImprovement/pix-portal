@@ -1,12 +1,17 @@
-import { Form, NavLink } from "@remix-run/react";
+import { Form, Link, NavLink } from "@remix-run/react";
 import type { HeaderProps } from "~/components/Header";
 
 export default function UserNav({ userEmail }: HeaderProps) {
   return (
     <nav className="flex flex-wrap items-center space-x-4">
+      <Link to="/projects" className="lg:block md:block hidden">
+        Projects
+      </Link>
       {userEmail && (
         <>
-          <div className="text-slate-400 lg:block md:block hidden">{userEmail || ""}</div>
+          <Link to="/profile" className="lg:block md:block hidden">
+            {userEmail || ""}
+          </Link>
           <Form method="post" action="/logout">
             <button type="submit">Logout</button>
           </Form>

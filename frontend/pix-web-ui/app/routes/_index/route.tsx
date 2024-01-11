@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import Header from "~/components/Header";
 import type { FlashMessage as FlashMessageType } from "~/shared/flash_message";
@@ -13,17 +13,15 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  if (await optionalLoggedInUser(request)) {
-    return redirect("/projects");
-  }
+  const user = await optionalLoggedInUser(request);
 
   const session = await getSession(request);
   const flashMessage = session.get("globalMessage") as FlashMessageType | undefined;
-  return json({ flashMessage }, { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } });
+  return json({ flashMessage, user }, { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } });
 }
 
 export default function Index() {
-  const { flashMessage } = useLoaderData<typeof loader>();
+  const { flashMessage, user } = useLoaderData<typeof loader>();
 
   if (typeof window !== "undefined") {
     if (flashMessage) {
@@ -36,7 +34,7 @@ export default function Index() {
   return (
     <div className="flex flex-col h-screen">
       {flashMessage && <ToastMessage message={flashMessage} />}
-      <Header userEmail={null} />
+      <Header userEmail={user?.email} />
       <section className="flex flex-1 flex-col items-center justify-center">
         <Link to="/login" title="To Log In page">
           <img src={heroImage} alt="City landscapte" className="max-w-screen-lg" />

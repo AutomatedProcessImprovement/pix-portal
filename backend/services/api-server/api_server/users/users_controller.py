@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from fastapi import Depends, HTTPException
 from fastapi_users import exceptions
@@ -26,6 +27,24 @@ async def get_by_email(
         raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
         logger.exception(f"Error getting user by email: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+    return user
+
+
+# NOTE: we overwrite the default DELETE implementation provided by fastapi_users
+@users_router.delete("/", response_model=UserRead)
+async def delete_user(
+    user: User = Depends(current_active_user),
+    manager: UserManager = Depends(get_user_manager),
+) -> any:
+    """
+    Deletes the current user.
+    """
+    try:
+        update = UserUpdate(deletion_time=datetime.utcnow(), is_active=False)
+        await manager.update(update, user)
+    except Exception as e:
+        logger.exception(f"Error deleting user: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
     return user
 
