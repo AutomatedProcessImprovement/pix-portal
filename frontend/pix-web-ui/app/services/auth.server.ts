@@ -5,12 +5,14 @@ import type { User } from "./auth";
 
 export async function getJWT(username: string, password: string): Promise<string | undefined> {
   console.log("Fetching URL:", loginURL);
+  const usernameEncoded = encodeURIComponent(username);
+  const passwordEncoded = encodeURIComponent(password);
   const response = await fetch(loginURL, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: `username=${username}&password=${password}`,
+    body: `username=${usernameEncoded}&password=${passwordEncoded}`,
   });
   const data = await response.json();
   return data.access_token;
