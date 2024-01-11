@@ -29,7 +29,7 @@ export default function ProjectNav({ project }: { project?: Project }) {
 
   if (!project) return null;
   return (
-    <nav className="flex flex-wrap items-center px-6 bg-white border-b border-gray-200 h-14 space-x-2">
+    <nav className="flex flex-wrap items-center px-6 bg-white border-b border-gray-200 min-h-14 space-x-2">
       <Link to={`/projects`} className="border-none">
         <HomeIcon className="h-5 w-auto text-blue-500 hover:text-blue-600" />
       </Link>
