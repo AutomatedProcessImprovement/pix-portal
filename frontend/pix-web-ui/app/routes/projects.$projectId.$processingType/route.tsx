@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
-import { isRouteErrorResponse, useLoaderData, useMatches, useRouteError } from "@remix-run/react";
+import { isRouteErrorResponse, useLoaderData, useRouteError } from "@remix-run/react";
 import type { Asset } from "~/services/assets";
 import { AssetType } from "~/services/assets";
 import { getAssetsForProject } from "~/services/assets.server";
@@ -74,9 +74,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 };
 
 export default function ProcessingPage() {
-  const { processingType, assets, processingRequests, projectId } = useLoaderData<typeof loader>();
-
-  const matches = useMatches();
+  const { processingType, assets, processingRequests } = useLoaderData<typeof loader>();
 
   return (
     <main className="grow grid grid-cols-[minmax(0,3fr)_minmax(0,9fr)_minmax(0,3fr)] bg-slate-50">
