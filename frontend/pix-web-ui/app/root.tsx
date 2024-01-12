@@ -11,6 +11,7 @@ import {
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
+import { Toaster } from "react-hot-toast";
 import { getSessionUserInfo } from "~/shared/session.server";
 import twStyles from "~/tailwind.css";
 
@@ -40,6 +41,7 @@ export default function App() {
         <Links />
       </head>
       <body>
+        <Toaster />
         <Outlet />
         <ScrollRestoration />
         <script dangerouslySetInnerHTML={{ __html: `window.ENV = ${JSON.stringify(data.ENV)}` }} />
