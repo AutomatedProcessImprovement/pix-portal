@@ -222,7 +222,16 @@ class KronosService:
     async def _send_email_notification(self, processing_request: ProcessingRequest, is_success: bool):
         email_notification_producer = EmailNotificationProducer(client_id="waiting_time_analysis_kronos")
         user = await self._user_service_client.get_user(user_id=UUID(processing_request.user_id))
-        user_email = str(user["email"])
+        try:
+            user_email = str(user["email"])
+        except KeyError:
+            logger.error(
+                f"Failed to send email notification: "
+                f"processing_request_id={processing_request.processing_request_id}, "
+                f"message=User email not found, "
+                f"user={user}"
+            )
+            return
         if is_success:
             # TODO: improve message bodies to add more details and links to output assets in all workers
             msg = EmailNotificationRequest(
