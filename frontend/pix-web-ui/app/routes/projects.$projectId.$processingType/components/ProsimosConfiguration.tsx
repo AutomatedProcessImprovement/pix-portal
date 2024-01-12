@@ -77,10 +77,6 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
     });
   }, [asset, user, methods]);
 
-  useEffect(() => {
-    console.log("formState.errors", methods.formState.errors);
-  }, [methods.formState.errors]);
-
   const onSubmit = useCallback(
     async (data: any) => {
       const newSimulationParameters = data as TProsimosConfiguration;

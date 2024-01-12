@@ -3,6 +3,7 @@ import type { MetaFunction } from "@remix-run/node";
 import { Form, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { FormErrors } from "~/components/FormErrors";
 import Header from "~/components/Header";
 import { Input } from "~/components/Input";
@@ -53,7 +54,14 @@ export default function SignUp() {
         last_name: data.lastName,
       });
       setNewUser(user);
-      window.location.replace("/login");
+      setIsLoading(false);
+      toast.success("Email verification link sent to your email", {
+        duration: 5000,
+        position: "bottom-left",
+      });
+      setTimeout(() => {
+        window.location.replace("/login");
+      }, 5000);
     } catch (error) {
       console.error(error);
       methods.setError("root", { message: "An error occurred while creating the user" });
@@ -82,15 +90,10 @@ export default function SignUp() {
                 <Input name="lastName" label="Last name" required={true} />
               </div>
               <div className="flex justify-center text-lg">
-                <button type="submit" className="w-2/3" disabled={isLoading}>
+                <button type="submit" className="w-2/3" disabled={isLoading || newUser}>
                   {isLoading ? "Creating..." : "Create"}
                 </button>
               </div>
-              {newUser && (
-                <p className="flex justify-center mt-8 bg-green-50 px-4 py-2 border border-green-700 rounded-lg text-green-900">
-                  User created successfully!
-                </p>
-              )}
               {methods.formState.errors.root && <FormErrors errors={methods.formState.errors} className="mt-8" />}
             </Form>
           </FormProvider>

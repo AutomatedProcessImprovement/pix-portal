@@ -46,11 +46,11 @@ export default function VerifyEmailPage() {
     if (ok) {
       setTimeout(() => {
         window.location.href = "/login";
-      }, 2000);
+      }, 3000);
     } else {
       setTimeout(() => {
         window.location.href = "/";
-      }, 2000);
+      }, 3000);
     }
   }, [ok]);
 

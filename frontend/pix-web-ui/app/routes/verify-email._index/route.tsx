@@ -1,7 +1,7 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, useLoaderData, useSearchParams } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { FormErrors } from "~/components/FormErrors";
@@ -45,18 +45,12 @@ export default function VerifyEmailPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
 
-  const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo");
-
   async function onSubmit(data: VerifyEmailSchema) {
     try {
       setIsLoading(true);
       const ok = await requestEmailVerification(data.email);
       if (ok) {
         setIsEmailSent(true);
-        setTimeout(() => {
-          window.location.href = `/login${redirectTo ? `?redirectTo=${redirectTo}` : ""}`;
-        }, 3000);
       } else {
         methods.setError("root", { message: "Sending verification email failed" });
       }

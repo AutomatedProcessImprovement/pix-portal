@@ -1,5 +1,7 @@
 import { Link } from "@remix-run/react";
 import { Suspense, useContext, useEffect, useState } from "react";
+import type { ToastOptions } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { UserContext } from "~/routes/contexts";
 import {
   ProcessingRequestStatus,
@@ -18,17 +20,27 @@ const terminalStatuses = [
 export function ProcessingRequestCard({ request }: { request: ProcessingRequest }) {
   // periodic fetch of the running requests to update the status
   const user = useContext(UserContext);
-  const [requestData, setRequestData] = useState<ProcessingRequest | null>(request);
+  const [request_, setRequest_] = useState<ProcessingRequest | null>(request);
   useEffect(() => {
     const inTerminalState = terminalStatuses.includes(request.status);
     if (!user?.token || !request || inTerminalState) return;
+    // set up polling for newly created or running processing requests
     const interval = setInterval(async () => {
-      const requestData = await getProcessingRequest(request.id, user.token!);
-      setRequestData(requestData);
-      if (terminalStatuses.includes(requestData.status)) clearInterval(interval);
+      // fetch the processing request
+      const requestUpdated = await getProcessingRequest(request.id, user.token!);
+      // update on change
+      if (request_ && requestUpdated.status !== request_.status) {
+        const toastMessage = `Processing request ${requestUpdated.id} ${requestUpdated.status}`;
+        const toastProps = { duration: 5000, position: "bottom-left" } as ToastOptions;
+        if (requestUpdated.status === ProcessingRequestStatus.FINISHED) toast.success(toastMessage, toastProps);
+        else toast(`Processing request ${requestUpdated.id} ${requestUpdated.status}`, toastProps);
+        setRequest_(requestUpdated);
+      }
+      // remove polling when done processing
+      if (terminalStatuses.includes(requestUpdated.status)) clearInterval(interval);
     }, 5000);
     return () => clearInterval(interval);
-  }, [request, user?.token]);
+  }, [request, request_, user?.token]);
 
   function getDuration(start: string, end: string) {
     const startDate = new Date(start);
@@ -42,8 +54,8 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
   }
 
   function formattedDuration() {
-    if (!requestData) return "";
-    return requestData.end_time ? formatDuration(getDuration(requestData.creation_time, requestData.end_time)) : "";
+    if (!request_) return "";
+    return request_.end_time ? formatDuration(getDuration(request_.creation_time, request_.end_time)) : "";
   }
 
   function bgColorByStatus(status: ProcessingRequestStatus) {
@@ -63,22 +75,22 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
     }
   }
 
-  if (!requestData) return <></>;
+  if (!request_) return <></>;
   return (
     <div
       className={`p-2 flex flex-col break-words tracking-normal text-sm text-slate-900 ${bgColorByStatus(
-        requestData.status
+        request_.status
       )}`}
     >
       <Suspense fallback={<div>Loading...</div>}>
-        <div>Started: {parseDate(requestData.creation_time)}</div>
+        <div>Started: {parseDate(request_.creation_time)}</div>
         <div>
-          Status: <span className="font-semibold">{requestData.status}</span>
+          Status: <span className="font-semibold">{request_.status}</span>
         </div>
         {formattedDuration() ? <div>Duration {formattedDuration()}</div> : <></>}
-        {requestData.type === ProcessingRequestType.WAITING_TIME_ANALYSIS_KRONOS &&
-          requestData.status === ProcessingRequestStatus.FINISHED && (
-            <Link to={`/kronos/results/${requestData.id}`} target="_blank" className="shrink w-fit">
+        {request_.type === ProcessingRequestType.WAITING_TIME_ANALYSIS_KRONOS &&
+          request_.status === ProcessingRequestStatus.FINISHED && (
+            <Link to={`/kronos/results/${request_.id}`} target="_blank" className="shrink w-fit">
               Open in Kronos
             </Link>
           )}

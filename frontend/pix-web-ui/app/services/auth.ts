@@ -36,7 +36,7 @@ export async function createUser({
   });
   if (!response.ok) throw new Error(response.statusText);
   const data = await response.json();
-  if ("message" in data) throw new Error(data.message);
+  if ("message" in data && data.message) throw new Error(data.message);
   return data as User;
 }
 
