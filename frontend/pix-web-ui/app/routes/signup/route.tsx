@@ -1,4 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
+import type { MetaFunction } from "@remix-run/node";
 import { Form, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -8,6 +9,22 @@ import { Input } from "~/components/Input";
 import { createUser } from "~/services/auth";
 import type { SignUpSchema } from "./schema";
 import { schema } from "./schema";
+
+export const meta: MetaFunction = ({ matches }) => {
+  const rootMeta = matches.find((match) => match.id === "root")?.meta as
+    | { title?: string; description?: string }[]
+    | undefined;
+  const title = rootMeta?.find((meta) => meta.title)?.title;
+  const description = rootMeta?.find((meta) => meta.description)?.description;
+
+  return [
+    { title: `Sign Up —— ${title}` },
+    {
+      name: "description",
+      content: description,
+    },
+  ];
+};
 
 export default function SignUp() {
   const [searchParams] = useSearchParams();

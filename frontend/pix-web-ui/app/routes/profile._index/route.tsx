@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useEffect, useState } from "react";
@@ -7,6 +7,22 @@ import { deleteUser } from "~/services/auth";
 import { getUserInfo } from "~/services/auth.server";
 import { requireLoggedInUser } from "~/shared/guards.server";
 import { UserContext } from "../contexts";
+
+export const meta: MetaFunction = ({ matches }) => {
+  const rootMeta = matches.find((match) => match.id === "root")?.meta as
+    | { title?: string; description?: string }[]
+    | undefined;
+  const title = rootMeta?.find((meta) => meta.title)?.title;
+  const description = rootMeta?.find((meta) => meta.description)?.description;
+
+  return [
+    { title: `Profile —— ${title}` },
+    {
+      name: "description",
+      content: description,
+    },
+  ];
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireLoggedInUser(request);

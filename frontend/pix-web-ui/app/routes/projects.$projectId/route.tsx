@@ -1,8 +1,9 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Outlet, useLoaderData, useMatches } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import Header from "~/components/Header";
+import { Project } from "~/services/projects";
 import { getProject } from "~/services/projects.server";
 import { handleNewAssets } from "~/shared/file_upload_handler.server";
 import { requireLoggedInUser, requireProjectIdInParams } from "~/shared/guards.server";
@@ -13,6 +14,24 @@ import { ProcessingCard } from "./ProcessingCard";
 import { ProcessingCardMini } from "./ProcessingCardMini";
 import ProjectNav from "./ProjectNav";
 import { ProjectContext } from "./contexts";
+
+export const meta: MetaFunction = ({ matches }) => {
+  const rootMeta = matches.find((match) => match.id === "root")?.meta as
+    | { title?: string; description?: string }[]
+    | undefined;
+  const title = rootMeta?.find((meta) => meta.title)?.title;
+  const description = rootMeta?.find((meta) => meta.description)?.description;
+
+  const { project } = matches.find((match) => match.id === "routes/projects.$projectId")?.data as { project: Project };
+
+  return [
+    { title: `${project.name} —— ${title}` },
+    {
+      name: "description",
+      content: description,
+    },
+  ];
+};
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const projectId = params.projectId;

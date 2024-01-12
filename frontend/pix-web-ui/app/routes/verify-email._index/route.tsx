@@ -1,5 +1,6 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Form, useLoaderData, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -9,6 +10,22 @@ import { requestEmailVerification } from "~/services/auth";
 import { optionalLoggedInUser } from "~/shared/guards.server";
 import type { VerifyEmailSchema } from "./schema";
 import { schema } from "./schema";
+
+export const meta: MetaFunction = ({ matches }) => {
+  const rootMeta = matches.find((match) => match.id === "root")?.meta as
+    | { title?: string; description?: string }[]
+    | undefined;
+  const title = rootMeta?.find((meta) => meta.title)?.title;
+  const description = rootMeta?.find((meta) => meta.description)?.description;
+
+  return [
+    { title: `Email Verification —— ${title}` },
+    {
+      name: "description",
+      content: description,
+    },
+  ];
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await optionalLoggedInUser(request);

@@ -1,20 +1,23 @@
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
-  isRouteErrorResponse,
   Links,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
 import { getSessionUserInfo } from "~/shared/session.server";
 import twStyles from "~/tailwind.css";
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: twStyles }];
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: twStyles },
+  { rel: "icon", href: "/favicon.ico" },
+];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getSessionUserInfo(request);

@@ -39,3 +39,4 @@ dist-ssr
 ansible/secrets*
 **/*.env.json
 manual_tests
+**/*.pxd

@@ -9,7 +9,21 @@ import ToastMessage from "./ToastMessage";
 import heroImage from "./pedro-lastra-Nyvq2juw4_o-unsplash.jpg";
 
 export const meta: MetaFunction = () => {
-  return [{ title: "PIX" }, { name: "description", content: "Process Improvement Explorer" }];
+  const title = "The Process Improvement Explorer";
+  const description =
+    "A new generation of process improvement tools researched, developed, and delivered by University of Tartu";
+  return [
+    { title: title },
+    { name: "description", content: description },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: "https://pix.cloud.ut.ee" },
+    {
+      property: "og:image",
+      content: "https://pix.cloud.ut.ee/build/_assets/pedro-lastra-Nyvq2juw4_o-unsplash-HQMIWBCD.jpg",
+    },
+  ];
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

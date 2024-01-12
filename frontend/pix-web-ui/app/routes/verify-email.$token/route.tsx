@@ -1,9 +1,25 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useEffect } from "react";
 import { verifyEmail } from "~/services/auth.server";
 import { logout } from "~/shared/session.server";
+
+export const meta: MetaFunction = ({ matches }) => {
+  const rootMeta = matches.find((match) => match.id === "root")?.meta as
+    | { title?: string; description?: string }[]
+    | undefined;
+  const title = rootMeta?.find((meta) => meta.title)?.title;
+  const description = rootMeta?.find((meta) => meta.description)?.description;
+
+  return [
+    { title: `Email Verification —— ${title}` },
+    {
+      name: "description",
+      content: description,
+    },
+  ];
+};
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const token = params.token;

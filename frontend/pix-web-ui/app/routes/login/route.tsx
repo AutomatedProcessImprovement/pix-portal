@@ -1,5 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useSearchParams } from "@remix-run/react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -12,6 +12,22 @@ import { handleThrow } from "~/shared/utils";
 import type { LoginSchema } from "./schema";
 import { schema } from "./schema";
 import { safeRedirect } from "./utils";
+
+export const meta: MetaFunction = ({ matches }) => {
+  const rootMeta = matches.find((match) => match.id === "root")?.meta as
+    | { title?: string; description?: string }[]
+    | undefined;
+  const title = rootMeta?.find((meta) => meta.title)?.title;
+  const description = rootMeta?.find((meta) => meta.description)?.description;
+
+  return [
+    { title: `Login —— ${title}` },
+    {
+      name: "description",
+      content: description,
+    },
+  ];
+};
 
 export async function loader({ request }: LoaderFunctionArgs) {
   // TODO: need a better way to identify a valid user with non-expired token
