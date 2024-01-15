@@ -18,7 +18,7 @@ const terminalStatuses = [
 ];
 
 export function ProcessingRequestCard({ request }: { request: ProcessingRequest }) {
-  // periodic fetch of the running requests to update the status
+  // polling of running requests to update the status
   const user = useContext(UserContext);
   const [request_, setRequest_] = useState<ProcessingRequest | null>(request);
   useEffect(() => {
@@ -30,10 +30,7 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
       const requestUpdated = await getProcessingRequest(request.id, user.token!);
       // update on change
       if (request_ && requestUpdated.status !== request_.status) {
-        const toastMessage = `Processing request ${requestUpdated.id} ${requestUpdated.status}`;
-        const toastProps = { duration: 5000, position: "bottom-left" } as ToastOptions;
-        if (requestUpdated.status === ProcessingRequestStatus.FINISHED) toast.success(toastMessage, toastProps);
-        else toast(`Processing request ${requestUpdated.id} ${requestUpdated.status}`, toastProps);
+        showToast(requestUpdated);
         setRequest_(requestUpdated);
       }
       // remove polling when done processing
@@ -41,6 +38,14 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
     }, 5000);
     return () => clearInterval(interval);
   }, [request, request_, user?.token]);
+
+  function showToast(requestUpdated: ProcessingRequest) {
+    const toastMessage = `Processing request ${requestUpdated.id} is ${requestUpdated.status}`;
+    const toastProps = { duration: 10000, position: "bottom-left" } as ToastOptions;
+    if (requestUpdated.status === ProcessingRequestStatus.FINISHED) toast.success(toastMessage, toastProps);
+    else if (requestUpdated.status === ProcessingRequestStatus.FAILED) toast.error(toastMessage, toastProps);
+    else toast(toastMessage, { ...toastProps, icon: "👌" });
+  }
 
   function getDuration(start: string, end: string) {
     const startDate = new Date(start);

@@ -68,9 +68,9 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const selectedInputAssetsIdsString = formData.get("selectedInputAssetsIds") as string;
   const selectedInputAssetsIds = selectedInputAssetsIdsString.split(",");
   const requestType = processingTypeToProcessingRequestType(processingType as ProcessingType);
-  const shouldNotify = true;
+  const shouldNotify = formData.get("shouldNotify") === "on";
   await createProcessingRequest(requestType, projectId, selectedInputAssetsIds, shouldNotify, user.token!);
-  return null;
+  return { shouldResetSelectedAssets: true };
 };
 
 export default function ProcessingPage() {

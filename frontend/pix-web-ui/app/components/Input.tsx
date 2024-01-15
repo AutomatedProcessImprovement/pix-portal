@@ -7,6 +7,7 @@ export function Input({
   label,
   required,
   noLabel,
+  inlineLabel,
   noError,
   noWrapper,
   pure,
@@ -16,6 +17,7 @@ export function Input({
   label?: string;
   required?: boolean;
   noLabel?: boolean;
+  inlineLabel?: boolean;
   noError?: boolean;
   noWrapper?: boolean;
   pure?: boolean;
@@ -61,7 +63,13 @@ export function Input({
     return innerContent;
   } else {
     return (
-      <div className={`flex flex-col space-y-1 ${!pure && rest.className ? rest.className : ""}`}>{innerContent}</div>
+      <div
+        className={`flex ${inlineLabel ? "flex-row" : "flex-col"} space-y-1 ${
+          !pure && rest.className ? rest.className : ""
+        }`}
+      >
+        {innerContent}
+      </div>
     );
   }
 }

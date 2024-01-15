@@ -1,10 +1,20 @@
+import { yupResolver } from "@hookform/resolvers/yup";
 import { Form, useNavigation } from "@remix-run/react";
 import { useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import * as yup from "yup";
+import { Input } from "~/components/Input";
 import type { Asset } from "~/services/assets";
 import { AssetType } from "~/services/assets";
 import { AssetCard } from "./AssetCard";
 import { ProcessingAppSection } from "./ProcessingAppSection";
+import { useFormRef } from "./useFormRef";
 import { useSelectedInputAsset } from "./useSelectedInputAsset";
+
+const schema = yup.object().shape({
+  shouldNotify: yup.boolean().default(false),
+});
 
 export default function SetupKronos() {
   // Kronos requires one event log
@@ -13,9 +23,17 @@ export default function SetupKronos() {
   const [selectedInputAssetsIdsRef, setSelectedInputAssetsIdsRef] = useState<string[]>([]);
   async function handleClick(_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     setSelectedInputAssetsIdsRef([eventLog!.id]);
+    toast("Submitting processing request...", { icon: "📡", duration: 5000, position: "bottom-left" });
   }
 
   const navigation = useNavigation();
+
+  const methods = useForm({
+    resolver: yupResolver(schema),
+    shouldUseNativeValidation: true,
+  });
+
+  const formRef = useFormRef();
 
   return (
     <ProcessingAppSection heading="Waiting Time Analysis Configuration">
@@ -25,17 +43,26 @@ export default function SetupKronos() {
         </p>
       )}
       {eventLog && (
-        <Form method="post" className="flex flex-col items-center w-full my-4">
-          <input type="hidden" name="selectedInputAssetsIds" value={selectedInputAssetsIdsRef.join(",")} />
-          <KronosConfiguration eventLog={eventLog} />
-          <button
-            className="mt-8 mb-6 w-2/3 xl:w-1/3 text-lg"
-            type="submit"
-            disabled={eventLog === null || navigation.state === "submitting"}
-            onClick={handleClick}
-          >
-            Start analysis
-          </button>
+        <Form method="post" className="flex flex-col items-center w-full my-4" ref={formRef}>
+          <FormProvider {...methods}>
+            <input type="hidden" name="selectedInputAssetsIds" value={selectedInputAssetsIdsRef.join(",")} />
+            <KronosConfiguration eventLog={eventLog} />
+            <Input
+              name="shouldNotify"
+              label="Notify by email after completion?"
+              inlineLabel={true}
+              type="checkbox"
+              className="space-x-2 mt-2"
+            />
+            <button
+              className="mt-8 mb-6 w-2/3 xl:w-1/3 text-lg"
+              type="submit"
+              disabled={eventLog === null || navigation.state === "submitting"}
+              onClick={handleClick}
+            >
+              Start analysis
+            </button>
+          </FormProvider>
         </Form>
       )}
     </ProcessingAppSection>
