@@ -7,7 +7,7 @@ export interface HeaderProps {
 
 export default function Header({ userEmail }: HeaderProps) {
   return (
-    <header className="flex items-center justify-between px-6 py-2 bg-white border-b border-gray-200 min-h-14">
+    <header className="flex flex-col space-y-2 md:flex-row md:items-center md:justify-between md:space-y-0 px-6 py-2 bg-white border-b border-gray-200">
       <GlobalNav />
       <UserNav userEmail={userEmail} />
     </header>

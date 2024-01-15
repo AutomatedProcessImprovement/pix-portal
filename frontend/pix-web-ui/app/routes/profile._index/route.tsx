@@ -2,6 +2,7 @@ import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useEffect, useState } from "react";
+import { Footer } from "~/components/Footer";
 import Header from "~/components/Header";
 import { deleteUser } from "~/services/auth";
 import { getUserInfo } from "~/services/auth.server";
@@ -54,23 +55,28 @@ export default function ProfilePage() {
   }, [beenDeleted]);
 
   return (
-    <UserContext.Provider value={userNonCached}>
-      <Header userEmail={userNonCached.email} />
-      <main className="p-6 flex flex-col space-y-4">
-        <section className="flex flex-col">
-          <h1 className="text-2xl font-semibold mb-4">User Information</h1>
-          <UserTable user={userNonCached} />
-          <div className="flex space-x-2 mt-4">
-            {!userNonCached.is_verified && (
-              <button onClick={() => (window.location.href = `/verify-email`)}>Verify Email</button>
-            )}
-            <button onClick={handleDeleteAccount} className="bg-red-600 hover:bg-red-500">
-              Delete Account
-            </button>
-          </div>
-        </section>
-      </main>
-    </UserContext.Provider>
+    <div className="flex flex-col h-screen justify-between">
+      <UserContext.Provider value={userNonCached}>
+        <div>
+          <Header userEmail={userNonCached.email} />
+          <main className="p-6 flex flex-col space-y-4">
+            <section className="flex flex-col">
+              <h1 className="text-2xl font-semibold mb-4">User Information</h1>
+              <UserTable user={userNonCached} />
+              <div className="flex space-x-2 mt-4">
+                {!userNonCached.is_verified && (
+                  <button onClick={() => (window.location.href = `/verify-email`)}>Verify Email</button>
+                )}
+                <button onClick={handleDeleteAccount} className="bg-red-600 hover:bg-red-500">
+                  Delete Account
+                </button>
+              </div>
+            </section>
+          </main>
+        </div>
+      </UserContext.Provider>
+      <Footer />
+    </div>
   );
 }
 

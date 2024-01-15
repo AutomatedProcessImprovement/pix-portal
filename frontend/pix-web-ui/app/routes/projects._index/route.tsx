@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { Footer } from "~/components/Footer";
 import Header from "~/components/Header";
 import type { Project } from "~/services/projects";
 import { listProjectsForUser } from "~/services/projects.server";
@@ -44,18 +45,21 @@ export default function ProjectsPage() {
   const { user, projects } = useLoaderData<typeof loader>();
 
   return (
-    <>
+    <div className="flex flex-col h-screen justify-between">
       <UserContext.Provider value={user}>
-        <Header userEmail={user.email} />
-        <section className="p-6 flex flex-col space-y-4">
-          <div className="flex justify-center">
-            <ul className="flex-grow grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-6">
-              {projects && projects.map((project: Project) => <ProjectCard key={project.id} project={project} />)}
-              <NewProjectCard />
-            </ul>
-          </div>
-        </section>
+        <div>
+          <Header userEmail={user.email} />
+          <section className="p-6 flex flex-col space-y-4">
+            <div className="flex justify-center">
+              <ul className="flex-grow grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-6">
+                {projects && projects.map((project: Project) => <ProjectCard key={project.id} project={project} />)}
+                <NewProjectCard />
+              </ul>
+            </div>
+          </section>
+        </div>
+        <Footer />
       </UserContext.Provider>
-    </>
+    </div>
   );
 }

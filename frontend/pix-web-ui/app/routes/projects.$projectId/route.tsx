@@ -2,8 +2,9 @@ import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remi
 import { json, redirect } from "@remix-run/node";
 import { Outlet, useLoaderData, useMatches } from "@remix-run/react";
 import { useEffect, useState } from "react";
+import { Footer } from "~/components/Footer";
 import Header from "~/components/Header";
-import { Project } from "~/services/projects";
+import type { Project } from "~/services/projects";
 import { getProject } from "~/services/projects.server";
 import { handleNewAssets } from "~/shared/file_upload_handler.server";
 import { requireLoggedInUser, requireProjectIdInParams } from "~/shared/guards.server";
@@ -68,28 +69,31 @@ export default function ProjectPage() {
   }, [matches]);
 
   return (
-    <div className="h-full flex flex-col">
-      <Header userEmail={user.email} />
-      <UserContext.Provider value={user}>
-        <ProjectContext.Provider value={project}>
-          <ProjectNav project={project} />
-          {!isProcessingPageActive && (
-            <div className="p-6 grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 gap-6">
-              {ProcessingTypes.map((processingType) => (
-                <ProcessingCard key={processingType} projectId={project.id} processingType={processingType} />
-              ))}
-            </div>
-          )}
-          {isProcessingPageActive && (
-            <div className="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2">
-              {ProcessingTypes.map((processingType) => (
-                <ProcessingCardMini key={processingType} projectId={project.id} processingType={processingType} />
-              ))}
-            </div>
-          )}
-          <Outlet context={{ user, project }} />
-        </ProjectContext.Provider>
-      </UserContext.Provider>
+    <div className="h-full flex flex-col justify-between">
+      <div className="flex flex-col h-full">
+        <Header userEmail={user.email} />
+        <UserContext.Provider value={user}>
+          <ProjectContext.Provider value={project}>
+            <ProjectNav project={project} />
+            {!isProcessingPageActive && (
+              <div className="p-6 grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 gap-6">
+                {ProcessingTypes.map((processingType) => (
+                  <ProcessingCard key={processingType} projectId={project.id} processingType={processingType} />
+                ))}
+              </div>
+            )}
+            {isProcessingPageActive && (
+              <div className="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2">
+                {ProcessingTypes.map((processingType) => (
+                  <ProcessingCardMini key={processingType} projectId={project.id} processingType={processingType} />
+                ))}
+              </div>
+            )}
+            <Outlet context={{ user, project }} />
+          </ProjectContext.Provider>
+        </UserContext.Provider>
+      </div>
+      <Footer />
     </div>
   );
 }

@@ -29,34 +29,36 @@ export default function ProjectNav({ project }: { project?: Project }) {
 
   if (!project) return null;
   return (
-    <nav className="flex flex-wrap items-center px-6 bg-white border-b border-gray-200 min-h-14 space-x-2">
-      <Link to={`/projects`} className="border-none">
-        <HomeIcon className="h-5 w-auto text-blue-500 hover:text-blue-600" />
-      </Link>
-      <ChevronRightIcon className="h-5 w-auto text-slate-400" />
-      <div className="flex flex-auto items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <ProjectsSelect />
-          <div className="flex flex-wrap items-center space-x-3">
-            <NewProjectDialog>
-              <span className="cursor-pointer transition ease-in-out duration-200 text-blue-500 hover:text-blue-800 border-b border-blue-500 hover:border-blue-800">
-                New
+    <nav className="flex flex-wrap items-center px-6 bg-white border-b border-gray-200 space-x-2">
+      <div className="flex flex-col md:flex-row flex-auto md:items-center justify-between">
+        <div className="flex items-center min-h-14 min-w-fit">
+          <Link to={`/projects`} className="border-none">
+            <HomeIcon className="h-5 w-auto text-blue-500 hover:text-blue-600" />
+          </Link>
+          <ChevronRightIcon className="h-5 w-auto text-slate-400" />
+          <div className="flex items-center space-x-4">
+            <ProjectsSelect />
+            <div className="flex flex-wrap items-center space-x-3 min-w-fit">
+              <NewProjectDialog>
+                <span className="cursor-pointer transition ease-in-out duration-200 text-blue-500 hover:text-blue-800 border-b border-blue-500 hover:border-blue-800">
+                  New
+                </span>
+              </NewProjectDialog>
+              <EditProjectDialog project={project}>
+                <span className="cursor-pointer transition ease-in-out duration-200 text-blue-500 hover:text-blue-800 border-b border-blue-500 hover:border-blue-800">
+                  Edit
+                </span>
+              </EditProjectDialog>
+              <span
+                onClick={handleDelete}
+                className="cursor-pointer transition ease-in-out duration-200 text-blue-500 hover:text-blue-800 border-b border-blue-500 hover:border-blue-800"
+              >
+                Delete
               </span>
-            </NewProjectDialog>
-            <EditProjectDialog project={project}>
-              <span className="cursor-pointer transition ease-in-out duration-200 text-blue-500 hover:text-blue-800 border-b border-blue-500 hover:border-blue-800">
-                Edit
-              </span>
-            </EditProjectDialog>
-            <span
-              onClick={handleDelete}
-              className="cursor-pointer transition ease-in-out duration-200 text-blue-500 hover:text-blue-800 border-b border-blue-500 hover:border-blue-800"
-            >
-              Delete
-            </span>
+            </div>
           </div>
         </div>
-        <UploadAssetDialog trigger={<UploadAssetButton />} />
+        <UploadAssetDialog trigger={<UploadAssetButton className="my-2 mb-4 md:mb-2" />} />
       </div>
     </nav>
   );
@@ -86,7 +88,7 @@ function ProjectsSelect() {
         if (!projectLabeled) return;
         if (selectedProject?.value.id === projectLabeled?.value.id) return;
         setSelectedProject(projectLabeled);
-        const href = `/projects/${selectedProject?.value?.id}/${params.processingType}` ?? "/projects";
+        const href = `/projects/${selectedProject?.value?.id}/${params.processingType || "discovery"}` ?? "/projects";
         window.location.href = href;
       }}
       options={projects}

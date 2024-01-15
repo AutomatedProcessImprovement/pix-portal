@@ -4,6 +4,7 @@ import { Form, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { Footer } from "~/components/Footer";
 import { FormErrors } from "~/components/FormErrors";
 import Header from "~/components/Header";
 import { Input } from "~/components/Input";
@@ -78,7 +79,7 @@ export default function SignUp() {
           <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Create an account</h2>
         </div>
 
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm text-sm">
+        <div className="px-6 sm:mx-auto w-screen sm:w-full sm:max-w-sm text-sm">
           <FormProvider {...methods}>
             <Form className="" onSubmit={methods.handleSubmit(onSubmit)}>
               <input type="hidden" name="redirectTo" value={redirectTo} />
@@ -90,7 +91,7 @@ export default function SignUp() {
                 <Input name="lastName" label="Last name" required={true} />
               </div>
               <div className="flex justify-center text-lg">
-                <button type="submit" className="w-2/3" disabled={isLoading || newUser}>
+                <button type="submit" className="w-full sm:w-2/3" disabled={isLoading || newUser}>
                   {isLoading ? "Creating..." : "Create"}
                 </button>
               </div>
@@ -99,6 +100,7 @@ export default function SignUp() {
           </FormProvider>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

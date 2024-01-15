@@ -3,6 +3,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remi
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useSearchParams } from "@remix-run/react";
 import { FormProvider, useForm } from "react-hook-form";
+import { Footer } from "~/components/Footer";
 import { FormErrors } from "~/components/FormErrors";
 import Header from "~/components/Header";
 import { Input } from "~/components/Input";
@@ -81,7 +82,7 @@ export default function LoginPage() {
           </h2>
         </div>
 
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm text-sm">
+        <div className="px-6 sm:mx-auto w-screen sm:w-full sm:max-w-sm text-sm">
           <FormProvider {...methods}>
             <Form method="post" onSubmit={methods.handleSubmit(onSubmit)}>
               <input type="hidden" name="redirectTo" value={redirectTo} />
@@ -96,7 +97,7 @@ export default function LoginPage() {
                 />
               </div>
               <div className="flex justify-center text-lg">
-                <button type="submit" className="w-2/3">
+                <button type="submit" className="w-full sm:w-2/3">
                   Log in
                 </button>
               </div>
@@ -112,6 +113,7 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

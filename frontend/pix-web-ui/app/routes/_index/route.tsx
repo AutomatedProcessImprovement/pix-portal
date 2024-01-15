@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
+import { Footer } from "~/components/Footer";
 import Header from "~/components/Header";
 import type { FlashMessage as FlashMessageType } from "~/shared/flash_message";
 import { optionalLoggedInUser } from "~/shared/guards.server";
@@ -50,26 +51,29 @@ export default function Index() {
       {flashMessage && <ToastMessage message={flashMessage} />}
       <Header userEmail={user?.email} />
       <section className="flex flex-1 flex-col items-center justify-center">
-        <Link to="/login" title="To Log In page">
-          <img src={heroImage} alt="City landscapte" className="max-w-screen-lg" />
-        </Link>
-        <p className="text-xs mt-2 text-slate-400">
-          Photo by{" "}
-          <a
-            className="text-slate-400 border-slate-400"
-            href="https://unsplash.com/@peterlaster?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
-          >
-            Pedro Lastra
-          </a>{" "}
-          on{" "}
-          <a
-            className="text-slate-400 border-slate-400"
-            href="https://unsplash.com/photos/white-and-brown-city-buildings-during-daytime-Nyvq2juw4_o?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
-          >
-            Unsplash
-          </a>
-        </p>
+        <div className=" md:p-16 lg:32 flex flex-col items-center">
+          <Link to="/login" title="To Log In page" className="w-screen md:w-2/3">
+            <img src={heroImage} alt="City landscapte" className="" />
+          </Link>
+          <p className="text-xs mt-2 text-slate-400">
+            Photo by{" "}
+            <a
+              className="text-slate-400 border-slate-400"
+              href="https://unsplash.com/@peterlaster?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
+            >
+              Pedro Lastra
+            </a>{" "}
+            on{" "}
+            <a
+              className="text-slate-400 border-slate-400"
+              href="https://unsplash.com/photos/white-and-brown-city-buildings-during-daytime-Nyvq2juw4_o?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
+            >
+              Unsplash
+            </a>
+          </p>
+        </div>
       </section>
+      <Footer />
     </div>
   );
 }

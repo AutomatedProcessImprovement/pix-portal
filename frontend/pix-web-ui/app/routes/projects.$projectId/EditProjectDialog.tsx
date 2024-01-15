@@ -61,7 +61,7 @@ export function EditProjectDialog({ project, children }: { project: Project; chi
         <div className="-z-0 fixed inset-0 bg-black/30" aria-hidden="true" />
 
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-          <Dialog.Panel className="z-50 mx-auto max-w-screen-xl w-1/3 rounded-2xl bg-white p-6 shadow-2xl">
+          <Dialog.Panel className="z-50 mx-auto w-screen max-w-screen-xl sm:w-2/3 md:w-1/3 rounded-2xl bg-white p-6 shadow-2xl">
             <h3 className="text-2xl font-semibold mb-8">Update project</h3>
             <FormProvider {...methods}>
               <Form onSubmit={methods.handleSubmit(onSubmit)} className="flex flex-col">

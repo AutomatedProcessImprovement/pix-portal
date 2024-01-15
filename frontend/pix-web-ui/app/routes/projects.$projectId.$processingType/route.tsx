@@ -77,7 +77,7 @@ export default function ProcessingPage() {
   const { processingType, assets, processingRequests } = useLoaderData<typeof loader>();
 
   return (
-    <main className="grow grid grid-cols-[minmax(0,3fr)_minmax(0,9fr)_minmax(0,3fr)] bg-slate-50">
+    <main className="grow flex flex-col space-y-16 md:space-y-0 md:grid md:grid-cols-[minmax(0,3fr)_minmax(0,9fr)_minmax(0,3fr)] bg-slate-50">
       <ProcessingApp assets={assets} processingType={processingType} processingRequests={processingRequests} />
     </main>
   );
