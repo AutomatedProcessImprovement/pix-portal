@@ -1,4 +1,4 @@
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
+import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Links,
@@ -19,6 +19,24 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: twStyles },
   { rel: "icon", href: "/favicon.ico" },
 ];
+
+export const meta: MetaFunction = () => {
+  const title = "The Process Improvement Explorer";
+  const description =
+    "A new generation of process improvement tools researched, developed, and delivered by University of Tartu";
+  return [
+    { title: title },
+    { name: "description", content: description },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: "https://pix.cloud.ut.ee" },
+    {
+      property: "og:image",
+      content: "https://pix.cloud.ut.ee/build/_assets/pedro-lastra-Nyvq2juw4_o-unsplash-HQMIWBCD.jpg",
+    },
+  ];
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getSessionUserInfo(request);
