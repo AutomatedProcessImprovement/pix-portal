@@ -88,7 +88,7 @@ services:
     image: otel/opentelemetry-collector-contrib:latest
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
-      - ./backend/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
       - "4317:4317"
       - "8888:8888" # Prometheus metrics exposed by the collector
@@ -114,18 +114,20 @@ services:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
-      - ./backend/loki-local-config.yaml:/etc/loki/local-config.yaml
+      - ./loki-local-config.yaml:/etc/loki/local-config.yaml
     networks:
       - backend
     restart: on-failure
   grafana:
     image: grafana/grafana:latest
     environment:
-      - "GF_AUTH_DISABLE_LOGIN_FORM=true"
-      - "GF_AUTH_ANONYMOUS_ENABLED=true"
-      - "GF_AUTH_ANONYMOUS_ORG_ROLE=Admin"
-      - "GF_SERVER_ROOT_URL=http://localhost:9999/admin/grafana/"
-      - "GF_SERVER_SERVE_FROM_SUB_PATH=true"
+      GF_SERVER_ROOT_URL: http://localhost:9999/admin/grafana/
+      GF_SERVER_SERVE_FROM_SUB_PATH: true
+      GF_ANALYTICS_ENABLED: false
+      GF_ANALYTICS_REPORTING_ENABLED: false
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_EMAIL: pix.toolset@gmail.com
     ports:
       - "3000:3000"
     depends_on:
@@ -145,9 +147,22 @@ services:
           - name: Prometheus
             type: prometheus
             access: proxy
-            url: http://prometheus:9090
+            url: http://prometheus:9090/admin/prometheus
+        EOF
+        mkdir -p /etc/grafana/provisioning/dashboards
+        cat <<EOF > /etc/grafana/provisioning/dashboards/dashboards.yaml
+        apiVersion: 1
+        providers:
+          - name: 'default'
+            orgId: 1
+            folder: ''
+            type: file
+            options:
+              path: /etc/grafana/default_dashboard.json
         EOF
         /run.sh
+    volumes:
+      - ./grafana-default-dashboard.json:/etc/grafana/default_dashboard.json
     networks:
       - backend
     restart: on-failure
