@@ -69,8 +69,8 @@ export default function ProjectPage() {
   }, [matches]);
 
   return (
-    <div className="h-full flex flex-col justify-between">
-      <div className="flex flex-col h-full">
+    <div className="min-h-full flex flex-col justify-between">
+      <div className="flex grow flex-col min-h-full">
         <Header userEmail={user.email} />
         <UserContext.Provider value={user}>
           <ProjectContext.Provider value={project}>
