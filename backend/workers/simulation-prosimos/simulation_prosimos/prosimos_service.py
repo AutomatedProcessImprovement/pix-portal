@@ -1,5 +1,7 @@
 import json
 import logging
+import stat
+import statistics
 import traceback
 from collections import namedtuple
 from datetime import datetime, timezone
@@ -105,9 +107,13 @@ class ProsimosService:
 
             # run Prosimos, it can take time
             output_path = self._prosimos_results_base_dir / f"{processing_request.processing_request_id}.csv"
+            statistics_path = (
+                self._prosimos_results_base_dir / f"{processing_request.processing_request_id}_statistics.csv"
+            )
             self._run_prosimos(
                 bpmn_path=bpmn_file.path,
                 simulation_model_path=prosimos_json_file.path,
+                statistics_path=statistics_path,
                 output_path=output_path,
                 configuration=config,
             )
@@ -119,8 +125,11 @@ class ProsimosService:
                 type=FileType.EVENT_LOG_COLUMN_MAPPING_JSON,
                 path=self._default_prosimos_event_log_column_mapping_file_path,
             )
+            statistics_file = File_(
+                name=statistics_path.name, type=FileType.STATISTICS_PROSIMOS_CSV, path=statistics_path
+            )
             synthetic_event_log_asset_id = await self._asset_service_client.create_asset(
-                files=[synthetic_event_log_file, default_prosimos_column_mapping_file],
+                files=[synthetic_event_log_file, default_prosimos_column_mapping_file, statistics_file],
                 asset_name=synthetic_event_log_file.name,
                 asset_type=AssetType.EVENT_LOG,
                 project_id=processing_request.project_id,
@@ -205,6 +214,7 @@ class ProsimosService:
     def _run_prosimos(
         bpmn_path: Path,
         simulation_model_path: Path,
+        statistics_path: Path,
         output_path: Path,
         configuration: ProsimosConfiguration,
     ):
@@ -213,6 +223,7 @@ class ProsimosService:
         run_simulation(
             bpmn_path=bpmn_path,
             json_path=simulation_model_path,
+            stat_out_path=statistics_path,
             total_cases=configuration.total_cases,
             log_out_path=output_path,
             starting_at=str(configuration.starting_at),

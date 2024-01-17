@@ -55,3 +55,14 @@ Authorization: Bearer {{token}}
 
 GET http://localhost:8000/projects/?user_id=85f310ce-7404-4e36-93a7-52f87b99b96e
 Authorization: Bearer {{token}}
+
+
+### Get assets
+
+GET http://localhost:8000/assets/cba8a5e0-baa1-40b0-a946-6cf534a97762?lazy=false
+Authorization: Bearer {{token}}
+
+### Get processing request
+
+GET http://localhost:8000/processing-requests/abe4e895-3a8c-4117-91d9-cda3b210c174/output-assets
+Authorization: Bearer {{token}}

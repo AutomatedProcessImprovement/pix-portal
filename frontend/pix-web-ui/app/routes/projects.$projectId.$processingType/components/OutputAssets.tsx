@@ -1,6 +1,7 @@
+import { Link } from "@remix-run/react";
 import { useContext } from "react";
 import { UserContext } from "~/routes/contexts";
-import type { ProcessingRequest } from "~/services/processing_requests";
+import { ProcessingRequestStatus, ProcessingRequestType, type ProcessingRequest } from "~/services/processing_requests";
 import { AssetCardAsync } from "./AssetCardAsync";
 import { ProcessingAppSection } from "./ProcessingAppSection";
 import { ProcessingRequestCard } from "./ProcessingRequestCard";
@@ -24,6 +25,12 @@ export default function OutputAssets({ processingRequests }: { processingRequest
                 request.output_assets_ids.map((assetId) => (
                   <AssetCardAsync key={assetId} assetId={assetId} user={user} />
                 ))}
+              {request.type === ProcessingRequestType.SIMULATION_PROSIMOS &&
+                request.status === ProcessingRequestStatus.FINISHED && (
+                  <Link to={`/prosimos/results/${request.id}`} target="_blank" className="shrink w-fit mx-3 mb-3">
+                    Show simulation statistics
+                  </Link>
+                )}
             </div>
           ))}
         </div>

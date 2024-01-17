@@ -5,14 +5,15 @@ from collections import namedtuple
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Union, Any
+from typing import Any, Optional, Union
 from urllib.parse import urljoin
 from uuid import UUID
 
 import httpx
+
 from pix_portal_lib.utils import get_env
 
-from .file import FileServiceClient, File, FileType
+from .file import File, FileServiceClient, FileType
 from .self_authenticating_client import SelfAuthenticatingClient
 
 logger = logging.getLogger()
@@ -198,7 +199,7 @@ class AssetServiceClient(SelfAuthenticatingClient):
 
     async def _validate_files(self, asset_type: AssetType, files: list[File_]):
         if asset_type == AssetType.EVENT_LOG:
-            self._files_must_have_length(files, 2)
+            self._files_must_have_at_least_length(files, 2)
             self._valid_file_types_for_event_log(files)
         elif asset_type == AssetType.PROCESS_MODEL:
             self._files_must_have_length(files, 1)
@@ -217,6 +218,11 @@ class AssetServiceClient(SelfAuthenticatingClient):
     def _files_must_have_length(files: list[File_], length: int):
         if len(files) != length:
             raise ValueError(f"Asset must have exactly {length} files")
+
+    @staticmethod
+    def _files_must_have_at_least_length(files: list[File_], length: int):
+        if len(files) < length:
+            raise ValueError(f"Asset must have at least {length} files")
 
     @staticmethod
     def _files_must_have_types(files: list[File_], types: list[FileType]):

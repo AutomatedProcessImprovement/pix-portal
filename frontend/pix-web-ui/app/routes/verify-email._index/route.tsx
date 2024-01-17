@@ -84,7 +84,7 @@ export default function VerifyEmailPage() {
       )}
       {isEmailSent && (
         <div className="m-8 text-center">
-          <p className="text-2xl">
+          <p className="text-3xl">
             <span className="text-blue-600">Verification email has been sent!</span>
           </p>
           <p className="text-base mt-2">Please check your inbox and click on the link to verify your email address.</p>

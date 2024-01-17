@@ -36,3 +36,13 @@ export async function getAssetsForProject(projectId: string, token: string): Pro
   });
   return response.data as Asset[];
 }
+
+export async function getAsset(assetId: string, lazy: boolean, token: string) {
+  const url = `${assetsURL}/${assetId}?lazy=${lazy}`;
+  const response = await http.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data as Asset;
+}

@@ -37,3 +37,14 @@ export async function deleteFile(fileId: string, token: string) {
     },
   });
 }
+
+export async function getFileContent(fileId: string, token: string) {
+  const url = `${filesURL}/${fileId}/content`;
+  const response = await http.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    responseType: "blob",
+  });
+  return response.data;
+}

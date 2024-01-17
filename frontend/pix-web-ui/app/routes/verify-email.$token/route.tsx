@@ -59,7 +59,7 @@ export default function VerifyEmailPage() {
       <div className="flex flex-col justify-center items-center h-full text-center">
         {ok && (
           <div className="m-8">
-            <p className="text-2xl">
+            <p className="text-3xl">
               <span className="text-green-600">Email successfully verified!</span>
             </p>
             <p className="text-base mt-2">
@@ -70,7 +70,7 @@ export default function VerifyEmailPage() {
         )}
         {!ok && error && (
           <div className="m-8">
-            <p className="text-2xl">
+            <p className="text-3xl">
               Email verification failed: <span className="text-red-600">{error}</span>
             </p>
             <p className="text-base mt-2">

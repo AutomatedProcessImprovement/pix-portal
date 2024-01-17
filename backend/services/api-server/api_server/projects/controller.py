@@ -46,12 +46,12 @@ def _get_token(authorization: Annotated[str, Header()]) -> str:
 async def get_projects(
     user_id: Optional[uuid.UUID] = None,
     project_service: ProjectService = Depends(get_project_service),
-    _=Depends(current_active_user),  # raises 401 if user is not authenticated
+    user=Depends(current_active_user),  # raises 401 if user is not authenticated
 ) -> Sequence[Project]:
     if user_id:
         return await project_service.get_projects_by_user_id(user_id)
-    if not current_active_user.is_superuser:
-        return await project_service.get_projects_by_user_id(current_active_user.id)
+    if not user.is_superuser:
+        return await project_service.get_projects_by_user_id(user.id)
     return await project_service.get_projects()
 
 
