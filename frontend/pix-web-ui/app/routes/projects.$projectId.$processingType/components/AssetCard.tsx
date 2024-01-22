@@ -27,6 +27,7 @@ export function AssetCard({
         isInteractive ? "cursor-pointer hover:bg-slate-100" : ""
       } ${isActive ? "bg-slate-100 border-blue-400" : "bg-white border-slate-100"}`}
       {...restWithoutClassName}
+      data-assetid={asset.id}
     >
       <div
         className={`flex flex-grow flex-col justify-between space-y-2 leading-normal text-slate-900 ${

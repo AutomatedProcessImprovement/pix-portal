@@ -92,6 +92,7 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
       className={`p-2 flex flex-col break-words tracking-normal text-sm text-slate-900 ${bgColorByStatus(
         request_.status
       )}`}
+      data-processingrequestid={request_.id}
     >
       <Suspense fallback={<div>Loading...</div>}>
         <div>Started: {parseDate(request_.creation_time)}</div>

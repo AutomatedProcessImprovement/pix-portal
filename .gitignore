@@ -40,3 +40,4 @@ ansible/secrets*
 **/*.env.json
 manual_tests
 **/*.pxd
+jmeter

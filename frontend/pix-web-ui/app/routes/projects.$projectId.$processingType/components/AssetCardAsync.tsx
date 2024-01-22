@@ -19,7 +19,7 @@ export function AssetCardAsync({ assetId, user }: { assetId: string; user: User 
   }, [assetId, user]);
 
   return (
-    <div className="bg-teal-200 m-2 p-2 break-all">
+    <div className="bg-teal-200 m-2 p-2 break-all" data-assetid={assetId}>
       {asset && (
         <div className="flex flex-col">
           <div className="">
@@ -79,7 +79,7 @@ export function FileCardAsync({ assetId, fileId, user }: { assetId: string; file
 
   if (file && fileLocation) {
     return (
-      <div className="px-2 bg-indigo-100 flex flex-wrap">
+      <div className="px-2 bg-indigo-100 flex flex-wrap" data-fileid={file.id}>
         <span onClick={handleClick} className="text-blue-600 hover:text-blue-800 cursor-pointer space-x-1">
           <ArrowDownTrayIcon className="inline-block w-5 h-5" />
           <span className="underline">{file.name}</span>

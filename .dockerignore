@@ -35,3 +35,4 @@ backend/services/users
 backend/lib
 backend/scripts
 manual_tests
+jmeter

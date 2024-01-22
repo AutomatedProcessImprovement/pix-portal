@@ -1,14 +1,8 @@
-import { Link } from "@remix-run/react";
-import { useContext } from "react";
-import { UserContext } from "~/routes/contexts";
-import { ProcessingRequestStatus, ProcessingRequestType, type ProcessingRequest } from "~/services/processing_requests";
-import { AssetCardAsync } from "./AssetCardAsync";
+import { type ProcessingRequest } from "~/services/processing_requests";
 import { ProcessingAppSection } from "./ProcessingAppSection";
 import { ProcessingRequestCard } from "./ProcessingRequestCard";
 
 export default function OutputAssets({ processingRequests }: { processingRequests: ProcessingRequest[] }) {
-  const user = useContext(UserContext);
-
   function byCreationTime(a: ProcessingRequest, b: ProcessingRequest) {
     return a.creation_time.localeCompare(b.creation_time);
   }
