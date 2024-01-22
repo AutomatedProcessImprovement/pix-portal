@@ -1,7 +1,8 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, Link, useSearchParams } from "@remix-run/react";
+import { Form, Link, isRouteErrorResponse, useRouteError, useSearchParams } from "@remix-run/react";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Footer } from "~/components/Footer";
 import { FormErrors } from "~/components/FormErrors";
@@ -9,7 +10,6 @@ import Header from "~/components/Header";
 import { Input } from "~/components/Input";
 import { getJWT, getUserInfo } from "~/services/auth.server";
 import { createUserSession, getSessionUserInfo } from "~/shared/session.server";
-import { handleThrow } from "~/shared/utils";
 import type { LoginSchema } from "./schema";
 import { schema } from "./schema";
 import { safeRedirect } from "./utils";
@@ -42,18 +42,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  return handleThrow(request, async () => {
-    const formData = await request.formData();
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const remember = formData.get("remember") === "on";
-    const redirectTo = safeRedirect(formData.get("redirectTo"));
-    const token = await getJWT(email, password);
-    if (!token) throw Error(`Can get token for ${email}`);
-    const user = await getUserInfo(token);
-    user.token = token;
-    return createUserSession(request, remember, user, redirectTo);
-  });
+  const formData = await request.formData();
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const remember = formData.get("remember") === "on";
+  const redirectTo = safeRedirect(formData.get("redirectTo"));
+  const token = await getJWT(email, password);
+  if (!token) {
+    throw new Response(`Can get token for ${email}`, { status: 401, statusText: "Unauthorized" });
+  }
+  const user = await getUserInfo(token);
+  user.token = token;
+  return createUserSession(request, remember, user, redirectTo);
 }
 
 export default function LoginPage() {
@@ -114,6 +114,40 @@ export default function LoginPage() {
         </div>
       </div>
       <Footer />
+    </div>
+  );
+}
+
+export function ErrorBoundary() {
+  useEffect(() => {
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 5000);
+  }, []);
+
+  const error = useRouteError();
+  if (isRouteErrorResponse(error)) {
+    return (
+      <div className="h-full flex flex-col justify-center items-center">
+        <div className="m-8 text-center">
+          <p className="text-3xl">
+            <span className="text-red-600">{error.statusText || "Error"}</span>
+          </p>
+          <p className="text-base mt-2">
+            {error.data}. <br />
+            You will be redirect back to the Login page shortly.
+          </p>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="h-full flex flex-col justify-center items-center">
+      <div className="m-8 text-center">
+        <p className="text-3xl">
+          <span className="text-red-600">Something went wrong</span>
+        </p>
+      </div>
     </div>
   );
 }
