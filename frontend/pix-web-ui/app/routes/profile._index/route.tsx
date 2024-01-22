@@ -83,7 +83,7 @@ export default function ProfilePage() {
 function UserTable({ user }: { user: any }) {
   return (
     <div className="relative overflow-x-auto w-fit my-4">
-      <table className="w-full text-left rtl:text-right text-gray-500">
+      <table className="w-full text-left text-gray-500">
         <tbody>
           <TableRow label="Email" value={user.email} />
           <TableRow label="Email verified" value={user.is_verified ? "Verified" : "Not verified"} />

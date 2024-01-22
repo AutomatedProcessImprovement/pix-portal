@@ -54,7 +54,7 @@ export function ResourceUtilization({ data }: { data: ResourceUtilizationItem[] 
   });
 
   return (
-    <section className="flex flex-col items-center mt-8">
+    <section className="flex flex-col items-center mt-8 w-full">
       <h2 className="text-xl font-bold mb-4">Resource Utilization</h2>
       <TanstackSimpleTable table={table} />
     </section>

@@ -158,16 +158,20 @@ export function IndividualTaskStatistics({
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
-    getGroupedRowModel: getGroupedRowModel(),
+    getGroupedRowModel: data_.length > 0 ? getGroupedRowModel() : undefined, // fixes https://github.com/TanStack/table/issues/5026
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
 
   return (
-    <section className="flex flex-col items-center mt-8">
+    <section className="flex flex-col items-center mt-8 w-full">
       <h2 className="text-xl font-bold mb-4">Individual Task Statistics</h2>
-      <div className={`relative overflow-x-auto shadow-md sm:rounded-lg ${rest.className}`}>
-        <table className="w-full text-sm text-left rtl:text-right text-slate-700">
+      <div
+        className={`flex justify-center w-11/12 overflow-x-auto shadow-md sm:rounded-lg ${
+          rest.className ? rest.className : ""
+        }`}
+      >
+        <table className="grow text-sm text-left text-slate-700">
           <thead className="text-sm text-slate-700 uppercase tracking-wide bg-slate-50">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="border-b border-slate-200">
@@ -189,7 +193,7 @@ export function IndividualTaskStatistics({
                       key={header.id}
                       colSpan={header.colSpan}
                       rowSpan={rowSpan}
-                      className={`px-6 py-3 border-r border-slate-200 text-center ${
+                      className={`px-2 py-3 border-r border-slate-200 text-center ${
                         header.colSpan > 1 ? "bg-slate-50 border-b" : ""
                       }`}
                     >
@@ -202,9 +206,9 @@ export function IndividualTaskStatistics({
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="bg-white border-b hover:bg-slate-50">
+              <tr key={row.id} className="bg-white border-b last:border-none hover:bg-slate-50">
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-6 py-4 border-r text-center">
+                  <td key={cell.id} className="px-2 py-2 border-r first:text-left text-center">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}

@@ -51,7 +51,7 @@ export function ScenarioStatistics({ data }: { data: ScenarioStatisticsItem[] })
   });
 
   return (
-    <section className="flex flex-col items-center mt-8">
+    <section className="flex flex-col items-center mt-8 w-full">
       <h2 className="text-xl font-bold mb-4">Scenario Statistics</h2>
       <TanstackSimpleTable table={table} />
     </section>
