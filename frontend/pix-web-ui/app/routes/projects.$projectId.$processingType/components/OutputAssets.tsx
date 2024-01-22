@@ -21,16 +21,6 @@ export default function OutputAssets({ processingRequests }: { processingRequest
           {processingRequests.sort(byCreationTime).map((request: ProcessingRequest) => (
             <div key={request.id} className={`flex flex-col border-2 border-teal-800`}>
               <ProcessingRequestCard request={request} />
-              {request.output_assets_ids.length > 0 &&
-                request.output_assets_ids.map((assetId) => (
-                  <AssetCardAsync key={assetId} assetId={assetId} user={user} />
-                ))}
-              {request.type === ProcessingRequestType.SIMULATION_PROSIMOS &&
-                request.status === ProcessingRequestStatus.FINISHED && (
-                  <Link to={`/prosimos/results/${request.id}`} target="_blank" className="shrink w-fit mx-3 mb-3">
-                    Show simulation statistics
-                  </Link>
-                )}
             </div>
           ))}
         </div>

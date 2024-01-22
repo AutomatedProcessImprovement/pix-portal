@@ -10,6 +10,7 @@ import {
   type ProcessingRequest,
 } from "~/services/processing_requests";
 import { parseDate } from "~/shared/utils";
+import { AssetCardAsync } from "./AssetCardAsync";
 
 const terminalStatuses = [
   ProcessingRequestStatus.CANCELLED,
@@ -27,7 +28,12 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
     // set up polling for newly created or running processing requests
     const interval = setInterval(async () => {
       // fetch the processing request
-      const requestUpdated = await getProcessingRequest(request.id, user.token!);
+      let requestUpdated;
+      try {
+        requestUpdated = await getProcessingRequest(request.id, user.token!);
+      } catch (e: any) {
+        throw new Error(e);
+      }
       // update on change
       if (request_ && requestUpdated.status !== request_.status) {
         showToast(requestUpdated);
@@ -99,6 +105,14 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
               Open in Kronos
             </Link>
           )}
+        {request_.type === ProcessingRequestType.SIMULATION_PROSIMOS &&
+          request_.status === ProcessingRequestStatus.FINISHED && (
+            <Link to={`/prosimos/results/${request_.id}`} target="_blank" className="shrink w-fit">
+              Show simulation statistics
+            </Link>
+          )}
+        {request_.output_assets_ids.length > 0 &&
+          request_.output_assets_ids.map((assetId) => <AssetCardAsync key={assetId} assetId={assetId} user={user} />)}
       </Suspense>
     </div>
   );
