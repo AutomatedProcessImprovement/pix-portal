@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from sqlalchemy import DateTime, String, Uuid, Boolean
+from sqlalchemy import Boolean, DateTime, String, Uuid
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -58,5 +58,8 @@ class ProcessingRequest(Base):
 
     user_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
     project_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
-    input_assets_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[], index=True)
-    output_assets_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[], index=True)
+    # NOTE: we don't index _ids columns because of a pretty low limit on the default btree index size.
+    #       If you still need indexing, consider this SQLAlchemy documentation page,
+    #       https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#index-types
+    input_assets_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[])
+    output_assets_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[])

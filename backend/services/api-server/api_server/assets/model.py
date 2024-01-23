@@ -42,8 +42,9 @@ class Asset(Base):
     # Implicit relationships to other microservices' tables
 
     project_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
-    users_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[], index=True)
+    # NOTE: we don't index _ids columns because of a pretty low limit on the default btree index size.
+    #       If you still need indexing, consider this SQLAlchemy documentation page,
+    #       https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#index-types
+    users_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[])
     files_ids: Mapped[List[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[])
-    processing_requests_ids: Mapped[List[uuid.UUID]] = mapped_column(
-        ARRAY(Uuid), nullable=False, default=[], index=True
-    )
+    processing_requests_ids: Mapped[List[uuid.UUID]] = mapped_column(ARRAY(Uuid), nullable=False, default=[])
