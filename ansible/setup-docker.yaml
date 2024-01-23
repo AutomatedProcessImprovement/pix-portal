@@ -45,3 +45,19 @@
     - name: Install Docker Module for Python
       pip:
         name: docker
+    
+    - name: Configure Docker Daemon
+      copy:
+        src: docker-daemon.json
+        dest: /etc/docker/daemon.json
+        owner: root
+        group: root
+        mode: 0644
+      notify:
+        - Restart Docker
+
+  handlers:
+    - name: Restart Docker
+      systemd:
+        name: docker
+        state: restarted
