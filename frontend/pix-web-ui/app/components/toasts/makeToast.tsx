@@ -16,7 +16,7 @@ export function makeToast({
   duration?: number;
   position?: "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right";
 }) {
-  position = position || "bottom-left";
+  position = position || "top-center";
   duration = duration || 5000;
   type = type || "blank";
 

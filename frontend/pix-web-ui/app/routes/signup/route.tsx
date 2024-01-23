@@ -58,7 +58,7 @@ export default function SignUp() {
       setIsLoading(false);
       toast.success("Email verification link sent to your email", {
         duration: 5000,
-        position: "bottom-left",
+        position: "top-center",
       });
       setTimeout(() => {
         window.location.replace("/login");

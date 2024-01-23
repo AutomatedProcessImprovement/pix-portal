@@ -80,7 +80,7 @@ export default function SetupProsimos() {
                 type="submit"
                 disabled={simulationModel === null || navigation.state === "submitting"}
                 onClick={() => {
-                  toast("Submitting processing request...", { icon: "📡", duration: 5000, position: "bottom-left" });
+                  toast("Submitting processing request...", { icon: "📡", duration: 5000, position: "top-center" });
                 }}
               >
                 Start simulation

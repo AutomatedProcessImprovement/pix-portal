@@ -26,7 +26,7 @@ export default function SetupSimod() {
     const selectedAssets = [eventLog, processModel].filter((asset) => asset !== null) as Asset[];
     const assetsIds = selectedAssets.map((asset) => asset.id);
     setSelectedInputAssetsIdsRef(assetsIds);
-    toast("Submitting processing request...", { icon: "📡", duration: 5000, position: "bottom-left" });
+    toast("Submitting processing request...", { icon: "📡", duration: 5000, position: "top-center" });
   }
 
   const navigation = useNavigation();

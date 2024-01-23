@@ -59,7 +59,7 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Toaster />
+        <Toaster position="top-center" />
         <Outlet />
         <ScrollRestoration />
         <script dangerouslySetInnerHTML={{ __html: `window.ENV = ${JSON.stringify(data.ENV)}` }} />

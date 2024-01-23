@@ -47,7 +47,7 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
 
   function showToast(requestUpdated: ProcessingRequest) {
     const toastMessage = `Processing request ${requestUpdated.id} is ${requestUpdated.status}`;
-    const toastProps = { duration: 10000, position: "bottom-left" } as ToastOptions;
+    const toastProps = { duration: 10000, position: "top-center" } as ToastOptions;
     if (requestUpdated.status === ProcessingRequestStatus.FINISHED) toast.success(toastMessage, toastProps);
     else if (requestUpdated.status === ProcessingRequestStatus.FAILED) toast.error(toastMessage, toastProps);
     else toast(toastMessage, { ...toastProps, icon: "👌" });

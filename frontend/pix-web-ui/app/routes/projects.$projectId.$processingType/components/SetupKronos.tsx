@@ -23,7 +23,7 @@ export default function SetupKronos() {
   const [selectedInputAssetsIdsRef, setSelectedInputAssetsIdsRef] = useState<string[]>([]);
   async function handleClick(_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     setSelectedInputAssetsIdsRef([eventLog!.id]);
-    toast("Submitting processing request...", { icon: "📡", duration: 5000, position: "bottom-left" });
+    toast("Submitting processing request...", { icon: "📡", duration: 5000, position: "top-center" });
   }
 
   const navigation = useNavigation();
