@@ -1,0 +1,675 @@
+{
+    "$defs": {
+        "CalendarType": {
+            "enum": [
+                "24/7",
+                "9/5",
+                "undifferentiated",
+                "differentiated_by_pool",
+                "differentiated_by_resource",
+                "differentiated_by_resource_fuzzy"
+            ],
+            "title": "Calendar type",
+            "type": "string"
+        },
+        "CommonSettings": {
+            "properties": {
+                "evaluation_metrics": {
+                    "items": {
+                        "$ref": "#/$defs/Metric"
+                    },
+                    "minItems": 1,
+                    "title": "Evaluation Metrics",
+                    "type": "array"
+                },
+                "use_observed_arrival_distribution": {
+                    "default": false,
+                    "title": "Use Observed Arrival Distribution",
+                    "type": "boolean"
+                },
+                "clean_intermediate_files": {
+                    "default": true,
+                    "title": "Clean Intermediate Files",
+                    "type": "boolean"
+                },
+                "discover_case_attributes": {
+                    "default": false,
+                    "title": "Discover Case Attributes",
+                    "type": "boolean"
+                },
+                "perform_final_evaluation": {
+                    "default": false,
+                    "title": "Perform final evaluation",
+                    "type": "boolean"
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "perform_final_evaluation": {
+                                "const": true
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "num_final_evaluations": {
+                                "default": 10,
+                                "title": "Number of final evaluations",
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            ],
+            "title": "Common Settings",
+            "type": "object"
+        },
+        "ConcurrencyThresholds": {
+            "properties": {
+                "df": {
+                    "default": 0.9,
+                    "title": "Directly-follows threshold",
+                    "type": "number"
+                },
+                "l2l": {
+                    "default": 0.9,
+                    "title": "Length 2 loops threshold",
+                    "type": "number"
+                },
+                "l1l": {
+                    "default": 0.9,
+                    "title": "Length 1 loops threshold",
+                    "type": "number"
+                }
+            },
+            "title": "Concurrency Thresholds",
+            "type": "object"
+        },
+        "ControlFlowSettings": {
+            "description": "Control-flow optimization settings.",
+            "properties": {
+                "optimization_metric": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/Metric"
+                        }
+                    ],
+                    "default": "three_gram_distance"
+                },
+                "num_iterations": {
+                    "default": 10,
+                    "title": "Number of iterations",
+                    "type": "integer"
+                },
+                "num_evaluations_per_iteration": {
+                    "default": 3,
+                    "title": "Number of evaluations per iteration",
+                    "type": "integer"
+                },
+                "gateway_probabilities": {
+                    "$ref": "#/$defs/GatewayProbabilitiesDiscoveryMethod",
+                    "default": "discovery",
+                    "title": "Gateway probabilities"
+                },
+                "mining_algorithm": {
+                    "$ref": "#/$defs/ProcessModelDiscoveryAlgorithm",
+                    "default": "sm1"
+                },
+                "epsilon": {
+                    "title": "Epsilon",
+                    "description": "For Split Miner v1 and v2: Number of concurrent relations between events to be captured (between 0.0 and 1.0)",
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": [
+                        {
+                            "type": "number",
+                            "title": "min"
+                        },
+                        {
+                            "type": "number",
+                            "title": "max"
+                        }
+                    ],
+                    "default": [
+                        0.0,
+                        1.0
+                    ]
+                }
+            },
+            "if": {
+                "properties": {
+                    "mining_algorithm": {
+                        "const": "sm1"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "eta": {
+                        "title": "Eta",
+                        "description": "Only for Split Miner v1: Threshold for filtering the incoming and outgoing edges (between 0.0 and 1.0)",
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": [
+                            {
+                                "type": "number",
+                                "title": "min"
+                            },
+                            {
+                                "type": "number",
+                                "title": "max"
+                            }
+                        ],
+                        "default": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    "replace_or_joins": {
+                        "title": "Replace OR-Joins",
+                        "description": "Only for Split Miner v1: Whether to replace non-trivial OR joins or not (true or false)",
+                        "type": "array",
+                        "items": {
+                            "type": "boolean"
+                        },
+                        "minItems": 1,
+                        "maxItems": 2,
+                        "default": [
+                            false
+                        ]
+                    },
+                    "prioritize_parallelism": {
+                        "title": "Prioritize Parallelism",
+                        "description": "Only for Split Miner v1: Whether to prioritize parallelism over loops or not (true or false)",
+                        "type": "array",
+                        "items": {
+                            "type": "boolean"
+                        },
+                        "minItems": 1,
+                        "maxItems": 2,
+                        "default": [
+                            false
+                        ]
+                    }
+                }
+            },
+            "title": "Control Flow Settings",
+            "type": "object"
+        },
+        "DiscoveryMethod": {
+            "enum": [
+                1,
+                2
+            ],
+            "title": "Discovery Method",
+            "type": "integer"
+        },
+        "EventLogIDs": {
+            "properties": {
+                "case": {
+                    "default": "case",
+                    "title": "Case",
+                    "type": "string"
+                },
+                "activity": {
+                    "default": "activity",
+                    "title": "Activity",
+                    "type": "string"
+                },
+                "resource": {
+                    "default": "resource",
+                    "title": "Resource",
+                    "type": "string"
+                },
+                "start_time": {
+                    "default": "start_time",
+                    "title": "Start Time",
+                    "type": "string"
+                },
+                "end_time": {
+                    "default": "end_time",
+                    "title": "End Time",
+                    "type": "string"
+                },
+                "enabled_time": {
+                    "default": "enabled_time",
+                    "title": "Enabled Time",
+                    "type": "string"
+                },
+                "enabling_activity": {
+                    "default": "enabling_activity",
+                    "title": "Enabling Activity",
+                    "type": "string"
+                },
+                "available_time": {
+                    "default": "available_time",
+                    "title": "Available Time",
+                    "type": "string"
+                },
+                "estimated_start_time": {
+                    "default": "estimated_start_time",
+                    "title": "Estimated Start Time",
+                    "type": "string"
+                },
+                "batch_id": {
+                    "default": "batch_instance_id",
+                    "title": "Batch Id",
+                    "type": "string"
+                },
+                "batch_type": {
+                    "default": "batch_instance_type",
+                    "title": "Batch Type",
+                    "type": "string"
+                }
+            },
+            "title": "Event Log Columns",
+            "type": "object"
+        },
+        "ExtraneousDelaysSettings": {
+            "properties": {
+                "optimization_metric": {
+                    "title": "Optimization metric",
+                    "type": "integer",
+                    "anyOf": [
+                        {
+                            "title": "cycle time",
+                            "const": 1
+                        },
+                        {
+                            "title": "absolute EMD",
+                            "const": 2
+                        },
+                        {
+                            "title": "circardian EMD",
+                            "const": 3
+                        },
+                        {
+                            "title": "relative EMD",
+                            "const": 4
+                        }
+                    ],
+                    "default": 4
+                },
+                "discovery_method": {
+                    "title": "Discovery Method",
+                    "type": "integer",
+                    "anyOf": [
+                        {
+                            "title": "naive",
+                            "const": 1
+                        },
+                        {
+                            "title": "complex",
+                            "const": 2
+                        }
+                    ],
+                    "default": 2
+                },
+                "num_iterations": {
+                    "default": 1,
+                    "title": "Number of iterations",
+                    "type": "integer"
+                },
+                "num_evaluations_per_iteration": {
+                    "default": 3,
+                    "title": "Number of evaluations per iteration",
+                    "type": "integer"
+                }
+            },
+            "title": "Extraneous Delays Settings",
+            "type": "object"
+        },
+        "GatewayProbabilitiesDiscoveryMethod": {
+            "description": "Gateway probabilities discovery method. It can be either discovery or equiprobable. Equiprobable assumes that\nall outgoing paths from a gateway have the same probability. Discovery computes the probability of each path\nbased on the BPMN model and event log.",
+            "enum": [
+                "discovery",
+                "equiprobable"
+            ],
+            "title": "Gateway probabilities discovery method",
+            "type": "string"
+        },
+        "Metric": {
+            "enum": [
+                "dl",
+                "two_gram_distance",
+                "three_gram_distance",
+                "circadian_event_distribution",
+                "arrival_event_distribution",
+                "relative_event_distribution",
+                "absolute_event_distribution",
+                "cycle_time_distribution"
+            ],
+            "title": "Metric",
+            "type": "string"
+        },
+        "OptimizationMetric": {
+            "enum": [
+                1,
+                2,
+                3,
+                4
+            ],
+            "title": "Optimization metric",
+            "type": "integer"
+        },
+        "PreprocessingSettings": {
+            "properties": {
+                "multitasking": {
+                    "default": false,
+                    "title": "Multitasking",
+                    "type": "boolean"
+                },
+                "enable_time_concurrency_threshold": {
+                    "default": 0.5,
+                    "title": "Enable time concurrency threshold",
+                    "type": "number"
+                },
+                "concurrency_thresholds": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/ConcurrencyThresholds"
+                        }
+                    ],
+                    "default": {
+                        "df": 0.75,
+                        "l1l": 0.9,
+                        "l2l": 0.9
+                    }
+                }
+            },
+            "title": "Preprocessing Settings",
+            "type": "object"
+        },
+        "ProcessModelDiscoveryAlgorithm": {
+            "enum": [
+                "sm1",
+                "sm2"
+            ],
+            "title": "Process model discovery algorithm",
+            "description": "Discover process model with SplitMiner v1 or v2 (options: sm1 or sm2)",
+            "type": "string"
+        },
+        "ResourceModelSettings": {
+            "description": "Resource model optimization settings.",
+            "properties": {
+                "optimization_metric": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/Metric"
+                        }
+                    ],
+                    "default": "circadian_event_distribution"
+                },
+                "num_iterations": {
+                    "default": 10,
+                    "title": "Number of iterations",
+                    "type": "integer"
+                },
+                "num_evaluations_per_iteration": {
+                    "default": 3,
+                    "title": "Number of evaluations per iteration",
+                    "type": "integer"
+                },
+                "discovery_type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/CalendarType"
+                        }
+                    ],
+                    "default": "undifferentiated"
+                },
+                "granularity": {
+                    "type": "array",
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "items": [
+                        {
+                            "type": "integer",
+                            "title": "min"
+                        },
+                        {
+                            "type": "integer",
+                            "title": "max"
+                        }
+                    ],
+                    "default": [
+                        15,
+                        60
+                    ],
+                    "title": "Granularity"
+                },
+                "confidence": {
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "items": [
+                        {
+                            "type": "number",
+                            "title": "min"
+                        },
+                        {
+                            "type": "number",
+                            "title": "max"
+                        }
+                    ],
+                    "type": "array",
+                    "default": [
+                        0.5,
+                        0.85
+                    ],
+                    "title": "Confidence"
+                },
+                "support": {
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "items": [
+                        {
+                            "type": "number",
+                            "title": "min"
+                        },
+                        {
+                            "type": "number",
+                            "title": "max"
+                        }
+                    ],
+                    "default": [
+                        0.01,
+                        0.3
+                    ],
+                    "type": "array",
+                    "title": "Support"
+                },
+                "participation": {
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "items": [
+                        {
+                            "type": "number",
+                            "title": "min"
+                        },
+                        {
+                            "type": "number",
+                            "title": "max"
+                        }
+                    ],
+                    "type": "array",
+                    "default": [
+                        0.3,
+                        0.4
+                    ],
+                    "title": "Participation"
+                },
+                "discover_prioritization_rules": {
+                    "default": false,
+                    "title": "Discover Prioritization rules",
+                    "type": "boolean"
+                },
+                "discover_batching_rules": {
+                    "default": false,
+                    "title": "Discover batching rules",
+                    "type": "boolean"
+                },
+                "fuzzy_angle": {
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "items": [
+                        {
+                            "type": "number",
+                            "title": "from"
+                        },
+                        {
+                            "type": "number",
+                            "title": "to"
+                        }
+                    ],
+                    "type": "array",
+                    "default": [
+                        0.1,
+                        0.9
+                    ],
+                    "title": "Fuzzy Angle"
+                }
+            },
+            "title": "Resource Model Settings",
+            "type": "object"
+        }
+    },
+    "properties": {
+        "common": {
+            "allOf": [
+                {
+                    "$ref": "#/$defs/CommonSettings"
+                }
+            ],
+            "default": {
+                "clean_intermediate_files": true,
+                "discover_case_attributes": false,
+                "evaluation_metrics": [
+                    "dl",
+                    "two_gram_distance"
+                ],
+                "log_ids": {
+                    "activity": "activity",
+                    "available_time": "available_time",
+                    "batch_id": "batch_instance_id",
+                    "batch_type": "batch_instance_type",
+                    "case": "case_id",
+                    "enabled_time": "enabled_time",
+                    "enabling_activity": "enabling_activity",
+                    "end_time": "end_time",
+                    "estimated_start_time": "estimated_start_time",
+                    "resource": "resource",
+                    "start_time": "start_time"
+                },
+                "num_final_evaluations": 10,
+                "perform_final_evaluation": false,
+                "process_model_path": null,
+                "test_log_path": null,
+                "train_log_path": "default_path.csv",
+                "use_observed_arrival_distribution": false
+            }
+        },
+        "preprocessing": {
+            "allOf": [
+                {
+                    "$ref": "#/$defs/PreprocessingSettings"
+                }
+            ],
+            "default": {
+                "concurrency_thresholds": {
+                    "df": 0.75,
+                    "l1l": 0.9,
+                    "l2l": 0.9
+                },
+                "enable_time_concurrency_threshold": 0.5,
+                "multitasking": false
+            }
+        },
+        "control_flow": {
+            "allOf": [
+                {
+                    "$ref": "#/$defs/ControlFlowSettings"
+                }
+            ],
+            "default": {
+                "epsilon": [
+                    0.0,
+                    1.0
+                ],
+                "eta": [
+                    0.0,
+                    1.0
+                ],
+                "gateway_probabilities": "discovery",
+                "mining_algorithm": "sm1",
+                "num_evaluations_per_iteration": 3,
+                "num_iterations": 10,
+                "optimization_metric": "three_gram_distance",
+                "prioritize_parallelism": [
+                    false
+                ],
+                "replace_or_joins": [
+                    false
+                ]
+            }
+        },
+        "resource_model": {
+            "allOf": [
+                {
+                    "$ref": "#/$defs/ResourceModelSettings"
+                }
+            ],
+            "default": {
+                "confidence": [
+                    0.5,
+                    0.85
+                ],
+                "discover_batching_rules": false,
+                "discover_prioritization_rules": false,
+                "discovery_type": "undifferentiated",
+                "fuzzy_angle": [
+                    0.1,
+                    0.9
+                ],
+                "granularity": [
+                    15,
+                    60
+                ],
+                "num_evaluations_per_iteration": 3,
+                "num_iterations": 10,
+                "optimization_metric": "circadian_event_distribution",
+                "participation": [
+                    0.3,
+                    0.4
+                ],
+                "support": [
+                    0.01,
+                    0.3
+                ]
+            }
+        },
+        "extraneous_activity_delays": {
+            "anyOf": [
+                {
+                    "type": "null",
+                    "title": "Default"
+                },
+                {
+                    "$ref": "#/$defs/ExtraneousDelaysSettings",
+                    "title": "Custom"
+                }
+            ],
+            "default": null,
+            "title": "Extraneous activity delays settings"
+        },
+        "version": {
+            "default": 4,
+            "title": "Version",
+            "type": "integer"
+        }
+    },
+    "type": "object"
+}
