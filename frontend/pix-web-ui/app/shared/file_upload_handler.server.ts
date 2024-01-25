@@ -21,6 +21,7 @@ export async function handleNewAssetsFromFormData(formData: FormData, projectId:
 
 async function createAssetsFromForm(formData: FormData, projectId: string, token: string) {
   const assetType = formData.get("assetType") as AssetType;
+  console.log("createAssetsFromForm formData", formData, "assetType", assetType);
 
   switch (assetType) {
     case AssetType.EVENT_LOG:
@@ -29,12 +30,15 @@ async function createAssetsFromForm(formData: FormData, projectId: string, token
       return await createProcessModelFromForm(formData, projectId, token);
     case AssetType.SIMULATION_MODEL:
       return await createSimulationModelFromForm(formData, projectId, token);
+    case AssetType.SIMOD_CONFIGURATION:
+      return await createSimodConfigurationFromForm(formData, projectId, token);
     default:
       throw new Error(`Unknown asset type ${assetType}`);
   }
 }
 
 async function createEventLogFromForm(formData: FormData, projectId: string, token: string) {
+  console.log("createEventLogFromForm", formData);
   // event log has 2 files, event log (CSV or CSV.GZ) and column mapping (JSON)
   const eventLog = formData.get("eventLogFile") as File;
   const eventLogColumnMapping = formData.get("eventLogColumnMapping") as string;
@@ -69,6 +73,17 @@ async function createSimulationModelFromForm(formData: FormData, projectId: stri
     await uploadAndCreateSimulationModel(simulationModel as File, processModel as File, projectId, token);
   } else {
     throw new Error("Simulation model or process model file missing");
+  }
+}
+
+async function createSimodConfigurationFromForm(formData: FormData, projectId: string, token: string) {
+  // Simod configuration has 1 file, simod configuration (YAML)
+  console.log("createSimodConfigurationFromForm", formData);
+  const simodConfiguration = formData.get("simodConfigurationFile") as File;
+  if (simodConfiguration && simodConfiguration.size > 0) {
+    await uploadAndCreateSimodConfiguration(simodConfiguration as File, projectId, token);
+  } else {
+    throw new Error("Simod configuration file missing");
   }
 }
 
@@ -130,6 +145,22 @@ async function uploadAndCreateSimulationModel(
       name: name,
       files: uploadedFiles,
       type: AssetType.SIMULATION_MODEL,
+      projectID: projectID,
+    },
+    token
+  );
+}
+
+async function uploadAndCreateSimodConfiguration(simodConfiguration: File, projectID: string, token: string) {
+  const uploadedFiles = await uploadFiles(
+    [filePayloadFromFile(simodConfiguration, FileType.CONFIGURATION_SIMOD_YAML)],
+    token
+  );
+  return await createAssetFromUploadedFiles(
+    {
+      name: simodConfiguration.name,
+      files: uploadedFiles,
+      type: AssetType.SIMOD_CONFIGURATION,
       projectID: projectID,
     },
     token

@@ -59,6 +59,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const assetType = formData.get("assetType");
   if (assetType) {
     await handleThrow(request, async () => {
+      console.log("route formData", formData);
       return await handleNewAssetsFromFormData(formData, projectId, user.token!);
     });
     return null;
@@ -95,7 +96,12 @@ export function ErrorBoundary() {
 function filterAssetsByType(assets: Asset[], processingType: ProcessingType) {
   switch (processingType) {
     case ProcessingType.Discovery:
-      return assets.filter((asset) => asset.type === AssetType.EVENT_LOG || asset.type === AssetType.PROCESS_MODEL);
+      return assets.filter(
+        (asset) =>
+          asset.type === AssetType.EVENT_LOG ||
+          asset.type === AssetType.PROCESS_MODEL ||
+          asset.type === AssetType.SIMOD_CONFIGURATION
+      );
     case ProcessingType.Simulation:
       return assets.filter((asset) => asset.type === AssetType.SIMULATION_MODEL);
     case ProcessingType.WaitingTime:

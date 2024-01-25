@@ -56,7 +56,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return await handleNewAssets(request, projectId, user.token!);
   });
 
-  return redirect(`/projects/${params.projectId}`);
+  return null;
 }
 
 export default function ProjectPage() {

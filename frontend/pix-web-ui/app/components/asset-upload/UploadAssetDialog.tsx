@@ -19,7 +19,12 @@ export default function UploadAssetDialog({
   let [assetType, setAssetType] = useState<ILabeledAny | undefined>();
 
   const assetTypes = useMemo(() => {
-    const options = [AssetType.EVENT_LOG, AssetType.PROCESS_MODEL, AssetType.SIMULATION_MODEL].map((assetType) => ({
+    const options = [
+      AssetType.EVENT_LOG,
+      AssetType.PROCESS_MODEL,
+      AssetType.SIMULATION_MODEL,
+      AssetType.SIMOD_CONFIGURATION,
+    ].map((assetType) => ({
       label: assetTypeToString(assetType),
       value: assetType,
     }));
@@ -51,7 +56,7 @@ export default function UploadAssetDialog({
                   <span className="mr-2">Upload</span>
                   <UploadAssetSelect assetType={assetType} onChange={setAssetType} />
                 </div>
-                <UploadAssetDetails />
+                <UploadAssetDetails close={close} />
               </SelectedAssetTypeContext.Provider>
             </div>
           </Dialog.Panel>
@@ -75,13 +80,13 @@ function UploadAssetSelect({
       selected={assetType}
       onChange={onChange}
       options={context.assetTypes}
-      className="w-64"
+      className="w-80"
       optionClassName="text-lg"
     />
   );
 }
 
-function UploadAssetDetails() {
+function UploadAssetDetails({ close }: { close: () => void }) {
   const context = useContext(SelectedAssetTypeContext);
   if (!context) return <></>;
   const assetType = context.assetType?.value;
@@ -90,6 +95,7 @@ function UploadAssetDetails() {
     case AssetType.EVENT_LOG:
       return (
         <UploadAssetDetailsForAssetType
+          close={close}
           assetType={assetType}
           children={
             <>
@@ -103,6 +109,7 @@ function UploadAssetDetails() {
     case AssetType.PROCESS_MODEL:
       return (
         <UploadAssetDetailsForAssetType
+          close={close}
           assetType={assetType}
           children={
             <>
@@ -115,14 +122,27 @@ function UploadAssetDetails() {
           }
         />
       );
-
     case AssetType.SIMULATION_MODEL:
       return (
         <UploadAssetDetailsForAssetType
+          close={close}
           assetType={assetType}
           children={
             <>
               Simulation model consists of two files: a process model in BPMN and simulation parameters in JSON format.
+            </>
+          }
+        />
+      );
+    case AssetType.SIMOD_CONFIGURATION:
+      return (
+        <UploadAssetDetailsForAssetType
+          close={close}
+          assetType={assetType}
+          children={
+            <>
+              Discovery configuration (SIMOD) is a YAML file with options for the business process simulation model
+              discovery.
             </>
           }
         />
@@ -132,11 +152,19 @@ function UploadAssetDetails() {
   }
 }
 
-function UploadAssetDetailsForAssetType({ assetType, children }: { assetType: AssetType; children: ReactNode }) {
+function UploadAssetDetailsForAssetType({
+  assetType,
+  children,
+  close,
+}: {
+  assetType: AssetType;
+  children: ReactNode;
+  close: () => void;
+}) {
   return (
     <div className="flex flex-col items-center">
       <p className="max-w-prose">{children}</p>
-      <DragAndDropForm assetType={assetType} />
+      <DragAndDropForm assetType={assetType} close={close} />
     </div>
   );
 }

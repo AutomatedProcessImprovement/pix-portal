@@ -16,8 +16,6 @@ export default function InputAssets({ setSelectedAssets }: { setSelectedAssets: 
   function handleClick(asset: Asset) {
     switch (processingType) {
       case ProcessingType.Discovery:
-        // allow only one event log to be selected at the same time
-
         // allow only one asset of each type to be selected at the same time
         if (selectedAssets.includes(asset)) {
           // if the asset is already selected, deselect it

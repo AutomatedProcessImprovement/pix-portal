@@ -1,34 +1,37 @@
 import { Transition } from "@headlessui/react";
 import { DocumentArrowUpIcon } from "@heroicons/react/24/outline";
 import { ArrowDownIcon } from "@heroicons/react/24/solid";
-import { Form, useNavigation } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
 import EventLogColumnMappingDialog from "~/components/asset-upload/EventLogColumnMappingDialog";
 import { EventLogColumnMapping } from "~/components/asset-upload/column_mapping";
 import { AssetType, assetTypeToString } from "~/services/assets";
 
-export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
+export function DragAndDropForm({ assetType, close }: { assetType: AssetType; close: () => void }) {
   // DragAndDrop component is used to upload files to the server. It keeps track of three different asset types:
   // Event Log, Process Model, Simulation Model. All asset types have a corresponding drag and drop area and a hidden
   // input element to store the actual file. The Simulation Model consists of two assets, thus, it has two drag and drop
   // areas and two hidden input elements to store the Process Model and Simulation Model files.
 
-  const navigation = useNavigation();
+  const fetcher = useFetcher();
 
   // These are used to store the actual files and are hidden from the user.
   const eventLogInputRef = useRef<any>(null);
   const processModelInputRef = useRef<any>(null);
   const simulationModelInputRef = useRef<any>(null);
+  const simodConfigurationInputRef = useRef<any>(null);
 
   // These are used only for UI purposes to update the state of drag and drop areas.
   const [eventLogFile, setEventLogFile] = useState<any>(null);
   const [processModelFile, setProcessModelFile] = useState<any>(null);
   const [simulationModelFile, setSimulationModelFile] = useState<any>(null);
+  const [simodConfigurationFile, setSimodConfigurationFile] = useState<any>(null);
 
   // Drag and drop areas' states
   const [eventLogDragActive, setEventLogDragActive] = useState<boolean>(false);
   const [processModelDragActive, setProcessModelDragActive] = useState<boolean>(false);
   const [simulationModelDragActive, setSimulationModelDragActive] = useState<boolean>(false);
+  const [simodConfigurationDragActive, setSimodConfigurationDragActive] = useState<boolean>(false);
 
   // Event log column mapping value, states, and effects
   const [eventLogColumnMappingEnabled, setEventLogColumnMappingEnabled] = useState<boolean>(false);
@@ -40,7 +43,7 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
   // Submit button enabled state and effects
   const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
   useEffect(() => {
-    if (navigation.state === "submitting") {
+    if (fetcher.state === "submitting") {
       setSubmitEnabled(false);
       return;
     }
@@ -56,8 +59,27 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
       case AssetType.SIMULATION_MODEL:
         setSubmitEnabled(!!processModelFile); // simulationModelFile is optional
         break;
+      case AssetType.SIMOD_CONFIGURATION:
+        setSubmitEnabled(!!simodConfigurationFile); // simodConfigurationFile is optional
+        break;
     }
-  }, [assetType, eventLogFile, processModelFile, simulationModelFile, eventLogColumnMappingFilledIn, navigation.state]);
+  }, [
+    assetType,
+    eventLogFile,
+    processModelFile,
+    simulationModelFile,
+    simodConfigurationFile,
+    eventLogColumnMappingFilledIn,
+    fetcher.state,
+    close,
+  ]);
+
+  // Close dialog on successful upload
+  useEffect(() => {
+    if (fetcher.state === "loading") {
+      close();
+    }
+  }, [fetcher.state, close]);
 
   function getValidFileTypes(assetType: AssetType) {
     switch (assetType) {
@@ -67,6 +89,8 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
         return [".bpmn"].join(", ");
       case AssetType.SIMULATION_MODEL:
         return [".json"].join(", ");
+      case AssetType.SIMOD_CONFIGURATION:
+        return [".yaml", ".yml"].join(", ");
     }
   }
 
@@ -88,6 +112,9 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
       case AssetType.SIMULATION_MODEL:
         setSimulationModelFile(file);
         break;
+      case AssetType.SIMOD_CONFIGURATION:
+        setSimodConfigurationFile(file);
+        break;
     }
   }
 
@@ -107,6 +134,10 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
       case AssetType.SIMULATION_MODEL:
         fileExists = !!simulationModelFile;
         setSimulationModelDragActive(dragActive);
+        break;
+      case AssetType.SIMOD_CONFIGURATION:
+        fileExists = !!simodConfigurationFile;
+        setSimodConfigurationDragActive(dragActive);
         break;
     }
 
@@ -133,6 +164,10 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
           setSimulationModelFile(file);
           simulationModelInputRef.current.files = e.dataTransfer.files;
           break;
+        case AssetType.SIMOD_CONFIGURATION:
+          setSimodConfigurationFile(file);
+          simodConfigurationInputRef.current.files = e.dataTransfer.files;
+          break;
       }
     }
   }
@@ -151,6 +186,10 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
         setSimulationModelFile(null);
         simulationModelInputRef.current.value = "";
         break;
+      case AssetType.SIMOD_CONFIGURATION:
+        setSimodConfigurationFile(null);
+        simodConfigurationInputRef.current.value = "";
+        break;
     }
   }
 
@@ -168,29 +207,20 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
         simulationModelInputRef.current.value = "";
         simulationModelInputRef.current.click();
         break;
-    }
-  }
-
-  function handleSubmit() {
-    // Clean up inputs
-    switch (assetType) {
-      case AssetType.EVENT_LOG:
-        processModelInputRef.current.value = "";
-        simulationModelInputRef.current.value = "";
-        break;
-      case AssetType.PROCESS_MODEL:
-        eventLogInputRef.current.value = "";
-        simulationModelInputRef.current.value = "";
-        break;
-      case AssetType.SIMULATION_MODEL:
-        eventLogInputRef.current.value = "";
+      case AssetType.SIMOD_CONFIGURATION:
+        simodConfigurationInputRef.current.value = "";
+        simodConfigurationInputRef.current.click();
         break;
     }
   }
 
   return (
     <div className="flex items-center justify-center">
-      <Form method="post" encType="multipart/form-data" className="flex flex-col items-center justify-center space-y-8">
+      <fetcher.Form
+        method="post"
+        encType="multipart/form-data"
+        className="flex flex-col items-center justify-center space-y-8"
+      >
         <input type="hidden" name="assetType" value={assetType} />
         {/* Hidden input element that hold actual files and allows and allow to select files for upload on the button click. */}
         <input
@@ -223,6 +253,14 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
           className="hidden"
           accept={getValidFileTypes(AssetType.SIMULATION_MODEL)}
           onChange={(e: any) => onHiddenInputChange(e, AssetType.SIMULATION_MODEL)}
+        />
+        <input
+          type="file"
+          name="simodConfigurationFile"
+          ref={simodConfigurationInputRef}
+          className="hidden"
+          accept={getValidFileTypes(AssetType.SIMOD_CONFIGURATION)}
+          onChange={(e: any) => onHiddenInputChange(e, AssetType.SIMOD_CONFIGURATION)}
         />
 
         {assetType === AssetType.EVENT_LOG && (
@@ -314,10 +352,24 @@ export function DragAndDropForm({ assetType }: { assetType: AssetType }) {
           </div>
         )}
 
-        <button className="w-48" type="submit" onClick={handleSubmit} disabled={!submitEnabled}>
-          {navigation.state === "submitting" ? "Uploading..." : "Upload"}
+        {assetType === AssetType.SIMOD_CONFIGURATION && (
+          <DragAndDropContainer
+            className="m-4"
+            file={simodConfigurationFile}
+            assetType={assetType}
+            dragActiveFlag={simodConfigurationDragActive}
+            onDragEnter={(e) => onDragEnterOrLeaveOrOver(e, assetType, true)}
+            onDragLeave={(e) => onDragEnterOrLeaveOrOver(e, assetType, false)}
+            onDrop={(e) => onDragDrop(e, assetType)}
+            onSelectFile={() => openFileBrowser(assetType)}
+            onRemove={() => onRemoveClick(assetType)}
+          />
+        )}
+
+        <button className="w-48" type="submit" disabled={!submitEnabled}>
+          {fetcher.state === "submitting" ? "Uploading..." : "Upload"}
         </button>
-      </Form>
+      </fetcher.Form>
     </div>
   );
 }

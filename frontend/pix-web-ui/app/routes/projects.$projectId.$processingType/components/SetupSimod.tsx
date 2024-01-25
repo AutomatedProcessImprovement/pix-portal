@@ -17,13 +17,14 @@ const schema = yup.object().shape({
 });
 
 export default function SetupSimod() {
-  // Simod requires one event log and, optionally, a process model
+  // Simod requires one event log and, optionally, a process model, and, optionally, a configuration file.
   const eventLog = useSelectedInputAsset(AssetType.EVENT_LOG);
   const processModel = useSelectedInputAsset(AssetType.PROCESS_MODEL);
+  const simodConfiguration = useSelectedInputAsset(AssetType.SIMOD_CONFIGURATION);
 
   const [selectedInputAssetsIdsRef, setSelectedInputAssetsIdsRef] = useState<string[]>([]);
   async function handleClick(_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    const selectedAssets = [eventLog, processModel].filter((asset) => asset !== null) as Asset[];
+    const selectedAssets = [eventLog, processModel, simodConfiguration].filter((asset) => asset !== null) as Asset[];
     const assetsIds = selectedAssets.map((asset) => asset.id);
     setSelectedInputAssetsIdsRef(assetsIds);
     toast("Submitting processing request...", { icon: "📡", duration: 5000, position: "top-center" });

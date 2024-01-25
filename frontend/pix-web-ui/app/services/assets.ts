@@ -32,7 +32,7 @@ export function assetTypeToString(type: AssetType): string {
     case AssetType.SIMULATION_MODEL:
       return "Simulation Model";
     case AssetType.SIMOD_CONFIGURATION:
-      return "SIMOD Configuration";
+      return "Discovery Configuration";
     case AssetType.OPTIMOS_CONFIGURATION:
       return "OPTIMOS Configuration";
     default:
