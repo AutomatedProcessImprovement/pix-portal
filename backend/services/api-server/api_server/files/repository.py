@@ -32,6 +32,10 @@ class FileRepository:
             raise FileNotFoundError()
         return file
 
+    async def get_files_by_hash(self, hash: str) -> Sequence[File]:
+        result = await self.session.execute(select(File).where(File.content_hash == hash))
+        return result.scalars().all()
+
     async def get_file_hash(self, file_id: uuid.UUID) -> str:
         result = await self.session.execute(select(File.content_hash).where(File.id == file_id))
         content_hash = result.scalar()

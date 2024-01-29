@@ -1,5 +1,6 @@
 import asyncio
 import uuid
+from email import message
 from typing import AsyncGenerator, Optional, Sequence
 
 from fastapi import Depends
@@ -21,7 +22,8 @@ class AssetNotFound(Exception):
 
 
 class AssetDeletionFailed(Exception):
-    pass
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 
 class LastUserInProject(Exception):
@@ -133,9 +135,10 @@ class ProjectService:
         return await self._project_repository.add_asset_to_project(project_id, asset_id)
 
     async def remove_asset_from_project(self, project_id: uuid.UUID, asset_id: uuid.UUID) -> Project:
-        ok = await self._asset_service.delete_asset(asset_id)
-        if not ok:
-            raise AssetDeletionFailed()
+        try:
+            await self._asset_service.delete_asset(asset_id)
+        except Exception as e:
+            raise AssetDeletionFailed(f"Failed to delete asset {asset_id}: {e}")
 
         # TODO: check if there are any processing requests with this asset
 

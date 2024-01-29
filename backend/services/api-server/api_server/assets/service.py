@@ -100,9 +100,7 @@ class AssetService:
             if len(involved_assets) > 0:
                 continue
 
-            deleted_ok = await self.file_service.delete_file(file_id)
-            if not deleted_ok:
-                raise Exception("Asset deleted but files deletion failed")
+            await self.file_service.delete_file(file_id)
 
     async def delete_assets_by_project_id(self, project_id: uuid.UUID) -> None:
         assets = await self.get_assets_by_project_id(project_id)
