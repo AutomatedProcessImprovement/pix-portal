@@ -40,6 +40,20 @@ export function assetTypeToString(type: AssetType): string {
   }
 }
 
+export async function getAssetsForProject(projectId: string, token: string): Promise<Asset[]> {
+  const params = new URLSearchParams({ project_id: projectId });
+  const url = `assets/?${params}`;
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
+  const response = await fetch(u, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
+    },
+  });
+  const data = await response.json();
+  return data as Asset[];
+}
+
 export async function createAsset(filesIds: string[], name: string, type: AssetType, projectId: string, token: string) {
   const url = `assets/`;
   const payload = {

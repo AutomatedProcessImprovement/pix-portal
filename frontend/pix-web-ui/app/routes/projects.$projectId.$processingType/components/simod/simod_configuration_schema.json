@@ -91,11 +91,7 @@
             "description": "Control-flow optimization settings.",
             "properties": {
                 "optimization_metric": {
-                    "allOf": [
-                        {
-                            "$ref": "#/$defs/Metric"
-                        }
-                    ],
+                    "$ref": "#/$defs/Metric",
                     "default": "three_gram_distance"
                 },
                 "num_iterations": {
@@ -109,9 +105,29 @@
                     "type": "integer"
                 },
                 "gateway_probabilities": {
-                    "$ref": "#/$defs/GatewayProbabilitiesDiscoveryMethod",
-                    "default": "discovery",
-                    "title": "Gateway probabilities"
+                    "title": "Gateway probabilities",
+                    "anyOf": [
+                        {
+                            "title": "Single gateway probabilities discovery method",
+                            "type": "string",
+                            "$ref": "#/$defs/GatewayProbabilitiesDiscoveryMethod",
+                            "default": "discovery"
+                        },
+                        {
+                            "title": "Multiple gateway probabilities discovery methods",
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/GatewayProbabilitiesDiscoveryMethod"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "default": [
+                                "discovery",
+                                "equiprobable"
+                            ]
+                        }
+                    ],
+                    "default": "discovery"
                 },
                 "mining_algorithm": {
                     "$ref": "#/$defs/ProcessModelDiscoveryAlgorithm",
@@ -151,23 +167,31 @@
                     "eta": {
                         "title": "Eta",
                         "description": "Only for Split Miner v1: Threshold for filtering the incoming and outgoing edges (between 0.0 and 1.0)",
-                        "type": "array",
-                        "minItems": 2,
-                        "maxItems": 2,
-                        "items": [
+                        "anyOf": [
                             {
+                                "title": "Value",
                                 "type": "number",
-                                "title": "min"
+                                "default": "0.6",
+                                "minimum": 0.0,
+                                "maximum": 1.0
                             },
                             {
-                                "type": "number",
-                                "title": "max"
+                                "title": "Range",
+                                "type": "array",
+                                "items": {
+                                    "type": "number"
+                                },
+                                "minItems": 2,
+                                "maxItems": 2,
+                                "minimum": 0.0,
+                                "maximum": 1.0,
+                                "default": [
+                                    0.0,
+                                    1.0
+                                ]
                             }
                         ],
-                        "default": [
-                            0.0,
-                            1.0
-                        ]
+                        "default": 0.6
                     },
                     "replace_or_joins": {
                         "title": "Replace OR-Joins",
@@ -655,11 +679,11 @@
             "anyOf": [
                 {
                     "type": "null",
-                    "title": "Default"
+                    "title": "None"
                 },
                 {
-                    "$ref": "#/$defs/ExtraneousDelaysSettings",
-                    "title": "Custom"
+                    "title": "Custom",
+                    "$ref": "#/$defs/ExtraneousDelaysSettings"
                 }
             ],
             "default": null,

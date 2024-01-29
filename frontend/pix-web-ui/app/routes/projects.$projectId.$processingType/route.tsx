@@ -1,8 +1,14 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
 import { isRouteErrorResponse, useLoaderData, useRouteError } from "@remix-run/react";
+import { useEffect, useState } from "react";
 import type { Asset } from "~/services/assets";
-import { AssetType } from "~/services/assets";
+// TODO: Remix pushes for codebase separation into server and client-side code. Often, it doesn't make sesnse,
+//   because we need to call the code from both sides. It's became obvious with time. So, in the end, it led to code
+//   duplication in the ./app/services folder. For example, in assets.ts and assets.server.ts, we have similar
+//   functionality implemented. As a rule of thumb, it's better to go client-side first, and use *.server.ts only
+//   when necessary. Also, we need to review the services folder and refactor it to simplify the fetching.
+import { AssetType, getAssetsForProject as getAssetsForProjectOnClient } from "~/services/assets";
 import { getAssetsForProject } from "~/services/assets.server";
 import type { ProcessingRequest } from "~/services/processing_requests";
 import { ProcessingRequestType } from "~/services/processing_requests";
@@ -75,11 +81,22 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 };
 
 export default function ProcessingPage() {
-  const { processingType, assets, processingRequests } = useLoaderData<typeof loader>();
+  const { processingType, assets, processingRequests, projectId, user } = useLoaderData<typeof loader>();
+
+  const [assets_, setAssets] = useState<Asset[]>(assets);
+
+  useEffect(() => {
+    document.addEventListener("assetsUpdated", () => {
+      if (!user?.token) return;
+      getAssetsForProjectOnClient(projectId, user.token).then((assets) => {
+        setAssets(filterAssetsByType(assets, processingType as ProcessingType));
+      });
+    });
+  }, [projectId, user?.token, processingType]);
 
   return (
     <main className="grow flex flex-col space-y-16 md:space-y-0 md:grid md:grid-cols-[minmax(0,3fr)_minmax(0,9fr)_minmax(0,3fr)] bg-slate-50">
-      <ProcessingApp assets={assets} processingType={processingType} processingRequests={processingRequests} />
+      <ProcessingApp assets={assets_} processingType={processingType} processingRequests={processingRequests} />
     </main>
   );
 }

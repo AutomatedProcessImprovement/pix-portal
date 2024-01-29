@@ -51,6 +51,10 @@
     @apply border-none p-0;
   }
 
+  .rjsf * fieldset#root > .form-group:first-child {
+    @apply mt-0;
+  }
+
   .rjsf * .field {
     @apply flex flex-col mb-2;
   }
@@ -60,11 +64,11 @@
   }
 
   .rjsf * .field-object {
-    @apply my-6;
+    @apply my-6 last:mb-0;
   }
 
   .rjsf * .field-description {
-    @apply text-sm text-gray-500 mb-2;
+    @apply text-sm text-gray-500 mb-1;
   }
 
   .rjsf * .field:has(> .field-description) {
@@ -83,8 +87,16 @@
     @apply flex space-x-1 mb-4;
   }
 
+  .rjsf * .array-item-list > .array-item:last-child {
+    @apply mb-0;
+  }
+
   .rjsf * .panel {
-    @apply mt-2 mb-4;
+    @apply mb-4 border-4 rounded-xl p-4;
+  }
+
+  .rjsf * .panel > .form-group:last-child {
+    @apply mb-0;
   }
 
   #root_control_flow_epsilon * .array-item-toolbox,
@@ -97,7 +109,7 @@
   }
 
   .rjsf {
-    @apply mb-16 flex flex-col items-center;
+    @apply flex flex-col items-center;
   }
 
   .rjsf * .error-detail {
@@ -110,5 +122,9 @@
 
   .rjsf > .panel-danger.errors * .panel-title {
     @apply text-lg font-semibold border-b-4 border-red-400 w-fit mb-4;
+  }
+
+  .rjsf * .panel > .form-group.field {
+    @apply mt-2;
   }
 }

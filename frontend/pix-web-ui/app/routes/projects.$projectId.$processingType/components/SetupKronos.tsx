@@ -18,7 +18,7 @@ const schema = yup.object().shape({
 
 export default function SetupKronos() {
   // Kronos requires one event log
-  const eventLog = useSelectedInputAsset(AssetType.EVENT_LOG);
+  const [eventLog] = useSelectedInputAsset(AssetType.EVENT_LOG);
 
   const [selectedInputAssetsIdsRef, setSelectedInputAssetsIdsRef] = useState<string[]>([]);
   async function handleClick(_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {

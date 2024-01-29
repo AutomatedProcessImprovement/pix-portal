@@ -8,5 +8,5 @@ export function useSelectedInputAsset(assetType: AssetType) {
   useEffect(() => {
     setAsset(selectedAssets.find((asset) => asset.type === assetType) || null);
   }, [selectedAssets, assetType]);
-  return asset;
+  return [asset, setAsset] as const;
 }

@@ -21,7 +21,6 @@ export async function handleNewAssetsFromFormData(formData: FormData, projectId:
 
 async function createAssetsFromForm(formData: FormData, projectId: string, token: string) {
   const assetType = formData.get("assetType") as AssetType;
-  console.log("createAssetsFromForm formData", formData, "assetType", assetType);
 
   switch (assetType) {
     case AssetType.EVENT_LOG:
@@ -38,7 +37,6 @@ async function createAssetsFromForm(formData: FormData, projectId: string, token
 }
 
 async function createEventLogFromForm(formData: FormData, projectId: string, token: string) {
-  console.log("createEventLogFromForm", formData);
   // event log has 2 files, event log (CSV or CSV.GZ) and column mapping (JSON)
   const eventLog = formData.get("eventLogFile") as File;
   const eventLogColumnMapping = formData.get("eventLogColumnMapping") as string;
@@ -78,7 +76,6 @@ async function createSimulationModelFromForm(formData: FormData, projectId: stri
 
 async function createSimodConfigurationFromForm(formData: FormData, projectId: string, token: string) {
   // Simod configuration has 1 file, simod configuration (YAML)
-  console.log("createSimodConfigurationFromForm", formData);
   const simodConfiguration = formData.get("simodConfigurationFile") as File;
   if (simodConfiguration && simodConfiguration.size > 0) {
     await uploadAndCreateSimodConfiguration(simodConfiguration as File, projectId, token);

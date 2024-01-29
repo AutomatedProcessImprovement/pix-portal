@@ -40,7 +40,6 @@ export async function getProcessingRequest(id: string, token: string) {
   try {
     const data = await response.json();
     if (!data) throw new Error("No data");
-    if ("message" in data && data.message) throw new Error(data.message);
     return data as ProcessingRequest;
   } catch (e) {
     console.error(e);

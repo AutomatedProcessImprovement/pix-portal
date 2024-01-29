@@ -93,5 +93,7 @@ export async function deleteFile(fileId: string, token: string) {
       Origin: window.location.origin,
     },
   });
-  console.log(response);
+  if (response.status !== 204) {
+    throw new Error(`Error while deleting file ${fileId}`);
+  }
 }
