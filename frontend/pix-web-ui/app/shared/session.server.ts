@@ -42,9 +42,8 @@ export async function logout(request: Request, flashMessage?: FlashMessage) {
   session.set("currentUser", null);
 
   const newSession = await sessionStorage.getSession();
-  if (flashMessage) {
-    newSession.flash("globalMessage", flashMessage);
-  }
+  // recreating flash messages if any because we destroyed the previous session above
+  if (flashMessage) newSession.flash("flash", flashMessage);
 
   return redirect("/", {
     headers: {

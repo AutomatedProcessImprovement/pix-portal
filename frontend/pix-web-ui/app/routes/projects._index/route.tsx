@@ -8,8 +8,8 @@ import { listProjectsForUser } from "~/services/projects.server";
 import { requireLoggedInUser } from "~/shared/guards.server";
 import { handleThrow } from "~/shared/utils";
 import { UserContext } from "../contexts";
-import ProjectCard from "./components/ProjectCard";
 import NewProjectCard from "./components/NewProjectCard";
+import ProjectCard from "./components/ProjectCard";
 
 export const meta: MetaFunction = ({ matches }) => {
   const rootMeta = matches.find((match) => match.id === "root")?.meta as

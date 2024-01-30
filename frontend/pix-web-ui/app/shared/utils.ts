@@ -1,27 +1,13 @@
-import { getSession, logout } from "~/shared/session.server";
+import { logout } from "~/shared/session.server";
+import type { FlashMessage } from "./flash_message";
 
 export async function handleThrow(request: Request, func: () => Promise<any>) {
   try {
     return await func();
   } catch (error: any) {
     console.error("handleThrow error", error);
-
-    let globalMessage = "An unknown error occurred";
-
-    if (error.response && error.response.data && error.response.data.message) {
-      globalMessage = error.response.data.message;
-    } else if (error.message) {
-      globalMessage = error.message;
-    }
-
-    const session = await getSession(request);
-    session.flash("globalMessage", globalMessage);
-
-    return await logout(request, {
-      type: "error",
-      message: globalMessage,
-      isAlert: true,
-    });
+    const flashMessage = flashMessageFromError(error);
+    return await logout(request, flashMessage);
   }
 }
 
@@ -34,4 +20,17 @@ export function parseDate(dateString: string) {
     hour: "numeric",
     minute: "numeric",
   });
+}
+
+function flashMessageFromError(error: any) {
+  let flashMessage: FlashMessage = {
+    message: "An error occurred",
+    type: "error",
+  };
+  if (error.response && error.response.data && error.response.data.message) {
+    flashMessage.message = error.response.data.message;
+  } else if (error.message) {
+    flashMessage.message = error.message;
+  }
+  return flashMessage;
 }

@@ -1,12 +1,13 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
 import { Footer } from "~/components/Footer";
 import Header from "~/components/Header";
 import type { FlashMessage as FlashMessageType } from "~/shared/flash_message";
 import { optionalLoggedInUser } from "~/shared/guards.server";
 import { getSession, sessionStorage } from "~/shared/session.server";
-import ToastMessage from "./ToastMessage";
 import heroImage from "./pedro-lastra-Nyvq2juw4_o-unsplash.jpg";
 
 export const meta: MetaFunction = () => {
@@ -29,26 +30,24 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await optionalLoggedInUser(request);
-
   const session = await getSession(request);
-  const flashMessage = session.get("globalMessage") as FlashMessageType | undefined;
-  return json({ flashMessage, user }, { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } });
+  const flashMessage = session.get("flash") as FlashMessageType | undefined;
+  return json({ flashMessage, user }, { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }); // commit session to expire already retrieved flash messages
 }
 
 export default function Index() {
   const { flashMessage, user } = useLoaderData<typeof loader>();
 
-  if (typeof window !== "undefined") {
+  useEffect(() => {
     if (flashMessage) {
-      setTimeout(() => {
-        window && window.document.getElementById("global-message")?.remove();
-      }, 5000);
+      if (flashMessage.type === "success") toast.success(flashMessage.message);
+      else if (flashMessage.type === "error") toast.error(flashMessage.message);
+      else toast(flashMessage.message);
     }
-  }
+  }, [flashMessage]);
 
   return (
     <div className="flex flex-col h-screen">
-      {flashMessage && <ToastMessage message={flashMessage} />}
       <Header userEmail={user?.email} />
       <section className="flex flex-1 flex-col items-center justify-center">
         <div className=" md:p-16 lg:32 flex flex-col items-center">
