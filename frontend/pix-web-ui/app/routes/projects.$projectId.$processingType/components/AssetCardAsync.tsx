@@ -6,6 +6,7 @@ import { getAsset } from "~/services/assets";
 import type { User } from "~/services/auth";
 import type { File } from "~/services/files";
 import { getFile, getFileLocation } from "~/services/files";
+import { AssetCard } from "./AssetCard";
 
 export function AssetCardAsync({ assetId, user }: { assetId: string; user: User | null }) {
   const [asset, setAsset] = useState<Asset | null>(null);
@@ -18,26 +19,7 @@ export function AssetCardAsync({ assetId, user }: { assetId: string; user: User 
     });
   }, [assetId, user]);
 
-  return (
-    <div className="bg-teal-200 m-2 p-2 break-all" data-assetid={assetId}>
-      {asset && (
-        <div className="flex flex-col">
-          <div className="">
-            Name: <span className="font-semibold">{asset.name}</span>
-          </div>
-          <div>
-            Type: <span className="font-semibold">{asset.type}</span>
-          </div>
-          <div className="flex flex-col space-y-2">
-            {asset.files_ids.length > 0 &&
-              asset.files_ids.map((fileId) => (
-                <FileCardAsync key={fileId} assetId={assetId} fileId={fileId} user={user} />
-              ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <>{asset && <AssetCard asset={asset} isActive={false} isRemoveAvailable={false} isInteractive={false} />}</>;
 }
 
 export function FileCardAsync({ assetId, fileId, user }: { assetId: string; fileId: string; user: User | null }) {

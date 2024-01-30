@@ -86,20 +86,37 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
     }
   }
 
+  function textColorByStatus(status: ProcessingRequestStatus) {
+    switch (status) {
+      case ProcessingRequestStatus.CREATED:
+        return "text-teal-600";
+      case ProcessingRequestStatus.RUNNING:
+        return "text-yellow-600 animate-pulse";
+      case ProcessingRequestStatus.FINISHED:
+        return "text-green-600";
+      case ProcessingRequestStatus.FAILED:
+        return "text-red-600";
+      case ProcessingRequestStatus.CANCELLED:
+        return "text-gray-600";
+      default:
+        return "";
+    }
+  }
+
   if (!request_) return <></>;
   return (
     <div
-      className={`p-2 flex flex-col break-words tracking-normal text-sm text-slate-900 ${bgColorByStatus(
-        request_.status
-      )}`}
+      className={`flex flex-col rounded-lg p-2 border-2 break-words tracking-normal text-sm text-slate-800 bg-slate-100`}
       data-processingrequestid={request_.id}
     >
       <Suspense fallback={<div>Loading...</div>}>
-        <div>Started: {parseDate(request_.creation_time)}</div>
-        <div>
-          Status: <span className="font-semibold">{request_.status}</span>
+        <div className="mb-2 last:mb-0">
+          <p>Job started at {parseDate(request_.creation_time)}</p>
+          <p>
+            Status: <span className={`font-semibold ${textColorByStatus(request_.status)}`}>{request_.status}</span>
+          </p>
+          {formattedDuration() ? <p>Duration {formattedDuration()}</p> : <></>}
         </div>
-        {formattedDuration() ? <div>Duration {formattedDuration()}</div> : <></>}
         {request_.type === ProcessingRequestType.WAITING_TIME_ANALYSIS_KRONOS &&
           request_.status === ProcessingRequestStatus.FINISHED && (
             <Link to={`/kronos/results/${request_.id}`} target="_blank" className="shrink w-fit">

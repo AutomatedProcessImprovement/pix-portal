@@ -22,6 +22,31 @@ export enum FileType {
   WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV = "waiting_time_analysis_report_kronos_csv",
 }
 
+export function fileTypeToString(fileType: FileType) {
+  switch (fileType) {
+    case FileType.EVENT_LOG_CSV:
+      return "Event Log";
+    case FileType.EVENT_LOG_CSV_GZ:
+      return "Event Log";
+    case FileType.EVENT_LOG_COLUMN_MAPPING_JSON:
+      return "Column Mapping";
+    case FileType.PROCESS_MODEL_BPMN:
+      return "Process Model";
+    case FileType.CONFIGURATION_SIMOD_YAML:
+      return "Discovery Configuration";
+    case FileType.SIMULATION_MODEL_PROSIMOS_JSON:
+      return "Simulation Model";
+    case FileType.STATISTICS_PROSIMOS_CSV:
+      return "Simulation Statistics";
+    case FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON:
+      return "Optimizer Model";
+    case FileType.WAITING_TIME_ANALYSIS_REPORT_KRONOS_JSON:
+      return "Waiting Time Report (JSON)";
+    case FileType.WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV:
+      return "Waiting Time Report (CSV)";
+  }
+}
+
 export async function getFile(fileId: string, token: string) {
   const url = `files/${fileId}`;
   const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
