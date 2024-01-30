@@ -1,5 +1,5 @@
 import assert from "assert";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 assert.ok(process.env.BACKEND_BASE_URL, "BACKEND_BASE_URL is not set");
 assert.ok(process.env.BACKEND_BASE_URL!.length > 0, "BACKEND_BASE_URL is empty");
@@ -30,7 +30,10 @@ http.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error("Axios client failed on the backend:", error);
+    const err = error as AxiosError;
+    console.error(
+      `Axios client failed while requesting the backend: code=${err.code} message=${err.message} method=${err.request?.method} host=${err.request?.host} path=${err.request?.path}`
+    );
     if (error.response.status === 401) {
       console.error("Unauthorized:", error.response.data.message);
     }

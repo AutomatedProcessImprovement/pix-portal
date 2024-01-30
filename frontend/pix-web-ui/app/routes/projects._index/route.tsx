@@ -1,12 +1,14 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { Footer } from "~/components/Footer";
 import Header from "~/components/Header";
 import type { Project } from "~/services/projects";
 import { listProjectsForUser } from "~/services/projects.server";
 import { requireLoggedInUser } from "~/shared/guards.server";
+import { getFlashMessage, sessionStorage } from "~/shared/session.server";
 import { handleThrow } from "~/shared/utils";
+import { useFlashMessage } from "../_index/route";
 import { UserContext } from "../contexts";
 import NewProjectCard from "./components/NewProjectCard";
 import ProjectCard from "./components/ProjectCard";
@@ -29,20 +31,19 @@ export const meta: MetaFunction = ({ matches }) => {
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireLoggedInUser(request);
+  const [flashMessage, session] = await getFlashMessage(request);
   return handleThrow(request, async () => {
-    let projects;
-    try {
-      projects = await listProjectsForUser(user.id, user.token!);
-    } catch (error) {
-      console.error(error);
-      throw redirect("/login");
-    }
-    return json({ user, projects });
+    const projects = await listProjectsForUser(user.id, user.token!);
+    return json(
+      { user, projects, flashMessage },
+      { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
+    );
   });
 };
 
 export default function ProjectsPage() {
-  const { user, projects } = useLoaderData<typeof loader>();
+  const { user, projects, flashMessage } = useLoaderData<typeof loader>();
+  useFlashMessage(flashMessage);
 
   return (
     <div className="flex flex-col h-screen justify-between">

@@ -5,9 +5,9 @@ import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { Footer } from "~/components/Footer";
 import Header from "~/components/Header";
-import type { FlashMessage as FlashMessageType } from "~/shared/flash_message";
+import type { FlashMessage } from "~/shared/flash_message";
 import { optionalLoggedInUser } from "~/shared/guards.server";
-import { getSession, sessionStorage } from "~/shared/session.server";
+import { getFlashMessage, sessionStorage } from "~/shared/session.server";
 import heroImage from "./pedro-lastra-Nyvq2juw4_o-unsplash.jpg";
 
 export const meta: MetaFunction = () => {
@@ -30,21 +30,13 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await optionalLoggedInUser(request);
-  const session = await getSession(request);
-  const flashMessage = session.get("flash") as FlashMessageType | undefined;
+  const [flashMessage, session] = await getFlashMessage(request);
   return json({ flashMessage, user }, { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }); // commit session to expire already retrieved flash messages
 }
 
 export default function Index() {
   const { flashMessage, user } = useLoaderData<typeof loader>();
-
-  useEffect(() => {
-    if (flashMessage) {
-      if (flashMessage.type === "success") toast.success(flashMessage.message);
-      else if (flashMessage.type === "error") toast.error(flashMessage.message);
-      else toast(flashMessage.message);
-    }
-  }, [flashMessage]);
+  useFlashMessage(flashMessage);
 
   return (
     <div className="flex flex-col h-screen">
@@ -75,4 +67,14 @@ export default function Index() {
       <Footer />
     </div>
   );
+}
+
+export function useFlashMessage(flashMessage: FlashMessage) {
+  useEffect(() => {
+    if (flashMessage) {
+      if (flashMessage.type === "success") toast.success(flashMessage.message);
+      else if (flashMessage.type === "error") toast.error(flashMessage.message);
+      else toast(flashMessage.message);
+    }
+  }, [flashMessage]);
 }

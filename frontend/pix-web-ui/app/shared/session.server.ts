@@ -36,6 +36,12 @@ export async function getSession(request: Request) {
   return sessionStorage.getSession(cookie);
 }
 
+export async function getFlashMessage(request: Request) {
+  const session = await getSession(request);
+  const message = session.get("flash") as FlashMessage;
+  return [message, session] as const;
+}
+
 export async function logout(request: Request, flashMessage?: FlashMessage) {
   const session = await getSession(request);
   await sessionStorage.destroySession(session);

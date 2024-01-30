@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs, Session } from "@remix-run/node";
 import { json, redirect, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
 import { isRouteErrorResponse, useLoaderData, useRouteError } from "@remix-run/react";
 import { useEffect, useState } from "react";
@@ -14,16 +14,19 @@ import type { ProcessingRequest } from "~/services/processing_requests";
 import { ProcessingRequestType } from "~/services/processing_requests";
 import { createProcessingRequest, getProcessingRequestsForProject } from "~/services/processing_requests.server";
 import { handleNewAssetsFromFormData } from "~/shared/file_upload_handler.server";
+import { FlashMessage } from "~/shared/flash_message";
 import { requireLoggedInUser } from "~/shared/guards.server";
 import { ProcessingType } from "~/shared/processing_type";
+import { getFlashMessage, sessionStorage } from "~/shared/session.server";
 import { handleThrow } from "~/shared/utils";
+import { useFlashMessage } from "../_index/route";
 import ProcessingApp from "./components/ProcessingApp";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const [flashMessage, session] = await getFlashMessage(request);
   const processingType = params.processingType as string;
   const projectId = params.projectId as string;
-  ensureProcessingTypeValidOrRedirect(processingType, projectId);
-
+  await ensureProcessingTypeValidOrRedirect(processingType, projectId, session);
   const user = await requireLoggedInUser(request);
 
   return handleThrow(request, async () => {
@@ -33,13 +36,19 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     let processingRequests = await getProcessingRequestsForProject(projectId, user.token!);
     processingRequests = filterRequestsByType(processingRequests, processingType as ProcessingType);
 
-    return json({ assets, processingType, processingRequests, user, projectId });
+    return json(
+      { assets, processingType, processingRequests, user, projectId, flashMessage },
+      { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
+    );
   });
 };
 
-function ensureProcessingTypeValidOrRedirect(processingType: string, projectId: string) {
+async function ensureProcessingTypeValidOrRedirect(processingType: string, projectId: string, session: Session) {
   if (!Object.values(ProcessingType).includes(processingType as ProcessingType)) {
-    throw redirect(`/projects/${projectId}`);
+    session.flash("flash", { message: "No such processing option", type: "error" } as FlashMessage);
+    throw redirect(`/projects/${projectId}`, {
+      headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
+    });
   }
 }
 
@@ -48,7 +57,8 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
   const processingType = params.processingType as string;
   const projectId = params.projectId as string;
-  ensureProcessingTypeValidOrRedirect(processingType, projectId);
+  const [, session] = await getFlashMessage(request);
+  ensureProcessingTypeValidOrRedirect(processingType, projectId, session);
 
   // Either handle asset upload --
   let formData: FormData;
@@ -81,7 +91,8 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 };
 
 export default function ProcessingPage() {
-  const { processingType, assets, processingRequests, projectId, user } = useLoaderData<typeof loader>();
+  const { processingType, assets, processingRequests, projectId, user, flashMessage } = useLoaderData<typeof loader>();
+  useFlashMessage(flashMessage);
 
   const [assets_, setAssets] = useState<Asset[]>(assets);
 

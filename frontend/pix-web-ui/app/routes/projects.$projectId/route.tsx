@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Outlet, useLoaderData, useMatches } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { Footer } from "~/components/Footer";
@@ -9,7 +9,9 @@ import { getProject } from "~/services/projects.server";
 import { handleNewAssets } from "~/shared/file_upload_handler.server";
 import { requireLoggedInUser, requireProjectIdInParams } from "~/shared/guards.server";
 import { ProcessingTypes } from "~/shared/processing_type";
+import { getFlashMessage, sessionStorage } from "~/shared/session.server";
 import { handleThrow } from "~/shared/utils";
+import { useFlashMessage } from "../_index/route";
 import { UserContext } from "../contexts";
 import { ProcessingCard } from "./components/ProcessingCard";
 import { ProcessingCardMini } from "./components/ProcessingCardMini";
@@ -36,15 +38,17 @@ export const meta: MetaFunction = ({ matches }) => {
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const projectId = params.projectId;
-  if (!projectId) {
-    return redirect("/projects");
-  }
+  if (!projectId) throw new Error("Project ID is required in the path");
 
   const user = await requireLoggedInUser(request);
+  const [flashMessage, session] = await getFlashMessage(request);
 
   return handleThrow(request, async () => {
     const project = await getProject(projectId, user.token!);
-    return json({ user, project });
+    return json(
+      { user, project, flashMessage },
+      { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
+    );
   });
 }
 
@@ -60,7 +64,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function ProjectPage() {
-  const { user, project } = useLoaderData<typeof loader>();
+  const { user, project, flashMessage } = useLoaderData<typeof loader>();
+  useFlashMessage(flashMessage);
 
   const matches = useMatches();
   const [isProcessingPageActive, setIsProcessingPageActive] = useState(false);

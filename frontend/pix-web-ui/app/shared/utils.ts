@@ -1,13 +1,35 @@
-import { logout } from "~/shared/session.server";
+import { json, redirect } from "@remix-run/node";
+import { AxiosError } from "axios";
+import { getSession, logout, sessionStorage } from "~/shared/session.server";
 import type { FlashMessage } from "./flash_message";
 
 export async function handleThrow(request: Request, func: () => Promise<any>) {
   try {
     return await func();
   } catch (error: any) {
-    console.error("handleThrow error", error);
     const flashMessage = flashMessageFromError(error);
-    return await logout(request, flashMessage);
+    const session = await getSession(request);
+    session.flash("flash", flashMessage);
+    const responseInit = {
+      headers: {
+        "Set-Cookie": await sessionStorage.commitSession(session),
+      },
+    };
+
+    if (error instanceof AxiosError) {
+      console.error("handleThrow error:", error.message);
+      if (error.response?.status === 401) {
+        // if unauthorized then logout
+        return await logout(request, flashMessage);
+      } else if (error.response?.status === 422) {
+        // if bad request then redirect to a known URL
+        return redirect("/projects", responseInit);
+      }
+    } else {
+      console.error("handleThrow error:", error);
+    }
+
+    return json({}, responseInit);
   }
 }
 
