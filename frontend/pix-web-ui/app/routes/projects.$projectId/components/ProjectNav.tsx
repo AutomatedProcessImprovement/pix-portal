@@ -5,12 +5,12 @@ import UploadAssetButton from "~/components/asset-upload/UploadAssetButton";
 import UploadAssetDialog from "~/components/asset-upload/UploadAssetDialog";
 import type { ILabeledAny } from "~/components/shared";
 import { deleteProject, type Project } from "~/services/projects";
-import SelectList from "../../components/SelectList";
-import { UserContext } from "../contexts";
-import { NewProjectDialog } from "../projects._index/NewProjectDialog";
+import SelectList from "../../../components/SelectList";
+import { UserContext } from "../../contexts";
+import { NewProjectDialog } from "../../projects._index/components/NewProjectDialog";
+import { ProjectContext } from "../contexts";
+import { useProjects } from "../hooks/useProjects";
 import { EditProjectDialog } from "./EditProjectDialog";
-import { ProjectContext } from "./contexts";
-import { useProjects } from "./useProjects";
 
 export default function ProjectNav({ project }: { project?: Project }) {
   const user = useContext(UserContext);

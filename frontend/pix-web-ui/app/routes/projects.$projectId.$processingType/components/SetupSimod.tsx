@@ -8,11 +8,11 @@ import { Input } from "~/components/Input";
 import { UserContext } from "~/routes/contexts";
 import type { Asset } from "~/services/assets";
 import { AssetType } from "~/services/assets";
+import { useFormRef } from "../hooks/useFormRef";
+import { useSimodConfigurationFromAsset } from "../hooks/useSimodConfigurationFromAsset";
 import { ProcessingAppSection } from "./ProcessingAppSection";
 import { SimodConfigurationForm } from "./simod/SimodConfigurationForm";
-import { useFormRef } from "./useFormRef";
 import { useSelectedInputAsset } from "./useSelectedInputAsset";
-import { useSimodConfigurationFromAsset } from "./useSimodConfigurationFromAsset";
 
 const schema = yup.object().shape({
   shouldNotify: yup.boolean().default(false),

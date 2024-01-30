@@ -8,10 +8,10 @@ import { Input } from "~/components/Input";
 import { UserContext } from "~/routes/contexts";
 import type { Asset } from "~/services/assets";
 import { AssetType, getAsset } from "~/services/assets";
+import { SelectedAssetsContext } from "../contexts";
+import { useFormRef } from "../hooks/useFormRef";
 import { ProcessingAppSection } from "./ProcessingAppSection";
 import ProsimosConfiguration from "./ProsimosConfiguration";
-import { SelectedAssetsContext } from "./contexts";
-import { useFormRef } from "./useFormRef";
 
 const schema = yup.object().shape({
   shouldNotify: yup.boolean().default(false),

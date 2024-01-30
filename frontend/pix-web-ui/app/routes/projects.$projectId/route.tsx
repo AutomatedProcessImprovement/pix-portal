@@ -11,9 +11,9 @@ import { requireLoggedInUser, requireProjectIdInParams } from "~/shared/guards.s
 import { ProcessingTypes } from "~/shared/processing_type";
 import { handleThrow } from "~/shared/utils";
 import { UserContext } from "../contexts";
-import { ProcessingCard } from "./ProcessingCard";
-import { ProcessingCardMini } from "./ProcessingCardMini";
-import ProjectNav from "./ProjectNav";
+import { ProcessingCard } from "./components/ProcessingCard";
+import { ProcessingCardMini } from "./components/ProcessingCardMini";
+import ProjectNav from "./components/ProjectNav";
 import { ProjectContext } from "./contexts";
 
 export const meta: MetaFunction = ({ matches }) => {

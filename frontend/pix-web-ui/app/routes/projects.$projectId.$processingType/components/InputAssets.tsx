@@ -3,10 +3,10 @@ import UploadAssetButton from "~/components/asset-upload/UploadAssetButton";
 import UploadAssetDialog from "~/components/asset-upload/UploadAssetDialog";
 import type { Asset, AssetType } from "~/services/assets";
 import { ProcessingType, processingTypeToAssetType } from "~/shared/processing_type";
+import { AssetsContext, SelectedAssetsContext } from "../contexts";
+import { useProcessingType } from "../hooks/useProcessingType";
 import { AssetCard } from "./AssetCard";
 import { ProcessingAppSection } from "./ProcessingAppSection";
-import { AssetsContext, SelectedAssetsContext } from "./contexts";
-import { useProcessingType } from "./useProcessingType";
 
 export default function InputAssets({ setSelectedAssets }: { setSelectedAssets: (assets: Asset[]) => void }) {
   const processingType = useProcessingType();

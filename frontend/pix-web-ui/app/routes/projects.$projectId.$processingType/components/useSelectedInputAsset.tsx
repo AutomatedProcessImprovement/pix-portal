@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import type { Asset, AssetType } from "~/services/assets";
-import { SelectedAssetsContext } from "./contexts";
+import { SelectedAssetsContext } from "../contexts";
 
 export function useSelectedInputAsset(assetType: AssetType) {
   const selectedAssets = useContext(SelectedAssetsContext);

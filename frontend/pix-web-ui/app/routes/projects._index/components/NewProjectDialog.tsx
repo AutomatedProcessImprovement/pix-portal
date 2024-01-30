@@ -5,11 +5,11 @@ import { useContext, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useDialog } from "~/components/asset-upload/useDialog";
 import { createProject, type Project } from "~/services/projects";
-import { FormErrors } from "../../components/FormErrors";
-import { Input } from "../../components/Input";
-import { UserContext } from "../contexts";
-import type { NewProjectSchema } from "./schema";
-import { schema } from "./schema";
+import { FormErrors } from "../../../components/FormErrors";
+import { Input } from "../../../components/Input";
+import { UserContext } from "../../contexts";
+import type { NewProjectSchema } from "../schema";
+import { schema } from "../schema";
 
 export function NewProjectDialog({ children }: { children: React.ReactNode }) {
   const { isOpen, open, close } = useDialog();

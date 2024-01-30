@@ -7,9 +7,9 @@ import * as yup from "yup";
 import { Input } from "~/components/Input";
 import type { Asset } from "~/services/assets";
 import { AssetType } from "~/services/assets";
+import { useFormRef } from "../hooks/useFormRef";
 import { AssetCard } from "./AssetCard";
 import { ProcessingAppSection } from "./ProcessingAppSection";
-import { useFormRef } from "./useFormRef";
 import { useSelectedInputAsset } from "./useSelectedInputAsset";
 
 const schema = yup.object().shape({

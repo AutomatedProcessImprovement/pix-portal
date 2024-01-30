@@ -6,7 +6,7 @@ import { type Asset } from "~/services/assets";
 import { FileType } from "~/services/files";
 import { removeAssetFromProject } from "~/services/projects";
 import { parseDate } from "~/shared/utils";
-import { useAssetFile } from "./useAssetFile";
+import { useAssetFile } from "../hooks/useAssetFile";
 import { useDownloadProps } from "./useDownloadProps";
 
 export function AssetCard({

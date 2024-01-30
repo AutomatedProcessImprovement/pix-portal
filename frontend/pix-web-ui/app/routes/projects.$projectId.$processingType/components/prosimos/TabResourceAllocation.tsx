@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { BpmnDataContext } from "../contexts";
+import { BpmnDataContext } from "../../contexts";
 import { DistributionNameAndValues } from "./DistributionNameAndValues";
 import FormSection from "./FormSection";
 import { Select } from "./Select";

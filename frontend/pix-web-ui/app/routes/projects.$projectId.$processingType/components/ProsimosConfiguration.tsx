@@ -8,7 +8,7 @@ import { patchAsset, type Asset } from "~/services/assets";
 import type { File as File_ } from "~/services/files";
 import { FileType, deleteFile, getFileContent, uploadFile } from "~/services/files";
 import { FormErrors } from "../../../components/FormErrors";
-import { BpmnDataContext } from "./contexts";
+import { BpmnDataContext } from "../contexts";
 import { TabBatching } from "./prosimos/TabBatching";
 import { TabCaseArrival } from "./prosimos/TabCaseArrival";
 import { TabCaseAttributes } from "./prosimos/TabCaseAttributes";
