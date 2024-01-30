@@ -3,6 +3,7 @@ import { ArrowDownTrayIcon, BarsArrowDownIcon, TrashIcon } from "@heroicons/reac
 import { useContext } from "react";
 import { UserContext } from "~/routes/contexts";
 import { type Asset } from "~/services/assets";
+import { FileType } from "~/services/files";
 import { removeAssetFromProject } from "~/services/projects";
 import { parseDate } from "~/shared/utils";
 import { useAssetFile } from "./useAssetFile";
@@ -98,9 +99,7 @@ function AssetFilesDropdown({ asset, ...rest }: { asset: Asset } & React.HTMLAtt
 
 function AssetFileAsync({ assetId, fileId }: { assetId: string; fileId: string }) {
   const user = useContext(UserContext);
-
   const { file, fileLocation } = useAssetFile(assetId, fileId, user!);
-
   const { downloadUrl, hiddenAnchorRef, handleClick } = useDownloadProps(fileLocation, user);
 
   return (
@@ -111,7 +110,7 @@ function AssetFileAsync({ assetId, fileId }: { assetId: string; fileId: string }
             <ArrowDownTrayIcon className="w-5 h-5" />
             <div onClick={handleClick} className="flex flex-col p-2">
               <span className="font-semibold">{file.name}</span>
-              <span className="text-sm">{file.type}</span>
+              <span className="text-xs text-slate-400 tracking-wide">{formatFileType(file.type as FileType)}</span>
             </div>
           </div>
           {downloadUrl && (
@@ -131,4 +130,29 @@ function AssetFileAsync({ assetId, fileId }: { assetId: string; fileId: string }
       {!file && !fileLocation && <span>Loading...</span>}
     </div>
   );
+}
+
+function formatFileType(fileType: FileType) {
+  switch (fileType) {
+    case FileType.EVENT_LOG_CSV:
+      return "Event Log";
+    case FileType.EVENT_LOG_CSV_GZ:
+      return "Event Log";
+    case FileType.EVENT_LOG_COLUMN_MAPPING_JSON:
+      return "Column Mapping";
+    case FileType.PROCESS_MODEL_BPMN:
+      return "Process Model";
+    case FileType.CONFIGURATION_SIMOD_YAML:
+      return "Discovery Configuration";
+    case FileType.SIMULATION_MODEL_PROSIMOS_JSON:
+      return "Simulation Model";
+    case FileType.STATISTICS_PROSIMOS_CSV:
+      return "Simulation Statistics";
+    case FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON:
+      return "Optimizer Model";
+    case FileType.WAITING_TIME_ANALYSIS_REPORT_KRONOS_JSON:
+      return "Waiting Time Report (JSON)";
+    case FileType.WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV:
+      return "Waiting Time Report (CSV)";
+  }
 }
