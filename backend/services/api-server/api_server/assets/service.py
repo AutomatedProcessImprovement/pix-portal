@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import uuid
 from typing import AsyncGenerator, Optional, Sequence
 
@@ -9,6 +10,8 @@ from api_server.assets.repository import AssetRepository, get_asset_repository
 from api_server.assets.schemas import AssetOut
 from api_server.files.model import File
 from api_server.files.service import FileService, get_file_service
+
+logger = logging.getLogger()
 
 
 class AssetService:
@@ -92,7 +95,10 @@ class AssetService:
         asset = await self.get_asset(asset_id)
         await self.asset_repository.delete_asset(asset_id)
         for file_id in asset.files_ids:
-            await self.file_service.delete_file(file_id)
+            try:
+                await self.file_service.delete_file(file_id)
+            except Exception as e:
+                logger.error(f"Failed to delete file {file_id}: {e}")
 
     async def delete_assets_by_project_id(self, project_id: uuid.UUID) -> None:
         assets = await self.get_assets_by_project_id(project_id)

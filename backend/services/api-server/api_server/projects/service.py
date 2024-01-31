@@ -1,6 +1,6 @@
 import asyncio
+import logging
 import uuid
-from email import message
 from typing import AsyncGenerator, Optional, Sequence
 
 from fastapi import Depends
@@ -11,6 +11,8 @@ from api_server.assets.service import AssetService, get_asset_service
 from api_server.projects.model import Project
 from api_server.projects.repository import ProjectRepository, get_project_repository
 from api_server.users.users import UserManager, get_user_manager
+
+logger = logging.getLogger()  # noqa: F821
 
 
 class UserNotFound(Exception):
@@ -155,7 +157,7 @@ class ProjectService:
         try:
             await self._asset_service.delete_assets_by_project_id(project_id)
         except Exception as e:
-            raise AssetDeletionFailed(f"Failed to delete assets of project {project_id}: {e}")
+            logger.exception(f"Failed to delete assets of project {project_id}: {e}")
 
         await self._project_repository.delete_project(project_id)
 
