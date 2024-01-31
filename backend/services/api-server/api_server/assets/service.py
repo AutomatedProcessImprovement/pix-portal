@@ -91,21 +91,16 @@ class AssetService:
     async def delete_asset(self, asset_id: uuid.UUID) -> None:
         asset = await self.get_asset(asset_id)
         await self.asset_repository.delete_asset(asset_id)
-
         for file_id in asset.files_ids:
-            involved_assets = await self.get_assets_by_file_id(file_id)
-
-            # guard to avoid deleting files that are used by other assets
-            involved_assets = [asset for asset in involved_assets if (asset.id != asset_id and not asset.deletion_time)]
-            if len(involved_assets) > 0:
-                continue
-
             await self.file_service.delete_file(file_id)
 
     async def delete_assets_by_project_id(self, project_id: uuid.UUID) -> None:
         assets = await self.get_assets_by_project_id(project_id)
         asset_ids = [asset.id for asset in assets]
         await self.asset_repository.delete_assets(asset_ids)
+        for asset in assets:
+            for file_id in asset.files_ids:
+                await self.file_service.delete_file(file_id)
 
     async def does_asset_exist(self, asset_id: uuid.UUID) -> bool:
         asset = await self.asset_repository.get_asset(asset_id)

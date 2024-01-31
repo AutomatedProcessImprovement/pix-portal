@@ -8,14 +8,13 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
-from api_server import users
 from api_server.assets.controller import router as assets_router
 from api_server.files.blobs_controller import router as blobs_router
 from api_server.files.files_controller import router as files_router
 from api_server.processing_requests.controller import router as processing_router
 from api_server.projects.controller import router as projects_router
 from api_server.users.init_db import create_initial_user, create_system_user
-from api_server.users.schemas import UserCreate, UserRead, UserUpdate
+from api_server.users.schemas import UserCreate, UserRead
 from api_server.users.users import auth_backend, current_optional_user, fastapi_users
 from api_server.users.users_controller import users_router
 from api_server.utils.exceptions.fastapi_handlers import general_exception_handler, http_exception_handler

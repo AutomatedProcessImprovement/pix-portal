@@ -28,28 +28,10 @@ class FileService:
 
     async def save_file(self, name: str, file_type: FileType, file_bytes: bytes, users_ids: list[uuid.UUID]) -> File:
         hash = self._compute_sha256(file_bytes)
-
-        # if self._hash_exists_on_disk(hash):
-        #     try:
-        #         file = await self.file_repository.get_file_by_hash(hash)
-        #         if file.deletion_time is not None:
-        #             raise FileNotFoundError
-
-        #         # add users if they don't have access to the file yet
-        #         if not await self.users_have_access_to_file(users_ids, file.id):
-        #             await self.file_repository.add_users_to_file_if_needed(file.id, users_ids)
-
-        #         raise FileExists(file)
-        #     except FileNotFoundError:
-        #         # File exists on disk but not in database, continue creating the database record
-        #         pass
-        # else:
         file_path = self.base_dir / hash
         with file_path.open("wb") as file:
             file.write(file_bytes)
-
         url = self._generate_url(hash)
-
         return await self.file_repository.create_file(
             name=name,
             content_hash=hash,
@@ -74,7 +56,7 @@ class FileService:
         #   Each file on disk can have multiple references from File entities in the database (to preserve space)
         #   because we create new files only when the hash of the file content is different.
         other_references = await self.file_repository.get_files_by_hash(content_hash)
-        other_references = [file for file in other_references if file.id != file_id]
+        other_references = [file for file in other_references if file.id != file_id and file.deletion_time is None]
         if len(other_references) == 0:
             self._remove_file_from_disk(content_hash)
 

@@ -152,8 +152,6 @@ class ProjectService:
         return await self._project_repository.add_processing_request_to_project(project_id, processing_request_id)
 
     async def delete_project(self, project_id: uuid.UUID) -> None:
-        # TODO: cancel processing requests
-
         try:
             await self._asset_service.delete_assets_by_project_id(project_id)
         except Exception:
