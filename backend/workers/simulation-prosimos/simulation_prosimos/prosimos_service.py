@@ -186,6 +186,7 @@ class ProsimosService:
         finally:
             for file in files_to_delete:
                 if file.path.exists():
+                    logger.info(f"Deleting file: {file.path}")
                     file.path.unlink()
 
         # set token to None to force re-authentication, because the token might have expired
