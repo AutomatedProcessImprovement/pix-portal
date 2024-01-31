@@ -32,7 +32,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   return handleThrow(request, async () => {
     let assets = await getAssetsForProject(projectId, user.token!);
     assets = filterAssetsByType(assets, processingType as ProcessingType);
-    console.log("assets", assets);
 
     let processingRequests = await getProcessingRequestsForProject(projectId, user.token!);
     processingRequests = filterRequestsByType(processingRequests, processingType as ProcessingType);

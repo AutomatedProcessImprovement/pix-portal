@@ -89,7 +89,7 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
   function textColorByStatus(status: ProcessingRequestStatus) {
     switch (status) {
       case ProcessingRequestStatus.CREATED:
-        return "text-teal-600";
+        return "text-blue-600";
       case ProcessingRequestStatus.RUNNING:
         return "text-yellow-600 animate-pulse";
       case ProcessingRequestStatus.FINISHED:
@@ -106,11 +106,11 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
   if (!request_) return <></>;
   return (
     <div
-      className={`flex flex-col rounded-lg p-2 border-2 break-words tracking-normal text-sm text-slate-800 bg-slate-100`}
+      className={`flex flex-col space-y-2 rounded-lg p-2 border-2 break-words tracking-normal text-sm text-slate-800 bg-slate-100`}
       data-processingrequestid={request_.id}
     >
       <Suspense fallback={<div>Loading...</div>}>
-        <div className="mb-2 last:mb-0">
+        <div>
           <p>Job started at {parseDate(request_.creation_time)}</p>
           <p>
             Status: <span className={`font-semibold ${textColorByStatus(request_.status)}`}>{request_.status}</span>
