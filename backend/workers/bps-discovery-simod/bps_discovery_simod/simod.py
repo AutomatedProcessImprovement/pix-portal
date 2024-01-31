@@ -85,41 +85,14 @@ class SimodService:
                     files_to_delete.extend(asset.files)
 
             # update Simod configuration to include the correct event log path, process model
-            config_file, event_log_file, column_mapping_file, process_model_file = self._extract_input_files(assets)
-            self._validate_input_files([event_log_file])  # only event log is required, other files are optional
-            if config_file is None:
-                config_file_path = self._copy_default_configuration(processing_request.processing_request_id)
-            else:
-                config_file_path = Path(config_file.path)
-            self._update_configuration_file(
-                config_file_path,
-                event_log_file.path,
-                column_mapping_file.path if column_mapping_file else None,
-                process_model_file.path if process_model_file else None,
-            )
+            event_log_path, config_file_path = self.update_configuration(assets, processing_request)
 
             # run Simod, it can take hours
-            results_dir = self._simod_results_base_dir / processing_request.processing_request_id
+            results_dir, result_dir, result_stdout, result_stderr = self.run_simod(config_file_path, processing_request)
             dirs_to_delete.append(results_dir)
-            results_dir.mkdir(parents=True, exist_ok=True)
-            result = _start_simod_discovery_subprocess(config_file_path, results_dir)
-            result_stdout = result.stdout if result.stdout is not None else ""
-            result_stderr = result.stderr if result.stderr is not None else ""
 
             # upload results and create corresponding assets
-            result_dir = result.output_dir
-            bpmn_path, prosimos_json_path = self._find_simod_results_file_paths(result_dir, event_log_file.path)
-            bpmn_file = File_(name=bpmn_path.name, type=FileType.PROCESS_MODEL_BPMN, path=bpmn_path)
-            prosimos_json_file = File_(
-                name=prosimos_json_path.name, type=FileType.SIMULATION_MODEL_PROSIMOS_JSON, path=prosimos_json_path
-            )
-            simulation_model_asset_id = await self._asset_service_client.create_asset(
-                files=[bpmn_file, prosimos_json_file],
-                project_id=processing_request.project_id,
-                asset_name=bpmn_path.stem,
-                asset_type=AssetType.SIMULATION_MODEL,
-                users_ids=[UUID(processing_request.user_id)],
-            )
+            simulation_model_asset_id = await self.upload_results(result_dir, event_log_path, processing_request)
 
             # update project assets
             # NOTE: assets must be added to the project first before adding them to the processing request,
@@ -144,7 +117,7 @@ class SimodService:
 
             # send email notification to queue
             if processing_request.should_notify:
-                await self._send_email_notification(processing_request, is_success=True)
+                await self.send_email_notification(processing_request, is_success=True)
         except Exception as e:
             trace = traceback.format_exc()
             logger.error(
@@ -165,7 +138,7 @@ class SimodService:
 
             # send email notification to queue
             if processing_request.should_notify:
-                await self._send_email_notification(processing_request, is_success=False, message=e.__str__())
+                await self.send_email_notification(processing_request, is_success=False, message=e.__str__())
         finally:
             # remove downloaded files
             for file in files_to_delete:
@@ -180,6 +153,69 @@ class SimodService:
         self._asset_service_client._file_client.nullify_token()
         self._project_service_client.nullify_token()
         self._processing_request_service_client.nullify_token()
+
+    def update_configuration(self, assets: list[Asset], processing_request: ProcessingRequest):
+        """
+        Updates the Simod configuration file to include the correct event log path, process model.
+        """
+        config_file, event_log_file, column_mapping_file, process_model_file = self._extract_input_files(assets)
+        self._validate_input_files([event_log_file])  # only event log is required, other files are optional
+        if config_file is None:
+            config_file_path = self._copy_default_configuration(processing_request.processing_request_id)
+        else:
+            config_file_path = Path(config_file.path)
+        self._update_configuration_file(
+            config_file_path,
+            event_log_file.path,
+            column_mapping_file.path if column_mapping_file else None,
+            process_model_file.path if process_model_file else None,
+        )
+        return event_log_file.path, config_file_path
+
+    def run_simod(self, config_file_path: Path, processing_request: ProcessingRequest):
+        results_dir = self._simod_results_base_dir / processing_request.processing_request_id
+        results_dir.mkdir(parents=True, exist_ok=True)
+        result = _start_simod_discovery_subprocess(config_file_path, results_dir)
+        result_stdout = result.stdout if result.stdout is not None else ""
+        result_stderr = result.stderr if result.stderr is not None else ""
+        return results_dir, result.output_dir, result_stdout, result_stderr
+
+    async def upload_results(self, result_dir: Path, event_log_path: Path, processing_request: ProcessingRequest):
+        bpmn_path, prosimos_json_path = self._find_simod_results_file_paths(result_dir, event_log_path)
+        bpmn_file = File_(name=bpmn_path.name, type=FileType.PROCESS_MODEL_BPMN, path=bpmn_path)
+        prosimos_json_file = File_(
+            name=prosimos_json_path.name, type=FileType.SIMULATION_MODEL_PROSIMOS_JSON, path=prosimos_json_path
+        )
+        simulation_model_asset_id = await self._asset_service_client.create_asset(
+            files=[bpmn_file, prosimos_json_file],
+            project_id=processing_request.project_id,
+            asset_name=bpmn_path.stem,
+            asset_type=AssetType.SIMULATION_MODEL,
+            users_ids=[UUID(processing_request.user_id)],
+        )
+        return simulation_model_asset_id
+
+    async def send_email_notification(self, processing_request: ProcessingRequest, is_success: bool, message: str = ""):
+        email_notification_producer = EmailNotificationProducer(client_id="bps-discovery-simod")
+        user = await self._user_service_client.get_user(user_id=UUID(processing_request.user_id))
+        user_email = str(user["email"])
+        if is_success:
+            msg = EmailNotificationRequest(
+                processing_request_id=processing_request.processing_request_id,
+                to_addrs=[user_email],
+                subject="[PIX Notification] BPS discovery and optimization with Simod has finished",
+                body=f"Processing request {processing_request.processing_request_id} has finished successfully.",
+            )
+        else:
+            msg = EmailNotificationRequest(
+                processing_request_id=processing_request.processing_request_id,
+                to_addrs=[user_email],
+                subject="[PIX Notification] BPS discovery and optimization with Simod has failed",
+                body=f"Processing request {processing_request.processing_request_id} has failed.",
+            )
+        if message:
+            msg.body += f"\n\nDetails:\n{message}"
+        email_notification_producer.send_message(msg)
 
     def _extract_input_files(
         self, assets: list[Asset]
@@ -205,17 +241,17 @@ class SimodService:
                 return file
         return None
 
-    def _copy_default_configuration(self, processing_request_id: str) -> Path:
-        default_configuration_path: Path = Path(__file__).parent / "configuration_one_shot.yaml"
-        file_path = self._assets_base_dir / f"{processing_request_id}_configuration.yaml"
-        file_path.write_bytes(default_configuration_path.read_bytes())
-        return file_path
-
     @staticmethod
     def _validate_input_files(files: list[File_]):
         for f in files:
             if f is None or f.path is None or not Path(f.path).exists():
                 raise InputAssetMissing(message=f"Input asset not found: {f}")
+
+    def _copy_default_configuration(self, processing_request_id: str) -> Path:
+        default_configuration_path: Path = Path(__file__).parent / "configuration_one_shot.yaml"
+        file_path = self._assets_base_dir / f"{processing_request_id}_configuration.yaml"
+        file_path.write_bytes(default_configuration_path.read_bytes())
+        return file_path
 
     @staticmethod
     def _update_configuration_file(
@@ -263,30 +299,6 @@ class SimodService:
             raise SimodDiscoveryFailed(f"Simod discovery failed. BPS model file not found: {bps_model_path}")
 
         return bpmn_path, bps_model_path
-
-    async def _send_email_notification(
-        self, processing_request: ProcessingRequest, is_success: bool, message: str = ""
-    ):
-        email_notification_producer = EmailNotificationProducer(client_id="bps-discovery-simod")
-        user = await self._user_service_client.get_user(user_id=UUID(processing_request.user_id))
-        user_email = str(user["email"])
-        if is_success:
-            msg = EmailNotificationRequest(
-                processing_request_id=processing_request.processing_request_id,
-                to_addrs=[user_email],
-                subject="[PIX Notification] BPS discovery and optimization with Simod has finished",
-                body=f"Processing request {processing_request.processing_request_id} has finished successfully.",
-            )
-        else:
-            msg = EmailNotificationRequest(
-                processing_request_id=processing_request.processing_request_id,
-                to_addrs=[user_email],
-                subject="[PIX Notification] BPS discovery and optimization with Simod has failed",
-                body=f"Processing request {processing_request.processing_request_id} has failed.",
-            )
-        if message:
-            msg.body += f"\n\nDetails:\n{message}"
-        email_notification_producer.send_message(msg)
 
 
 def _remove_all_suffixes(path: Path) -> Path:
