@@ -14,7 +14,7 @@ import type { ProcessingRequest } from "~/services/processing_requests";
 import { ProcessingRequestType } from "~/services/processing_requests";
 import { createProcessingRequest, getProcessingRequestsForProject } from "~/services/processing_requests.server";
 import { handleNewAssetsFromFormData } from "~/shared/file_upload_handler.server";
-import { FlashMessage } from "~/shared/flash_message";
+import type { FlashMessage } from "~/shared/flash_message";
 import { requireLoggedInUser } from "~/shared/guards.server";
 import { ProcessingType } from "~/shared/processing_type";
 import { getFlashMessage, sessionStorage } from "~/shared/session.server";
@@ -32,6 +32,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   return handleThrow(request, async () => {
     let assets = await getAssetsForProject(projectId, user.token!);
     assets = filterAssetsByType(assets, processingType as ProcessingType);
+    console.log("assets", assets);
 
     let processingRequests = await getProcessingRequestsForProject(projectId, user.token!);
     processingRequests = filterRequestsByType(processingRequests, processingType as ProcessingType);
@@ -97,13 +98,19 @@ export default function ProcessingPage() {
   const [assets_, setAssets] = useState<Asset[]>(assets);
 
   useEffect(() => {
-    document.addEventListener("assetsUpdated", () => {
+    // update assets for underlying components when loader returns different assets
+    setAssets(assets);
+
+    // update assets on event
+    function handleAssetsUpdated() {
       if (!user?.token) return;
       getAssetsForProjectOnClient(projectId, user.token).then((assets) => {
         setAssets(filterAssetsByType(assets, processingType as ProcessingType));
       });
-    });
-  }, [projectId, user?.token, processingType]);
+    }
+    document.addEventListener("assetsUpdated", handleAssetsUpdated);
+    return document.removeEventListener("assetsUpdated", handleAssetsUpdated);
+  }, [projectId, user?.token, processingType, assets]);
 
   return (
     <main className="grow flex flex-col space-y-16 md:space-y-0 md:grid md:grid-cols-[minmax(0,3fr)_minmax(0,9fr)_minmax(0,3fr)] bg-slate-50">
