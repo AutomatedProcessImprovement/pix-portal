@@ -3,8 +3,6 @@ import logging
 import shutil
 import traceback
 from datetime import datetime
-from importlib.metadata import files
-from os import path
 from pathlib import Path
 from typing import Optional
 from uuid import UUID

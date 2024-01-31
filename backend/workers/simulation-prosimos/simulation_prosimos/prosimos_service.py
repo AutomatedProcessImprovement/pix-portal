@@ -1,8 +1,5 @@
 import json
 import logging
-import os
-import stat
-import statistics
 import traceback
 from collections import namedtuple
 from datetime import datetime, timezone
