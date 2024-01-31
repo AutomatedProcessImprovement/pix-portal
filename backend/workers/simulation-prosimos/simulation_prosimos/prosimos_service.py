@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import stat
 import statistics
 import traceback
@@ -79,6 +80,8 @@ class ProsimosService:
         Downloads the input assets, runs Prosimos, and uploads the output assets
         while updating all the dependent services if new assets have been produced.
         """
+        files_to_delete = []
+        file_paths_to_delete = []
         try:
             # update processing request status
             await self._processing_request_service_client.update_request(
@@ -92,6 +95,9 @@ class ProsimosService:
                 await self._asset_service_client.download_asset(asset_id, self._assets_base_dir, is_internal=True)
                 for asset_id in processing_request.input_assets_ids
             ]
+            for asset in assets:
+                if asset.files is not None:
+                    files_to_delete.extend(asset.files)
 
             # get and validate input files
             bpmn_file, prosimos_json_file = self._extract_input_files(assets)
@@ -110,6 +116,7 @@ class ProsimosService:
             statistics_path = (
                 self._prosimos_results_base_dir / f"{processing_request.processing_request_id}_statistics.csv"
             )
+            file_paths_to_delete.extend([output_path, statistics_path])
             self._run_prosimos(
                 bpmn_path=bpmn_file.path,
                 simulation_model_path=prosimos_json_file.path,
@@ -179,6 +186,10 @@ class ProsimosService:
             # send email notification to queue
             if processing_request.should_notify:
                 await self._send_email_notification(processing_request, is_success=False)
+        finally:
+            for file in files_to_delete:
+                if file.path.exists():
+                    file.path.unlink()
 
         # set token to None to force re-authentication, because the token might have expired
         self._asset_service_client.nullify_token()

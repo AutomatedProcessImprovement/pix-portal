@@ -1,5 +1,7 @@
 import json
 import logging
+import os
+import shutil
 import subprocess
 import traceback
 from dataclasses import dataclass
@@ -9,7 +11,6 @@ from typing import Optional
 from uuid import UUID
 
 import yaml
-from bps_discovery_simod.settings import settings
 from pix_portal_lib.kafka_clients.email_producer import EmailNotificationProducer, EmailNotificationRequest
 from pix_portal_lib.service_clients.asset import Asset, AssetServiceClient, AssetType, File_
 from pix_portal_lib.service_clients.file import FileType
@@ -20,6 +21,8 @@ from pix_portal_lib.service_clients.processing_request import (
 )
 from pix_portal_lib.service_clients.project import ProjectServiceClient
 from pix_portal_lib.service_clients.user import UserServiceClient
+
+from bps_discovery_simod.settings import settings
 
 logger = logging.getLogger()
 
@@ -61,6 +64,8 @@ class SimodService:
         # Simod discovery stdout and stderr
         result_stdout = ""
         result_stderr = ""
+        files_to_delete = []
+        dirs_to_delete = []
 
         try:
             # update processing request status
@@ -75,6 +80,9 @@ class SimodService:
                 await self._asset_service_client.download_asset(asset_id, self._assets_base_dir, is_internal=True)
                 for asset_id in processing_request.input_assets_ids
             ]
+            for asset in assets:
+                if asset.files is not None:
+                    files_to_delete.extend(asset.files)
 
             # update Simod configuration to include the correct event log path, process model
             config_file, event_log_file, column_mapping_file, process_model_file = self._extract_input_files(assets)
@@ -92,6 +100,7 @@ class SimodService:
 
             # run Simod, it can take hours
             results_dir = self._simod_results_base_dir / processing_request.processing_request_id
+            dirs_to_delete.append(results_dir)
             results_dir.mkdir(parents=True, exist_ok=True)
             result = _start_simod_discovery_subprocess(config_file_path, results_dir)
             result_stdout = result.stdout if result.stdout is not None else ""
@@ -157,6 +166,14 @@ class SimodService:
             # send email notification to queue
             if processing_request.should_notify:
                 await self._send_email_notification(processing_request, is_success=False, message=e.__str__())
+        finally:
+            # remove downloaded files
+            for file in files_to_delete:
+                if file.path.exists():
+                    file.path.unlink()
+            # remove results
+            for dir in dirs_to_delete:
+                shutil.rmtree(dir, ignore_errors=True)
 
         # set token to None to force re-authentication, because the token might have expired
         self._asset_service_client.nullify_token()

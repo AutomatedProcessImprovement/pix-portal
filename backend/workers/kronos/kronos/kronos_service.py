@@ -1,7 +1,9 @@
 import json
 import logging
+import shutil
 import traceback
 from datetime import datetime
+from importlib.metadata import files
 from os import path
 from pathlib import Path
 from typing import Optional
@@ -58,6 +60,8 @@ class KronosService:
         Downloads the input assets, runs Kronos (WTA), and uploads the output assets
         while updating all the dependent services if new assets have been produced.
         """
+        files_to_delete = []
+        dirs_to_delete = []
         try:
             # update processing request status
             await self._processing_request_service_client.update_request(
@@ -71,6 +75,9 @@ class KronosService:
                 await self._asset_service_client.download_asset(asset_id, self._assets_base_dir, is_internal=True)
                 for asset_id in processing_request.input_assets_ids
             ]
+            for asset in assets:
+                if asset.files is not None:
+                    files_to_delete.extend(asset.files)
 
             # get and validate input assets
             event_log_file, column_mapping_file = self._extract_input_files(assets)
@@ -84,6 +91,7 @@ class KronosService:
                 f"event_log={event_log_file}, "
             )
             output_dir = self._kronos_results_base_dir / processing_request.processing_request_id
+            dirs_to_delete.append(output_dir)
             output_dir.mkdir(parents=True, exist_ok=True)
             csv_output_path, json_output_path = self._run_kronos(
                 event_log_path=event_log_file.path,
@@ -162,6 +170,12 @@ class KronosService:
             # send email notification to queue
             if processing_request.should_notify:
                 await self._send_email_notification(processing_request, is_success=False)
+        finally:
+            for file in files_to_delete:
+                if file.path.exists():
+                    file.path.unlink()
+            for dir in dirs_to_delete:
+                shutil.rmtree(dir, ignore_errors=True)
 
         # set token to None to force re-authentication, because the token might have expired
         self._asset_service_client.nullify_token()
