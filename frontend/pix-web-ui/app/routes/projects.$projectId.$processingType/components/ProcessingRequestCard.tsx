@@ -112,10 +112,16 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
       <Suspense fallback={<div>Loading...</div>}>
         <div>
           <p>Job started at {parseDate(request_.creation_time)}</p>
+          {formattedDuration() ? <p>Duration {formattedDuration()}</p> : <></>}
           <p>
             Status: <span className={`font-semibold ${textColorByStatus(request_.status)}`}>{request_.status}</span>
           </p>
-          {formattedDuration() ? <p>Duration {formattedDuration()}</p> : <></>}
+          {request_.status === ProcessingRequestStatus.FAILED && request_.message && request_.message.length > 0 && (
+            <details className="break-all">
+              <summary className="cursor-pointer w-fit">Details</summary>
+              <p className="text-slate-500 text-xs leading-relaxed">{request_.message}</p>
+            </details>
+          )}
         </div>
         {request_.type === ProcessingRequestType.WAITING_TIME_ANALYSIS_KRONOS &&
           request_.status === ProcessingRequestStatus.FINISHED && (
