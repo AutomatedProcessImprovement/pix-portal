@@ -50,15 +50,18 @@ class FileService:
         return await self.file_repository.get_file_by_hash(hash)
 
     async def delete_file(self, file_id: uuid.UUID) -> None:
-        content_hash = await self.file_repository.get_file_hash(file_id)
         await self.file_repository.delete_file(file_id)
         # NOTE: we must not delete the file if it's still referenced by another file.
         #   Each file on disk can have multiple references from File entities in the database (to preserve space)
         #   because we create new files only when the hash of the file content is different.
-        other_references = await self.file_repository.get_files_by_hash(content_hash)
-        other_references = [file for file in other_references if file.id != file_id and file.deletion_time is None]
-        if len(other_references) == 0:
-            self._remove_file_from_disk(content_hash)
+        try:
+            content_hash = await self.file_repository.get_file_hash(file_id)
+            other_references = await self.file_repository.get_files_by_hash(content_hash)
+            other_references = [file for file in other_references if file.id != file_id and file.deletion_time is None]
+            if len(other_references) == 0:
+                self._remove_file_from_disk(content_hash)
+        except Exception as e:
+            raise Exception(f"Failed to delete file {file_id}: {e}")
 
     async def get_file_path(self, file_id: uuid.UUID) -> Path:
         file = await self.get_file(file_id)

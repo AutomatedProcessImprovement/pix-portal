@@ -154,8 +154,8 @@ class ProjectService:
     async def delete_project(self, project_id: uuid.UUID) -> None:
         try:
             await self._asset_service.delete_assets_by_project_id(project_id)
-        except Exception:
-            raise AssetDeletionFailed()
+        except Exception as e:
+            raise AssetDeletionFailed(f"Failed to delete assets of project {project_id}: {e}")
 
         await self._project_repository.delete_project(project_id)
 
