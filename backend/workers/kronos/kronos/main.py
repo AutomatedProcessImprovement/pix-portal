@@ -49,9 +49,12 @@ async def process_message(message):
 
 async def main():
     for message in consumer:
-        if not asyncio.get_event_loop() or asyncio.get_event_loop().is_closed():
-            asyncio.set_event_loop(asyncio.new_event_loop())
-        await asyncio.create_task(process_message(message))
+        try:
+            if not asyncio.get_event_loop() or asyncio.get_event_loop().is_closed():
+                asyncio.set_event_loop(asyncio.new_event_loop())
+            await asyncio.create_task(process_message(message))
+        except Exception as e:
+            logger.exception(f"Kafka consumer {consumer_id} failed to process the message: {message}, error: {e}")
 
 
 asyncio.run(main())
