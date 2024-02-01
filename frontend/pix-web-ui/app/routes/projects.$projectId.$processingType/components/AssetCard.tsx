@@ -1,6 +1,6 @@
 import { Popover } from "@headlessui/react";
 import { ArrowDownTrayIcon, BarsArrowDownIcon, TrashIcon } from "@heroicons/react/20/solid";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { usePopper } from "react-popper";
 import { UserContext } from "~/routes/contexts";
 import type { Asset, AssetType } from "~/services/assets";
@@ -30,6 +30,11 @@ export function AssetCard({
     delete restWithoutClassName.onClick;
   }
 
+  const [creationTime, setCreationTime] = useState(asset.creation_time);
+  useEffect(() => {
+    setCreationTime(parseDate(asset.creation_time));
+  }, [asset]);
+
   return (
     <div
       className={`flex flex-col rounded-lg shadow border-2 ${
@@ -53,8 +58,8 @@ export function AssetCard({
           </div>
         </div>
         <div className="px-2 pb-2 flex space-x-2 font-normal text-slate-400 text-xs">
-          <p className="">{parseDate(asset.creation_time)}</p>
-          <p className="">{assetTypeToString(asset.type as AssetType)}</p>
+          <p>{creationTime}</p>
+          <p>{assetTypeToString(asset.type as AssetType)}</p>
         </div>
       </div>
     </div>

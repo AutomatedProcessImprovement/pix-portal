@@ -103,6 +103,12 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
     }
   }
 
+  const [creationDate, setCreationDate] = useState(request_?.creation_time);
+  useEffect(() => {
+    if (!request_) return;
+    setCreationDate(parseDate(request_.creation_time));
+  }, [request_]);
+
   if (!request_) return <></>;
   return (
     <div
@@ -111,7 +117,7 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
     >
       <Suspense fallback={<div>Loading...</div>}>
         <div>
-          <p>Job started at {parseDate(request_.creation_time)}</p>
+          <p>Job started at {creationDate}</p>
           {formattedDuration() ? <p>Duration {formattedDuration()}</p> : <></>}
           <p>
             Status: <span className={`font-semibold ${textColorByStatus(request_.status)}`}>{request_.status}</span>
