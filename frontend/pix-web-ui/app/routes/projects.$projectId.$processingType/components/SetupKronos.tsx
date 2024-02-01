@@ -71,7 +71,7 @@ export default function SetupKronos() {
 
 function KronosConfiguration({ eventLog }: { eventLog: Asset }) {
   return (
-    <div className="flex flex-col items-center space-y-3 p-4 border-4 border-slate-200 bg-slate-50 rounded-xl">
+    <div className="flex flex-col items-center space-y-3 p-4 mt-2.5 border-4 border-slate-200 bg-slate-50 rounded-xl">
       <AssetCard asset={eventLog} isActive={false} isInteractive={false} />
     </div>
   );

@@ -131,7 +131,7 @@ export default function ProsimosConfiguration({ asset }: { asset: Asset | null }
 
   if (!asset) return null;
   return (
-    <section className="space-y-2 flex flex-col items-center">
+    <section className="space-y-2 p-4 pt-6 flex flex-col items-center">
       <FormProvider {...methods}>
         <BpmnDataContext.Provider value={bpmnData}>
           <form

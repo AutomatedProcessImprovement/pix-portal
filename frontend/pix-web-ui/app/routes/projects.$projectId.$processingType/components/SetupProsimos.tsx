@@ -53,6 +53,11 @@ export default function SetupProsimos() {
   return (
     <ProcessingAppSection heading="Simulation Configuration">
       <ProsimosConfiguration asset={simulationModel} />
+      {!simulationModel && (
+        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg">
+          Select a simulation model from the input assets on the left.
+        </p>
+      )}
       <Form
         method="post"
         className="flex flex-col items-center w-full mt-2"
@@ -61,11 +66,6 @@ export default function SetupProsimos() {
       >
         <FormProvider {...methods}>
           <input type="hidden" name="selectedInputAssetsIds" ref={selectedAssetsIdsRef} />
-          {!simulationModel && (
-            <p className="py-2 prose prose-md prose-slate max-w-lg">
-              Select a simulation model from the input assets on the left.
-            </p>
-          )}
           {simulationModel && (
             <>
               <Input
