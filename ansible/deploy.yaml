@@ -10,7 +10,6 @@
   tasks:
     - name: Copy Caddyfile
       ansible.builtin.copy:
-        cwd:
         src: "{{ secrets_dir }}/Caddyfile"
         dest: "{{ base_dir_remote }}/"
         mode: 0644
