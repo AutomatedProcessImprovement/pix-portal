@@ -1,5 +1,6 @@
 import threading
 import traceback
+from math import e
 from pathlib import Path
 from typing import Optional
 
@@ -51,9 +52,10 @@ app.include_router(fastapi_users.get_reset_password_router(), prefix="/auth", ta
 app.include_router(fastapi_users.get_verify_router(UserRead), prefix="/auth", tags=["auth"])
 app.include_router(users_router, prefix="/users", tags=["users"])
 
+origins = settings.allowed_origins.split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.allowed_origins.split(","),
+    allow_origins=origins,
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,
@@ -61,6 +63,17 @@ app.add_middleware(
 app.add_middleware(RequestLoggingMiddleware)
 app.add_exception_handler(Exception, general_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
+
+
+@app.middleware("http")
+async def set_user_id_in_cookies(request: Request, call_next):
+    response = await call_next(request)
+    try:
+        if request.state.current_user:
+            response.set_cookie(key="uid", value=str(request.state.current_user.id))
+    except Exception:
+        pass
+    return response
 
 
 @app.exception_handler(Exception)

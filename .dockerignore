@@ -27,12 +27,6 @@
 LICENSE
 
 ansible
-backend/services/assets
-backend/services/files
-backend/services/processing-requests
-backend/services/projects
-backend/services/users
 backend/lib
-backend/scripts
 manual_tests
 jmeter

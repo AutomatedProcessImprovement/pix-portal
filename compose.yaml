@@ -56,6 +56,7 @@ services:
       KAFKA_TOPIC_EMAIL_NOTIFICATIONS: email_notifications.new_requests
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       FRONTEND_VERIFY_PUBLIC_URL: http://localhost:9999/verify-email/
+      ALLOWED_ORIGINS: http://localhost:3030,http://localhost:9999
     volumes:
       - uploads:/var/tmp/uploads:rw
     depends_on:
@@ -266,7 +267,14 @@ services:
       - backend
     restart: on-failure
   caddy:
-    image: caddy
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM caddy:2.7-builder-alpine AS builder
+        RUN xcaddy build \
+            --with github.com/RussellLuo/caddy-ext/ratelimit
+        FROM caddy:2.7-alpine
+        COPY --from=builder /usr/bin/caddy /usr/bin/caddy
     ports:
       - "9999:80"
     volumes:
