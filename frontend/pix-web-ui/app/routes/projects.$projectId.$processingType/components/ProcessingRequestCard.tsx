@@ -10,7 +10,7 @@ import {
   type ProcessingRequest,
 } from "~/services/processing_requests";
 import { parseDate } from "~/shared/utils";
-import { AssetCardAsync } from "./AssetCardAsync";
+import { AssetCard } from "./AssetCard";
 
 const terminalStatuses = [
   ProcessingRequestStatus.CANCELLED,
@@ -69,23 +69,6 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
     return request_.end_time ? formatDuration(getDuration(request_.creation_time, request_.end_time)) : "";
   }
 
-  function bgColorByStatus(status: ProcessingRequestStatus) {
-    switch (status) {
-      case ProcessingRequestStatus.CREATED:
-        return "bg-teal-200";
-      case ProcessingRequestStatus.RUNNING:
-        return "bg-yellow-200 animate-pulse";
-      case ProcessingRequestStatus.FINISHED:
-        return "bg-green-100";
-      case ProcessingRequestStatus.FAILED:
-        return "bg-red-200";
-      case ProcessingRequestStatus.CANCELLED:
-        return "bg-gray-200";
-      default:
-        return "";
-    }
-  }
-
   function textColorByStatus(status: ProcessingRequestStatus) {
     switch (status) {
       case ProcessingRequestStatus.CREATED:
@@ -141,8 +124,10 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
               Show simulation statistics
             </Link>
           )}
-        {request_.output_assets_ids.length > 0 &&
-          request_.output_assets_ids.map((assetId) => <AssetCardAsync key={assetId} assetId={assetId} user={user} />)}
+        {request_.output_assets.length > 0 &&
+          request_.output_assets.map((asset) => (
+            <AssetCard key={asset.id} asset={asset} isActive={false} isRemoveAvailable={false} isInteractive={false} />
+          ))}
       </Suspense>
     </div>
   );

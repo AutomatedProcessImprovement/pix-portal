@@ -1,3 +1,5 @@
+import type { Asset } from "./assets";
+
 export type ProcessingRequest = {
   id: string;
   creation_time: string;
@@ -10,6 +12,7 @@ export type ProcessingRequest = {
   project_id: string;
   input_assets_ids: string[];
   output_assets_ids: string[];
+  output_assets: Asset[];
 };
 
 export enum ProcessingRequestType {

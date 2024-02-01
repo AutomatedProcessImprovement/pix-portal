@@ -4,6 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from api_server.assets.schemas import AssetOut
 from api_server.processing_requests.model import ProcessingRequestStatus, ProcessingRequestType
 
 
@@ -26,6 +27,7 @@ class ProcessingRequestOut(BaseModel):
     project_id: uuid.UUID
     input_assets_ids: list[uuid.UUID] = []
     output_assets_ids: list[uuid.UUID] = []
+    output_assets: list[AssetOut] = []
 
 
 class PatchProcessingRequest(BaseModel):

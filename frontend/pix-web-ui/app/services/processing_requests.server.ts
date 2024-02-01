@@ -2,7 +2,7 @@ import type { ProcessingRequest, ProcessingRequestType } from "./processing_requ
 import { http, processingRequestsURL } from "./shared.server";
 
 export async function getProcessingRequestsForProject(projectId: string, token: string) {
-  const url = `${processingRequestsURL}/?project_id=${projectId}`;
+  const url = `${processingRequestsURL}/?project_id=${projectId}&with_output_assets=true`;
   const response = await http.get(url, {
     headers: {
       Authorization: `Bearer ${token}`,

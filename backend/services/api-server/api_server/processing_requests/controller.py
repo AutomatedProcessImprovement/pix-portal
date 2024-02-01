@@ -4,6 +4,7 @@ from typing import Any, Optional
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 
+from api_server.assets.service import AssetService, get_asset_service
 from api_server.processing_requests.model import ProcessingRequest
 from api_server.processing_requests.repository import ProcessingRequestNotFound
 from api_server.processing_requests.schemas import (
@@ -52,7 +53,9 @@ async def get_processing_requests(
     asset_id: Optional[uuid.UUID] = None,
     input_asset_id: Optional[uuid.UUID] = None,
     output_asset_id: Optional[uuid.UUID] = None,
+    with_output_assets: Optional[bool] = False,
     processing_request_service: ProcessingRequestService = Depends(get_processing_request_service),
+    asset_service: AssetService = Depends(get_asset_service),
     user: User = Depends(current_user),
 ) -> Any:
     """
@@ -68,7 +71,17 @@ async def get_processing_requests(
 
     if project_id is not None:
         try:
-            return await processing_request_service.get_processing_requests_by_project_id(project_id, user.__dict__)
+            processing_requests = await processing_request_service.get_processing_requests_by_project_id(
+                project_id, user.__dict__
+            )
+            if with_output_assets:
+                for processing_request in processing_requests:
+                    if len(processing_request.output_assets_ids) > 0:
+                        processing_request.output_assets = await asset_service.get_assets_by_ids(
+                            processing_request.output_assets_ids
+                        )
+            return processing_requests
+
         except NotEnoughPermissions:
             raise NotEnoughPermissionsHTTP()
 
