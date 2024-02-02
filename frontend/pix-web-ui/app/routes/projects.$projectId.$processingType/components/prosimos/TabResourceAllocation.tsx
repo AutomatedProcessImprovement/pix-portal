@@ -1,3 +1,4 @@
+import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { BpmnDataContext } from "../../contexts";
@@ -33,13 +34,15 @@ export function TabResourceAllocation() {
   useEffect(() => {
     setActivities(bpmnData?.tasks || []);
 
+    console.log("activities", activities);
+
     // if there are no fields, add one for each activity
     if (fields.length === 0) {
       bpmnData?.tasks?.forEach((task) => {
         append({ task_id: task.id, resources: [] });
       });
     }
-  }, [bpmnData, fields.length, append]);
+  }, [bpmnData, fields.length, append, activities]);
 
   return (
     <div className="flex flex-col space-y-4">
@@ -115,20 +118,31 @@ function ResourceAllocation({
     if (fields.length === 0 && resourceProfiles.length > 0) handleAddResourceActivityDistribution();
   }, [fields.length, resourceProfiles, handleAddResourceActivityDistribution]);
 
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  function onToggle() {
+    setDetailsOpen(!detailsOpen);
+  }
+
   return (
-    <div className="border-4 p-4 space-y-2">
-      {!isEnabled && <div className="text-red-500">Please add resource calendars first</div>}
+    <div className="border-4 space-y-2 group">
+      {!isEnabled && <div className="p-2 text-red-500">Please add resource calendars first</div>}
       {isEnabled && (
-        <div className="space-y-2">
-          <p className="flex space-x-4">
-            <span className="w-28">Activity Name:</span>
-            <span className="font-semibold">{activityName}</span>
-          </p>
-          <p className="flex space-x-4">
-            <span className="w-28">Activity ID:</span>
-            <span>{getValues(`${name}.task_id`) || "not found"}</span>
-          </p>
-          <div className="flex flex-col border-4 p-4 space-y-4">
+        <details id={name} className="space-y-2" onToggle={onToggle}>
+          <summary className="p-2 flex space-x-2 cursor-pointer group-hover:text-slate-600">
+            {detailsOpen && <ChevronDownIcon className="w-8 text-slate-300 " />}
+            {!detailsOpen && <ChevronRightIcon className="w-8 text-slate-300" />}
+            <div className="flex flex-col">
+              <p className="flex space-x-4">
+                <span className="w-28">Activity Name:</span>
+                <span className="font-semibold">{activityName}</span>
+              </p>
+              <p className="flex space-x-4">
+                <span className="w-28">Activity ID:</span>
+                <span>{getValues(`${name}.task_id`) || "not found"}</span>
+              </p>
+            </div>
+          </summary>
+          <div className="m-4 flex flex-col border-4 space-y-4">
             {fields.map((field, index) => {
               return (
                 <div key={field.id} className="flex flex-col bg-slate-50 px-4 py-3 space-y-4">
@@ -146,10 +160,12 @@ function ResourceAllocation({
               );
             })}
           </div>
-          <button type="button" onClick={handleAddResourceActivityDistribution}>
-            Add Allocation
-          </button>
-        </div>
+          <div className="p-4">
+            <button type="button" onClick={handleAddResourceActivityDistribution}>
+              Add Allocation
+            </button>
+          </div>
+        </details>
       )}
       {children}
     </div>
