@@ -108,16 +108,10 @@ async def delete_asset(
 ) -> None:
     await _raise_no_access(asset_service, user, asset_id)
 
-    asset: AssetOut
     try:
-        asset = await asset_service.delete_asset(asset_id)
+        await asset_service.delete_asset(asset_id)
     except AssetNotFound:
         raise HTTPException(status_code=404, detail="Asset not found")
-
-    try:
-        await project_service.remove_asset_from_project(asset.project_id, asset_id)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to remove asset from project: {e}")
 
 
 @router.get("/{asset_id}/files/{file_id}/location", response_model=LocationOut)

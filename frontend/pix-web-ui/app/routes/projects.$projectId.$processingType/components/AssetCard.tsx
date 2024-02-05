@@ -50,10 +50,18 @@ export function AssetCard({
       >
         <div className="flex justify-between">
           <h5 className="pl-2 pt-2 pr-1 font-semibold tracking-normal text-sm text-slate-900 break-all">
-            {asset.name}
+            {!asset.deletion_time && asset.name}
+            {asset.deletion_time && (
+              <>
+                <span title="The asset has been removed" className="line-through text-slate-400">
+                  {asset.name}
+                </span>
+                <span className="ml-1 text-slate-900 font-semibold">(removed)</span>
+              </>
+            )}
           </h5>
           <div className="flex">
-            <AssetFilesDropdown asset={asset} className="py-1 px-0.5 pt-1.5" />
+            {!asset.deletion_time && <AssetFilesDropdown asset={asset} className="py-1 px-0.5 pt-1.5" />}
             {isRemoveAvailable && <RemoveAssetButton asset={asset} className="py-1 px-0.5 pt-1.5" />}
           </div>
         </div>

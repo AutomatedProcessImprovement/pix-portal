@@ -76,8 +76,6 @@ class ProjectService:
         if not all(oks):
             raise AssetNotFound()
 
-        # TODO: check if processing requests exist
-
         project = await self._project_repository.create_project(
             name,
             users_ids,

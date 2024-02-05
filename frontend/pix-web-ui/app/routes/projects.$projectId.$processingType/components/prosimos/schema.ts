@@ -165,7 +165,6 @@ export const prosimosConfigurationSchema = yup.object({
                     otherwise: (schema) => schema.matches(/^\d+$/),
                   });
                   const oneValueSchema = stringOrNumber.required();
-                  // return Array.isArray(value) ? yup.array().of(oneValueSchema).min(2) : oneValueSchema; // TODO: why min(2)?
                   return Array.isArray(value) ? yup.array().of(oneValueSchema) : oneValueSchema;
                 }),
               })

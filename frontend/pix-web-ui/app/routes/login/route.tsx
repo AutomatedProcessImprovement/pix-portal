@@ -31,7 +31,6 @@ export const meta: MetaFunction = ({ matches }) => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  // TODO: need a better way to identify a valid user with non-expired token
   const user = await getSessionUserInfo(request);
 
   if (user && user.token !== null && user.is_verified && !user.deletion_time) {

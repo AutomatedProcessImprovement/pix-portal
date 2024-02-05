@@ -93,7 +93,6 @@ class FileService:
         return file.deletion_time is not None
 
     def get_absolute_url(self, relative_url: str, is_internal: bool) -> str:
-        # TODO: this smells
         base = self._blobs_base_internal_url if is_internal else self._blobs_base_public_url
         relative_url = relative_url.removeprefix("/blobs/")
         return urljoin(base, relative_url)
