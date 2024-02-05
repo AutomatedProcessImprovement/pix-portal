@@ -84,9 +84,17 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         await self.user_db.update(user, {"deletion_time": timestamp})
 
     async def on_after_forgot_password(self, user: User, token: str, request: Optional[Request] = None):
-        # TODO: send email with a link to reset password, token is the reset password token
-        #   that can be used in the /auth/reset-password endpoint
-        logger.info(f"User {user.id} has forgot their password. Reset token: {token}")
+        logger.info(f"User {user.id} has forgotten their password. Reset token: {token}")
+        url = f"{settings.frontend_reset_password_public_url.unicode_string().strip('/')}/{token}"
+        try:
+            await publish_email_event(
+                subject="[PIX Registration] Password reset",
+                message=f"Please click on the link to reset your password: {url}",
+                email=user.email,
+            )
+        except Exception as e:
+            logger.error(f"Failed to send password reset email to user {user.id}: {e}")
+            raise
         passwords_reset_counter.add(1, {"user_id": str(user.id)})
 
     async def on_after_request_verify(self, user: User, token: str, request: Optional[Request] = None):

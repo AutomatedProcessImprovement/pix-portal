@@ -1,6 +1,6 @@
 // Auth and users backend API.
 
-import { http, loginURL, userInfoURL, verifyURL } from "~/services/shared.server";
+import { http, loginURL, passwordResetURL, userInfoURL, verifyURL } from "~/services/shared.server";
 import type { User } from "./auth";
 
 export async function getJWT(username: string, password: string): Promise<string | undefined> {
@@ -36,5 +36,25 @@ export async function verifyEmail(token: string): Promise<boolean> {
     body: JSON.stringify({ token }),
   });
   if (!response.ok) throw new Error(response.statusText);
+  return true;
+}
+
+export async function resetPassword(token: string, password: string): Promise<boolean> {
+  const response = await fetch(passwordResetURL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token, password }),
+  });
+  if (!response.ok) {
+    try {
+      const data = await response.json();
+      if ("detail" in data) console.error("Error resetting password:", data.detail);
+    } catch (e) {
+      console.error("Error resetting password:", e);
+    }
+    throw new Error(response.statusText);
+  }
   return true;
 }

@@ -56,6 +56,7 @@ services:
       KAFKA_TOPIC_EMAIL_NOTIFICATIONS: email_notifications.new_requests
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       FRONTEND_VERIFY_PUBLIC_URL: http://localhost:9999/verify-email/
+      FRONTEND_RESET_PASSWORD_PUBLIC_URL: http://localhost:9999/reset-password/
       ALLOWED_ORIGINS: http://localhost:3030,http://localhost:9999
     volumes:
       - uploads:/var/tmp/uploads:rw
@@ -206,7 +207,7 @@ services:
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
       - KAFKA_KRAFT_CLUSTER_ID=5Bj9tBcqQBypjM7jJaNAXw
       # Listeners
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094 # TODO: PLAINTEXT should be changed in production
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094 # NOTE: PLAINTEXT should be changed in production if exposed to the internet
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092,EXTERNAL://kafka:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER

@@ -39,7 +39,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   await logout(request);
 };
 
-export default function VerifyEmailPage() {
+export default function VerifyEmailTokenPage() {
   const { ok, error } = useLoaderData<typeof loader>();
 
   useEffect(() => {

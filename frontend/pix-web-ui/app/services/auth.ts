@@ -55,6 +55,21 @@ export async function requestEmailVerification(email: string) {
   return true;
 }
 
+export async function requestPasswordReset(email: string) {
+  const url = `auth/forgot-password`;
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
+  const response = await fetch(u, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Origin: window.location.origin,
+    },
+    body: JSON.stringify({ email }),
+  });
+  if (!response.ok) throw new Error(response.statusText);
+  return true;
+}
+
 export async function deleteUser(token: string) {
   const url = `users/`;
   const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);

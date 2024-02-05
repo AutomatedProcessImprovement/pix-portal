@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     system_password_file: Path
     kafka_topic_email_notifications: str
     frontend_verify_public_url: HttpUrl
+    frontend_reset_password_public_url: HttpUrl
 
     # processing requests
     kafka_bootstrap_servers: str

@@ -1,5 +1,6 @@
 import assert from "assert";
-import axios, { AxiosError } from "axios";
+import type { AxiosError } from "axios";
+import axios from "axios";
 
 assert.ok(process.env.BACKEND_BASE_URL, "BACKEND_BASE_URL is not set");
 assert.ok(process.env.BACKEND_BASE_URL!.length > 0, "BACKEND_BASE_URL is empty");
@@ -8,17 +9,12 @@ const backendBaseURL = process.env.BACKEND_BASE_URL || "http://localhost:9999/ap
 console.log("Backend base URL:", backendBaseURL);
 export const loginURL = new URL("auth/jwt/login", backendBaseURL).toString();
 export const verifyURL = new URL("auth/verify", backendBaseURL).toString();
+export const passwordResetURL = new URL("auth/reset-password", backendBaseURL).toString();
 export const userInfoURL = new URL("users/me", backendBaseURL).toString();
 export const projectsURL = new URL("projects", backendBaseURL).toString();
 export const filesURL = new URL("files", backendBaseURL).toString();
 export const assetsURL = new URL("assets", backendBaseURL).toString();
 export const processingRequestsURL = new URL("processing-requests", backendBaseURL).toString();
-console.log("Login URL:", loginURL);
-console.log("User info URL:", userInfoURL);
-console.log("Projects URL:", projectsURL);
-console.log("Files URL:", filesURL);
-console.log("Assets URL:", assetsURL);
-console.log("Processing requests URL:", processingRequestsURL);
 
 export const http = axios.create({
   headers: {

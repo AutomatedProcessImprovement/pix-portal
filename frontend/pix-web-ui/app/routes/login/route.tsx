@@ -88,13 +88,20 @@ export default function LoginPage() {
               <input type="hidden" name="redirectTo" value={redirectTo} />
               <div className="flex flex-col space-y-4 my-8">
                 <Input name="email" label="Email address" type="email" autoComplete="email" required={true} />
-                <Input
-                  name="password"
-                  label="Password"
-                  type="password"
-                  autoComplete="current-password"
-                  required={true}
-                />
+                <div>
+                  <Input
+                    name="password"
+                    label="Password"
+                    type="password"
+                    autoComplete="current-password"
+                    required={true}
+                  />
+                  <div className="text-sm mt-1">
+                    <Link to={`/reset-password`} className="font-semibold">
+                      Forgot your password?
+                    </Link>
+                  </div>
+                </div>
               </div>
               <div className="flex justify-center text-lg">
                 <button type="submit" className="w-full sm:w-2/3">
