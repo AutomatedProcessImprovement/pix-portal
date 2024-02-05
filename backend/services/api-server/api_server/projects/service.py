@@ -140,15 +140,11 @@ class ProjectService:
         except Exception as e:
             raise AssetDeletionFailed(f"Failed to delete asset {asset_id}: {e}")
 
-        # TODO: check if there are any processing requests with this asset
-
         return await self._project_repository.remove_asset_from_project(project_id, asset_id)
 
     async def add_processing_request_to_project(
         self, project_id: uuid.UUID, processing_request_id: uuid.UUID
     ) -> Project:
-        # TODO: check if processing request exists
-
         return await self._project_repository.add_processing_request_to_project(project_id, processing_request_id)
 
     async def delete_project(self, project_id: uuid.UUID) -> None:

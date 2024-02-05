@@ -9,24 +9,12 @@ from api_server.projects.service import ProjectService, get_project_service
 from api_server.users.db import User
 from api_server.users.users import current_user
 from api_server.utils.exceptions.http_exceptions import (
-    InvalidAuthorizationHeader,
     NotEnoughPermissionsHTTP,
 )
 
 from .schemas import AssetIn, AssetOut, AssetPatchIn, LocationOut
 
 router = APIRouter()
-
-
-# TODO: check all other services don't return objects that don't belong to user
-# TODO: introduce caching for assets and files
-
-
-def _get_token(authorization: Annotated[str, Header()]) -> str:
-    try:
-        return authorization.split(" ")[1]
-    except IndexError:
-        raise InvalidAuthorizationHeader()
 
 
 @router.get("/", response_model=list[AssetOut])
@@ -55,8 +43,6 @@ async def create_asset(
     project_service: ProjectService = Depends(get_project_service),
     user: User = Depends(current_user),  # raises 401 if user is not authenticated
 ) -> Any:
-    # TODO: assert project_id exists and not deleted
-
     request_payload = asset_data.model_dump()
     if request_payload.get("users_ids") is None:
         request_payload["users_ids"] = [user.id]
