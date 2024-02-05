@@ -12,6 +12,7 @@ from api_server.utils.exceptions.http_exceptions import (
     InvalidAuthorizationHeader,
     NotEnoughPermissionsHTTP,
 )
+
 from .schemas import AssetIn, AssetOut, AssetPatchIn, LocationOut
 
 router = APIRouter()
@@ -102,14 +103,21 @@ async def patch_asset(
 async def delete_asset(
     asset_id: uuid.UUID,
     asset_service: AssetService = Depends(get_asset_service),
+    project_service: ProjectService = Depends(get_project_service),
     user: User = Depends(current_user),  # raises 401 if user is not authenticated
 ) -> None:
     await _raise_no_access(asset_service, user, asset_id)
 
+    asset: AssetOut
     try:
-        await asset_service.delete_asset(asset_id)
+        asset = await asset_service.delete_asset(asset_id)
     except AssetNotFound:
         raise HTTPException(status_code=404, detail="Asset not found")
+
+    try:
+        await project_service.remove_asset_from_project(asset.project_id, asset_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to remove asset from project: {e}")
 
 
 @router.get("/{asset_id}/files/{file_id}/location", response_model=LocationOut)

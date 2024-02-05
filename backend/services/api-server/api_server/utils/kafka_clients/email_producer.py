@@ -78,7 +78,6 @@ class EmailNotificationProducer:
     def _get_partition(self, processing_request_id: str) -> int:
         return hash(processing_request_id) % self._num_partitions
 
-    # TODO: ensure topic exists with partitions and no "unrecognized partition" errors
     def _ensure_topic_exists_with_partitions(self):
         admin_client = KafkaAdminClient(bootstrap_servers=kafka_bootstrap_servers)
 

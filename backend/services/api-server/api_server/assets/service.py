@@ -91,7 +91,7 @@ class AssetService:
             description=description,
         )
 
-    async def delete_asset(self, asset_id: uuid.UUID) -> None:
+    async def delete_asset(self, asset_id: uuid.UUID) -> Asset:
         asset = await self.get_asset(asset_id)
         await self.asset_repository.delete_asset(asset_id)
         for file_id in asset.files_ids:
@@ -99,6 +99,7 @@ class AssetService:
                 await self.file_service.delete_file(file_id)
             except Exception as e:
                 logger.error(f"Failed to delete file {file_id}: {e}")
+        return asset
 
     async def delete_assets_by_project_id(self, project_id: uuid.UUID) -> None:
         assets = await self.get_assets_by_project_id(project_id)

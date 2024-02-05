@@ -41,7 +41,7 @@ class ProjectService:
         self,
         project_repository: ProjectRepository,
         asset_service: AssetService,
-        user_manager: UserManager,  # TODO: introduce UserService to abstract away UserManager
+        user_manager: UserManager,
     ) -> None:
         self._project_repository = project_repository
         self._asset_service = asset_service

@@ -247,7 +247,6 @@ class KronosService:
             )
             return
         if is_success:
-            # TODO: improve message bodies to add more details and links to output assets in all workers
             msg = EmailNotificationRequest(
                 processing_request_id=processing_request.processing_request_id,
                 to_addrs=[user_email],
