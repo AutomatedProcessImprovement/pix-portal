@@ -171,7 +171,7 @@ class KronosService:
         finally:
             for file in files_to_delete:
                 if file.path.exists():
-                    logger.info(f"Deleting file: file_id={file.id}, path={file.path}")
+                    logger.info(f"Deleting file: path={file.path}")
                     file.path.unlink()
             for dir in dirs_to_delete:
                 logger.info(f"Deleting directory: path={dir}")
