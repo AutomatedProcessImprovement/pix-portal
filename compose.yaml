@@ -57,7 +57,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       FRONTEND_VERIFY_PUBLIC_URL: http://localhost:9999/verify-email/
       FRONTEND_RESET_PASSWORD_PUBLIC_URL: http://localhost:9999/reset-password/
-      ALLOWED_ORIGINS: http://localhost:3030,http://localhost:9999
+      ALLOWED_ORIGINS: http://localhost:3030,http://localhost:9999,http://localhost:3002
     volumes:
       - uploads:/var/tmp/uploads:rw
     depends_on:
