@@ -136,10 +136,16 @@ function filterAssetsByType(assets: Asset[], processingType: ProcessingType) {
           asset.type === AssetType.PROCESS_MODEL ||
           asset.type === AssetType.SIMOD_CONFIGURATION
       );
+
     case ProcessingType.Simulation:
       return assets.filter((asset) => asset.type === AssetType.SIMULATION_MODEL);
     case ProcessingType.WaitingTime:
       return assets.filter((asset) => asset.type === AssetType.EVENT_LOG);
+    case ProcessingType.Optimization:
+      return assets.filter(
+        (asset) => asset.type === AssetType.OPTIMOS_CONFIGURATION || asset.type === AssetType.PROCESS_MODEL
+        // TODO: Add Constraints AssetType
+      );
     default:
       throw new Error("Invalid processing type");
   }
@@ -153,6 +159,8 @@ function filterRequestsByType(processingRequests: ProcessingRequest[], processin
       return processingRequests.filter((r) => r.type === ProcessingRequestType.SIMULATION_PROSIMOS);
     case ProcessingType.WaitingTime:
       return processingRequests.filter((r) => r.type === ProcessingRequestType.WAITING_TIME_ANALYSIS_KRONOS);
+    case ProcessingType.Optimization:
+      return processingRequests.filter((r) => r.type === ProcessingRequestType.SIMULATION_OPTIMIZATION_ROPTIMOS);
     default:
       throw new Error("Invalid processing type");
   }
@@ -166,6 +174,8 @@ function processingTypeToProcessingRequestType(processingType: ProcessingType) {
       return ProcessingRequestType.SIMULATION_PROSIMOS;
     case ProcessingType.WaitingTime:
       return ProcessingRequestType.WAITING_TIME_ANALYSIS_KRONOS;
+    case ProcessingType.Optimization:
+      return ProcessingRequestType.SIMULATION_OPTIMIZATION_ROPTIMOS;
     default:
       throw new Error("Invalid processing type");
   }

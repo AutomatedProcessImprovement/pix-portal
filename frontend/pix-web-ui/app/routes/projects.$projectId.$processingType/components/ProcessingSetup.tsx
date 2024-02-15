@@ -13,6 +13,8 @@ export default function ProcessingSetup({ processingType }: { processingType: Pr
         return <SetupProsimos />;
       case ProcessingType.WaitingTime:
         return <SetupKronos />;
+      case ProcessingType.Optimization:
+        return <h1>Optimization!</h1>;
       default:
         throw new Error("Invalid processing type");
     }

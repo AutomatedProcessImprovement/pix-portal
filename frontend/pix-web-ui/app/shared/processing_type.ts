@@ -4,6 +4,7 @@ export enum ProcessingType {
   Discovery = "discovery",
   Simulation = "simulation",
   WaitingTime = "waiting-time",
+  Optimization = "optimization",
 }
 
 export const ProcessingTypes = Object.values(ProcessingType);
@@ -20,6 +21,9 @@ export function processingTypeToAssetType(type: ProcessingType | undefined | nul
       return AssetType.SIMULATION_MODEL;
     case ProcessingType.WaitingTime:
       return AssetType.EVENT_LOG;
+    case ProcessingType.Optimization:
+      // TODO: Check if correct
+      return AssetType.SIMULATION_MODEL;
     default:
       throw new Error("Invalid processing type");
   }
@@ -37,6 +41,8 @@ export function processingTypeToLabel(type: ProcessingType | undefined | null): 
       return "Simulation";
     case ProcessingType.WaitingTime:
       return "Waiting Time Analysis";
+    case ProcessingType.Optimization:
+      return "Optimization";
     default:
       throw new Error("Invalid processing type");
   }
@@ -54,6 +60,9 @@ export function processingTypeDescription(type: ProcessingType | undefined | nul
       return "Simulation of a business process model given the simulation model to generate a new synthetic event log.";
     case ProcessingType.WaitingTime:
       return "Analysis of the waiting time in a business process model given an event log.";
+    case ProcessingType.Optimization:
+      // TODO: Improve description
+      return "Optimization of a business process model";
     default:
       throw new Error("Invalid processing type");
   }
