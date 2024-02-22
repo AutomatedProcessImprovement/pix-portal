@@ -364,22 +364,22 @@ services:
       - backend
 
     # worker deployment
-  r_worker:
-    platform: linux/amd64
+  optimos:
     build:
-      context: backend/optimos-microservice
-      dockerfile: Dockerfile.worker
+      context: backend/workers/optimos
+    env_file:
+      - backend/workers/optimos/.env
+    secrets:
+      - system_password
     environment:
-      - CELERY_BROKER_URL=amqp://r_rabbit:5672/
-      - CELERY_RESULT_BACKEND=redis://r_redis:6379/
-      - FLASK_DEBUG=1
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     volumes:
-      - ./src/celery/data:/app/src/celery/data
+      - optimos-data:/var/tmp/optimos:rw
     depends_on:
-      - r_rabbit
-      - r_redis
+      - kafka
     networks:
       - backend
+    restart: on-failure
 
     # flask app deployment
   r_api:
