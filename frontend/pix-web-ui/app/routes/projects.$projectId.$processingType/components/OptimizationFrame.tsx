@@ -1,5 +1,6 @@
 import React from "react";
+import ParameterEditor from "~/optimos/parameterEditor/ParameterEditor";
 
 export const OptimizationFrame = () => {
-  return <iframe src="http://localhost:9999/roptimos/ui/index.html" title="Optimos" width="100%" height="100%" />;
+  return <ParameterEditor />;
 };

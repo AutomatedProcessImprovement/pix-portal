@@ -22,8 +22,7 @@ export function processingTypeToAssetType(type: ProcessingType | undefined | nul
     case ProcessingType.WaitingTime:
       return AssetType.EVENT_LOG;
     case ProcessingType.Optimization:
-      // TODO: Check if correct
-      return AssetType.SIMULATION_MODEL;
+      return AssetType.OPTIMOS_CONFIGURATION;
     default:
       throw new Error("Invalid processing type");
   }

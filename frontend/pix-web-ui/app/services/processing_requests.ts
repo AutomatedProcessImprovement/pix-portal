@@ -19,7 +19,6 @@ export enum ProcessingRequestType {
   SIMULATION_PROSIMOS = "simulation_prosimos",
   SIMULATION_MODEL_OPTIMIZATION_SIMOD = "process_model_optimization_simod",
   SIMULATION_MODEL_OPTIMIZATION_OPTIMOS = "process_model_optimization_optimos",
-  SIMULATION_OPTIMIZATION_ROPTIMOS = "process_optimization_roptimos",
   WAITING_TIME_ANALYSIS_KRONOS = "waiting_time_analysis_kronos",
 }
 
