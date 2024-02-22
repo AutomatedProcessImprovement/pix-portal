@@ -198,7 +198,7 @@ class OptimosService:
         run_optimization(model_path, sim_param_path, constraints_path, num_instances, algorithm, approach,
                                 stats_file.name, log_name)
 
-        return Path(stats_filename)
+        return Path(stats_file.name)
 
     @staticmethod
     def _find_file_by_type(files: list[File_], type: FileType) -> Optional[File_]:

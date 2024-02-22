@@ -29,6 +29,7 @@ class AssetType(str, Enum):
     SIMOD_CONFIGURATION = "simod_configuration"
     OPTIMOS_CONFIGURATION = "optimos_configuration"
     KRONOS_REPORT = "kronos_report"
+    OPTIMOS_REPORT = "optimos_report"
 
 
 # File is a type alias for a file with fewer fields.

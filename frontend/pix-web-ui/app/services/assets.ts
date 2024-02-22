@@ -35,7 +35,9 @@ export function assetTypeToString(type: AssetType): string {
     case AssetType.SIMOD_CONFIGURATION:
       return "Discovery Configuration";
     case AssetType.OPTIMOS_CONFIGURATION:
-      return "OPTIMOS Configuration";
+      return "Optimos Configuration";
+    case AssetType.OPTIMOS_REPORT:
+      return "Optimos Report";
     default:
       throw new Error(`Unknown asset type ${type}`);
   }
