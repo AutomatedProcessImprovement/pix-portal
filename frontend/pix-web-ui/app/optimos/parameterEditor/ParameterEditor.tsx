@@ -30,7 +30,7 @@ import useTabVisibility, { TABS } from "./useTabVisibility";
 import SnackBar from "../SnackBar";
 import GlobalConstraints from "../globalConstraints/GlobalConstraints";
 import { useNavigate } from "react-router";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import RCons from "../resourceConstraints/ResourceConstraints";
 import ScenarioConstraints from "../globalConstraints/ScenarioConstraints";
 import { useInterval } from "usehooks-ts";
@@ -45,6 +45,11 @@ import type { Asset } from "~/services/assets";
 import { AssetType, getAsset } from "~/services/assets";
 import { useFileFromAsset } from "./useFetchedAsset";
 import { FileType } from "~/services/files";
+import { ProcessingRequestType } from "~/services/processing_requests";
+import { createProcessingRequest } from "~/services/processing_requests.server";
+import { useMatches } from "@remix-run/react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { prosimosConfigurationSchema } from "~/routes/projects.$projectId.$processingType/components/prosimos/schema";
 
 interface LocationState {
   bpmnFile: File;
@@ -66,6 +71,9 @@ const ParameterEditor = () => {
   const activeColor = theme.palette.info.dark;
   const successColor = theme.palette.success.light;
   const errorColor = theme.palette.error.light;
+  const selectedAssets = useContext(SelectedAssetsContext);
+  const user = useContext(UserContext);
+  const projectId = useMatches().filter((match) => match.id === "routes/projects.$projectId")[0].params.projectId;
 
   const [isPollingEnabled, setIsPollingEnabled] = useState(false);
   const [pendingTaskId, setPendingTaskId] = useState("");
@@ -83,6 +91,7 @@ const ParameterEditor = () => {
   console.log(bpmnFile, simParamsFile, consParamsFile);
 
   const { jsonData } = useJsonFile(consParamsFile || null);
+  const { jsonData: simParamsData } = useSimParamsJsonFile(simParamsFile);
 
   const { formState } = useFormState(jsonData);
   const {
@@ -104,6 +113,9 @@ const ParameterEditor = () => {
       algorithm: "HC-FLEX",
       approach: "CO",
     },
+    // TODO Form validation
+    // resolver: yupResolver(prosimosConfigurationSchema),
+    shouldUseNativeValidation: true,
   });
   const {
     getValues: getScenarioValues,
@@ -498,29 +510,21 @@ const ParameterEditor = () => {
     }
 
     const canContinue = noInvalidOverlap();
+    // TODO Save Blob to input asset!
     const newBlob = getBlobBasedOnExistingInput();
     const { num_iterations, approach, algorithm, scenario_name } = getScenarioValues();
 
     // return
 
     if (canContinue) {
-      // TODO
       setInfoMessage("Optimization started...");
-      //   optimize(algorithm, approach, scenario_name, num_iterations, simParamsFile, newBlob, bpmnFile)
-      //     .then((result: { data: any }) => {
-      //       const dataJson = result.data;
-      //       console.log(dataJson.TaskId);
-      //       console.log("in optimize");
-
-      //       if (dataJson.TaskId) {
-      //         setIsPollingEnabled(true);
-      //         setPendingTaskId(dataJson.TaskId);
-      //       }
-      //     })
-      //     .catch((error: any) => {
-      //       console.log(error.response);
-      //       setErrorMessage(error.response.data.displayMessage);
-      //     });
+      await createProcessingRequest(
+        ProcessingRequestType.SIMULATION_MODEL_OPTIMIZATION_OPTIMOS,
+        projectId!,
+        selectedAssets.map((asset) => asset.id),
+        false,
+        user!.token!
+      );
     }
   };
 
@@ -529,69 +533,52 @@ const ParameterEditor = () => {
   }
 
   return (
-    <form>
-      <Grid container alignItems="center" justifyContent="center">
-        <Grid item xs={10} sx={{ paddingTop: "10px" }}>
-          <Grid container item xs={12}>
-            <Grid item xs={4} justifyContent="flex-start">
-              <ButtonGroup>
-                <Button onClick={onStartOver} startIcon={<ArrowBackIosNewIcon />}>
-                  Start Over
-                </Button>
-              </ButtonGroup>
-            </Grid>
-            <Grid item container xs={3} justifyContent="center">
-              <ButtonGroup>
-                <Button
-                  onClick={handleSubmit(onStartOptimization)}
-                  // type="submit"
-                >
-                  Start Optimization
-                </Button>
-              </ButtonGroup>
-            </Grid>
-            <Grid item container xs={5} justifyContent="flex-end">
-              <ButtonGroup>
-                <Button type="button" variant="outlined" onClick={onDownloadScenarioFilesAsZip}>
-                  Download scenario files
-                </Button>
-                <a style={{ display: "none" }} download={"json-file-name.json"}>
-                  Download json
-                </a>
-              </ButtonGroup>
-            </Grid>
-          </Grid>
-          <Grid item container xs={12} alignItems="center" justifyContent="center" sx={{ paddingTop: "20px" }}>
-            <Stepper nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)} connector={<></>}>
-              {Object.entries(visibleTabs.getAllItems()).map(([key, label]: [string, string]) => {
-                const keyTab = key as keyof typeof TABS;
-                const valueTab: TABS = TABS[keyTab];
+    <FormProvider {...scenarioState}>
+      <form method="POST">
+        <input type="hidden" name="selectedInputAssetsIds" value={selectedAssets.map((asset) => asset.id).join(",")} />
+        <input type="hidden" name="shouldNotify" value="off" />
+        <input type="hidden" name="projectId" value={projectId} />
 
-                return (
-                  <Step key={label}>
-                    <Tooltip title={tooltip_desc[key]}>
-                      <StepButton
-                        color="inherit"
-                        onClick={() => {
-                          setActiveStep(valueTab);
-                        }}
-                        icon={getStepIcon(valueTab)}
-                      >
-                        {label}
-                      </StepButton>
-                    </Tooltip>
-                  </Step>
-                );
-              })}
-            </Stepper>
-            <Grid container mt={3} style={{ marginBottom: "2%" }}>
-              {getStepContent(activeStep)}
+        <Grid container alignItems="center" justifyContent="center">
+          <Grid item xs={10} sx={{ paddingTop: "10px" }}>
+            <Grid container item xs={12}>
+              <Grid item container justifyContent="center">
+                <ButtonGroup>
+                  <Button type="submit">Start Optimization</Button>
+                </ButtonGroup>
+              </Grid>
+            </Grid>
+            <Grid item container xs={12} alignItems="center" justifyContent="center" sx={{ paddingTop: "20px" }}>
+              <Stepper nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)} connector={<></>}>
+                {Object.entries(visibleTabs.getAllItems()).map(([key, label]: [string, string]) => {
+                  const keyTab = key as keyof typeof TABS;
+                  const valueTab: TABS = TABS[keyTab];
+
+                  return (
+                    <Step key={label}>
+                      <Tooltip title={tooltip_desc[key]}>
+                        <StepButton
+                          color="inherit"
+                          onClick={() => {
+                            setActiveStep(valueTab);
+                          }}
+                          icon={getStepIcon(valueTab)}
+                        >
+                          {label}
+                        </StepButton>
+                      </Tooltip>
+                    </Step>
+                  );
+                })}
+              </Stepper>
+              <Grid container mt={3} style={{ marginBottom: "2%" }}>
+                {getStepContent(activeStep)}
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
-      </Grid>
-      {snackMessage && <SnackBar message={snackMessage} severityLevel={snackColor} onSnackbarClose={onSnackbarClose} />}
-    </form>
+      </form>
+    </FormProvider>
   );
 };
 export default ParameterEditor;
