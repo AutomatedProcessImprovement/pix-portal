@@ -1,0 +1,446 @@
+services:
+  pix-web-ui:
+    build:
+      context: frontend/pix-web-ui
+    secrets:
+      - session_secret
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3030
+      BACKEND_BASE_URL: http://caddy/api/v1/
+      BACKEND_BASE_URL_PUBLIC: http://localhost:9999/api/v1/
+      SESSION_SECRET_FILE: /run/secrets/session_secret
+      OTEL_SERVICE_NAME: "pix_web_ui"
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_LOGS_EXPORTER: "otlp"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "otel-collector:4317"
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      OTEL_EXPORTER_OTLP_INSECURE: true
+      NODE_OPTIONS: "--require @opentelemetry/auto-instrumentations-node/register"
+    networks:
+      - backend
+    restart: on-failure
+  kronos-web-ui:
+    build:
+      context: frontend/kronos-web-ui
+      args:
+        - NEXT_PUBLIC_KRONOS_HTTP_URL=http://localhost:8090
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    networks:
+      - backend
+    restart: on-failure
+  api-server:
+    build:
+      context: backend/services/api-server
+    ports:
+      - 8000:8000
+    env_file:
+      - backend/services/api-server/.env
+    secrets:
+      - superuser_email
+      - superuser_password
+      - users_secret_key
+      - system_email
+      - system_password
+    environment:
+      SUPERUSER_EMAIL_FILE: /run/secrets/superuser_email
+      SUPERUSER_PASSWORD_FILE: /run/secrets/superuser_password
+      SECRET_KEY_FILE: /run/secrets/users_secret_key
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/pix
+      KAFKA_TOPIC_EMAIL_NOTIFICATIONS: email_notifications.new_requests
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9094
+      FRONTEND_VERIFY_PUBLIC_URL: http://localhost:9999/verify-email/
+      FRONTEND_RESET_PASSWORD_PUBLIC_URL: http://localhost:9999/reset-password/
+      ALLOWED_ORIGINS: http://localhost:3030,http://localhost:9999,http://localhost:3002
+    volumes:
+      - uploads:/var/tmp/uploads:rw
+    depends_on:
+      - postgres
+    networks:
+      - backend
+    restart: on-failure
+  postgres:
+    image: postgres
+    restart: on-failure
+    user: postgres
+    volumes:
+      - pix-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=pix
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"
+      - "8888:8888" # Prometheus metrics exposed by the collector
+      - "8889:8889" # Prometheus exporter metrics
+    depends_on:
+      - zipkin
+      - loki
+      - prometheus
+    networks:
+      - backend
+    restart: on-failure
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - backend
+    command: ["--zipkin.ui.basepath=/admin/zipkin"]
+    restart: on-failure
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki-local-config.yaml:/etc/loki/local-config.yaml
+    networks:
+      - backend
+    restart: on-failure
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_SERVER_ROOT_URL: http://localhost:9999/admin/grafana/
+      GF_SERVER_SERVE_FROM_SUB_PATH: true
+      GF_ANALYTICS_ENABLED: false
+      GF_ANALYTICS_REPORTING_ENABLED: false
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_EMAIL: pix.toolset@gmail.com
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/grafana/provisioning/datasources
+        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
+        apiVersion: 1
+        datasources:
+          - name: Loki
+            type: loki
+            access: proxy
+            url: http://loki:3100
+          - name: Prometheus
+            type: prometheus
+            access: proxy
+            url: http://prometheus:9090/admin/prometheus
+        EOF
+        mkdir -p /etc/grafana/provisioning/dashboards
+        cat <<EOF > /etc/grafana/provisioning/dashboards/dashboards.yaml
+        apiVersion: 1
+        providers:
+          - name: 'default'
+            orgId: 1
+            folder: ''
+            type: file
+            options:
+              path: /etc/grafana/default_dashboard.json
+        EOF
+        /run.sh
+    volumes:
+      - ./grafana-default-dashboard.json:/etc/grafana/default_dashboard.json
+    networks:
+      - backend
+    restart: on-failure
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/prometheus
+        cat <<EOF > /etc/prometheus/prometheus.yml
+        scrape_configs:
+        - job_name: 'prometheus'
+          static_configs:
+            - targets: ['localhost:9090']
+        - job_name: 'otel-collector'
+          static_configs:
+            - targets: ['otel-collector:8888']
+        - job_name: 'otel-exporters'
+          static_configs:
+            - targets: ['otel-collector:8889']
+        EOF
+        /bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles --web.external-url=/admin/prometheus/
+    networks:
+      - backend
+    restart: on-failure
+  kafka:
+    image: docker.io/bitnami/kafka:3.5
+    ports:
+      - "9092:9092"
+      - "9094:9094" # This port must be exposed if we move workers to other machines
+    volumes:
+      - kafka_data:/bitnami
+    environment:
+      # KRaft settings
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_KRAFT_CLUSTER_ID=5Bj9tBcqQBypjM7jJaNAXw
+      # Listeners
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094 # NOTE: PLAINTEXT should be changed in production if exposed to the internet
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092,EXTERNAL://kafka:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      # Other
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+    networks:
+      - backend
+    restart: on-failure
+  kafka-ui:
+    depends_on:
+      - kafka
+    image: provectuslabs/kafka-ui
+    ports:
+      - "8080:8080"
+    environment:
+      # DYNAMIC_CONFIG_ENABLED: 'true'
+      KAFKA_CLUSTERS_0_NAME: "5Bj9tBcqQBypjM7jJaNAXw"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      SERVER_SERVLET_CONTEXT_PATH: "/admin/kafka-ui"
+    networks:
+      - backend
+    restart: on-failure
+  bps-discovery-simod:
+    build:
+      context: backend/workers/bps-discovery-simod
+    env_file:
+      - backend/workers/bps-discovery-simod/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
+    volumes:
+      - bps-discovery-simod-data:/var/tmp/bps-discovery-simod:rw
+    depends_on:
+      - kafka
+    networks:
+      - backend
+    restart: on-failure
+  simulation-prosimos:
+    build:
+      context: backend/workers/simulation-prosimos
+    env_file:
+      - backend/workers/simulation-prosimos/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
+    volumes:
+      - simulation-prosimos-data:/var/tmp/simulation-prosimos:rw
+    depends_on:
+      - kafka
+    networks:
+      - backend
+    restart: on-failure
+  caddy:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM caddy:2.7-builder-alpine AS builder
+        RUN xcaddy build \
+            --with github.com/RussellLuo/caddy-ext/ratelimit
+        FROM caddy:2.7-alpine
+        COPY --from=builder /usr/bin/caddy /usr/bin/caddy
+    ports:
+      - "9999:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - backend
+    restart: on-failure
+  mail:
+    build:
+      context: backend/workers/mail
+    env_file:
+      - backend/workers/mail/.env
+    depends_on:
+      - kafka
+    networks:
+      - backend
+    restart: on-failure
+    environment:
+      - GMAIL_USERNAME_FILE=/run/secrets/mail_gmail_username
+      - GMAIL_APP_PASSWORD_FILE=/run/secrets/mail_gmail_password
+    secrets:
+      - mail_gmail_username
+      - mail_gmail_password
+  kronos:
+    build:
+      context: backend/workers/kronos
+    env_file:
+      - backend/workers/kronos/.env
+    secrets:
+      - system_email
+      - system_password
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
+    volumes:
+      - kronos-data:/var/tmp/kronos:rw
+    depends_on:
+      - kafka
+    networks:
+      - backend
+    restart: on-failure
+  kronos-http:
+    build:
+      context: backend/services/kronos
+    ports:
+      - 8090:8000
+    env_file:
+      - backend/services/kronos/.env
+    depends_on:
+      - kronos-db
+    networks:
+      - backend
+    restart: on-failure
+  kronos-db:
+    image: postgres
+    restart: on-failure
+    user: postgres
+    volumes:
+      - kronos-db-data:/var/lib/postgresql/data
+    env_file:
+      - backend/services/kronos/.env
+    expose:
+      - 5432
+    ports:
+      - 5437:5432
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  r_rabbit:
+    hostname: rabbit
+    image: rabbitmq:3-management
+    # environment:
+    #     - RABBITMQ_DEFAULT_USER=myuser
+    #     - RABBITMQ_DEFAULT_PASS=mypassword
+    ports:
+      - 5672:5672 # port for the worker for tasks management
+      - 15672:15672 # GUI port
+    networks:
+      - backend
+
+    # worker deployment
+  r_worker:
+    platform: linux/amd64
+    build:
+      context: backend/optimos-microservice
+      dockerfile: Dockerfile.worker
+    environment:
+      - CELERY_BROKER_URL=amqp://r_rabbit:5672/
+      - CELERY_RESULT_BACKEND=redis://r_redis:6379/
+      - FLASK_DEBUG=1
+    volumes:
+      - ./src/celery/data:/app/src/celery/data
+    depends_on:
+      - r_rabbit
+      - r_redis
+    networks:
+      - backend
+
+    # flask app deployment
+  r_api:
+    platform: linux/amd64
+    build:
+      context: backend/optimos-microservice
+      dockerfile: Dockerfile.api
+    ports:
+      - 5000:5000
+    volumes:
+      - ./src/celery/data:/app/src/celery/data
+    environment:
+      - CELERY_BROKER_URL=amqp://r_rabbit:5672/
+      - CELERY_RESULT_BACKEND=redis://r_redis:6379/
+      - FLASK_DEBUG=1
+    networks:
+      - backend
+
+  r_redis:
+    image: redis:6-alpine
+    ports:
+      - 6379:6379
+    networks:
+      - backend
+
+  r_frontend:
+    build:
+      dockerfile: Dockerfile
+      context: frontend/optimos-frontend
+    ports:
+      - 8081:80
+    networks:
+      - backend
+
+volumes:
+  pix-db-data:
+  uploads:
+  kafka_data:
+  caddy_data:
+  caddy_config:
+  bps-discovery-simod-data:
+  simulation-prosimos-data:
+  kronos-data:
+  kronos-db-data:
+networks:
+  backend:
+    name: pix_backend
+secrets:
+  session_secret:
+    file: ./frontend/pix-web-ui/.session.secret
+  mail_gmail_username:
+    file: ./backend/workers/mail/.secret_gmail_username
+  mail_gmail_password:
+    file: ./backend/workers/mail/.secret_gmail_app_password
+  superuser_email:
+    file: ./backend/services/api-server/.superuser_email.secret
+  superuser_password:
+    file: ./backend/services/api-server/.superuser_password.secret
+  users_secret_key:
+    file: ./backend/services/api-server/.key.secret
+  system_email:
+    file: ./backend/services/api-server/.system_email.secret
+  system_password:
+    file: ./backend/services/api-server/.system_password.secret

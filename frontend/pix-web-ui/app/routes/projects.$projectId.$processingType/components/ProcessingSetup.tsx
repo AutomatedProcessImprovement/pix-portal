@@ -3,6 +3,7 @@ import { ProcessingType } from "~/shared/processing_type";
 import SetupKronos from "./SetupKronos";
 import SetupProsimos from "./SetupProsimos";
 import SetupSimod from "./SetupSimod";
+import { OptimizationFrame } from "./OptimizationFrame";
 
 export default function ProcessingSetup({ processingType }: { processingType: ProcessingType }) {
   const getProcessingSetup = useCallback(() => {
@@ -14,7 +15,7 @@ export default function ProcessingSetup({ processingType }: { processingType: Pr
       case ProcessingType.WaitingTime:
         return <SetupKronos />;
       case ProcessingType.Optimization:
-        return <h1>Optimization!</h1>;
+        return <OptimizationFrame />;
       default:
         throw new Error("Invalid processing type");
     }
