@@ -21,6 +21,7 @@ export enum AssetType {
   SIMULATION_MODEL = "simulation_model",
   SIMOD_CONFIGURATION = "simod_configuration",
   OPTIMOS_CONFIGURATION = "optimos_configuration",
+  OPTIMOS_REPORT = "optimos_report",
 }
 
 export function assetTypeToString(type: AssetType): string {

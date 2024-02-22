@@ -26,11 +26,12 @@ from pix_portal_lib.service_clients.processing_request import (
 from pix_portal_lib.service_clients.project import ProjectServiceClient
 from pix_portal_lib.service_clients.user import UserServiceClient
 
-from optimos.pareto_algorithms_and_metrics.main import run_optimization
-from optimos.support_modules.constraints_generator import generate_constraint_file
+
+from pareto_algorithms_and_metrics.main import run_optimization
+from support_modules.constraints_generator import generate_constraint_file
 
 
-from bps_discovery_simod.settings import settings
+from optimos_worker.settings import settings
 
 
 class InputAssetMissing(Exception):
@@ -45,23 +46,23 @@ logger = logging.getLogger()
 class OptimosService:
     def __init__(self):
         self._assets_base_dir = settings.asset_base_dir
-        self._prosimos_results_base_dir = settings.prosimos_results_base_dir
+        self._optimos_results_base_dir = settings.optimos_results_base_dir
         self._asset_service_client = AssetServiceClient()
         self._processing_request_service_client = ProcessingRequestServiceClient()
         self._project_service_client = ProjectServiceClient()
         self._user_service_client = UserServiceClient()
 
         self._assets_base_dir.mkdir(parents=True, exist_ok=True)
-        self._prosimos_results_base_dir.mkdir(parents=True, exist_ok=True)
+        self._optimos_results_base_dir.mkdir(parents=True, exist_ok=True)
 
 
     async def process(self, processing_request: ProcessingRequest):
         """
-        Downloads the input assets, runs Simod, and uploads the output assets
+        Downloads the input assets, runs Optimos, and uploads the output assets
         while updating all the dependent services if new assets have been produced.
         """
 
-        # Simod discovery stdout and stderr
+        # Optimos discovery stdout and stderr
         result_stdout = ""
         result_stderr = ""
         files_to_delete = []
@@ -84,28 +85,30 @@ class OptimosService:
                 if asset.files is not None:
                     files_to_delete.extend(asset.files)
 
-            # update Simod configuration to include the correct event log path, process model
+            # update optimos configuration to include the correct event log path, process model
             self.update_configuration(assets, processing_request)
 
-            # run Simod, it can take hours
-            stats_file = self.optimization_task(processing_request)
+            print(processing_request.input_assets_ids)
+
+            # run optimos, it can take hours
+            stats_file = await self.optimization_task(processing_request, assets)
             dirs_to_delete.append(stats_file)
 
             # upload results and create corresponding assets
-            simulation_model_asset_id = await self.upload_results(stats_file,  processing_request)
+            optimos_report_asset_id = await self.upload_results(stats_file,  processing_request)
 
             # update project assets
             # NOTE: assets must be added to the project first before adding them to the processing request,
             #   because the processing request service checks if the assets belong to the project
             await self._project_service_client.add_asset_to_project(
                 project_id=processing_request.project_id,
-                asset_id=simulation_model_asset_id,
+                asset_id=optimos_report_asset_id,
             )
 
             # update output assets in the processing request
             await self._processing_request_service_client.add_output_asset_to_processing_request(
                 processing_request_id=processing_request.processing_request_id,
-                asset_id=simulation_model_asset_id,
+                asset_id=optimos_report_asset_id,
             )
 
             # update processing request status
@@ -119,7 +122,7 @@ class OptimosService:
         except Exception as e:
             trace = traceback.format_exc()
             logger.error(
-                f"Simod discovery failed: {e}, "
+                f"Optimos discovery failed: {e}, "
                 f"processing_request_id={processing_request.processing_request_id}, "
                 f"stdout={result_stdout}, "
                 f"stderr={result_stderr}, "
@@ -151,8 +154,8 @@ class OptimosService:
         self._project_service_client.nullify_token()
         self._processing_request_service_client.nullify_token()
 
-    async def optimization_task(self, processing_request: ProcessingRequest):
-        config = self._get_config(processing_request.input_assets)
+    async def optimization_task(self, processing_request: ProcessingRequest, assets: list[Asset]):
+        config = self._get_config(assets)
         model_filename = config["model_filename"]
         sim_params_file = config["sim_params_file"]
         cons_params_file = config["cons_params_file"]
@@ -169,16 +172,15 @@ class OptimosService:
         logger.info(f'Approach: {approach}')
         
 
-        curr_dir_path = os.path.abspath(os.path.dirname(__file__))
-        celery_data_path = os.path.abspath(os.path.join(curr_dir_path, 'celery/data'))
+        data_path = os.path.abspath('/var/tmp/optimos')
 
-        model_path = os.path.abspath(os.path.join(celery_data_path, model_filename))
-        sim_param_path = os.path.abspath(os.path.join(celery_data_path, sim_params_file))
-        constraints_path = os.path.abspath(os.path.join(celery_data_path, cons_params_file))
+        model_path = os.path.abspath(os.path.join(data_path, model_filename))
+        sim_param_path = os.path.abspath(os.path.join(data_path, sim_params_file))
+        constraints_path = os.path.abspath(os.path.join(data_path, cons_params_file))
 
         # create result file for saving report
         stats_file = tempfile.NamedTemporaryFile(mode="w+", suffix=".json", prefix="stats_", delete=False,
-                                                dir=celery_data_path)
+                                                dir=data_path)
         stats_filename = stats_file.name.rsplit(os.sep, 1)[-1]
 
         # # create result file for saving logs
@@ -196,7 +198,7 @@ class OptimosService:
         run_optimization(model_path, sim_param_path, constraints_path, num_instances, algorithm, approach,
                                 stats_file.name, log_name)
 
-        return stats_filename
+        return Path(stats_filename)
 
     @staticmethod
     def _find_file_by_type(files: list[File_], type: FileType) -> Optional[File_]:
@@ -219,7 +221,7 @@ class OptimosService:
             if asset.files is not None:
                 files.extend(asset.files)
 
-        config_file = self._find_file_by_type(files, FileType.CONFIGURATION_SIMOD_YAML)
+        config_file = self._find_file_by_type(files, FileType.CONFIGURATION_OPTIMOS_YAML)
         sim_params_file = self._find_file_by_type(files, FileType.SIMULATION_MODEL_PROSIMOS_JSON)
         cons_params_file = self._find_file_by_type(files, FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON)
         process_model_file = self._find_file_by_type(files, FileType.PROCESS_MODEL_BPMN)
@@ -229,9 +231,10 @@ class OptimosService:
 
     def update_configuration(self, assets: list[Asset], processing_request: ProcessingRequest):
         """
-        Updates the Simod configuration file to include the correct event log path, process model.
+        Updates the Optimos configuration file to include the correct event log path, process model.
         """
         config_file, sim_params_file, cons_params_file, process_model_file = self._extract_input_files(assets)
+        print(config_file, sim_params_file, cons_params_file, process_model_file)
         self._validate_input_files([config_file, sim_params_file, cons_params_file,process_model_file])  # only event log is required, other files are optional
        
         config_file_path = Path(config_file.path)
@@ -274,13 +277,22 @@ class OptimosService:
         for asset in assets:
             if asset.files is not None:
                 files.extend(asset.files)
-        config_file = self._find_file_by_type(files, FileType.CONFIGURATION_SIMOD_YAML)
+        config_file = self._find_file_by_type(files, FileType.CONFIGURATION_OPTIMOS_YAML)
         config_file_path = Path(config_file.path)
         content = config_file_path.read_bytes()
         config = yaml.safe_load(content)
         return config
         
 
-    async def upload_results(self, result_dir: Path,  processing_request: ProcessingRequest):
-        # TODO
-        pass
+    async def upload_results(self, result_file: Path,  processing_request: ProcessingRequest):
+        report_json = File_(
+            name=result_file.name, type=FileType.SIMULATION_MODEL_PROSIMOS_JSON, path=result_file
+        )
+        optimos_report_asset_id = await self._asset_service_client.create_asset(
+            files=[report_json],
+            project_id=processing_request.project_id,
+            asset_name=result_file.stem,
+            asset_type=AssetType.OPTIMOS_REPORT,
+            users_ids=[UUID(processing_request.user_id)])
+        
+        return optimos_report_asset_id

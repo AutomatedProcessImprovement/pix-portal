@@ -351,27 +351,18 @@ services:
     networks:
       - backend
 
-  r_rabbit:
-    hostname: rabbit
-    image: rabbitmq:3-management
-    # environment:
-    #     - RABBITMQ_DEFAULT_USER=myuser
-    #     - RABBITMQ_DEFAULT_PASS=mypassword
-    ports:
-      - 5672:5672 # port for the worker for tasks management
-      - 15672:15672 # GUI port
-    networks:
-      - backend
-
     # worker deployment
   optimos:
+    platform: linux/amd64
     build:
       context: backend/workers/optimos
     env_file:
       - backend/workers/optimos/.env
     secrets:
       - system_password
+      - system_email
     environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
       SYSTEM_PASSWORD_FILE: /run/secrets/system_password
     volumes:
       - optimos-data:/var/tmp/optimos:rw
@@ -380,39 +371,6 @@ services:
     networks:
       - backend
     restart: on-failure
-
-    # flask app deployment
-  r_api:
-    platform: linux/amd64
-    build:
-      context: backend/optimos-microservice
-      dockerfile: Dockerfile.api
-    ports:
-      - 5000:5000
-    volumes:
-      - ./src/celery/data:/app/src/celery/data
-    environment:
-      - CELERY_BROKER_URL=amqp://r_rabbit:5672/
-      - CELERY_RESULT_BACKEND=redis://r_redis:6379/
-      - FLASK_DEBUG=1
-    networks:
-      - backend
-
-  r_redis:
-    image: redis:6-alpine
-    ports:
-      - 6379:6379
-    networks:
-      - backend
-
-  r_frontend:
-    build:
-      dockerfile: Dockerfile
-      context: frontend/optimos-frontend
-    ports:
-      - 8081:80
-    networks:
-      - backend
 
 volumes:
   pix-db-data:
@@ -424,6 +382,7 @@ volumes:
   simulation-prosimos-data:
   kronos-data:
   kronos-db-data:
+  optimos-data:
 networks:
   backend:
     name: pix_backend

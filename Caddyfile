@@ -9,13 +9,7 @@ handle_path /* {
 		reverse_proxy kronos-web-ui:3000
 	}
 
-	handle /roptimos/api/* {
-		reverse_proxy r_api:5000
-	}
 
-	handle /roptimos/ui* {
-		reverse_proxy r_frontend:80
-	}
 
 	handle /* {
 		reverse_proxy pix-web-ui:3030

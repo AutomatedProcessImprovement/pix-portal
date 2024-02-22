@@ -1,4 +1,5 @@
 import type { AlertColor } from "@mui/material";
+import YAML from "yaml";
 import {
   Badge,
   Button,
@@ -11,6 +12,8 @@ import {
   Tooltip,
   useTheme,
 } from "@mui/material";
+import toast from "react-hot-toast";
+import { v4 as uuidv4 } from "uuid";
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import {
@@ -42,14 +45,15 @@ import type { JsonReport, ScenarioProperties } from "~/shared/optimos_json_type"
 import { UserContext } from "~/routes/contexts";
 import { SelectedAssetsContext } from "~/routes/projects.$projectId.$processingType/contexts";
 import type { Asset } from "~/services/assets";
-import { AssetType, getAsset } from "~/services/assets";
+import { AssetType, createAsset, getAsset, patchAsset } from "~/services/assets";
 import { useFileFromAsset } from "./useFetchedAsset";
-import { FileType } from "~/services/files";
+import { FileType, deleteFile, uploadFile } from "~/services/files";
 import { ProcessingRequestType } from "~/services/processing_requests";
 import { createProcessingRequest } from "~/services/processing_requests.server";
 import { useMatches } from "@remix-run/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { prosimosConfigurationSchema } from "~/routes/projects.$projectId.$processingType/components/prosimos/schema";
+import { useSelectedInputAsset } from "~/routes/projects.$projectId.$processingType/components/useSelectedInputAsset";
 
 interface LocationState {
   bpmnFile: File;
@@ -74,6 +78,7 @@ const ParameterEditor = () => {
   const selectedAssets = useContext(SelectedAssetsContext);
   const user = useContext(UserContext);
   const projectId = useMatches().filter((match) => match.id === "routes/projects.$projectId")[0].params.projectId;
+  const [optimosConfigAsset, setOptimosConfigAsset] = useSelectedInputAsset(AssetType.OPTIMOS_CONFIGURATION);
 
   const [isPollingEnabled, setIsPollingEnabled] = useState(false);
   const [pendingTaskId, setPendingTaskId] = useState("");
@@ -87,6 +92,7 @@ const ParameterEditor = () => {
   const [bpmnFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.PROCESS_MODEL_BPMN);
   const [simParamsFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.SIMULATION_MODEL_PROSIMOS_JSON);
   const [consParamsFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON);
+  const [configFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.CONFIGURATION_OPTIMOS_YAML);
 
   console.log(bpmnFile, simParamsFile, consParamsFile);
 
@@ -121,7 +127,25 @@ const ParameterEditor = () => {
     getValues: getScenarioValues,
     trigger: triggerScenario,
     formState: { errors: scenarioErrors },
+    setValue: setScenarioValue,
   } = scenarioState;
+
+  useEffect(() => {
+    if (configFile) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result;
+        if (content) {
+          const config = YAML.parse(content as string);
+          setScenarioValue("scenario_name", config.scenario_name);
+          setScenarioValue("num_iterations", config.num_instances);
+          setScenarioValue("algorithm", config.algorithm);
+          setScenarioValue("approach", config.approach);
+        }
+      };
+      reader.readAsText(configFile);
+    }
+  }, [configFile, setScenarioValue]);
 
   // validate both forms: scenario params and json fields
   useEffect(() => {
@@ -298,6 +322,7 @@ const ParameterEditor = () => {
     const zip = new JSZip();
 
     files.forEach((file) => {
+      //@ts-ignore
       zip.file(file.name, file);
     });
     zip
@@ -512,7 +537,6 @@ const ParameterEditor = () => {
     const canContinue = noInvalidOverlap();
     // TODO Save Blob to input asset!
     const newBlob = getBlobBasedOnExistingInput();
-    const { num_iterations, approach, algorithm, scenario_name } = getScenarioValues();
 
     // return
 
@@ -527,6 +551,47 @@ const ParameterEditor = () => {
       );
     }
   };
+
+  const handleConfigSave = useCallback(
+    // save form data as configuration file, create or update the asset, and update the selected asset IDs
+    async () => {
+      if (!optimosConfigAsset) return;
+      const { num_iterations, approach, algorithm, scenario_name } = getScenarioValues();
+
+      const config = {
+        scenario_name: scenario_name,
+        num_instances: num_iterations,
+        algorithm: algorithm,
+        approach: approach,
+      };
+      const token = user!.token!;
+      const content = YAML.stringify(config);
+      const blob = new Blob([content], { type: "text/yaml" });
+      const fileName = `${uuidv4()}.yaml`;
+      const yamlFile = await uploadFile(blob, fileName, FileType.CONFIGURATION_OPTIMOS_YAML, token);
+
+      const newFileIds = [
+        //TODO Make this smarter
+        ...optimosConfigAsset.files_ids.splice(0, 3),
+        yamlFile.id,
+      ];
+
+      // update existing asset
+      const updatedAsset = await patchAsset({ files_ids: newFileIds }, optimosConfigAsset.id, token);
+      if (updatedAsset && optimosConfigAsset.files_ids.length === 4) {
+        // remove the old file if all is successful
+        try {
+          await deleteFile(optimosConfigAsset.files_ids[3], token);
+        } catch (e) {
+          console.error("error deleting old file", e);
+          // don't throw, still continue with the update below because the asset was updated
+        }
+      }
+      setOptimosConfigAsset(updatedAsset);
+      toast.success("Optimos configuration updated", { duration: 5000 });
+    },
+    [getScenarioValues, user, optimosConfigAsset, setOptimosConfigAsset]
+  );
 
   if (!bpmnFile || !simParamsFile || !consParamsFile) {
     return <div>Please select the required Assets</div>;
@@ -575,6 +640,11 @@ const ParameterEditor = () => {
                 {getStepContent(activeStep)}
               </Grid>
             </Grid>
+          </Grid>
+          <Grid item xs={10} alignItems="center" justifyContent="center" textAlign={"center"}>
+            <Button onClick={handleConfigSave} variant="contained" color="primary" sx={{ marginTop: "20px" }}>
+              Save Config
+            </Button>
           </Grid>
         </Grid>
       </form>

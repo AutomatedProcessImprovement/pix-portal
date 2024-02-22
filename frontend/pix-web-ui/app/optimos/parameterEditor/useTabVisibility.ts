@@ -1,47 +1,44 @@
-import { useEffect, useState } from "react"
-import { Dictionary } from "../helpers"
+import { useEffect, useState } from "react";
+import { Dictionary } from "../helpers";
 
 export enum TABS {
-    GLOBAL_CONSTRAINTS,
-    SCENARIO_CONSTRAINTS,
-    RESOURCE_CONSTRAINTS,
-    SIMULATION_RESULTS,
+  GLOBAL_CONSTRAINTS,
+  SCENARIO_CONSTRAINTS,
+  RESOURCE_CONSTRAINTS,
+  SIMULATION_RESULTS,
 }
 
 const tabsName: Record<string, string> = {
-    GLOBAL_CONSTRAINTS: "Global Constraints",
-    SCENARIO_CONSTRAINTS: "Scenario Constraints",
-    RESOURCE_CONSTRAINTS: "Resource Constraints",
-    SIMULATION_RESULTS: "Simulation Results",
-}
+  GLOBAL_CONSTRAINTS: "Global Constraints",
+  SCENARIO_CONSTRAINTS: "Scenario Constraints",
+  RESOURCE_CONSTRAINTS: "Resource Constraints",
+  // SIMULATION_RESULTS: "Simulation Results",
+};
 
 const useTabVisibility = () => {
-    const [visibleTabs, setVisibleTabs] = useState(new Dictionary<string>())
+  const [visibleTabs, setVisibleTabs] = useState(new Dictionary<string>());
 
-    const getIndexOfTab = (value: TABS): number => {
-        return visibleTabs.getAllKeys().indexOf(TABS[value])
+  const getIndexOfTab = (value: TABS): number => {
+    return visibleTabs.getAllKeys().indexOf(TABS[value]);
+  };
+
+  useEffect(() => {
+    if (!visibleTabs.isEmpty()) {
+      // skip initialization if
+      // 1) no information yet loaded
+      // 2) we already have a final array
+      return;
     }
 
-    useEffect(() => {
-        if (!visibleTabs.isEmpty()) {
-            // skip initialization if
-            // 1) no information yet loaded
-            // 2) we already have a final array
-            return
-        }
+    const newVisibleTabs = Object.entries(tabsName).reduce((acc: Dictionary<string>, [key, value]) => {
+      acc.add(key, value);
+      return acc;
+    }, new Dictionary<string>());
 
-        const newVisibleTabs = Object.entries(tabsName).reduce(
-            (acc: Dictionary<string>, [key, value]) => {
-                acc.add(key, value)
-                return acc
-            },
-            new Dictionary<string>()
-        )
+    setVisibleTabs(newVisibleTabs);
+  }, [visibleTabs]);
 
-        setVisibleTabs(newVisibleTabs)
-    }, [visibleTabs])
+  return { visibleTabs, getIndexOfTab };
+};
 
-    return { visibleTabs, getIndexOfTab }
-}
-
-export default useTabVisibility
+export default useTabVisibility;

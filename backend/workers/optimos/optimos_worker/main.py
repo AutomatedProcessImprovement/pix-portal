@@ -2,13 +2,17 @@ import asyncio
 import json
 import logging
 import uuid
+import sys,os
+sys.path.append( os.path.dirname(__file__)+'/../external_tools/roptimus-prime/')
+sys.path.append( os.path.dirname(__file__)+'/../external_tools/roptimus-prime/ext_tools/Prosimos/')
+
 
 import pix_portal_lib.open_telemetry_utils as open_telemetry_utils
 from kafka import KafkaConsumer
 from pix_portal_lib.service_clients.processing_request import ProcessingRequest
 
-from optimos_service.optimos_service import OptimosService
-from optimos_service.settings import settings
+from optimos_worker.optimos_service import OptimosService
+from optimos_worker.settings import settings
 
 logger = logging.getLogger()
 

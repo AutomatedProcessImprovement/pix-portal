@@ -18,6 +18,7 @@ export enum FileType {
   SIMULATION_MODEL_PROSIMOS_JSON = "simulation_model_prosimos_json",
   STATISTICS_PROSIMOS_CSV = "statistics_prosimos_csv",
   CONSTRAINTS_MODEL_OPTIMOS_JSON = "constraints_model_optimos_json",
+  CONFIGURATION_OPTIMOS_YAML = "configuration_optimos_yaml",
   WAITING_TIME_ANALYSIS_REPORT_KRONOS_JSON = "waiting_time_analysis_report_kronos_json",
   WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV = "waiting_time_analysis_report_kronos_csv",
 }
@@ -42,6 +43,8 @@ export function fileTypeToString(fileType: FileType) {
       return "Optimizer Model";
     case FileType.WAITING_TIME_ANALYSIS_REPORT_KRONOS_JSON:
       return "Waiting Time Report (JSON)";
+    case FileType.CONFIGURATION_OPTIMOS_YAML:
+      return "Optimizer Configuration (YAML)";
     case FileType.WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV:
       return "Waiting Time Report (CSV)";
   }

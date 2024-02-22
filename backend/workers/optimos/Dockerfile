@@ -1,6 +1,11 @@
 ARG PYTHON_VERSION=3.9.18
 FROM python:${PYTHON_VERSION}-slim as base
 
+
+RUN apt-get update && \
+    apt-get install -y git build-essential liblapack-dev \
+    libopenblas-dev libatlas-base-dev libblas-dev python3-cvxopt \
+    libsuitesparse-dev libdsdp-dev libfftw3-dev libglpk-dev libgsl-dev
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
 
@@ -9,12 +14,20 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /worker
+COPY ./tmp_external_tools/roptimus-prime external_tools/roptimus-prime
+COPY ./tmp_external_tools/pix-portal-lib external_tools/pix-portal-lib
+
+
 
 # Copy the source code into the container.
-COPY . .
+COPY README.md .
+COPY poetry* .
+COPY pyproject.toml .
+COPY optimos_worker/__init__.py ./optimos_worker/__init__.py
 
 # Install the local dependencies
 RUN python3 -m pip install .
-
+COPY optimos_worker ./optimos_worker
+RUN python3 -m pip install .
 # Run the application.
-CMD python3 simulation_prosimos/main.py
+CMD python3 optimos_worker/main.py
