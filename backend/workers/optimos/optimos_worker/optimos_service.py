@@ -286,7 +286,7 @@ class OptimosService:
 
     async def upload_results(self, result_file: Path,  processing_request: ProcessingRequest):
         report_json = File_(
-            name=result_file.name, type=FileType.SIMULATION_MODEL_PROSIMOS_JSON, path=result_file
+            name=result_file.name, type=FileType.OPTIMIZATION_REPORT_OPTIMOS_JSON, path=result_file
         )
         optimos_report_asset_id = await self._asset_service_client.create_asset(
             files=[report_json],

@@ -5,6 +5,7 @@ import {
   Button,
   ButtonGroup,
   Grid,
+  Stack,
   Step,
   StepButton,
   StepIcon,
@@ -37,7 +38,6 @@ import { FormProvider, useForm } from "react-hook-form";
 import RCons from "../resourceConstraints/ResourceConstraints";
 import ScenarioConstraints from "../globalConstraints/ScenarioConstraints";
 import { useInterval } from "usehooks-ts";
-import OptimizationResults from "../dashboard/OptimizationResults";
 import JSZip from "jszip";
 import useSimParamsJsonFile from "./useSimParamsJsonFile";
 import { timePeriodToBinary } from "../helpers";
@@ -246,14 +246,6 @@ const ParameterEditor = () => {
         );
       case TABS.RESOURCE_CONSTRAINTS:
         return <RCons setErrorMessage={setErrorMessage} formState={formState} />;
-      case TABS.SIMULATION_RESULTS:
-        if (optimizationReportInfo) {
-          console.log(optimizationReportInfo);
-          return (
-            <OptimizationResults reportJson={optimizationReportInfo} reportFileName={optimizationReportFileName} />
-          );
-        }
-        return <></>;
     }
   };
   const getStepIcon = (currentTab: TABS): React.ReactNode => {
@@ -606,13 +598,6 @@ const ParameterEditor = () => {
 
         <Grid container alignItems="center" justifyContent="center">
           <Grid item xs={10} sx={{ paddingTop: "10px" }}>
-            <Grid container item xs={12}>
-              <Grid item container justifyContent="center">
-                <ButtonGroup>
-                  <Button type="submit">Start Optimization</Button>
-                </ButtonGroup>
-              </Grid>
-            </Grid>
             <Grid item container xs={12} alignItems="center" justifyContent="center" sx={{ paddingTop: "20px" }}>
               <Stepper nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)} connector={<></>}>
                 {Object.entries(visibleTabs.getAllItems()).map(([key, label]: [string, string]) => {
@@ -641,11 +626,19 @@ const ParameterEditor = () => {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={10} alignItems="center" justifyContent="center" textAlign={"center"}>
-            <Button onClick={handleConfigSave} variant="contained" color="primary" sx={{ marginTop: "20px" }}>
-              Save Config
-            </Button>
+          <Grid container item xs={12} alignItems="center" justifyContent="center" textAlign={"center"}>
+            <Grid item container justifyContent="center">
+              <Stack direction="row" spacing={2}>
+                <Button onClick={handleConfigSave} variant="outlined" color="primary" sx={{ marginTop: "20px" }}>
+                  Save Config
+                </Button>
+                <Button type="submit" variant="contained" color="primary" sx={{ marginTop: "20px" }}>
+                  Start Optimization
+                </Button>
+              </Stack>
+            </Grid>
           </Grid>
+          <Grid item xs={10} alignItems="center" justifyContent="center" textAlign={"center"}></Grid>
         </Grid>
       </form>
     </FormProvider>

@@ -21,6 +21,7 @@ export enum FileType {
   CONFIGURATION_OPTIMOS_YAML = "configuration_optimos_yaml",
   WAITING_TIME_ANALYSIS_REPORT_KRONOS_JSON = "waiting_time_analysis_report_kronos_json",
   WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV = "waiting_time_analysis_report_kronos_csv",
+  OPTIMIZATION_REPORT_OPTIMOS_JSON = "optimization_report_optimos_json",
 }
 
 export function fileTypeToString(fileType: FileType) {
@@ -47,6 +48,8 @@ export function fileTypeToString(fileType: FileType) {
       return "Optimizer Configuration (YAML)";
     case FileType.WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV:
       return "Waiting Time Report (CSV)";
+    case FileType.OPTIMIZATION_REPORT_OPTIMOS_JSON:
+      return "Optimizer Report (JSON)";
   }
 }
 

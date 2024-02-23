@@ -124,6 +124,12 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
               Show simulation statistics
             </Link>
           )}
+        {request_.type === ProcessingRequestType.SIMULATION_MODEL_OPTIMIZATION_OPTIMOS &&
+          request_.status === ProcessingRequestStatus.FINISHED && (
+            <Link to={`/optimos/results/${request_.id}`} target="_blank" className="shrink w-fit">
+              Show results
+            </Link>
+          )}
         {request_.output_assets.length > 0 &&
           request_.output_assets.map((asset) => (
             <AssetCard key={asset.id} asset={asset} isActive={false} isRemoveAvailable={false} isInteractive={false} />

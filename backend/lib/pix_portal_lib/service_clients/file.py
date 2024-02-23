@@ -28,6 +28,7 @@ class FileType(str, Enum):
     CONFIGURATION_OPTIMOS_YAML = "configuration_optimos_yaml"
     WAITING_TIME_ANALYSIS_REPORT_KRONOS_JSON = "waiting_time_analysis_report_kronos_json"
     WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV = "waiting_time_analysis_report_kronos_csv"
+    OPTIMIZATION_REPORT_OPTIMOS_JSON = "optimization_report_optimos_json"
 
 
 @dataclass
