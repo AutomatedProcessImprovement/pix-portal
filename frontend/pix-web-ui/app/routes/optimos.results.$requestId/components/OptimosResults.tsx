@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import * as React from "react";
 import "moment-duration-format";
 import type { JsonReport } from "~/shared/optimos_json_type";
+import { formatCurrency, formatPercentage, formatSeconds } from "~/shared/num_helper";
 
 interface SimulationResultsProps {
   report: JsonReport;
@@ -146,197 +147,211 @@ const OptimizationResults = (props: SimulationResultsProps) => {
       </Grid>
       {report?.map((item, idx) => {
         return (
-          <TabPanel index={idx} value={idx} key={`tab-${idx}`}>
-            <Grid
-              container
-              alignItems="center"
-              justifyContent="center"
-              spacing={4}
-              style={{ paddingTop: "10px" }}
-              className="centeredContent"
-            >
-              <Grid item xs={8}>
-                <Paper elevation={5} sx={{ p: 3, minHeight: "10vw" }}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                      <Typography variant="h4" align="center">
-                        {writeName(item)}
-                      </Typography>
-                      <br />
+          <Grid
+            key={`report-${idx}`}
+            container
+            alignItems="center"
+            justifyContent="center"
+            spacing={4}
+            style={{ paddingTop: "10px" }}
+            className="centeredContent"
+          >
+            <Grid item xs={8}>
+              <Paper elevation={5} sx={{ p: 3, minHeight: "10vw" }}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <Typography variant="h4" align="center">
+                      {writeName(item)}
+                    </Typography>
+                    <br />
+                    <Grid container>
+                      {/* { report.map((item: any) => { */}
                       <Grid container>
-                        {/* { report.map((item: any) => { */}
+                        <Grid item xs={5}>
+                          <Typography
+                            sx={{
+                              fontWeight: "bold",
+                            }}
+                            align={"left"}
+                          >
+                            Average cost
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontWeight: "bold",
+                            }}
+                            align={"left"}
+                          >
+                            Average cycle time
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontWeight: "bold",
+                            }}
+                            align={"left"}
+                          >
+                            Pareto size
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontWeight: "bold",
+                            }}
+                            align={"left"}
+                          >
+                            # in Pareto
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontWeight: "bold",
+                            }}
+                            align={"left"}
+                          >
+                            Cost compared to original
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontWeight: "bold",
+                            }}
+                            align={"left"}
+                          >
+                            Time compared to original
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={7}>
+                          <Typography align={"left"}> {formatCurrency(item.ave_cost)}</Typography>
+                          <Typography align={"left"}> {formatSeconds(item.ave_time)}</Typography>
+                          <Typography align={"left"}> {item.pareto_size}</Typography>
+                          <Typography align={"left"}> {item.in_jp}</Typography>
+                          <Typography align={"left"}> {formatPercentage(item.cost_metric)}</Typography>
+                          <Typography align={"left"}> {formatPercentage(item.time_metric)}</Typography>
+                        </Grid>
                         <Grid container>
-                          <Grid item xs={5}>
-                            <Typography
-                              sx={{
-                                fontWeight: "bold",
-                              }}
-                              align={"left"}
-                            >
-                              Average cost
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontWeight: "bold",
-                              }}
-                              align={"left"}
-                            >
-                              Average cycle time (sec)
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontWeight: "bold",
-                              }}
-                              align={"left"}
-                            >
-                              Pareto size
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontWeight: "bold",
-                              }}
-                              align={"left"}
-                            >
-                              # in Pareto
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontWeight: "bold",
-                              }}
-                              align={"left"}
-                            >
-                              Cost compared to original
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontWeight: "bold",
-                              }}
-                              align={"left"}
-                            >
-                              Time compared to original
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={7}>
-                            <Typography align={"left"}> {item.ave_cost}</Typography>
-                            <Typography align={"left"}> {item.ave_time}</Typography>
-                            <Typography align={"left"}> {item.pareto_size}</Typography>
-                            <Typography align={"left"}> {item.in_jp}</Typography>
-                            <Typography align={"left"}> {item.cost_metric}</Typography>
-                            <Typography align={"left"}> {item.time_metric}</Typography>
-                          </Grid>
-                          <Grid container>
-                            <Typography
-                              variant={"h5"}
-                              align={"left"}
-                              sx={{
-                                paddingTop: 1,
-                              }}
-                            >
-                              {" "}
-                              Pareto values
-                            </Typography>
-                            {item.pareto_values.map((entry, index) => {
-                              return (
-                                <Grid
-                                  key={`grid-${index}`}
-                                  container
+                          <Typography
+                            variant={"h5"}
+                            align={"left"}
+                            sx={{
+                              paddingTop: 1,
+                            }}
+                          >
+                            {" "}
+                            Pareto values
+                          </Typography>
+                          {item.pareto_values.map((entry, index) => {
+                            return (
+                              <Grid
+                                key={`grid-${index}`}
+                                container
+                                sx={{
+                                  paddingTop: 1,
+                                }}
+                              >
+                                <Grid item xs={5}>
+                                  <Typography
+                                    sx={{
+                                      fontWeight: "bold",
+                                    }}
+                                    align={"left"}
+                                  >
+                                    {" "}
+                                    Entry ID
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      fontWeight: "bold",
+                                    }}
+                                    align={"left"}
+                                  >
+                                    {" "}
+                                    Median cost
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      fontWeight: "bold",
+                                    }}
+                                    align={"left"}
+                                  >
+                                    {" "}
+                                    Median cycle time
+                                  </Typography>
+                                </Grid>
+                                <Grid item xs={7}>
+                                  <Typography align={"left"}> {entry.name}</Typography>
+                                  <Typography align={"left"}>
+                                    {formatCurrency(entry.median_execution_cost)}
+                                    {item.ave_cost > entry.median_execution_cost ? (
+                                      <i style={{ color: "green", fontSize: "0.8em" }}> (≤ avg.)</i>
+                                    ) : (
+                                      <i style={{ color: "red", fontSize: "0.8em" }}> ({">"} avg.)</i>
+                                    )}
+                                  </Typography>
+                                  <Typography align={"left"}>
+                                    {" "}
+                                    {formatSeconds(entry.median_cycle_time)}
+                                    {item.ave_time > entry.median_cycle_time ? (
+                                      <i style={{ color: "green", fontSize: "0.8em" }}> (≤ avg.)</i>
+                                    ) : (
+                                      <i style={{ color: "red", fontSize: "0.8em" }}> ({">"} avg.)</i>
+                                    )}
+                                  </Typography>
+                                </Grid>
+                                <Button
                                   sx={{
-                                    paddingTop: 1,
+                                    marginTop: 1,
+                                    marginRight: 1,
+                                  }}
+                                  type="button"
+                                  variant="contained"
+                                  onClick={(_e) => {
+                                    onDownloadEntrySimParams(entry.sim_params);
                                   }}
                                 >
-                                  <Grid item xs={5}>
-                                    <Typography
-                                      sx={{
-                                        fontWeight: "bold",
-                                      }}
-                                      align={"left"}
-                                    >
-                                      {" "}
-                                      Entry ID
-                                    </Typography>
-                                    <Typography
-                                      sx={{
-                                        fontWeight: "bold",
-                                      }}
-                                      align={"left"}
-                                    >
-                                      {" "}
-                                      Median cost
-                                    </Typography>
-                                    <Typography
-                                      sx={{
-                                        fontWeight: "bold",
-                                      }}
-                                      align={"left"}
-                                    >
-                                      {" "}
-                                      Median cycle time (sec)
-                                    </Typography>
-                                  </Grid>
-                                  <Grid item xs={7}>
-                                    <Typography align={"left"}> {entry.name}</Typography>
-                                    <Typography align={"left"}> {entry.median_execution_cost}</Typography>
-                                    <Typography align={"left"}> {entry.median_cycle_time}</Typography>
-                                  </Grid>
-                                  <Button
-                                    sx={{
-                                      marginTop: 1,
-                                      marginRight: 1,
-                                    }}
-                                    type="button"
-                                    variant="contained"
-                                    onClick={(_e) => {
-                                      onDownloadEntrySimParams(entry.sim_params);
-                                    }}
-                                  >
-                                    Download parameters
-                                  </Button>
-                                  <a
-                                    style={{
-                                      display: "none",
-                                    }}
-                                    download={"simparams.json"}
-                                    href={fileDownloadSimParams}
-                                    ref={link2DownloadRef}
-                                  >
-                                    Download json
-                                  </a>
+                                  Download parameters
+                                </Button>
+                                <a
+                                  style={{
+                                    display: "none",
+                                  }}
+                                  download={"simparams.json"}
+                                  href={fileDownloadSimParams}
+                                  ref={link2DownloadRef}
+                                >
+                                  Download json
+                                </a>
 
-                                  <Button
-                                    sx={{
-                                      marginTop: 1,
-                                    }}
-                                    type="button"
-                                    variant="contained"
-                                    onClick={(_e) => {
-                                      onDownloadEntryConsParams(entry.cons_params);
-                                    }}
-                                  >
-                                    Download constraints
-                                  </Button>
-                                  <a
-                                    style={{
-                                      display: "none",
-                                    }}
-                                    download={"constraints.json"}
-                                    href={fileDownloadConsParams}
-                                    ref={link3DownloadRef}
-                                  >
-                                    Download json
-                                  </a>
-                                </Grid>
-                              );
-                            })}
-                          </Grid>
+                                <Button
+                                  sx={{
+                                    marginTop: 1,
+                                  }}
+                                  type="button"
+                                  variant="contained"
+                                  onClick={(_e) => {
+                                    onDownloadEntryConsParams(entry.cons_params);
+                                  }}
+                                >
+                                  Download constraints
+                                </Button>
+                                <a
+                                  style={{
+                                    display: "none",
+                                  }}
+                                  download={"constraints.json"}
+                                  href={fileDownloadConsParams}
+                                  ref={link3DownloadRef}
+                                >
+                                  Download json
+                                </a>
+                              </Grid>
+                            );
+                          })}
                         </Grid>
-                        {/* })} */}
                       </Grid>
+                      {/* })} */}
                     </Grid>
                   </Grid>
-                </Paper>
-              </Grid>
+                </Grid>
+              </Paper>
             </Grid>
-          </TabPanel>
+          </Grid>
         );
       })}
     </>

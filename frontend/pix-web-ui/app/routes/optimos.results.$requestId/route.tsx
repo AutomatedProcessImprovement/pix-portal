@@ -7,6 +7,14 @@ import { requireLoggedInUser } from "~/shared/guards.server";
 import OptimizationResults from "./components/OptimosResults";
 import { JsonReport } from "~/shared/optimos_json_type";
 import { FileType, getFileContent } from "~/services/files.server";
+import Header from "~/components/Header";
+import { UserContext } from "../contexts";
+import ProjectNav from "../projects.$projectId/components/ProjectNav";
+import { ProjectContext } from "../projects.$projectId/contexts";
+import { User } from "~/services/auth";
+import { getProject } from "~/services/projects.server";
+import { Project } from "~/services/projects";
+import { GlobalNav } from "~/components/GlobalNav";
 
 export const meta: MetaFunction = ({ matches }) => {
   const rootMeta = matches.find((match) => match.id === "root")?.meta as
@@ -30,6 +38,8 @@ export const loader = async ({
 }: LoaderFunctionArgs): Promise<
   TypedResponse<{
     report: JsonReport | null;
+    project?: Project;
+    user?: User;
   }>
 > => {
   const user = await requireLoggedInUser(request);
@@ -59,18 +69,26 @@ export const loader = async ({
   const fileContent = await getFileContent(optimosReportJsonFile.id, user.token!);
   const jsonStr = fileContent.toString();
   const report = JSON.parse(jsonStr);
-  return json({ report });
+
+  const projectId = processingRequest.project_id;
+
+  const project = await getProject(projectId, user.token!);
+
+  return json({ report, project, user });
 };
 
-export default function ProsimosStatisticsPage() {
-  const { report } = useLoaderData<typeof loader>();
+export default function OptimosStatisticsPage() {
+  const { report, user, project } = useLoaderData<typeof loader>();
 
-  if (!report) throw new Error("No report found");
+  if (!report || !user) throw new Error("No report found");
   return (
-    <main className="flex flex-col p-8 items-center justify-center overflow-auto">
-      <h1 className="text-3xl font-semibold">Optimization Statistics</h1>
-      {report && <OptimizationResults report={report} />}
-    </main>
+    <div className="min-h-full flex flex-col justify-between">
+      <div className="flex grow flex-col min-h-full">
+        <Header userEmail={user.email} />
+
+        {report && <OptimizationResults report={report} />}
+      </div>
+    </div>
   );
 }
 
