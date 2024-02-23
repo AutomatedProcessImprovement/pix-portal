@@ -26,7 +26,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
               Scenario specification
             </Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={6}>
             <Controller
               name="scenario_name"
               control={scenarioFormControl}
@@ -49,7 +49,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
               )}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <Controller
               name="algorithm"
               control={scenarioFormControl}
@@ -82,7 +82,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
               )}
             />
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={6}>
             <Controller
               name="num_iterations"
               control={scenarioFormControl}
@@ -113,7 +113,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
               )}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <Controller
               name="approach"
               control={scenarioFormControl}

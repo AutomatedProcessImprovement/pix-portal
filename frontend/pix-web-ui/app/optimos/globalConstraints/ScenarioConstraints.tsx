@@ -135,9 +135,9 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
               }}
               render={({ field: { onChange, value } }) => (
                 <TextField
-                  type="number"
+                  style={{ display: "none" }}
+                  type="hidden"
                   value={value}
-                  label="Hours per day (NOT IN USE)"
                   onChange={(e) => {
                     onChange(Number(e.target.value));
                   }}
@@ -146,9 +146,7 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                     min: "1",
                   }}
                   error={errors?.hours_in_day !== undefined}
-                  helperText={errors?.hours_in_day?.message ?? ""}
                   variant="standard"
-                  style={{ width: "50%" }}
                 />
               )}
             />
@@ -166,13 +164,12 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
               }}
               render={({ field: { onChange, value } }) => (
                 <>
-                  <InputLabel id={"algorithm-select-label"}>Time Granularity</InputLabel>
+                  <InputLabel id={"time-granularity-select-label"}>Time Granularity</InputLabel>
                   <Select
                     required={true}
-                    name={"algorithm"}
+                    name={"time-granularity"}
                     sx={{ minWidth: 250 }}
-                    labelId="algorithm-select-label"
-                    id="approach-select"
+                    labelId="time-granularity-select-label"
                     value={value}
                     label="Algorithm"
                     onChange={(e) => {
@@ -184,12 +181,12 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                     variant="standard"
                   >
                     <MenuItem disabled value={"15"}>
-                      15
+                      15min
                     </MenuItem>
                     <MenuItem disabled value={"30"}>
-                      30
+                      30min
                     </MenuItem>
-                    <MenuItem value={"60"}>60</MenuItem>
+                    <MenuItem value={"60"}>60min</MenuItem>
                   </Select>
                 </>
               )}

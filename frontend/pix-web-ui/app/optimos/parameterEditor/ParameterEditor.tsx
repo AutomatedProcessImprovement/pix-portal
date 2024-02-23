@@ -54,6 +54,7 @@ import { useMatches } from "@remix-run/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { prosimosConfigurationSchema } from "~/routes/projects.$projectId.$processingType/components/prosimos/schema";
 import { useSelectedInputAsset } from "~/routes/projects.$projectId.$processingType/components/useSelectedInputAsset";
+import { ProcessingAppSection } from "~/routes/projects.$projectId.$processingType/components/ProcessingAppSection";
 
 interface LocationState {
   bpmnFile: File;
@@ -157,56 +158,6 @@ const ParameterEditor = () => {
       setErrorMessage("There are validation errors");
     }
   }, [isSubmitted, submitCount]);
-
-  useInterval(
-    () => {
-      // TODO
-      //   getTaskByTaskId(pendingTaskId)
-      //     .then((result: any) => {
-      //       const dataJson = result.data;
-      //       if (dataJson.TaskStatus === "STARTED") {
-      //         setInfoMessage("Optimization still in progress...");
-      //       }
-      //     })
-      //     .catch((error: any) => {
-      //       setIsPollingEnabled(false);
-      //       console.log(error);
-      //       console.log(error.response);
-      //     });
-    },
-    isPollingEnabled ? 60000 : null
-  );
-
-  useInterval(
-    () => {
-      // TODO
-      //   getTaskByTaskId(pendingTaskId)
-      //     .then((result: any) => {
-      //       const dataJson = result.data;
-      //       if (dataJson.TaskStatus === "SUCCESS") {
-      //         setIsPollingEnabled(false);
-      //         setOptimizationReportFileName(dataJson.TaskResponse.stat_path);
-      //         setOptimizationReportInfo(dataJson.TaskResponse.report);
-      //         // redirect to results step
-      //         setActiveStep(TABS.SIMULATION_RESULTS);
-      //         // hide info message
-      //         onSnackbarClose();
-      //       } else if (dataJson.TaskStatus === "FAILURE") {
-      //         setIsPollingEnabled(false);
-      //         console.log(dataJson);
-      //         setErrorMessage("Simulation Task failed");
-      //       }
-      //     })
-      //     .catch((error: any) => {
-      //       setIsPollingEnabled(false);
-      //       console.log(error);
-      //       console.log(error.response);
-      //       const errorMessage = error?.response?.data?.displayMessage || "Something went wrong";
-      //       setErrorMessage("Task Executing: " + errorMessage);
-      //     });
-    },
-    isPollingEnabled ? 3000 : null
-  );
 
   const setErrorMessage = (value: string) => {
     setSnackColor("error");
@@ -585,63 +536,72 @@ const ParameterEditor = () => {
     [getScenarioValues, user, optimosConfigAsset, setOptimosConfigAsset]
   );
 
-  if (!bpmnFile || !simParamsFile || !consParamsFile) {
-    return <div>Please select the required Assets</div>;
-  }
-
   return (
-    <FormProvider {...scenarioState}>
-      <form method="POST">
-        <input type="hidden" name="selectedInputAssetsIds" value={selectedAssets.map((asset) => asset.id).join(",")} />
-        <input type="hidden" name="shouldNotify" value="off" />
-        <input type="hidden" name="projectId" value={projectId} />
+    <ProcessingAppSection heading="Optimization Configuration">
+      {(!bpmnFile || !simParamsFile || !consParamsFile) && (
+        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg">
+          Select a Optimos Configuration file from the input assets on the left.
+        </p>
+      )}
+      {bpmnFile && simParamsFile && consParamsFile && (
+        <FormProvider {...scenarioState}>
+          <form method="POST">
+            <input
+              type="hidden"
+              name="selectedInputAssetsIds"
+              value={selectedAssets.map((asset) => asset.id).join(",")}
+            />
+            <input type="hidden" name="shouldNotify" value="off" />
+            <input type="hidden" name="projectId" value={projectId} />
 
-        <Grid container alignItems="center" justifyContent="center">
-          <Grid item xs={10} sx={{ paddingTop: "10px" }}>
-            <Grid item container xs={12} alignItems="center" justifyContent="center" sx={{ paddingTop: "20px" }}>
-              <Stepper nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)} connector={<></>}>
-                {Object.entries(visibleTabs.getAllItems()).map(([key, label]: [string, string]) => {
-                  const keyTab = key as keyof typeof TABS;
-                  const valueTab: TABS = TABS[keyTab];
+            <Grid container alignItems="center" justifyContent="center">
+              <Grid item xs={10} sx={{ paddingTop: "10px" }}>
+                <Grid item container xs={12} alignItems="center" justifyContent="center" sx={{ paddingTop: "20px" }}>
+                  <Stepper nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)} connector={<></>}>
+                    {Object.entries(visibleTabs.getAllItems()).map(([key, label]: [string, string]) => {
+                      const keyTab = key as keyof typeof TABS;
+                      const valueTab: TABS = TABS[keyTab];
 
-                  return (
-                    <Step key={label}>
-                      <Tooltip title={tooltip_desc[key]}>
-                        <StepButton
-                          color="inherit"
-                          onClick={() => {
-                            setActiveStep(valueTab);
-                          }}
-                          icon={getStepIcon(valueTab)}
-                        >
-                          {label}
-                        </StepButton>
-                      </Tooltip>
-                    </Step>
-                  );
-                })}
-              </Stepper>
-              <Grid container mt={3} style={{ marginBottom: "2%" }}>
-                {getStepContent(activeStep)}
+                      return (
+                        <Step key={label}>
+                          <Tooltip title={tooltip_desc[key]}>
+                            <StepButton
+                              color="inherit"
+                              onClick={() => {
+                                setActiveStep(valueTab);
+                              }}
+                              icon={getStepIcon(valueTab)}
+                            >
+                              {label}
+                            </StepButton>
+                          </Tooltip>
+                        </Step>
+                      );
+                    })}
+                  </Stepper>
+                  <Grid container mt={3} style={{ marginBottom: "2%" }}>
+                    {getStepContent(activeStep)}
+                  </Grid>
+                </Grid>
               </Grid>
+              <Grid container item xs={12} alignItems="center" justifyContent="center" textAlign={"center"}>
+                <Grid item container justifyContent="center">
+                  <Stack direction="row" spacing={2}>
+                    <Button onClick={handleConfigSave} variant="outlined" color="primary" sx={{ marginTop: "20px" }}>
+                      Save Config
+                    </Button>
+                    <Button type="submit" variant="contained" color="primary" sx={{ marginTop: "20px" }}>
+                      Start Optimization
+                    </Button>
+                  </Stack>
+                </Grid>
+              </Grid>
+              <Grid item xs={10} alignItems="center" justifyContent="center" textAlign={"center"}></Grid>
             </Grid>
-          </Grid>
-          <Grid container item xs={12} alignItems="center" justifyContent="center" textAlign={"center"}>
-            <Grid item container justifyContent="center">
-              <Stack direction="row" spacing={2}>
-                <Button onClick={handleConfigSave} variant="outlined" color="primary" sx={{ marginTop: "20px" }}>
-                  Save Config
-                </Button>
-                <Button type="submit" variant="contained" color="primary" sx={{ marginTop: "20px" }}>
-                  Start Optimization
-                </Button>
-              </Stack>
-            </Grid>
-          </Grid>
-          <Grid item xs={10} alignItems="center" justifyContent="center" textAlign={"center"}></Grid>
-        </Grid>
-      </form>
-    </FormProvider>
+          </form>
+        </FormProvider>
+      )}
+    </ProcessingAppSection>
   );
 };
 export default ParameterEditor;
