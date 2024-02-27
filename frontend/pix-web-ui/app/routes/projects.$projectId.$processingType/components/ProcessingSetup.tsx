@@ -3,7 +3,7 @@ import { ProcessingType } from "~/shared/processing_type";
 import SetupKronos from "./SetupKronos";
 import SetupProsimos from "./SetupProsimos";
 import SetupSimod from "./SetupSimod";
-import { OptimizationFrame } from "./OptimizationFrame";
+import { OptimizationFrame } from "./optimos/OptimizationFrame";
 
 export default function ProcessingSetup({ processingType }: { processingType: ProcessingType }) {
   const getProcessingSetup = useCallback(() => {

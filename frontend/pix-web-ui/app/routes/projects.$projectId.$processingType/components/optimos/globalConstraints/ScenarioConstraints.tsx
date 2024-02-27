@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { Controller, type UseFormReturn } from "react-hook-form";
-import { type ConsJsonData, type ScenarioProperties } from "../../JsonData";
+import type { ConsJsonData, ScenarioProperties } from "~/shared/optimos_json_type";
 import { Card, Grid, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { REQUIRED_ERROR_MSG, SHOULD_BE_GREATER_0_MSG } from "../validationMessages";
 import { useState } from "react";

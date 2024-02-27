@@ -1,27 +1,13 @@
 import type { AlertColor } from "@mui/material";
 import YAML from "yaml";
-import {
-  Badge,
-  Button,
-  ButtonGroup,
-  Grid,
-  Stack,
-  Step,
-  StepButton,
-  StepIcon,
-  Stepper,
-  Tooltip,
-  useTheme,
-} from "@mui/material";
+import { Badge, Button, Grid, Stack, Step, StepButton, StepIcon, Stepper, Tooltip, useTheme } from "@mui/material";
 import toast from "react-hot-toast";
 import { v4 as uuidv4 } from "uuid";
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import { useLocation } from "react-router-dom";
 import {
   Groups as GroupsIcon,
   BarChart as BarChartIcon,
   Settings as SettingsIcon,
-  ArrowBackIosNew as ArrowBackIosNewIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
   Build as BuildIcon,
@@ -29,30 +15,21 @@ import {
 
 import useFormState from "./useFormState";
 import useJsonFile from "./useJsonFile";
-import saveAs from "file-saver";
 import useTabVisibility, { TABS } from "./useTabVisibility";
-import SnackBar from "../SnackBar";
 import GlobalConstraints from "../globalConstraints/GlobalConstraints";
 import { useNavigate } from "react-router";
 import { FormProvider, useForm } from "react-hook-form";
 import ResourceConstraints from "../resourceConstraints/ResourceConstraints";
 import ScenarioConstraints from "../globalConstraints/ScenarioConstraints";
-import { useInterval } from "usehooks-ts";
-import JSZip from "jszip";
 import useSimParamsJsonFile from "./useSimParamsJsonFile";
 import { timePeriodToBinary } from "../helpers";
 import type { JsonReport, ScenarioProperties } from "~/shared/optimos_json_type";
 import { UserContext } from "~/routes/contexts";
 import { SelectedAssetsContext } from "~/routes/projects.$projectId.$processingType/contexts";
-import type { Asset } from "~/services/assets";
-import { AssetType, createAsset, getAsset, patchAsset } from "~/services/assets";
+import { AssetType, patchAsset } from "~/services/assets";
 import { useFileFromAsset } from "./useFetchedAsset";
 import { FileType, deleteFile, getFile, uploadFile } from "~/services/files";
-import { ProcessingRequestType } from "~/services/processing_requests";
-import { createProcessingRequest } from "~/services/processing_requests.server";
 import { useMatches } from "@remix-run/react";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { prosimosConfigurationSchema } from "~/routes/projects.$projectId.$processingType/components/prosimos/schema";
 import { useSelectedInputAsset } from "~/routes/projects.$projectId.$processingType/components/useSelectedInputAsset";
 import { ProcessingAppSection } from "~/routes/projects.$projectId.$processingType/components/ProcessingAppSection";
 

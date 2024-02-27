@@ -1,8 +1,8 @@
-import { useState, type FC, useEffect, useRef } from "react";
+import { useState, type FC, useRef } from "react";
 import { type Control, Controller } from "react-hook-form";
-import { Button, Chip, Container, Grid, TextField } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import { REQUIRED_ERROR_MSG, SHOULD_BE_GREATER_0_MSG } from "../validationMessages";
-import { type ConsJsonData } from "../../JsonData";
+import type { ConsJsonData } from "~/shared/optimos_json_type";
 import Selecto from "react-selecto";
 
 const selectionIndexesToBitmask = (indexes: number[]) => {
