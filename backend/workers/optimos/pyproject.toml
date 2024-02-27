@@ -14,8 +14,8 @@ requests = "^2.31.0"
 kafka-python = "^2.0.2"
 httpx = "^0.25.0"
 pyyaml = "^6.0.1"
-pix-portal-lib = { path = "./external_tools/pix-portal-lib" }
-optimos = { path = "./external_tools/roptimus-prime/" }
+pix-portal-lib = { path = "lib/pix_portal_lib-0.1.53-py3-none-any.whl" }
+optimos = { git = "https://github.com/AutomatedProcessImprovement/roptimus-prime.git", branch = "optimos_microservice" }
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"

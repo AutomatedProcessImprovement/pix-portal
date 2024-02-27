@@ -14,13 +14,12 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /worker
-COPY ./tmp_external_tools/roptimus-prime external_tools/roptimus-prime
-COPY ./tmp_external_tools/pix-portal-lib external_tools/pix-portal-lib
 
 
 
 # Copy the source code into the container.
 COPY README.md .
+COPY lib/. ./lib
 COPY poetry* .
 COPY pyproject.toml .
 COPY optimos_worker/__init__.py ./optimos_worker/__init__.py

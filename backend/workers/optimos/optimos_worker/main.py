@@ -2,9 +2,6 @@ import asyncio
 import json
 import logging
 import uuid
-import sys,os
-sys.path.append( os.path.dirname(__file__)+'/../external_tools/roptimus-prime/')
-sys.path.append( os.path.dirname(__file__)+'/../external_tools/roptimus-prime/ext_tools/Prosimos/')
 
 
 import pix_portal_lib.open_telemetry_utils as open_telemetry_utils
