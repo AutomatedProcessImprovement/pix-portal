@@ -1,4 +1,4 @@
-FROM nokal/simod:4.0.3
+FROM nokal/simod:4.1.1
 
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
