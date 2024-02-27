@@ -14,10 +14,10 @@ export const formatSeconds = (seconds: number, includeHours = true) => {
   if (includeHours && hours > 0) {
     result += `${hours}h `;
   }
-  if (minutes > 0) {
-    result += `${minutes}m `;
+  if (minutes > 0 || hours > 0) {
+    result += `${minutes}m `.padStart(4, "0");
   }
-  result += `${secondsLeft}s`;
+  result += `${secondsLeft}s`.padStart(3, "0");
 
   return result;
 };

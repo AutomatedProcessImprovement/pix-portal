@@ -35,7 +35,7 @@ import SnackBar from "../SnackBar";
 import GlobalConstraints from "../globalConstraints/GlobalConstraints";
 import { useNavigate } from "react-router";
 import { FormProvider, useForm } from "react-hook-form";
-import RCons from "../resourceConstraints/ResourceConstraints";
+import ResourceConstraints from "../resourceConstraints/ResourceConstraints";
 import ScenarioConstraints from "../globalConstraints/ScenarioConstraints";
 import { useInterval } from "usehooks-ts";
 import JSZip from "jszip";
@@ -47,7 +47,7 @@ import { SelectedAssetsContext } from "~/routes/projects.$projectId.$processingT
 import type { Asset } from "~/services/assets";
 import { AssetType, createAsset, getAsset, patchAsset } from "~/services/assets";
 import { useFileFromAsset } from "./useFetchedAsset";
-import { FileType, deleteFile, uploadFile } from "~/services/files";
+import { FileType, deleteFile, getFile, uploadFile } from "~/services/files";
 import { ProcessingRequestType } from "~/services/processing_requests";
 import { createProcessingRequest } from "~/services/processing_requests.server";
 import { useMatches } from "@remix-run/react";
@@ -169,14 +169,6 @@ const ParameterEditor = () => {
     setSnackMessage(value);
   };
 
-  const onSnackbarClose = () => {
-    setErrorMessage("");
-  };
-
-  const onStartOver = () => {
-    // TODO
-  };
-
   const getStepContent = (index: TABS) => {
     switch (index) {
       case TABS.GLOBAL_CONSTRAINTS:
@@ -196,7 +188,7 @@ const ParameterEditor = () => {
           />
         );
       case TABS.RESOURCE_CONSTRAINTS:
-        return <RCons setErrorMessage={setErrorMessage} formState={formState} />;
+        return <ResourceConstraints setErrorMessage={setErrorMessage} formState={formState} />;
     }
   };
   const getStepIcon = (currentTab: TABS): React.ReactNode => {
@@ -258,24 +250,6 @@ const ParameterEditor = () => {
       );
 
     return <StepIcon active={isActiveStep} icon={finalIcon} />;
-  };
-
-  const onDownloadScenarioFilesAsZip = () => {
-    const files = [bpmnFile, simParamsFile, consParamsFile];
-    const zip = new JSZip();
-
-    files.forEach((file) => {
-      //@ts-ignore
-      zip.file(file.name, file);
-    });
-    zip
-      .generateAsync({ type: "blob" })
-      .then(function (content: any) {
-        saveAs(content, "files.zip");
-      })
-      .catch((e) => {
-        console.log(e);
-      });
   };
 
   const fromContentToBlob = (values: any) => {
@@ -459,41 +433,12 @@ const ParameterEditor = () => {
     return false;
   };
 
-  const getBlobBasedOnExistingInput = (): Blob => {
+  const getConstraintsConfigBlob = useCallback((): Blob => {
     const values = getValues();
     const blob = fromContentToBlob(values);
 
     return blob;
-  };
-
-  const onStartOptimization = async () => {
-    const isScenarioValid = await triggerScenario();
-    setIsScenarioParamsValid(isScenarioValid);
-
-    if (!isValid || !isScenarioValid) {
-      // scenario params or json params
-      // or values used for prioritisation rules
-      // or all of them are not valid
-      return;
-    }
-
-    const canContinue = noInvalidOverlap();
-    // TODO Save Blob to input asset!
-    const newBlob = getBlobBasedOnExistingInput();
-
-    // return
-
-    if (canContinue) {
-      setInfoMessage("Optimization started...");
-      await createProcessingRequest(
-        ProcessingRequestType.SIMULATION_MODEL_OPTIMIZATION_OPTIMOS,
-        projectId!,
-        selectedAssets.map((asset) => asset.id),
-        false,
-        user!.token!
-      );
-    }
-  };
+  }, [getValues]);
 
   const handleConfigSave = useCallback(
     // save form data as configuration file, create or update the asset, and update the selected asset IDs
@@ -501,30 +446,49 @@ const ParameterEditor = () => {
       if (!optimosConfigAsset) return;
       const { num_iterations, approach, algorithm, scenario_name } = getScenarioValues();
 
-      const config = {
+      const globalConfig = {
         scenario_name: scenario_name,
         num_instances: num_iterations,
         algorithm: algorithm,
         approach: approach,
       };
-      const token = user!.token!;
-      const content = YAML.stringify(config);
-      const blob = new Blob([content], { type: "text/yaml" });
-      const fileName = `${uuidv4()}.yaml`;
-      const yamlFile = await uploadFile(blob, fileName, FileType.CONFIGURATION_OPTIMOS_YAML, token);
 
-      const newFileIds = [
-        //TODO Make this smarter
-        ...optimosConfigAsset.files_ids.splice(0, 3),
-        yamlFile.id,
-      ];
+      const token = user!.token!;
+
+      const constraints = getConstraintsConfigBlob();
+      const constraintsConfigFile = await uploadFile(
+        constraints,
+        `${uuidv4()}.json`,
+        FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON,
+        token
+      );
+
+      const globalConfigBlob = new Blob([YAML.stringify(globalConfig)], { type: "text/yaml" });
+      const globalConfigFile = await uploadFile(
+        globalConfigBlob,
+        `${uuidv4()}.yaml`,
+        FileType.CONFIGURATION_OPTIMOS_YAML,
+        token
+      );
+
+      const files = await Promise.all(optimosConfigAsset.files_ids.map((id) => getFile(id, token)));
+      const outdatedFiles = files.filter(
+        (file) =>
+          file.type === FileType.CONFIGURATION_OPTIMOS_YAML || file.type === FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON
+      );
+
+      const preservedFiles = files.filter((file) => !outdatedFiles.includes(file));
+
+      const newFileIds = [globalConfigFile.id, constraintsConfigFile.id, ...preservedFiles.map((file) => file.id)];
 
       // update existing asset
       const updatedAsset = await patchAsset({ files_ids: newFileIds }, optimosConfigAsset.id, token);
-      if (updatedAsset && optimosConfigAsset.files_ids.length === 4) {
+      if (updatedAsset) {
         // remove the old file if all is successful
         try {
-          await deleteFile(optimosConfigAsset.files_ids[3], token);
+          for (const file of outdatedFiles) {
+            await deleteFile(file.id, token);
+          }
         } catch (e) {
           console.error("error deleting old file", e);
           // don't throw, still continue with the update below because the asset was updated
@@ -533,7 +497,7 @@ const ParameterEditor = () => {
       setOptimosConfigAsset(updatedAsset);
       toast.success("Optimos configuration updated", { duration: 5000 });
     },
-    [getScenarioValues, user, optimosConfigAsset, setOptimosConfigAsset]
+    [optimosConfigAsset, getScenarioValues, user, getConstraintsConfigBlob, setOptimosConfigAsset]
   );
 
   return (
@@ -545,7 +509,13 @@ const ParameterEditor = () => {
       )}
       {bpmnFile && simParamsFile && consParamsFile && (
         <FormProvider {...scenarioState}>
-          <form method="POST">
+          <form
+            method="POST"
+            onSubmit={scenarioState.handleSubmit(async (e, t) => {
+              await handleConfigSave();
+              t?.target.submit();
+            })}
+          >
             <input
               type="hidden"
               name="selectedInputAssetsIds"
