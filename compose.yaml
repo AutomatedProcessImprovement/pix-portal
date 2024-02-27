@@ -350,6 +350,26 @@ services:
       retries: 5
     networks:
       - backend
+  optimos:
+    platform: linux/amd64
+    build:
+      context: backend/workers/optimos
+    env_file:
+      - backend/workers/optimos/.env
+    secrets:
+      - system_password
+      - system_email
+    environment:
+      SYSTEM_EMAIL_FILE: /run/secrets/system_email
+      SYSTEM_PASSWORD_FILE: /run/secrets/system_password
+    volumes:
+      - optimos-data:/var/tmp/optimos:rw
+    depends_on:
+      - kafka
+    networks:
+      - backend
+    restart: on-failure
+
 volumes:
   pix-db-data:
   uploads:
@@ -360,6 +380,7 @@ volumes:
   simulation-prosimos-data:
   kronos-data:
   kronos-db-data:
+  optimos-data:
 networks:
   backend:
     name: pix_backend
