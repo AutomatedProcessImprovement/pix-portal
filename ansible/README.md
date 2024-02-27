@@ -52,3 +52,23 @@ To deploy the application, run:
 ```shell
 ansible-playbook -i ansible/hosts.yaml ansible/deploy.yaml
 ```
+
+## Operating
+
+### Monitoring
+
+Grafana Dashboard is available at [https://pix.cloud.ut.ee/admin/grafana/](https://pix.cloud.ut.ee/admin/grafana/).
+
+However, React applications don't expose logs to Grafana. Use `docker logs` directly then.
+
+### Issues
+
+#### No disk space
+
+First, check if Docker got out of hand with either build cache, images store, or internal continers' filesystems:
+
+```shell
+docker system df
+docker builder prune -a  # cleans the build cache
+docker images prune -a   # cleans the images store
+```
