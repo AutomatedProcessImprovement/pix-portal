@@ -13,7 +13,14 @@ export function Footer() {
         </span>
         <ul className="flex flex-wrap items-center mt-3 text-sm font-medium text-slate-400 sm:mt-0">
           <li>
-            <span className="text-slate-300 border-slate-300 me-4 md:me-6 line-through">Privacy Policy</span>
+            <a href="/privacy-policy.html" className="text-slate-300 border-slate-300 me-4 md:me-6">
+              Privacy Policy
+            </a>
+          </li>
+          <li>
+            <a href="/cookie-policy.html" className="text-slate-300 border-slate-300 me-4 md:me-6">
+              Cookie Policy
+            </a>
           </li>
           <li>
             <span className="text-slate-300 border-slate-300 me-4 md:me-6 line-through">About</span>
