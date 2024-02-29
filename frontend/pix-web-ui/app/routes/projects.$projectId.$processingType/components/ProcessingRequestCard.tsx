@@ -1,8 +1,9 @@
 import { Link } from "@remix-run/react";
-import { Suspense, useContext, useEffect, useState } from "react";
+import { Suspense, useCallback, useContext, useEffect, useState } from "react";
 import type { ToastOptions } from "react-hot-toast";
 import toast from "react-hot-toast";
 import { UserContext } from "~/routes/contexts";
+import { AssetType } from "~/services/assets";
 import {
   ProcessingRequestStatus,
   ProcessingRequestType,
@@ -86,6 +87,13 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
     }
   }
 
+  const simulationAssetId = useCallback(() => {
+    if (!request_) return null;
+    const models = request_.output_assets.filter((a) => a.type === AssetType.SIMULATION_MODEL);
+    if (models.length > 0) return models[0].id;
+    return null;
+  }, [request_]);
+
   const [creationDate, setCreationDate] = useState(request_?.creation_time);
   useEffect(() => {
     if (!request_) return;
@@ -128,6 +136,13 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
           request_.status === ProcessingRequestStatus.FINISHED && (
             <Link to={`/optimos/results/${request_.id}`} target="_blank" className="shrink w-fit">
               Show results
+            </Link>
+          )}
+        {request_.type === ProcessingRequestType.SIMULATION_MODEL_OPTIMIZATION_SIMOD &&
+          request_.status === ProcessingRequestStatus.FINISHED &&
+          simulationAssetId() && (
+            <Link to={`/bpmn/${simulationAssetId()}`} target="_blank" className="shrink w-fit">
+              Preview the model
             </Link>
           )}
         {request_.output_assets.length > 0 &&
