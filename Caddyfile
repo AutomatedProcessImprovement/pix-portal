@@ -9,8 +9,6 @@ handle_path /* {
 		reverse_proxy kronos-web-ui:3000
 	}
 
-
-
 	handle /* {
 		reverse_proxy pix-web-ui:3030
 	}
@@ -51,7 +49,6 @@ handle_path /* {
 			uri strip_prefix /kronos
 			reverse_proxy kronos-http:8000
 		}
-		
 	}
 }
 

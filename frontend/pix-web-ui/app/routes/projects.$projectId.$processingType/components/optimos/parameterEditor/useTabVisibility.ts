@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Dictionary } from "../helpers";
 
 export enum TABS {
   GLOBAL_CONSTRAINTS,
@@ -16,24 +15,24 @@ const tabsName: Record<string, string> = {
 };
 
 const useTabVisibility = () => {
-  const [visibleTabs, setVisibleTabs] = useState(new Dictionary<string>());
+  const [visibleTabs, setVisibleTabs] = useState<Record<string, string>>({});
 
   const getIndexOfTab = (value: TABS): number => {
-    return visibleTabs.getAllKeys().indexOf(TABS[value]);
+    return Object.keys(visibleTabs).indexOf(TABS[value]);
   };
 
   useEffect(() => {
-    if (!visibleTabs.isEmpty()) {
+    if (!Object.keys(visibleTabs).length) {
       // skip initialization if
       // 1) no information yet loaded
       // 2) we already have a final array
       return;
     }
 
-    const newVisibleTabs = Object.entries(tabsName).reduce((acc: Dictionary<string>, [key, value]) => {
-      acc.add(key, value);
+    const newVisibleTabs = Object.entries(tabsName).reduce((acc: Record<string, string>, [key, value]) => {
+      acc[key] = value;
       return acc;
-    }, new Dictionary<string>());
+    }, {});
 
     setVisibleTabs(newVisibleTabs);
   }, [visibleTabs]);

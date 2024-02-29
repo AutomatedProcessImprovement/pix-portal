@@ -88,7 +88,7 @@ async function createSimodConfigurationFromForm(formData: FormData, projectId: s
 }
 
 async function createOptimosConfigurationFromForm(formData: FormData, projectId: string, token: string) {
-  // simulation model has 3 files, simulation model (JSON) and process model (BPMN) and optimos configuration (JSON)
+  // optimization model has 3 files, simulation model (JSON) and process model (BPMN) and optimos configuration (JSON)
   const optimosConfiguration = formData.get("optimosConfigurationFile") as File;
   const simulationModel = formData.get("simulationModelFile") as File;
   const processModel = formData.get("processModelFile") as File;
