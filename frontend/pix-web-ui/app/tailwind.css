@@ -128,3 +128,7 @@
     @apply mt-2;
   }
 }
+
+button.MuiStepButton-root:hover {
+  background-color: inherit;
+}

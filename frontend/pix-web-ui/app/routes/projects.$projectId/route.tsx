@@ -81,14 +81,14 @@ export default function ProjectPage() {
           <ProjectContext.Provider value={project}>
             <ProjectNav project={project} />
             {!isProcessingPageActive && (
-              <div className="p-6 grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 gap-6">
+              <div className="p-6 grid lg:grid-cols-4 md:grid-cols-4 sm:grid-cols-2 gap-6">
                 {ProcessingTypes.map((processingType) => (
                   <ProcessingCard key={processingType} projectId={project.id} processingType={processingType} />
                 ))}
               </div>
             )}
             {isProcessingPageActive && (
-              <div className="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2">
+              <div className="grid lg:grid-cols-4 md:grid-cols-4 sm:grid-cols-2">
                 {ProcessingTypes.map((processingType) => (
                   <ProcessingCardMini key={processingType} projectId={project.id} processingType={processingType} />
                 ))}

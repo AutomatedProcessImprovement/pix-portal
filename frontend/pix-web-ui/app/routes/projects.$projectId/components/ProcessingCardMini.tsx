@@ -1,4 +1,4 @@
-import { ClockIcon, Cog8ToothIcon, MapIcon } from "@heroicons/react/20/solid";
+import { ClockIcon, Cog8ToothIcon, MagnifyingGlassIcon, MapIcon } from "@heroicons/react/20/solid";
 import { NavLink } from "@remix-run/react";
 import { ProcessingType, processingTypeDescription, processingTypeToLabel } from "~/shared/processing_type";
 
@@ -50,5 +50,7 @@ export function iconForProcessingType(processingType: ProcessingType) {
       return <Cog8ToothIcon className="w-5" />;
     case ProcessingType.WaitingTime:
       return <ClockIcon className="w-5" />;
+    case ProcessingType.Optimization:
+      return <MagnifyingGlassIcon className="w-5" />;
   }
 }

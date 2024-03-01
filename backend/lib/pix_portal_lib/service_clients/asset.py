@@ -29,6 +29,7 @@ class AssetType(str, Enum):
     SIMOD_CONFIGURATION = "simod_configuration"
     OPTIMOS_CONFIGURATION = "optimos_configuration"
     KRONOS_REPORT = "kronos_report"
+    OPTIMOS_REPORT = "optimos_report"
 
 
 # File is a type alias for a file with fewer fields.
@@ -211,8 +212,10 @@ class AssetServiceClient(SelfAuthenticatingClient):
             self._files_must_have_length(files, 1)
             self._files_must_have_types(files, [FileType.CONFIGURATION_SIMOD_YAML])
         elif asset_type == AssetType.OPTIMOS_CONFIGURATION:
-            self._files_must_have_length(files, 1)
-            self._files_must_have_types(files, [FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON])
+            self._files_must_have_length(files, 2)
+            self._files_must_have_types(
+                files, [FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON, FileType.CONFIGURATION_OPTIMOS_YAML]
+            )
 
     @staticmethod
     def _files_must_have_length(files: list[File_], length: int):

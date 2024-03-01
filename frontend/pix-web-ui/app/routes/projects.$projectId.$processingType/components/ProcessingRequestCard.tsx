@@ -132,8 +132,15 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
               Show simulation statistics
             </Link>
           )}
+        {request_.type === ProcessingRequestType.SIMULATION_MODEL_OPTIMIZATION_OPTIMOS &&
+          request_.status === ProcessingRequestStatus.FINISHED && (
+            <Link to={`/optimos/results/${request_.id}`} target="_blank" className="shrink w-fit">
+              Show results
+            </Link>
+          )}
         {request_.type === ProcessingRequestType.SIMULATION_MODEL_OPTIMIZATION_SIMOD &&
-          request_.status === ProcessingRequestStatus.FINISHED && simulationAssetId() && (
+          request_.status === ProcessingRequestStatus.FINISHED &&
+          simulationAssetId() && (
             <Link to={`/bpmn/${simulationAssetId()}`} target="_blank" className="shrink w-fit">
               Preview the model
             </Link>

@@ -25,8 +25,10 @@ class FileType(str, Enum):
     SIMULATION_MODEL_PROSIMOS_JSON = "simulation_model_prosimos_json"
     STATISTICS_PROSIMOS_CSV = "statistics_prosimos_csv"
     CONSTRAINTS_MODEL_OPTIMOS_JSON = "constraints_model_optimos_json"
+    CONFIGURATION_OPTIMOS_YAML = "configuration_optimos_yaml"
     WAITING_TIME_ANALYSIS_REPORT_KRONOS_JSON = "waiting_time_analysis_report_kronos_json"
     WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV = "waiting_time_analysis_report_kronos_csv"
+    OPTIMIZATION_REPORT_OPTIMOS_JSON = "optimization_report_optimos_json"
 
 
 @dataclass

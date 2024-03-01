@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     kafka_topic_waiting_time_analysis_kronos: str
 
     # files
-    base_dir: Path = Path(__file__).parent.parent
+    base_dir: Path = Path('/var/tmp/uploads/')
     blobs_base_public_url: HttpUrl
 
     # assets

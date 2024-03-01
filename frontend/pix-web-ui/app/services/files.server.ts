@@ -9,8 +9,10 @@ export enum FileType {
   CONFIGURATION_SIMOD_YAML = "configuration_simod_yaml",
   SIMULATION_MODEL_PROSIMOS_JSON = "simulation_model_prosimos_json",
   CONSTRAINTS_MODEL_OPTIMOS_JSON = "constraints_model_optimos_json",
+  CONFIGURATION_OPTIMOS_YAML = "configuration_optimos_yaml",
   WAITING_TIME_ANALYSIS_REPORT_KRONOS_JSON = "waiting_time_analysis_report_kronos_json",
   WAITING_TIME_ANALYSIS_REPORT_KRONOS_CSV = "waiting_time_analysis_report_kronos_csv",
+  OPTIMIZATION_REPORT_OPTIMOS_JSON = "optimization_report_optimos_json",
 }
 
 export async function uploadFile(file: Blob, file_name: string, file_type: FileType, token: string) {

@@ -8,12 +8,12 @@ export default function UserNav({ userEmail }: HeaderProps) {
         <>
           <NavLink
             to="/projects"
-            title="Go to Projects"
+            title="Your Projects"
             className={({ isActive }) =>
               (isActive ? "lg:block md:block text-black border-none hover:text-black" : "lg:block md:block") + " w-fit"
             }
           >
-            Go to Projects
+            Your Projects
           </NavLink>
           <NavLink
             to="/profile"

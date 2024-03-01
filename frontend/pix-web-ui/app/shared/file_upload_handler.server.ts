@@ -1,3 +1,4 @@
+import YAML from "yaml";
 import { unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
 import { v4 as uuidv4 } from "uuid";
 import { EventLogColumnMapping } from "~/components/asset-upload/column_mapping";
@@ -31,6 +32,8 @@ async function createAssetsFromForm(formData: FormData, projectId: string, token
       return await createSimulationModelFromForm(formData, projectId, token);
     case AssetType.SIMOD_CONFIGURATION:
       return await createSimodConfigurationFromForm(formData, projectId, token);
+    case AssetType.OPTIMOS_CONFIGURATION:
+      return await createOptimosConfigurationFromForm(formData, projectId, token);
     default:
       throw new Error(`Unknown asset type ${assetType}`);
   }
@@ -81,6 +84,17 @@ async function createSimodConfigurationFromForm(formData: FormData, projectId: s
     await uploadAndCreateSimodConfiguration(simodConfiguration as File, projectId, token);
   } else {
     throw new Error("Simod configuration file missing");
+  }
+}
+
+async function createOptimosConfigurationFromForm(formData: FormData, projectId: string, token: string) {
+  // optimization model has 3 files, simulation model (JSON) and process model (BPMN) and optimos configuration (JSON)
+  const optimosConfiguration = formData.get("optimosConfigurationFile") as File;
+
+  if (optimosConfiguration && optimosConfiguration.size > 0) {
+    await uploadAndCreateOptimosConfiguration(optimosConfiguration as File, projectId, token);
+  } else {
+    throw new Error("Optimos configuration file, simulation model or process model file missing");
   }
 }
 
@@ -158,6 +172,22 @@ async function uploadAndCreateSimodConfiguration(simodConfiguration: File, proje
       name: simodConfiguration.name,
       files: uploadedFiles,
       type: AssetType.SIMOD_CONFIGURATION,
+      projectID: projectID,
+    },
+    token
+  );
+}
+
+async function uploadAndCreateOptimosConfiguration(optimosConfiguration: File, projectID: string, token: string) {
+  const uploadedFiles = await uploadFiles(
+    [filePayloadFromFile(optimosConfiguration, FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON)],
+    token
+  );
+  return await createAssetFromUploadedFiles(
+    {
+      name: optimosConfiguration.name,
+      files: uploadedFiles,
+      type: AssetType.OPTIMOS_CONFIGURATION,
       projectID: projectID,
     },
     token

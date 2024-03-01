@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "optimos-worker"
+version = "0.1.0"
+description = ""
+authors = ["Ihar Suvorau <ihar.suvorau@gmail.com>"]
+readme = "README.md"
+packages = [{ include = "optimos_worker" }]
+
+[tool.poetry.dependencies]
+python = "^3.9,<3.12"
+pydantic = "^2.3.0"
+pydantic-settings = "^2.0.3"
+requests = "^2.31.0"
+kafka-python = "^2.0.2"
+httpx = "^0.25.0"
+pyyaml = "^6.0.1"
+pix-portal-lib = { path = "lib/pix_portal_lib-0.1.54-py3-none-any.whl" }
+optimos = { git = "https://github.com/AutomatedProcessImprovement/roptimus-prime.git", branch = "optimos_microservice" }
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.9.1"
+
+[tool.ruff]
+line-length = 120
+
+[tool.black]
+line-length = 120
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

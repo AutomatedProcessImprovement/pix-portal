@@ -44,6 +44,7 @@
         - pix-portal/prosimos
         - pix-portal/kronos
         - pix-portal/kronos-db
+        - pix-portal/optimos
 
     - name: Start Docker Compose
       ansible.builtin.command: docker compose -f "{{ base_dir_remote }}/compose.yaml" up -d --build --remove-orphans

@@ -20,18 +20,21 @@ export function DragAndDropForm({ assetType, close }: { assetType: AssetType; cl
   const processModelInputRef = useRef<any>(null);
   const simulationModelInputRef = useRef<any>(null);
   const simodConfigurationInputRef = useRef<any>(null);
+  const optimosConfigurationInputRef = useRef<any>(null);
 
   // These are used only for UI purposes to update the state of drag and drop areas.
   const [eventLogFile, setEventLogFile] = useState<any>(null);
   const [processModelFile, setProcessModelFile] = useState<any>(null);
   const [simulationModelFile, setSimulationModelFile] = useState<any>(null);
   const [simodConfigurationFile, setSimodConfigurationFile] = useState<any>(null);
+  const [optimosConfigurationFile, setOptimosConfigurationFile] = useState<any>(null);
 
   // Drag and drop areas' states
   const [eventLogDragActive, setEventLogDragActive] = useState<boolean>(false);
   const [processModelDragActive, setProcessModelDragActive] = useState<boolean>(false);
   const [simulationModelDragActive, setSimulationModelDragActive] = useState<boolean>(false);
   const [simodConfigurationDragActive, setSimodConfigurationDragActive] = useState<boolean>(false);
+  const [optimosConfigurationDragActive, setOptimosConfigurationDragActive] = useState<boolean>(false);
 
   // Event log column mapping value, states, and effects
   const [eventLogColumnMappingEnabled, setEventLogColumnMappingEnabled] = useState<boolean>(false);
@@ -62,6 +65,9 @@ export function DragAndDropForm({ assetType, close }: { assetType: AssetType; cl
       case AssetType.SIMOD_CONFIGURATION:
         setSubmitEnabled(!!simodConfigurationFile); // simodConfigurationFile is optional
         break;
+      case AssetType.OPTIMOS_CONFIGURATION:
+        setSubmitEnabled(!!optimosConfigurationFile);
+        break;
     }
   }, [
     assetType,
@@ -69,6 +75,7 @@ export function DragAndDropForm({ assetType, close }: { assetType: AssetType; cl
     processModelFile,
     simulationModelFile,
     simodConfigurationFile,
+    optimosConfigurationFile,
     eventLogColumnMappingFilledIn,
     fetcher.state,
     close,
@@ -88,6 +95,7 @@ export function DragAndDropForm({ assetType, close }: { assetType: AssetType; cl
       case AssetType.PROCESS_MODEL:
         return [".bpmn"].join(", ");
       case AssetType.SIMULATION_MODEL:
+      case AssetType.OPTIMOS_CONFIGURATION:
         return [".json"].join(", ");
       case AssetType.SIMOD_CONFIGURATION:
         return [".yaml", ".yml"].join(", ");
@@ -115,6 +123,9 @@ export function DragAndDropForm({ assetType, close }: { assetType: AssetType; cl
       case AssetType.SIMOD_CONFIGURATION:
         setSimodConfigurationFile(file);
         break;
+      case AssetType.OPTIMOS_CONFIGURATION:
+        setOptimosConfigurationFile(file);
+        break;
     }
   }
 
@@ -138,6 +149,10 @@ export function DragAndDropForm({ assetType, close }: { assetType: AssetType; cl
       case AssetType.SIMOD_CONFIGURATION:
         fileExists = !!simodConfigurationFile;
         setSimodConfigurationDragActive(dragActive);
+        break;
+      case AssetType.OPTIMOS_CONFIGURATION:
+        fileExists = !!optimosConfigurationFile;
+        setOptimosConfigurationDragActive(dragActive);
         break;
     }
 
@@ -168,6 +183,10 @@ export function DragAndDropForm({ assetType, close }: { assetType: AssetType; cl
           setSimodConfigurationFile(file);
           simodConfigurationInputRef.current.files = e.dataTransfer.files;
           break;
+        case AssetType.OPTIMOS_CONFIGURATION:
+          setOptimosConfigurationFile(file);
+          optimosConfigurationInputRef.current.files = e.dataTransfer.files;
+          break;
       }
     }
   }
@@ -190,6 +209,10 @@ export function DragAndDropForm({ assetType, close }: { assetType: AssetType; cl
         setSimodConfigurationFile(null);
         simodConfigurationInputRef.current.value = "";
         break;
+      case AssetType.OPTIMOS_CONFIGURATION:
+        setOptimosConfigurationFile(null);
+        optimosConfigurationInputRef.current.value = "";
+        break;
     }
   }
 
@@ -210,6 +233,10 @@ export function DragAndDropForm({ assetType, close }: { assetType: AssetType; cl
       case AssetType.SIMOD_CONFIGURATION:
         simodConfigurationInputRef.current.value = "";
         simodConfigurationInputRef.current.click();
+        break;
+      case AssetType.OPTIMOS_CONFIGURATION:
+        optimosConfigurationInputRef.current.value = "";
+        optimosConfigurationInputRef.current.click();
         break;
     }
   }
@@ -261,6 +288,14 @@ export function DragAndDropForm({ assetType, close }: { assetType: AssetType; cl
           className="hidden"
           accept={getValidFileTypes(AssetType.SIMOD_CONFIGURATION)}
           onChange={(e: any) => onHiddenInputChange(e, AssetType.SIMOD_CONFIGURATION)}
+        />
+        <input
+          type="file"
+          name="optimosConfigurationFile"
+          ref={optimosConfigurationInputRef}
+          className="hidden"
+          accept={getValidFileTypes(AssetType.OPTIMOS_CONFIGURATION)}
+          onChange={(e: any) => onHiddenInputChange(e, AssetType.OPTIMOS_CONFIGURATION)}
         />
 
         {assetType === AssetType.EVENT_LOG && (
@@ -364,6 +399,23 @@ export function DragAndDropForm({ assetType, close }: { assetType: AssetType; cl
             onSelectFile={() => openFileBrowser(assetType)}
             onRemove={() => onRemoveClick(assetType)}
           />
+        )}
+
+        {assetType === AssetType.OPTIMOS_CONFIGURATION && (
+          <div className="flex flex-wrap items-center justify-center">
+            {/* OPTIMOS Configuration */}
+            <DragAndDropContainer
+              className="m-4"
+              file={optimosConfigurationFile}
+              assetType={assetType}
+              dragActiveFlag={optimosConfigurationDragActive}
+              onDragEnter={(e) => onDragEnterOrLeaveOrOver(e, assetType, true)}
+              onDragLeave={(e) => onDragEnterOrLeaveOrOver(e, assetType, false)}
+              onDrop={(e) => onDragDrop(e, assetType)}
+              onSelectFile={() => openFileBrowser(assetType)}
+              onRemove={() => onRemoveClick(assetType)}
+            />
+          </div>
         )}
 
         <button className="w-48" type="submit" disabled={!submitEnabled}>

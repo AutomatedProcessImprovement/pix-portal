@@ -24,6 +24,7 @@ export default function UploadAssetDialog({
       AssetType.PROCESS_MODEL,
       AssetType.SIMULATION_MODEL,
       AssetType.SIMOD_CONFIGURATION,
+      AssetType.OPTIMOS_CONFIGURATION,
     ].map((assetType) => ({
       label: assetTypeToString(assetType),
       value: assetType,
@@ -145,6 +146,14 @@ function UploadAssetDetails({ close }: { close: () => void }) {
               discovery.
             </>
           }
+        />
+      );
+    case AssetType.OPTIMOS_CONFIGURATION:
+      return (
+        <UploadAssetDetailsForAssetType
+          close={close}
+          assetType={assetType}
+          children={<>OPTIMOS configuration is a JSON file with options for the business process optimization.</>}
         />
       );
     default:
