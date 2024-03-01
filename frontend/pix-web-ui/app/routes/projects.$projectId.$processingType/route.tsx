@@ -142,7 +142,9 @@ function filterAssetsByType(assets: Asset[], processingType: ProcessingType) {
     case ProcessingType.WaitingTime:
       return assets.filter((asset) => asset.type === AssetType.EVENT_LOG);
     case ProcessingType.Optimization:
-      return assets.filter((asset) => asset.type === AssetType.OPTIMOS_CONFIGURATION);
+      return assets.filter(
+        (asset) => asset.type === AssetType.SIMULATION_MODEL || asset.type === AssetType.OPTIMOS_CONFIGURATION
+      );
     default:
       throw new Error("Invalid processing type");
   }

@@ -39,7 +39,6 @@ const tooltip_desc: Record<string, string> = {
 };
 
 const SetupOptimos = () => {
-  const [snackMessage, setSnackMessage] = useState("");
   const theme = useTheme();
   const activeColor = theme.palette.info.dark;
   const successColor = theme.palette.success.light;
@@ -48,22 +47,21 @@ const SetupOptimos = () => {
   const user = useContext(UserContext);
   const projectId = useMatches().filter((match) => match.id === "routes/projects.$projectId")[0].params.projectId;
   const [optimosConfigAsset, setOptimosConfigAsset] = useSelectedInputAsset(AssetType.OPTIMOS_CONFIGURATION);
+  const [simulationConfigAsset, setSimulationConfigAsset] = useSelectedInputAsset(AssetType.SIMULATION_MODEL);
 
   const [activeStep, setActiveStep] = useState<TABS>(TABS.GLOBAL_CONSTRAINTS);
-  const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined);
 
   const [isScenarioParamsValid, setIsScenarioParamsValid] = useState(true);
 
   //   const { bpmnFile, simParamsFile, consParamsFile } = state as LocationState
-  const [bpmnFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.PROCESS_MODEL_BPMN);
-  const [simParamsFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.SIMULATION_MODEL_PROSIMOS_JSON);
+  const [bpmnFile] = useFileFromAsset(AssetType.SIMULATION_MODEL, FileType.PROCESS_MODEL_BPMN);
+  const [simParamsFile] = useFileFromAsset(AssetType.SIMULATION_MODEL, FileType.SIMULATION_MODEL_PROSIMOS_JSON);
   const [consParamsFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON);
   const [configFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.CONFIGURATION_OPTIMOS_YAML);
 
   console.log(bpmnFile, simParamsFile, consParamsFile);
 
   const { jsonData } = useJsonFile(consParamsFile || null);
-  const { jsonData: simParamsData } = useSimParamsJsonFile(simParamsFile);
 
   const { formState } = useFormState(jsonData);
   const {
@@ -120,8 +118,7 @@ const SetupOptimos = () => {
   }, [isSubmitted, submitCount]);
 
   const setErrorMessage = (value: string) => {
-    setSnackColor("error");
-    setSnackMessage(value);
+    // TODO Error Handling
   };
 
   const getStepContent = (index: TABS) => {
@@ -283,8 +280,8 @@ const SetupOptimos = () => {
   return (
     <ProcessingAppSection heading="Optimization Configuration">
       {(!bpmnFile || !simParamsFile || !consParamsFile) && (
-        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg">
-          Select a Optimos Configuration file from the input assets on the left.
+        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
+          Select a Optimos Configuration and Simulation Model from the input assets on the left.
         </p>
       )}
       {bpmnFile && simParamsFile && consParamsFile && (

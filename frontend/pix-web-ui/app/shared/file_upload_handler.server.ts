@@ -90,23 +90,9 @@ async function createSimodConfigurationFromForm(formData: FormData, projectId: s
 async function createOptimosConfigurationFromForm(formData: FormData, projectId: string, token: string) {
   // optimization model has 3 files, simulation model (JSON) and process model (BPMN) and optimos configuration (JSON)
   const optimosConfiguration = formData.get("optimosConfigurationFile") as File;
-  const simulationModel = formData.get("simulationModelFile") as File;
-  const processModel = formData.get("processModelFile") as File;
-  if (
-    optimosConfiguration &&
-    optimosConfiguration.size > 0 &&
-    simulationModel &&
-    simulationModel.size > 0 &&
-    processModel &&
-    processModel.size > 0
-  ) {
-    await uploadAndCreateOptimosConfiguration(
-      optimosConfiguration as File,
-      simulationModel as File,
-      processModel as File,
-      projectId,
-      token
-    );
+
+  if (optimosConfiguration && optimosConfiguration.size > 0) {
+    await uploadAndCreateOptimosConfiguration(optimosConfiguration as File, projectId, token);
   } else {
     throw new Error("Optimos configuration file, simulation model or process model file missing");
   }
@@ -192,19 +178,9 @@ async function uploadAndCreateSimodConfiguration(simodConfiguration: File, proje
   );
 }
 
-async function uploadAndCreateOptimosConfiguration(
-  optimosConfiguration: File,
-  simulationModel: File,
-  processModel: File,
-  projectID: string,
-  token: string
-) {
+async function uploadAndCreateOptimosConfiguration(optimosConfiguration: File, projectID: string, token: string) {
   const uploadedFiles = await uploadFiles(
-    [
-      filePayloadFromFile(optimosConfiguration, FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON),
-      filePayloadFromFile(simulationModel, FileType.SIMULATION_MODEL_PROSIMOS_JSON),
-      filePayloadFromFile(processModel, FileType.PROCESS_MODEL_BPMN),
-    ],
+    [filePayloadFromFile(optimosConfiguration, FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON)],
     token
   );
   return await createAssetFromUploadedFiles(

@@ -26,8 +26,13 @@ export default function InputAssets({ setSelectedAssets }: { setSelectedAssets: 
         }
         break;
       case ProcessingType.Simulation:
-        if (selectedAssets.includes(asset)) setSelectedAssets([]);
-        else setSelectedAssets([asset]);
+        // allow only one asset of each type to be selected at the same time
+        if (selectedAssets.includes(asset)) {
+          // if the asset is already selected, deselect it
+          setSelectedAssets([...filterOutAssetType(selectedAssets, asset.type as AssetType)]);
+        } else {
+          setSelectedAssets([...filterOutAssetType(selectedAssets, asset.type as AssetType), asset]);
+        }
         break;
       case ProcessingType.WaitingTime:
         if (selectedAssets.includes(asset)) setSelectedAssets([]);

@@ -1699,7 +1699,7 @@ description = ""
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "pix_portal_lib-0.1.54-py3-none-any.whl", hash = "sha256:9f4ad03c648b607f160be1005da2fef35e04c39995ef6de25dc1e0ef0184f387"},
+    {file = "pix_portal_lib-0.1.54-py3-none-any.whl", hash = "sha256:078e9513c430e9875f21937d75d1412c28ac73f7ccb50a9308fa751eff0470be"},
 ]
 
 [package.dependencies]
@@ -1736,13 +1736,13 @@ test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4.3)", "pytest-
 
 [[package]]
 name = "pm4py"
-version = "2.7.10.1"
+version = "2.7.10.2"
 description = "Process mining for Python"
 optional = false
 python-versions = "*"
 files = [
-    {file = "pm4py-2.7.10.1-py3-none-any.whl", hash = "sha256:6f146fcd9f8bbcead5f9743da6363358abd21bb8bdd587cc9d3b1defa9ab8b08"},
-    {file = "pm4py-2.7.10.1.tar.gz", hash = "sha256:27bc5ac20f4ce555aa06c0cb69491e944735ac30586d0cc26a10fd48e2beef91"},
+    {file = "pm4py-2.7.10.2-py3-none-any.whl", hash = "sha256:02ca0fdb6fc5138c760a4ca866f8274e3ad5d266e443ca65759e5a356b9d883b"},
+    {file = "pm4py-2.7.10.2.tar.gz", hash = "sha256:7d07ed31b6fc4684a47ffd7ade92d69ea1e2762c8b999811973e7fff0d51031f"},
 ]
 
 [package.dependencies]
@@ -2003,13 +2003,13 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "python-dateutil"
-version = "2.8.2"
+version = "2.9.0"
 description = "Extensions to the standard Python datetime module"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 files = [
-    {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
-    {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
+    {file = "python-dateutil-2.9.0.tar.gz", hash = "sha256:78e73e19c63f5b20ffa567001531680d939dc042bf7850431877645523c66709"},
+    {file = "python_dateutil-2.9.0-py2.py3-none-any.whl", hash = "sha256:cbf2f1da5e6083ac2fbfd4da39a25f34312230110440f424a14c7558bb85d82e"},
 ]
 
 [package.dependencies]

@@ -66,7 +66,7 @@ export function DragAndDropForm({ assetType, close }: { assetType: AssetType; cl
         setSubmitEnabled(!!simodConfigurationFile); // simodConfigurationFile is optional
         break;
       case AssetType.OPTIMOS_CONFIGURATION:
-        setSubmitEnabled(!!optimosConfigurationFile && !!processModelFile && !!simulationModelFile);
+        setSubmitEnabled(!!optimosConfigurationFile);
         break;
     }
   }, [
@@ -403,32 +403,6 @@ export function DragAndDropForm({ assetType, close }: { assetType: AssetType; cl
 
         {assetType === AssetType.OPTIMOS_CONFIGURATION && (
           <div className="flex flex-wrap items-center justify-center">
-            {/* Process Model */}
-            <DragAndDropContainer
-              className="m-4"
-              file={processModelFile}
-              assetType={AssetType.PROCESS_MODEL}
-              dragActiveFlag={processModelDragActive}
-              onDragEnter={(e) => onDragEnterOrLeaveOrOver(e, AssetType.PROCESS_MODEL, true)}
-              onDragLeave={(e) => onDragEnterOrLeaveOrOver(e, AssetType.PROCESS_MODEL, false)}
-              onDrop={(e) => onDragDrop(e, AssetType.PROCESS_MODEL)}
-              onSelectFile={() => openFileBrowser(AssetType.PROCESS_MODEL)}
-              onRemove={() => onRemoveClick(AssetType.PROCESS_MODEL)}
-            />
-
-            {/* Simulation Parameters */}
-            <DragAndDropContainer
-              className="m-4"
-              file={simulationModelFile}
-              assetType={AssetType.SIMULATION_MODEL}
-              dragActiveFlag={simulationModelDragActive}
-              onDragEnter={(e) => onDragEnterOrLeaveOrOver(e, AssetType.SIMULATION_MODEL, true)}
-              onDragLeave={(e) => onDragEnterOrLeaveOrOver(e, AssetType.SIMULATION_MODEL, false)}
-              onDrop={(e) => onDragDrop(e, AssetType.SIMULATION_MODEL)}
-              onSelectFile={() => openFileBrowser(AssetType.SIMULATION_MODEL)}
-              onRemove={() => onRemoveClick(AssetType.SIMULATION_MODEL)}
-            />
-
             {/* OPTIMOS Configuration */}
             <DragAndDropContainer
               className="m-4"

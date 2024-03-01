@@ -814,7 +814,7 @@ description = ""
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "pix_portal_lib-0.1.54-py3-none-any.whl", hash = "sha256:9f4ad03c648b607f160be1005da2fef35e04c39995ef6de25dc1e0ef0184f387"},
+    {file = "pix_portal_lib-0.1.54-py3-none-any.whl", hash = "sha256:078e9513c430e9875f21937d75d1412c28ac73f7ccb50a9308fa751eff0470be"},
 ]
 
 [package.dependencies]
