@@ -315,27 +315,19 @@ class SimodDiscoveryResult:
     stderr: Optional[str] = None
     output_dir: Optional[Path] = None
 
+
 def _start_simod_discovery_subprocess(configuration_path: Path, output_dir: Path) -> SimodDiscoveryResult:
-    try:
-        result = subprocess.run(
-            ["bash", "/usr/src/Simod/run.sh", str(configuration_path), str(output_dir)],
-            cwd="/usr/src/Simod/",
-            capture_output=True,
-            check=True
-        )
+    result = subprocess.run(
+        ["bash", "/usr/src/Simod/run.sh", str(configuration_path), str(output_dir)],
+        cwd="/usr/src/Simod/",
+        capture_output=True,
+        check=True,
+    )
 
-        result_dir = output_dir / "best_result"
-        if not result_dir.exists():
-            raise SimodDiscoveryFailed(f"Simod discovery failed. Result directory not found: {result_dir}")
+    result_dir = output_dir / "best_result"
+    if not result_dir.exists():
+        raise SimodDiscoveryFailed(f"Simod discovery failed. Result directory not found: {result_dir}")
 
-        return SimodDiscoveryResult(
-            return_code=result.returncode, stdout=str(result.stdout), stderr=str(result.stderr), output_dir=result_dir
-        )
-    except subprocess.CalledProcessError as e:
-        return SimodDiscoveryResult(
-            return_code=e.returncode, stdout=str(e.stdout), stderr=str(e.stderr), output_dir=output_dir
-        )
-    except Exception as e:
-        return SimodDiscoveryResult(
-            return_code=-1, stdout="", stderr=str(e), output_dir=output_dir
-        )
+    return SimodDiscoveryResult(
+        return_code=result.returncode, stdout=str(result.stdout), stderr=str(result.stderr), output_dir=result_dir
+    )
