@@ -62,7 +62,7 @@ export interface ResourceInfo {
 export interface SimParams {
   resource_profiles: ResourceProfile[];
   arrival_time_distribution: ArrivalTimeDistribution;
-  arrival_time_calendar: ArrivalTimeCalendar[];
+  arrival_time_calendar: TimePeriod[];
   gateway_branching_probabilities: GatewayBranchingProbability[];
   task_resource_distribution: TaskResourceDistribution[];
   event_distribution: EventDistribution;
@@ -91,13 +91,6 @@ export interface ArrivalTimeDistribution {
 
 export interface DistributionParam {
   value: number;
-}
-
-export interface ArrivalTimeCalendar {
-  from: string;
-  to: string;
-  beginTime: string;
-  endTime: string;
 }
 
 export interface GatewayBranchingProbability {
@@ -146,10 +139,10 @@ export interface ConsParams {
   max_shift_size: number;
   max_shift_blocks: number;
   hours_in_day: number;
-  resources: Resource2[];
+  resources: ResourceConstraints[];
 }
 
-export interface Resource2 {
+export interface ResourceConstraints {
   id: string;
   constraints: Constraints;
 }
@@ -157,8 +150,8 @@ export interface Resource2 {
 export interface Constraints {
   global_constraints: GlobalConstraints;
   daily_start_times: DailyStartTimes;
-  never_work_masks: NeverWorkMasks;
-  always_work_masks: AlwaysWorkMasks;
+  never_work_masks: ConstraintWorkMask;
+  always_work_masks: ConstraintWorkMask;
 }
 
 export interface GlobalConstraints {
@@ -180,17 +173,7 @@ export interface DailyStartTimes {
   sunday: any;
 }
 
-export interface NeverWorkMasks {
-  monday: number;
-  tuesday: number;
-  wednesday: number;
-  thursday: number;
-  friday: number;
-  saturday: number;
-  sunday: number;
-}
-
-export interface AlwaysWorkMasks {
+export interface ConstraintWorkMask {
   monday: number;
   tuesday: number;
   wednesday: number;
