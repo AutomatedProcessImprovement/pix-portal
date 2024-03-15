@@ -10,6 +10,9 @@ from pix_portal_lib.service_clients.processing_request import ProcessingRequest
 
 from optimos_worker.optimos_service import OptimosService
 from optimos_worker.settings import settings
+import nest_asyncio
+
+nest_asyncio.apply()
 
 logger = logging.getLogger()
 
