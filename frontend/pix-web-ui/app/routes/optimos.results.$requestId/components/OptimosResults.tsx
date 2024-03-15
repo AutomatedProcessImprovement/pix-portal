@@ -213,7 +213,7 @@ const OptimizationResults = (props: SimulationResultsProps) => {
                           <Paper elevation={5} sx={{ m: 3, p: 3, minHeight: "10vw" }}>
                             <Grid>
                               <Typography variant="h6" align="left">
-                                Pareto-Front {index + 1}
+                                Variant {index + 1}
                               </Typography>
                             </Grid>
                             <Grid

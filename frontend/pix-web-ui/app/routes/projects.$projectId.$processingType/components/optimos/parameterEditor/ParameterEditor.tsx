@@ -15,12 +15,11 @@ import {
 
 import useFormState from "./useFormState";
 import useJsonFile from "./useJsonFile";
-import useTabVisibility, { TABS } from "./useTabVisibility";
+import { TABS, TabNames, getIndexOfTab } from "./useTabVisibility";
 import GlobalConstraints from "../constraintEditors/GlobalConstraints";
 import { FormProvider, useForm } from "react-hook-form";
 import ResourceConstraints from "../resourceConstraints/ResourceConstraints";
 import ScenarioConstraints from "../constraintEditors/ScenarioConstraints";
-import useSimParamsJsonFile from "./useSimParamsJsonFile";
 import type { ScenarioProperties } from "~/shared/optimos_json_type";
 import { UserContext } from "~/routes/contexts";
 import { SelectedAssetsContext } from "~/routes/projects.$projectId.$processingType/contexts";
@@ -68,8 +67,6 @@ const SetupOptimos = () => {
     formState: { errors, isSubmitted, submitCount },
     getValues,
   } = formState;
-
-  const { visibleTabs, getIndexOfTab } = useTabVisibility();
 
   const scenarioState = useForm<ScenarioProperties>({
     mode: "onBlur",
@@ -305,7 +302,7 @@ const SetupOptimos = () => {
               <Grid item xs={10} sx={{ paddingTop: "10px" }}>
                 <Grid item container xs={12} alignItems="center" justifyContent="center" sx={{ paddingTop: "20px" }}>
                   <Stepper nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)} connector={<></>}>
-                    {Object.entries(visibleTabs).map(([key, label]) => {
+                    {Object.entries(TabNames).map(([key, label]) => {
                       const keyTab = key as keyof typeof TABS;
                       const valueTab: TABS = TABS[keyTab];
 
