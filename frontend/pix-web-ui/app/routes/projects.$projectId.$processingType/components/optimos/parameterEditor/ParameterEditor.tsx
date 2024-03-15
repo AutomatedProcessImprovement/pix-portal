@@ -299,7 +299,7 @@ const SetupOptimos = () => {
             <input type="hidden" name="projectId" value={projectId} />
 
             <Grid container alignItems="center" justifyContent="center">
-              <Grid item xs={10} sx={{ paddingTop: "10px" }}>
+              <Grid item xs={12} sx={{ paddingTop: "10px" }}>
                 <Grid item container xs={12} alignItems="center" justifyContent="center" sx={{ paddingTop: "20px" }}>
                   <Stepper nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)} connector={<></>}>
                     {Object.entries(TabNames).map(([key, label]) => {
@@ -340,7 +340,6 @@ const SetupOptimos = () => {
                   </Stack>
                 </Grid>
               </Grid>
-              <Grid item xs={10} alignItems="center" justifyContent="center" textAlign={"center"}></Grid>
             </Grid>
           </form>
         </FormProvider>

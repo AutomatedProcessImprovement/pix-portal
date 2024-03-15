@@ -1,138 +1,8 @@
-export interface ConsJsonData {
-  time_var: number;
-  max_cap: number;
-  max_shift_size: number;
-  max_shift_blocks: number;
-  hours_in_day: number;
-  resources: ResourceConstraint[];
-}
-
-export interface ResourceConstraint {
-  id: string;
-  constraints: ConstraintsObject;
-}
-
-export interface ConstraintsObject {
-  global_constraints: GlobalConstraints;
-  daily_start_times: DailyStartTimes;
-  never_work_masks: NeverWorkMask;
-  always_work_masks: AlwaysWorkMask;
-}
-
-export interface GlobalConstraints {
-  max_weekly_cap: number;
-  max_daily_cap: number;
-  max_consecutive_cap: number;
-  max_shifts_day: number;
-  max_shifts_week: number;
-  is_human: boolean;
-}
-
-export interface DailyStartTimes {
-  monday: string;
-  tuesday: string;
-  wednesday: string;
-  thursday: string;
-  friday: string;
-  saturday: string;
-  sunday: string;
-}
-
-export interface NeverWorkMask {
-  monday: number;
-  tuesday: number;
-  wednesday: number;
-  thursday: number;
-  friday: number;
-  saturday: number;
-  sunday: number;
-}
-
-export interface AlwaysWorkMask {
-  monday: number;
-  tuesday: number;
-  wednesday: number;
-  thursday: number;
-  friday: number;
-  saturday: number;
-  sunday: number;
-}
-
-export interface ScenarioProperties {
-  scenario_name: string;
-  num_iterations: number;
-  algorithm: string;
-  approach: string;
-}
-
-export interface SimJsonData {
-  resource_profiles: ResourcePool[];
-  arrival_time_distribution: ProbabilityDistribution;
-  arrival_time_calendar: TimePeriod[];
-  gateway_branching_probabilities: GatewayBranchingProbability[];
-  task_resource_distribution: TaskResourceDistribution[];
-  resource_calendars: ResourceCalendar[];
-  event_distribution: EventDistribution[];
-}
-
-export interface GatewayBranchingProbability {
-  gateway_id: string;
-  probabilities: Probability[];
-}
-
-export interface Probability {
-  path_id: string;
-  value: number;
-}
-
-export interface ResourcePool {
-  id: string;
-  name: string;
-  resource_list: ResourceInfo[];
-}
-
-export interface ResourceInfo {
-  id: string;
-  name: string;
-  cost_per_hour: number;
-  amount: number;
-  calendar: string;
-  assignedTasks: string[];
-}
-
-export interface ProbabilityDistribution {
-  distribution_name: string;
-  distribution_params: Array<{ value: number }>;
-}
-
-export interface ProbabilityDistributionForResource extends ProbabilityDistribution {
-  resource_id: string;
-}
-
-export interface TimePeriod {
-  from: string;
-  to: string;
-  beginTime: string;
-  endTime: string;
-}
-
-export interface ResourceCalendar {
-  id: string;
-  name: string;
-  time_periods: TimePeriod[];
-}
-
-export interface TaskResourceDistribution {
-  task_id: string;
-  resources: ProbabilityDistributionForResource[];
-}
-
 export interface EventDistribution extends ProbabilityDistribution {
   event_id: string;
 }
-export type JsonReport = JsonReportEntry[];
 
-export interface JsonReportEntry {
+export interface FinalSolutionMetric {
   name: string;
   func_ev: number;
   total_explored: number;
@@ -147,15 +17,46 @@ export interface JsonReportEntry {
   ave_cost: number;
   time_metric: number;
   cost_metric: number;
-  pareto_values: ParetoValue[];
 }
 
-export interface ParetoValue {
+export interface FullOutputJson {
   name: string;
+  initial_simulation_info: any;
+  final_solutions?: SolutionJson[];
+  current_solution_info: any;
+  final_solution_metrics?: FinalSolutionMetric[];
+}
+
+export interface SolutionJson {
+  solution_space: SolutionSpace;
+  resources_info: ResourcesInfo;
   sim_params: SimParams;
   cons_params: ConsParams;
-  median_cycle_time: number;
+}
+
+export interface SolutionSpace {
+  it_number: number;
   median_execution_cost: number;
+  median_cycle_time: number;
+  simulation_duration: number;
+  deviation_info: DeviationInfo;
+}
+
+export interface DeviationInfo {
+  cycle_time_deviation: number;
+  execution_duration_deviation: number;
+  dev_type: number;
+}
+
+export interface ResourcesInfo {
+  [resource_name: string]: ResourceInfo;
+}
+
+export interface ResourceInfo {
+  resource_name: string;
+  resource_count: number;
+  resource_utilization: number;
+  cost_per_unit: number;
 }
 
 export interface SimParams {
@@ -224,7 +125,6 @@ export interface DistributionParam2 {
   value: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface EventDistribution {}
 
 export interface ResourceCalendar {
@@ -271,13 +171,13 @@ export interface GlobalConstraints {
 }
 
 export interface DailyStartTimes {
-  monday: string;
-  tuesday: string;
-  wednesday: string;
-  thursday: string;
-  friday: string;
-  saturday: string;
-  sunday: string;
+  monday?: string;
+  tuesday?: string;
+  wednesday?: string;
+  thursday?: string;
+  friday?: string;
+  saturday?: string;
+  sunday: any;
 }
 
 export interface NeverWorkMasks {

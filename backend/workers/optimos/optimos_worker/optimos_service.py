@@ -32,11 +32,13 @@ from pareto_algorithms_and_metrics.main import run_optimization
 from pareto_algorithms_and_metrics.iterations_handler import IterationInfo
 from pareto_algorithms_and_metrics.pareto_metrics import AlgorithmResults
 from data_structures.iteration_info import IterationNextType
-from data_structures.solution_json_output import SolutionJSONOutput
-from support_modules.plot_statistics_handler import save_allocation_statistics_into_SolutionObject
+from data_structures.solution_json_output import FullOutputJson, SolutionJson
+from support_modules.plot_statistics_handler import (
+    save_allocation_statistics_into_SolutionObject,
+    return_api_solution_statistics,
+)
 from support_modules.constraints_generator import generate_constraint_file
-from support_modules.file_manager import get_stats_without_writing
-
+from support_modules.file_manager import get_stats_without_writing, load_timetable_for_key, load_constraints_for_key
 
 from optimos_worker.settings import settings
 
@@ -63,6 +65,7 @@ class OptimosService:
 
         self._assets_base_dir.mkdir(parents=True, exist_ok=True)
         self._optimos_results_base_dir.mkdir(parents=True, exist_ok=True)
+        self._initial_solution: Optional[SolutionJson] = None
 
     async def process(self, processing_request: ProcessingRequest):
         """
@@ -201,7 +204,7 @@ class OptimosService:
             start_time=datetime.utcnow(),
         )
 
-        run_optimization(
+        output = run_optimization(
             model_path,
             sim_param_path,
             constraints_path,
@@ -212,6 +215,10 @@ class OptimosService:
             log_name,
             self.get_iteration_callback(output_asset_id),
         )
+
+        jsonContent = json.dumps(output, default=lambda o: o.to_json())
+        with open("output.json", "w") as f:
+            f.write(jsonContent)
 
         return Path(stats_file.name)
 
@@ -316,28 +323,39 @@ class OptimosService:
         if pool_info is None or simulation_info is None:
             return
 
+        key = pool_info.id
+        timetable = load_timetable_for_key(key)
+        cons_params = load_constraints_for_key(key)
         iteration_info_instance = IterationInfo(
-            pool_info,
-            simulation_info,
-            non_optimal_distance,
-            -1,
+            pools_info=pool_info,
+            simulation_info=simulation_info,
+            it_number=-1,
+            non_optimal_distance=non_optimal_distance,
+        )
+        stats = get_stats_without_writing({key: iteration_info_instance}, [key])
+        assert stats is not None
+        solution_spaces, resource_infos = stats
+        solution_space = solution_spaces[key]
+        resources_info = resource_infos[key]
+        resource_info_dict = {resource_info.resource_name: resource_info for resource_info in resources_info}
+
+        current_solution = SolutionJson(
+            solution_space=solution_space,
+            resources_info=resource_info_dict,
+            sim_params=timetable,
+            cons_params=cons_params,
         )
 
-        key = iteration_info_instance.pools_info.id
-        generated_solutions = {key: iteration_info_instance}
-        execution_info = get_stats_without_writing(generated_solutions, [key])
-        assert execution_info is not None
+        if self._initial_solution is None:
+            print("Setting initial solution")
+            self._initial_solution = current_solution
 
-        algorithm_result = AlgorithmResults(execution_info, False)
-
-        output = SolutionJSONOutput(
+        output = FullOutputJson(
             name=pool_info.id,
-            sim_params=algorithm_result.pareto_front[key].sim_params,  # type: ignore
-            cons_params=algorithm_result.pareto_front[key].cons_params,  # type: ignore
-            median_cycle_time=algorithm_result.pareto_front[key].median_cycle_time,
-            median_execution_cost=algorithm_result.pareto_front[key].median_execution_cost,
-            current_simulation_info=simulation_info,
-            initial_simulation_info=simulation_info,
+            initial_simulation_info=self._initial_solution,
+            final_solutions=None,
+            current_solution_info=current_solution,
+            final_solution_metrics=None,
         )
 
         jsonContent = json.dumps(output, default=lambda o: o.to_json())
