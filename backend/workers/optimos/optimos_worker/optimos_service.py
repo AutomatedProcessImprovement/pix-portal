@@ -1,3 +1,4 @@
+import asyncio
 import json
 import uuid
 import logging
@@ -7,7 +8,7 @@ import traceback
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 from uuid import UUID
 
 import tempfile
@@ -28,7 +29,13 @@ from pix_portal_lib.service_clients.user import UserServiceClient
 
 
 from pareto_algorithms_and_metrics.main import run_optimization
+from pareto_algorithms_and_metrics.iterations_handler import IterationInfo
+from pareto_algorithms_and_metrics.pareto_metrics import AlgorithmResults
+from data_structures.iteration_info import IterationNextType
+from data_structures.solution_json_output import SolutionJSONOutput
+from support_modules.plot_statistics_handler import save_allocation_statistics_into_SolutionObject
 from support_modules.constraints_generator import generate_constraint_file
+from support_modules.file_manager import get_stats_without_writing
 
 
 from optimos_worker.settings import settings
@@ -43,6 +50,8 @@ class InputAssetMissing(Exception):
 
 
 logger = logging.getLogger()
+
+
 class OptimosService:
     def __init__(self):
         self._assets_base_dir = settings.asset_base_dir
@@ -54,7 +63,6 @@ class OptimosService:
 
         self._assets_base_dir.mkdir(parents=True, exist_ok=True)
         self._optimos_results_base_dir.mkdir(parents=True, exist_ok=True)
-
 
     async def process(self, processing_request: ProcessingRequest):
         """
@@ -89,27 +97,26 @@ class OptimosService:
             self.update_configuration(assets, processing_request)
 
             print(processing_request.input_assets_ids)
-
-            # run optimos, it can take hours
-            stats_file = await self.optimization_task(processing_request, assets)
-            dirs_to_delete.append(stats_file)
-
-            # upload results and create corresponding assets
-            optimos_report_asset_id = await self.upload_results(stats_file,  processing_request)
-
+            output_asset_id = await self.create_empty_asset(processing_request)
             # update project assets
             # NOTE: assets must be added to the project first before adding them to the processing request,
             #   because the processing request service checks if the assets belong to the project
             await self._project_service_client.add_asset_to_project(
                 project_id=processing_request.project_id,
-                asset_id=optimos_report_asset_id,
+                asset_id=output_asset_id,
             )
-
             # update output assets in the processing request
             await self._processing_request_service_client.add_output_asset_to_processing_request(
                 processing_request_id=processing_request.processing_request_id,
-                asset_id=optimos_report_asset_id,
+                asset_id=output_asset_id,
             )
+
+            # run optimos, it can take hours
+            stats_file = await self.optimization_task(processing_request, assets, output_asset_id)
+            dirs_to_delete.append(stats_file)
+
+            # upload results and create corresponding assets
+            await self.upload_results(stats_file, output_asset_id)
 
             # update processing request status
             await self._processing_request_service_client.update_request(
@@ -118,7 +125,6 @@ class OptimosService:
                 end_time=datetime.utcnow(),
             )
 
-            
         except Exception as e:
             trace = traceback.format_exc()
             logger.error(
@@ -154,7 +160,7 @@ class OptimosService:
         self._project_service_client.nullify_token()
         self._processing_request_service_client.nullify_token()
 
-    async def optimization_task(self, processing_request: ProcessingRequest, assets: list[Asset]):
+    async def optimization_task(self, processing_request: ProcessingRequest, assets: list[Asset], output_asset_id: str):
         config = self._get_config(assets)
         model_filename = config["model_filename"]
         sim_params_file = config["sim_params_file"]
@@ -164,23 +170,23 @@ class OptimosService:
         approach = config["approach"]
         log_name = str(uuid.uuid4())
 
-        logger.info(f'Model file: {model_filename}')
-        logger.info(f'Sim params file: {sim_params_file}')
-        logger.info(f'Cons params file: {cons_params_file}')
-        logger.info(f'Num of instances: {num_instances}')
-        logger.info(f'Algorithm: {algorithm}')
-        logger.info(f'Approach: {approach}')
-        
+        logger.info(f"Model file: {model_filename}")
+        logger.info(f"Sim params file: {sim_params_file}")
+        logger.info(f"Cons params file: {cons_params_file}")
+        logger.info(f"Num of instances: {num_instances}")
+        logger.info(f"Algorithm: {algorithm}")
+        logger.info(f"Approach: {approach}")
 
-        data_path = os.path.abspath('/var/tmp/optimos')
+        data_path = os.path.abspath("/var/tmp/optimos")
 
         model_path = os.path.abspath(os.path.join(data_path, model_filename))
         sim_param_path = os.path.abspath(os.path.join(data_path, sim_params_file))
         constraints_path = os.path.abspath(os.path.join(data_path, cons_params_file))
 
         # create result file for saving report
-        stats_file = tempfile.NamedTemporaryFile(mode="w+", suffix=".json", prefix="stats_", delete=False,
-                                                dir=data_path)
+        stats_file = tempfile.NamedTemporaryFile(
+            mode="w+", suffix=".json", prefix="stats_", delete=False, dir=data_path
+        )
         stats_filename = stats_file.name.rsplit(os.sep, 1)[-1]
 
         # # create result file for saving logs
@@ -188,15 +194,24 @@ class OptimosService:
         #                                         dir=celery_data_path)
         # logs_filename = logs_file.name.rsplit(os.sep, 1)[-1]
 
-         # update processing request status
+        # update processing request status
         await self._processing_request_service_client.update_request(
             processing_request_id=processing_request.processing_request_id,
             status=ProcessingRequestStatus.RUNNING,
             start_time=datetime.utcnow(),
         )
 
-        run_optimization(model_path, sim_param_path, constraints_path, num_instances, algorithm, approach,
-                                stats_file.name, log_name)
+        run_optimization(
+            model_path,
+            sim_param_path,
+            constraints_path,
+            num_instances,
+            algorithm,
+            approach,
+            stats_file.name,
+            log_name,
+            self.get_iteration_callback(output_asset_id),
+        )
 
         return Path(stats_file.name)
 
@@ -208,7 +223,7 @@ class OptimosService:
         return None
 
     @staticmethod
-    def _validate_input_files(files: list[File_]):
+    def _validate_input_files(files: list[Union[File_, None]]):
         for f in files:
             if f is None or f.path is None or not Path(f.path).exists():
                 raise InputAssetMissing(message=f"Input asset not found: {f}")
@@ -228,71 +243,106 @@ class OptimosService:
 
         return config_file, sim_params_file, cons_params_file, process_model_file
 
-
     def update_configuration(self, assets: list[Asset], processing_request: ProcessingRequest):
         """
         Updates the Optimos configuration file to include the correct event log path, process model.
         """
         config_file, sim_params_file, cons_params_file, process_model_file = self._extract_input_files(assets)
         print(config_file, sim_params_file, cons_params_file, process_model_file)
-        self._validate_input_files([config_file, sim_params_file, cons_params_file,process_model_file])  # only event log is required, other files are optional
-       
-        config_file_path = Path(config_file.path)
-        sim_params_file_path =  Path(sim_params_file.path)
-        cons_params_file = Path(cons_params_file.path)
-        process_model_path = Path(process_model_file.path)
+        self._validate_input_files(
+            [config_file, sim_params_file, cons_params_file, process_model_file]
+        )  # only event log is required, other files are optional
 
-        self._update_configuration_file(
-            config_file_path,
-            sim_params_file_path,
-            process_model_path,
-            cons_params_file
-        )
-        
+        config_file_path = Path(config_file.path)  # type: ignore
+        sim_params_file_path = Path(sim_params_file.path)  # type: ignore
+        cons_params_file = Path(cons_params_file.path)  # type: ignore
+        process_model_path = Path(process_model_file.path)  # type: ignore
+
+        self._update_configuration_file(config_file_path, sim_params_file_path, process_model_path, cons_params_file)
 
     @staticmethod
     def _update_configuration_file(
-        config_path: Path,
-        sim_params_file: Path,
-        model_filename: Path,
-        cons_params_file: Path
+        config_path: Path, sim_params_file: Path, model_filename: Path, cons_params_file: Path
     ):
         content = config_path.read_bytes()
         config = yaml.safe_load(content)
-   
-        
 
         config["model_filename"] = str(model_filename.absolute())
         config["sim_params_file"] = str(sim_params_file.absolute())
         config["cons_params_file"] = str(cons_params_file.absolute())
-    
 
         content = yaml.dump(config)
 
         config_path.write_bytes(content.encode("utf-8"))
 
-    
     def _get_config(self, assets: list[Asset]):
         files: list[File_] = []
         for asset in assets:
             if asset.files is not None:
                 files.extend(asset.files)
         config_file = self._find_file_by_type(files, FileType.CONFIGURATION_OPTIMOS_YAML)
+        assert config_file is not None
         config_file_path = Path(config_file.path)
         content = config_file_path.read_bytes()
         config = yaml.safe_load(content)
         return config
-        
 
-    async def upload_results(self, result_file: Path,  processing_request: ProcessingRequest):
-        report_json = File_(
-            name=result_file.name, type=FileType.OPTIMIZATION_REPORT_OPTIMOS_JSON, path=result_file
-        )
-        optimos_report_asset_id = await self._asset_service_client.create_asset(
+    async def upload_results(self, result_file: Path, asset_id: str):
+        report_json = File_(name=result_file.name, type=FileType.OPTIMIZATION_REPORT_OPTIMOS_JSON, path=result_file)
+
+        await self._asset_service_client.replace_assets_files(
+            asset_id=asset_id,
             files=[report_json],
+        )
+
+    async def create_empty_asset(self, processing_request: ProcessingRequest):
+        optimos_report_asset_id = await self._asset_service_client.create_asset(
+            files=[],
             project_id=processing_request.project_id,
-            asset_name=result_file.stem,
+            asset_name="optimos_report",
             asset_type=AssetType.OPTIMOS_REPORT,
-            users_ids=[UUID(processing_request.user_id)])
-        
+            users_ids=[UUID(processing_request.user_id)],
+        )
+
         return optimos_report_asset_id
+
+    def get_iteration_callback(self, output_asset_id: str):
+        print("Iteration callback called (sync)")
+        return lambda iteration_info: asyncio.run(self.async_iteration_callback(iteration_info, output_asset_id))
+
+    async def async_iteration_callback(self, iteration_info: IterationNextType, output_asset_id: str):
+        print("Iteration callback called (async)")
+        (pool_info, simulation_info, non_optimal_distance) = iteration_info
+        if pool_info is None or simulation_info is None:
+            return
+
+        iteration_info_instance = IterationInfo(
+            pool_info,
+            simulation_info,
+            non_optimal_distance,
+            -1,
+        )
+
+        key = iteration_info_instance.pools_info.id
+        generated_solutions = {key: iteration_info_instance}
+        execution_info = get_stats_without_writing(generated_solutions, [key])
+        assert execution_info is not None
+
+        algorithm_result = AlgorithmResults(execution_info, False)
+
+        output = SolutionJSONOutput(
+            name=pool_info.id,
+            sim_params=algorithm_result.pareto_front[key].sim_params,  # type: ignore
+            cons_params=algorithm_result.pareto_front[key].cons_params,  # type: ignore
+            median_cycle_time=algorithm_result.pareto_front[key].median_cycle_time,
+            median_execution_cost=algorithm_result.pareto_front[key].median_execution_cost,
+            current_simulation_info=simulation_info,
+            initial_simulation_info=simulation_info,
+        )
+
+        jsonContent = json.dumps(output, default=lambda o: o.to_json())
+        with open("output.json", "w") as f:
+            f.write(jsonContent)
+
+        await self.upload_results(Path("output.json"), output_asset_id)
+        print("Iteration callback finished")
