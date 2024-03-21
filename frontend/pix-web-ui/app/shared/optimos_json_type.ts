@@ -52,7 +52,7 @@ export interface DeviationInfo {
 
 export interface PoolsInfo {
   pools: { [key: string]: Resource };
-  task_pools: { [key: string]: TaskPool[] };
+  task_pools: { [key: string]: ResourceListItem[] };
   task_allocations: { [key: string]: number[] };
   id: string;
 }
@@ -109,15 +109,6 @@ export interface DailyStartTimes {
   sunday?: string;
 }
 
-export interface TaskPool {
-  id: string;
-  name: string;
-  cost_per_hour: number;
-  amount: number;
-  calendar: string;
-  assigned_tasks: string[];
-}
-
 export interface SimParams {
   resource_profiles: ResourceProfile[];
   arrival_time_distribution: ArrivalTimeDistribution;
@@ -131,10 +122,10 @@ export interface SimParams {
 export interface ResourceProfile {
   id: string;
   name: string;
-  resource_list: ResourceList[];
+  resource_list: ResourceListItem[];
 }
 
-export interface ResourceList {
+export interface ResourceListItem {
   id: string;
   name: string;
   cost_per_hour: number;
@@ -221,3 +212,17 @@ export interface GlobalConstraints {
   max_shifts_week: number;
   is_human: boolean;
 }
+
+// --------------------------------------------------------
+// Additional combined Types
+// --------------------------------------------------------
+
+export type ResourceStats = {
+  total_worktime: number;
+  total_cost: number;
+  utilization: number;
+  available_time: number;
+  tasks: string[];
+};
+
+export type EnhancedResource = Resource & ResourceStats;

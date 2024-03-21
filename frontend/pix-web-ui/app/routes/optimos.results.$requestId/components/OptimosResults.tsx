@@ -7,6 +7,7 @@ import { formatCurrency, formatPercentage, formatSeconds } from "~/shared/num_he
 import { CloudDownload as CloudDownloadIcon } from "@mui/icons-material";
 import { WeekView } from "~/components/optimos/WeekView";
 import { OptimosSolution } from "./OptimosSolution";
+import { InitialSolutionContext } from "./InitialSolutionContext";
 
 interface SimulationResultsProps {
   report: FullOutputJson;
@@ -60,12 +61,12 @@ const OptimizationResults = (props: SimulationResultsProps) => {
     }
   };
 
-  const final_metrics = report?.final_solution_metrics?.[0];
-
   if (!report) return <div>Loading...</div>;
+  const final_metrics = report.final_solution_metrics?.[0];
+  const initial_solution = report.initial_solution;
 
   return (
-    <>
+    <InitialSolutionContext.Provider value={initial_solution}>
       <div style={{ height: "50px" }} />
 
       <Grid
@@ -187,7 +188,7 @@ const OptimizationResults = (props: SimulationResultsProps) => {
           </Grid>
         </Grid>
       </Grid>
-    </>
+    </InitialSolutionContext.Provider>
   );
 };
 

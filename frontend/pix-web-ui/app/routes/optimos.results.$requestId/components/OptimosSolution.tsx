@@ -5,6 +5,7 @@ import { WeekView } from "~/components/optimos/WeekView";
 import { formatCurrency, formatSeconds, formatPercentage } from "~/shared/num_helper";
 import type { FinalSolutionMetric, Solution } from "~/shared/optimos_json_type";
 import { CloudDownload as CloudDownloadIcon } from "@mui/icons-material";
+import { ResourcesTable } from "./ResourcesTable";
 
 interface OptimosSolutionProps {
   solution: Solution;
@@ -13,7 +14,7 @@ interface OptimosSolutionProps {
 
 export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, solution }) => {
   const info = solution.solution_info;
-  const resources = Object.values(info.pools_info.pools).slice(0, 5);
+  const resources = Object.values(info.pools_info.pools);
 
   const link2DownloadRef = useRef<HTMLAnchorElement>(null);
   const link3DownloadRef = useRef<HTMLAnchorElement>(null);
@@ -61,10 +62,54 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
 
   return (
     <Paper elevation={5} sx={{ m: 3, p: 3, minHeight: "10vw" }}>
-      <Grid>
-        <Typography variant="h6" align="left">
-          Variant #{info.pools_info.id}
-        </Typography>
+      <Grid container alignItems={"center"} justifyContent={"center"} height={"4em"}>
+        <Grid item xs={8}>
+          <Typography variant="h6" align="left">
+            Variant #{info.pools_info.id}
+          </Typography>
+        </Grid>
+        <Grid item xs={4}>
+          <a
+            style={{
+              display: "none",
+            }}
+            download={"constraints.json"}
+            href={fileDownloadConsParams}
+            ref={link3DownloadRef}
+          >
+            Download json
+          </a>
+          <a
+            style={{
+              display: "none",
+            }}
+            download={"simparams.json"}
+            href={fileDownloadSimParams}
+            ref={link2DownloadRef}
+          >
+            Download json
+          </a>
+          <Grid item xs={12}>
+            <ButtonGroup variant="outlined" aria-label="Download parameters">
+              <Button
+                onClick={(_e) => {
+                  onDownloadEntrySimParams(solution.sim_params);
+                }}
+                startIcon={<CloudDownloadIcon />}
+              >
+                Parameters
+              </Button>
+              <Button
+                onClick={(_e) => {
+                  onDownloadEntryConsParams(solution.cons_params);
+                }}
+                startIcon={<CloudDownloadIcon />}
+              >
+                Constraints
+              </Button>
+            </ButtonGroup>
+          </Grid>
+        </Grid>
       </Grid>
       <Grid
         container
@@ -124,46 +169,6 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
             )}
           </Typography>
         </Grid>
-        <a
-          style={{
-            display: "none",
-          }}
-          download={"constraints.json"}
-          href={fileDownloadConsParams}
-          ref={link3DownloadRef}
-        >
-          Download json
-        </a>
-        <a
-          style={{
-            display: "none",
-          }}
-          download={"simparams.json"}
-          href={fileDownloadSimParams}
-          ref={link2DownloadRef}
-        >
-          Download json
-        </a>
-        <Grid item xs={12} mt={1}>
-          <ButtonGroup variant="outlined" aria-label="Download parameters">
-            <Button
-              onClick={(_e) => {
-                onDownloadEntrySimParams(solution.sim_params);
-              }}
-              startIcon={<CloudDownloadIcon />}
-            >
-              Parameters
-            </Button>
-            <Button
-              onClick={(_e) => {
-                onDownloadEntryConsParams(solution.cons_params);
-              }}
-              startIcon={<CloudDownloadIcon />}
-            >
-              Constraints
-            </Button>
-          </ButtonGroup>
-        </Grid>
       </Grid>
       <Grid>
         <Typography variant="h6" align="left">
@@ -171,59 +176,7 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
         </Typography>
       </Grid>
       <Grid>
-        {resources.map((resource, index) => {
-          const calendar = solution.sim_params.resource_calendars.find(
-            (c) => c.id === resource.resource_name + "timetable"
-          );
-          const resource_constraints = solution.cons_params.resources.find(
-            (r) => r.id === resource.resource_name + "timetable"
-          );
-          const neverWorkTimes = resource_constraints?.constraints.never_work_masks ?? [];
-          const alwaysWorkTimes = resource_constraints?.constraints.always_work_masks ?? [];
-          const resource_calendar_entries = {
-            calendar: calendar?.time_periods ?? [],
-            neverWorkTimes: neverWorkTimes,
-            alwaysWorkTimes: alwaysWorkTimes,
-          };
-
-          return (
-            <Grid container key={`resource-${index}`} direction={"column"}>
-              <Grid item>
-                <Typography
-                  sx={{
-                    fontWeight: "bold",
-                  }}
-                  align={"left"}
-                >
-                  {resource.resource_name}
-                </Typography>
-              </Grid>
-              <Grid item>
-                <Typography align={"left"}>{resource.total_amount} units</Typography>
-              </Grid>
-              <Grid item>
-                <Typography align={"left"}>
-                  {formatPercentage(info.pool_utilization[resource.id])} Utilization
-                </Typography>
-              </Grid>
-              <Grid item>
-                <Typography align={"left"}>{formatCurrency(resource.cost_per_hour)} per hour</Typography>
-              </Grid>
-              <Grid item>
-                <Typography align={"left"}>{resource.is_human ? "Human" : "Machine"}</Typography>
-              </Grid>
-              <WeekView
-                entries={resource_calendar_entries}
-                columnColors={{
-                  calendar: "lightgreen",
-                  neverWorkTimes: "lightcoral",
-                  alwaysWorkTimes: "lightblue",
-                }}
-                columnIndices={{ calendar: 1, neverWorkTimes: 0, alwaysWorkTimes: 0 }}
-              ></WeekView>
-            </Grid>
-          );
-        })}
+        <ResourcesTable resources={resources} solutionInfo={info} />
       </Grid>
     </Paper>
   );
