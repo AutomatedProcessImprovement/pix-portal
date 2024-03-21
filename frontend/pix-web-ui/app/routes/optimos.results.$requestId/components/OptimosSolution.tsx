@@ -3,16 +3,17 @@ import type { FC } from "react";
 import { useEffect, useRef, useState } from "react";
 import { WeekView } from "~/components/optimos/WeekView";
 import { formatCurrency, formatSeconds, formatPercentage } from "~/shared/num_helper";
-import type { FinalSolutionMetric, SolutionJson } from "~/shared/optimos_json_type";
+import type { FinalSolutionMetric, Solution } from "~/shared/optimos_json_type";
 import { CloudDownload as CloudDownloadIcon } from "@mui/icons-material";
 
 interface OptimosSolutionProps {
-  solution: SolutionJson;
+  solution: Solution;
   finalMetrics?: FinalSolutionMetric;
 }
 
 export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, solution }) => {
-  const resources = Object.values(solution.resources_info).slice(0, 2);
+  const info = solution.solution_info;
+  const resources = Object.values(info.pools_info.pools).slice(0, 5);
 
   const link2DownloadRef = useRef<HTMLAnchorElement>(null);
   const link3DownloadRef = useRef<HTMLAnchorElement>(null);
@@ -62,7 +63,7 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
     <Paper elevation={5} sx={{ m: 3, p: 3, minHeight: "10vw" }}>
       <Grid>
         <Typography variant="h6" align="left">
-          Variant #{solution.solution_space.it_number}
+          Variant #{info.pools_info.id}
         </Typography>
       </Grid>
       <Grid
@@ -99,18 +100,18 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
         </Grid>
         <Grid item xs={7}>
           <Typography align={"left"}>
-            {formatCurrency(solution.solution_space.median_execution_cost)}
+            {formatCurrency(info.total_pool_cost)}
             {finalMetrics &&
-              (finalMetrics.ave_cost > solution.solution_space.median_execution_cost ? (
+              (finalMetrics.ave_cost > info.total_pool_cost ? (
                 <i style={{ color: "green", fontSize: "0.8em" }}> (≤ avg.)</i>
               ) : (
                 <i style={{ color: "red", fontSize: "0.8em" }}> ({">"} avg.)</i>
               ))}
           </Typography>
           <Typography align={"left"}>
-            {formatSeconds(solution.solution_space.median_cycle_time)}
+            {formatSeconds(info.mean_process_cycle_time)}
             {finalMetrics &&
-              (finalMetrics.ave_time > solution.solution_space.median_cycle_time ? (
+              (finalMetrics.ave_time > info.mean_process_cycle_time ? (
                 <i style={{ color: "green", fontSize: "0.8em" }}> (≤ avg.)</i>
               ) : (
                 <i style={{ color: "red", fontSize: "0.8em" }}> ({">"} avg.)</i>
@@ -118,8 +119,8 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
           </Typography>
           <Typography align={"left"}>
             {formatPercentage(
-              Object.values(solution.resources_info).reduce((acc, resource) => acc + resource.resource_utilization, 0) /
-                Object.keys(solution.resources_info).length
+              Object.values(info.pool_utilization).reduce((acc, ut) => acc + ut, 0) /
+                Object.keys(info.pool_utilization).length
             )}
           </Typography>
         </Grid>
@@ -184,7 +185,7 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
             neverWorkTimes: neverWorkTimes,
             alwaysWorkTimes: alwaysWorkTimes,
           };
-          console.log(resource_calendar_entries, resource.resource_name);
+
           return (
             <Grid container key={`resource-${index}`} direction={"column"}>
               <Grid item>
@@ -198,10 +199,18 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
                 </Typography>
               </Grid>
               <Grid item>
-                <Typography align={"left"}>{resource.resource_count} units</Typography>
+                <Typography align={"left"}>{resource.total_amount} units</Typography>
               </Grid>
               <Grid item>
-                <Typography align={"left"}>{formatPercentage(resource.resource_utilization)} Utilization</Typography>
+                <Typography align={"left"}>
+                  {formatPercentage(info.pool_utilization[resource.id])} Utilization
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Typography align={"left"}>{formatCurrency(resource.cost_per_hour)} per hour</Typography>
+              </Grid>
+              <Grid item>
+                <Typography align={"left"}>{resource.is_human ? "Human" : "Machine"}</Typography>
               </Grid>
               <WeekView
                 entries={resource_calendar_entries}
@@ -210,6 +219,7 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
                   neverWorkTimes: "lightcoral",
                   alwaysWorkTimes: "lightblue",
                 }}
+                columnIndices={{ calendar: 1, neverWorkTimes: 0, alwaysWorkTimes: 0 }}
               ></WeekView>
             </Grid>
           );

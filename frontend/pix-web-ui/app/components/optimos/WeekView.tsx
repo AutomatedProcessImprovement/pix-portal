@@ -1,11 +1,52 @@
 import React, { FC, useState } from "react";
 import { Box, Grid, Typography, Divider } from "@mui/material";
 import Selecto from "react-selecto";
-import { ConstraintWorkMask, Resource, TimePeriod } from "~/shared/optimos_json_type";
+import { ConstraintWorkMask, Resource, Shift, TimePeriod } from "~/shared/optimos_json_type";
 
 export type WeekViewProps = {
-  entries: Record<string, TimePeriod[] | ConstraintWorkMask>;
+  entries: Record<string, TimePeriod[] | Shift | ConstraintWorkMask>;
   columnColors: Record<string, string>;
+  columnIndices?: Record<string, number>;
+};
+
+export type InternalEntry = {
+  day: string;
+  hour: number;
+  color?: string;
+  column: number;
+};
+
+const convertToInternalEntries = (
+  entries: WeekViewProps["entries"],
+  columnColors: WeekViewProps["columnColors"],
+  columns: WeekViewProps["columnIndices"]
+) => {
+  const internalEntries: InternalEntry[] = [];
+  for (const [name, timePeriods] of Object.entries(entries)) {
+    if (Array.isArray(timePeriods)) {
+      for (const timePeriod of timePeriods) {
+        const day = timePeriod.from;
+        const from = parseInt(timePeriod.beginTime.split(":")[0]);
+        const to = parseInt(timePeriod.endTime.split(":")[0]);
+        for (let hour = from; hour < to; hour++) {
+          internalEntries.push({ day, hour, color: columnColors[name], column: columns?.[name] ?? 0 });
+        }
+      }
+    } else {
+      for (const [day, workMask] of Object.entries(timePeriods)) {
+        workMask
+          .toString(2)
+          .padStart(24, "0")
+          .split("")
+          .forEach((value: string, index: number) => {
+            if (value === "1") {
+              internalEntries.push({ day, hour: index, color: columnColors[name], column: columns?.[name] ?? 0 });
+            }
+          });
+      }
+    }
+  }
+  return internalEntries;
 };
 
 const isTimePeriodInHour = (timePeriod: TimePeriod, hour: number) => {
@@ -22,7 +63,7 @@ const isDayHourInWorkMask = (day: string, hour: number, workMask: ConstraintWork
   (workMask[day.toLocaleLowerCase() as keyof ConstraintWorkMask] >>> 0).toString(2).padStart(24, "0")[hour] === "1";
 
 export const WeekView: FC<WeekViewProps> = (props) => {
-  const columns_per_day = Object.keys(props.entries);
+  const columnCount = Math.max(...Object.values(props.columnIndices ?? {}), 0);
 
   const [selectedCells, setSelectedCells] = useState<any>([]);
 
@@ -37,6 +78,8 @@ export const WeekView: FC<WeekViewProps> = (props) => {
     const selected = Array.from(event.selected);
     setSelectedCells(selected);
   };
+
+  const internalEntries = convertToInternalEntries(props.entries, props.columnColors, props.columnIndices);
 
   return (
     <Box>
@@ -65,22 +108,20 @@ export const WeekView: FC<WeekViewProps> = (props) => {
         {/* Days events */}
         {days.map((day, dayIndex) => (
           <Grid item xs key={dayIndex}>
-            <Grid container direction="column" key={`${day}`}>
+            <Grid container direction="column" key={`column-${day}`}>
               {hours.map((hour, hourIndex) => (
-                <Grid container direction={"row"} key={`${day}`}>
-                  {columns_per_day.map((column) => {
-                    let hasEvent;
-                    const eventColor = props.columnColors[column];
-                    const columnData = props.entries[column];
-                    if (Array.isArray(columnData)) {
-                      hasEvent = columnData.some(
-                        (timePeriod) => isTimePeriodInHour(timePeriod, hour) && isTimePeriodInDay(timePeriod, day)
-                      );
-                    } else {
-                      hasEvent = isDayHourInWorkMask(day, hour, columnData);
-                    }
+                <Grid container direction={"row"} key={`hour-${day}-${hourIndex}`}>
+                  {Array.from({ length: columnCount + 1 }, (_, i) => i).map((columnIndex) => {
+                    const entry = internalEntries.find(
+                      (entry) =>
+                        entry.day.toLocaleLowerCase() === day.toLocaleLowerCase() &&
+                        entry.hour === hour &&
+                        entry.column === columnIndex
+                    );
+                    const hasEvent = entry !== undefined;
+                    const eventColor = entry?.color;
                     return (
-                      <Grid item xs key={hourIndex}>
+                      <Grid item xs key={`event-${day}-${hourIndex}-${columnIndex}`}>
                         <Box
                           bgcolor={
                             hasEvent

@@ -62,7 +62,7 @@ const OptimizationResults = (props: SimulationResultsProps) => {
 
   const final_metrics = report?.final_solution_metrics?.[0];
 
-  if (!report) return <h1>Error!</h1>;
+  if (!report) return <div>Loading...</div>;
 
   return (
     <>
@@ -170,12 +170,9 @@ const OptimizationResults = (props: SimulationResultsProps) => {
                 </Grid>
               </Paper>
               <Grid container>
-                {!report?.final_solutions && (
+                {!report?.final_solutions && report.current_solution && (
                   <Grid item xs={12}>
-                    <OptimosSolution
-                      solution={report.current_solution_info}
-                      finalMetrics={final_metrics}
-                    ></OptimosSolution>
+                    <OptimosSolution solution={report.current_solution} finalMetrics={final_metrics}></OptimosSolution>
                   </Grid>
                 )}
                 {report?.final_solutions?.map((solution, index) => {

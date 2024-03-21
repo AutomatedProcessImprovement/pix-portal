@@ -33,6 +33,7 @@ from pareto_algorithms_and_metrics.iterations_handler import IterationInfo
 from pareto_algorithms_and_metrics.pareto_metrics import AlgorithmResults
 from data_structures.iteration_info import IterationNextType
 from data_structures.solution_json_output import FullOutputJson, SolutionJson
+from data_structures.simulation_info import SimulationInfo
 from support_modules.plot_statistics_handler import (
     save_allocation_statistics_into_SolutionObject,
     return_api_solution_statistics,
@@ -315,46 +316,40 @@ class OptimosService:
 
     def get_iteration_callback(self, output_asset_id: str):
         print("Iteration callback called (sync)")
-        return lambda iteration_info: asyncio.run(self.async_iteration_callback(iteration_info, output_asset_id))
+        return lambda iteration_info, approach: asyncio.run(
+            self.async_iteration_callback(
+                iteration_info,
+                approach,
+                output_asset_id,
+            )
+        )
 
-    async def async_iteration_callback(self, iteration_info: IterationNextType, output_asset_id: str):
+    async def async_iteration_callback(self, iteration_info: IterationNextType, approach: str, output_asset_id: str):
         print("Iteration callback called (async)")
         (pool_info, simulation_info, non_optimal_distance) = iteration_info
         if pool_info is None or simulation_info is None:
             return
 
         key = pool_info.id
-        timetable = load_timetable_for_key(key)
+        sim_params = load_timetable_for_key(key)
         cons_params = load_constraints_for_key(key)
-        iteration_info_instance = IterationInfo(
-            pools_info=pool_info,
-            simulation_info=simulation_info,
-            it_number=-1,
-            non_optimal_distance=non_optimal_distance,
-        )
-        stats = get_stats_without_writing({key: iteration_info_instance}, [key])
-        assert stats is not None
-        solution_spaces, resource_infos = stats
-        solution_space = solution_spaces[key]
-        resources_info = resource_infos[key]
-        resource_info_dict = {resource_info.resource_name: resource_info for resource_info in resources_info}
-
-        current_solution = SolutionJson(
-            solution_space=solution_space,
-            resources_info=resource_info_dict,
-            sim_params=timetable,
+        if sim_params is None or cons_params is None:
+            return
+        solution_json = SolutionJson(
+            solution_info=simulation_info,
+            sim_params=sim_params,
             cons_params=cons_params,
         )
 
         if self._initial_solution is None:
             print("Setting initial solution")
-            self._initial_solution = current_solution
+            self._initial_solution = solution_json
 
         output = FullOutputJson(
-            name=pool_info.id,
-            initial_simulation_info=self._initial_solution,
+            name=approach + "-" + pool_info.id,
+            initial_solution=self._initial_solution,
             final_solutions=None,
-            current_solution_info=current_solution,
+            current_solution=solution_json,
             final_solution_metrics=None,
         )
 
