@@ -1,4 +1,4 @@
-import { Button, Grid, Paper, Typography, Box, ButtonGroup } from "@mui/material";
+import { Button, Grid, Paper, Typography, Box, ButtonGroup, CircularProgress } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import * as React from "react";
 import "moment-duration-format";
@@ -8,6 +8,9 @@ import { CloudDownload as CloudDownloadIcon } from "@mui/icons-material";
 import { WeekView } from "~/components/optimos/WeekView";
 import { OptimosSolution } from "./OptimosSolution";
 import { InitialSolutionContext } from "./InitialSolutionContext";
+import { useAuthRefreshRequest } from "~/routes/projects.$projectId.$processingType/hooks/useAutoRefreshRequest";
+import { FileType, getFileContent } from "~/services/files";
+import { UserContext } from "~/routes/contexts";
 
 interface SimulationResultsProps {
   report: FullOutputJson;
@@ -15,15 +18,26 @@ interface SimulationResultsProps {
 
 const OptimizationResults = (props: SimulationResultsProps) => {
   const { report: reportJson } = props;
-  const [report, setReport] = useState<FullOutputJson | null>();
+  const [report, setReport] = useState<FullOutputJson | null>(reportJson);
+
+  const request = useAuthRefreshRequest();
+  const user = React.useContext(UserContext);
+  useEffect(() => {
+    if (!request || !user) return;
+    const optimosReportJsonFile = request.output_assets[0].files?.find(
+      (file) => file.type === FileType.OPTIMIZATION_REPORT_OPTIMOS_JSON
+    );
+    if (!optimosReportJsonFile) return;
+    getFileContent(optimosReportJsonFile.id, user.token!).then((fileContent) => {
+      const jsonStr = fileContent.toString();
+      const newReport = JSON.parse(jsonStr);
+      setReport(newReport);
+    });
+  }, [report, request, user]);
 
   const [fileDownloadUrl, setFileDownloadUrl] = useState("");
 
   const linkDownloadRef = useRef<HTMLAnchorElement>(null);
-
-  useEffect(() => {
-    setReport(reportJson);
-  }, [reportJson]);
 
   useEffect(() => {
     if (fileDownloadUrl !== "" && fileDownloadUrl !== undefined) {
@@ -110,76 +124,87 @@ const OptimizationResults = (props: SimulationResultsProps) => {
                       Download json
                     </a>
                   </Grid>
-                  <Grid item xs={5}>
-                    <Typography
-                      sx={{
-                        fontWeight: "bold",
-                      }}
-                      align={"left"}
-                    >
-                      Average cost
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontWeight: "bold",
-                      }}
-                      align={"left"}
-                    >
-                      Average cycle time
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontWeight: "bold",
-                      }}
-                      align={"left"}
-                    >
-                      Pareto size
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontWeight: "bold",
-                      }}
-                      align={"left"}
-                    >
-                      # in Pareto
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontWeight: "bold",
-                      }}
-                      align={"left"}
-                    >
-                      Cost compared to original
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontWeight: "bold",
-                      }}
-                      align={"left"}
-                    >
-                      Time compared to original
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={7}>
-                    <Typography align={"left"}> {formatCurrency(final_metrics?.ave_cost)}</Typography>
-                    <Typography align={"left"}> {formatSeconds(final_metrics?.ave_time)}</Typography>
-                    <Typography align={"left"}> {final_metrics?.pareto_size}</Typography>
-                    <Typography align={"left"}> {final_metrics?.in_jp}</Typography>
-                    <Typography align={"left"}> {formatPercentage(final_metrics?.cost_metric)}</Typography>
-                    <Typography align={"left"}> {formatPercentage(final_metrics?.time_metric)}</Typography>
-                  </Grid>
+                  {final_metrics ? (
+                    <Grid container>
+                      <Grid item xs={5}>
+                        <Typography
+                          sx={{
+                            fontWeight: "bold",
+                          }}
+                          align={"left"}
+                        >
+                          Average cost
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontWeight: "bold",
+                          }}
+                          align={"left"}
+                        >
+                          Average cycle time
+                        </Typography>
+
+                        <Typography
+                          sx={{
+                            fontWeight: "bold",
+                          }}
+                          align={"left"}
+                        >
+                          Cost compared to original
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontWeight: "bold",
+                          }}
+                          align={"left"}
+                        >
+                          Time compared to original
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={7}>
+                        <Typography align={"left"}> {formatCurrency(final_metrics?.ave_cost)}</Typography>
+                        <Typography align={"left"}> {formatSeconds(final_metrics?.ave_time)}</Typography>
+                        <Typography align={"left"}> {formatPercentage(final_metrics?.cost_metric)}</Typography>
+                        <Typography align={"left"}> {formatPercentage(final_metrics?.time_metric)}</Typography>
+                      </Grid>
+                    </Grid>
+                  ) : (
+                    <Grid container p={10}>
+                      <Grid container justifyContent="center">
+                        <Grid item>
+                          <CircularProgress size={60} />
+                        </Grid>
+                      </Grid>
+                      <Grid container justifyContent="center">
+                        <Grid item>
+                          <Typography variant="body1" align="center">
+                            The Process is still running, below you find the current iteration
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  )}
                 </Grid>
               </Paper>
               <Grid container>
                 {!report?.final_solutions && report.current_solution && (
                   <Grid item xs={12}>
-                    <OptimosSolution solution={report.current_solution} finalMetrics={final_metrics}></OptimosSolution>
+                    <OptimosSolution
+                      solution={report.current_solution}
+                      finalMetrics={final_metrics}
+                      initialSolution={initial_solution}
+                    ></OptimosSolution>
                   </Grid>
                 )}
                 {report?.final_solutions?.map((solution, index) => {
                   return (
                     <Grid item xs={12} key={`grid-${index}`}>
-                      <OptimosSolution key={index} solution={solution} finalMetrics={final_metrics}></OptimosSolution>
+                      <OptimosSolution
+                        key={index}
+                        solution={solution}
+                        finalMetrics={final_metrics}
+                        initialSolution={initial_solution}
+                      ></OptimosSolution>
                     </Grid>
                   );
                 })}

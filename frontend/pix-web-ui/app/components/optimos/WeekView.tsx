@@ -110,7 +110,7 @@ export const WeekView: FC<WeekViewProps> = (props) => {
           <Grid item xs key={dayIndex}>
             <Grid container direction="column" key={`column-${day}`}>
               {hours.map((hour, hourIndex) => (
-                <Grid container direction={"row"} key={`hour-${day}-${hourIndex}`}>
+                <Grid container direction={"row"} key={`hour-${day}-${hourIndex}`} px={1}>
                   {Array.from({ length: columnCount + 1 }, (_, i) => i).map((columnIndex) => {
                     const entry = internalEntries.find(
                       (entry) =>
@@ -121,7 +121,7 @@ export const WeekView: FC<WeekViewProps> = (props) => {
                     const hasEvent = entry !== undefined;
                     const eventColor = entry?.color;
                     return (
-                      <Grid item xs key={`event-${day}-${hourIndex}-${columnIndex}`}>
+                      <Grid item key={`event-${day}-${hourIndex}-${columnIndex}`} style={{ flex: hasEvent ? 1 : 0 }}>
                         <Box
                           bgcolor={
                             hasEvent

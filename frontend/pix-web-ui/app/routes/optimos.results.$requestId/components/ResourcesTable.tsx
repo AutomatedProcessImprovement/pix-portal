@@ -19,7 +19,7 @@ import React, { useState } from "react";
 import {
   KeyboardArrowDown as KeyboardArrowDownIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,
-  Tag,
+  FiberNew as FiberNewIcon,
 } from "@mui/icons-material";
 import type {
   EnhancedResource,
@@ -37,9 +37,10 @@ const COLUMN_DEFINITIONS: {
   label: string;
   formatFn: (x: any) => ReactNode;
   lowerIsBetter?: boolean;
+  minWidth?: string | number;
 }[] = [
-  { id: "resource_name", label: "Name", formatFn: (x) => x },
-  { id: "total_worktime", label: "Worktime", formatFn: formatSeconds, lowerIsBetter: false },
+  { id: "resource_name", label: "Name", formatFn: (x) => x, minWidth: "10em" },
+  { id: "total_worktime", label: "Worktime", formatFn: formatSeconds, lowerIsBetter: false, minWidth: "10em" },
   { id: "available_time", label: "Available Time", formatFn: formatHours, lowerIsBetter: true },
   { id: "cost_per_hour", label: "Hourly Rate", formatFn: formatHourlyRate, lowerIsBetter: true },
   { id: "total_cost", label: "Total Cost", formatFn: formatCurrency, lowerIsBetter: true },
@@ -69,6 +70,10 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
     originalWorkTimes: initialResource?.shifts?.[0] ?? [],
   };
 
+  const areTimesDifferent =
+    JSON.stringify(resource_calendar_entries["calendar"]) !=
+    JSON.stringify(resource_calendar_entries["originalWorkTimes"]);
+
   return (
     <React.Fragment>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
@@ -76,14 +81,22 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
           <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
+        </TableCell>
+        <TableCell>
           {!initialResource && <Chip label="New" color="success" variant="outlined" />}
+          {areTasksDifferent(resource, initialResource) && (
+            <Chip icon={<FiberNewIcon />} label="Tasks" color="warning" variant="outlined" />
+          )}
+          {areShiftsDifferent(resource, initialResource) && (
+            <Chip icon={<FiberNewIcon />} label="Shifts" color="warning" variant="outlined" />
+          )}
         </TableCell>
         {COLUMN_DEFINITIONS.map(({ id, formatFn, lowerIsBetter }) => (
           <TableCell key={id} align="left">
             {formatFn(resource[id])}
             <br />
             {lowerIsBetter !== undefined &&
-              !!initialResource[id] &&
+              !!initialResource?.[id] &&
               initialResource[id] !== resource[id] &&
               (initialResource[id] < resource[id] ? (
                 <Typography variant="caption" fontSize={10} color={lowerIsBetter ? "red" : "green"}>
@@ -96,11 +109,6 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
               ))}
           </TableCell>
         ))}
-        <TableCell>
-          {areTasksDifferent(resource, initialResource) && (
-            <Chip label="Tasks Changed" color="warning" variant="outlined" />
-          )}
-        </TableCell>
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={12}>
@@ -137,7 +145,7 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
                   alwaysWorkTimes: "lightblue",
                   originalWorkTimes: "darkgrey",
                 }}
-                columnIndices={{ calendar: 1, neverWorkTimes: 0, alwaysWorkTimes: 0, originalWorkTimes: 2 }}
+                columnIndices={{ calendar: 0, neverWorkTimes: 1, alwaysWorkTimes: 1, originalWorkTimes: 2 }}
               ></WeekView>
             </Box>
           </Collapse>
@@ -180,12 +188,12 @@ export const ResourcesTable: FC<ResourcesTableProps> = (props) => {
         <TableHead>
           <TableRow>
             <TableCell />
+            <TableCell />
             {COLUMN_DEFINITIONS.map((column) => (
-              <TableCell key={column.id} align="left">
+              <TableCell key={column.id} align="left" style={{ minWidth: column.minWidth }}>
                 {column.label}
               </TableCell>
             ))}
-            <TableCell />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -198,5 +206,8 @@ export const ResourcesTable: FC<ResourcesTableProps> = (props) => {
   );
 };
 
-const areTasksDifferent = (resource: EnhancedResource, initialResource: EnhancedResource) =>
-  resource.tasks.join() !== initialResource.tasks.join();
+const areTasksDifferent = (resource: EnhancedResource, initialResource?: EnhancedResource | null) =>
+  resource.tasks.join() !== (initialResource?.tasks ?? []).join();
+
+const areShiftsDifferent = (resource: EnhancedResource, initialResource?: EnhancedResource | null) =>
+  JSON.stringify(resource.shifts[0]) !== JSON.stringify(initialResource?.shifts[0]);

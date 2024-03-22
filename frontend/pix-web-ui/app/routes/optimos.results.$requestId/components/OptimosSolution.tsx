@@ -10,10 +10,12 @@ import { ResourcesTable } from "./ResourcesTable";
 interface OptimosSolutionProps {
   solution: Solution;
   finalMetrics?: FinalSolutionMetric;
+  initialSolution?: Solution;
 }
 
-export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, solution }) => {
+export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, solution, initialSolution }) => {
   const info = solution.solution_info;
+
   const resources = Object.values(info.pools_info.pools);
 
   const link2DownloadRef = useRef<HTMLAnchorElement>(null);
@@ -59,6 +61,15 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
       URL.revokeObjectURL(fileDownloadConsParams);
     }
   }, [fileDownloadConsParams]);
+
+  const resourceUtilization =
+    Object.values(info.pool_utilization).reduce((acc, ut) => acc + ut, 0) / Object.keys(info.pool_utilization).length;
+
+  const initialResourceUtilization =
+    Object.values(initialSolution ? initialSolution.solution_info.pool_utilization : {}).reduce(
+      (acc, ut) => acc + ut,
+      0
+    ) / Object.keys(info.pool_utilization).length;
 
   return (
     <Paper elevation={5} sx={{ m: 3, p: 3, minHeight: "10vw" }}>
@@ -152,6 +163,13 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
               ) : (
                 <i style={{ color: "red", fontSize: "0.8em" }}> ({">"} avg.)</i>
               ))}
+            {initialSolution && initialSolution.solution_info.total_pool_cost !== info.total_pool_cost && (
+              <i style={{ fontSize: "0.8em" }}>
+                {" "}
+                ({formatPercentage(info.total_pool_cost / initialSolution.solution_info.total_pool_cost)} of initial
+                solution)
+              </i>
+            )}
           </Typography>
           <Typography align={"left"}>
             {formatSeconds(info.mean_process_cycle_time)}
@@ -161,11 +179,26 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
               ) : (
                 <i style={{ color: "red", fontSize: "0.8em" }}> ({">"} avg.)</i>
               ))}
+            {initialSolution &&
+              initialSolution.solution_info.mean_process_cycle_time !== info.mean_process_cycle_time && (
+                <i style={{ fontSize: "0.8em" }}>
+                  {" "}
+                  (
+                  {formatPercentage(
+                    info.mean_process_cycle_time / initialSolution.solution_info.mean_process_cycle_time
+                  )}{" "}
+                  of initial solution)
+                </i>
+              )}
           </Typography>
           <Typography align={"left"}>
-            {formatPercentage(
-              Object.values(info.pool_utilization).reduce((acc, ut) => acc + ut, 0) /
-                Object.keys(info.pool_utilization).length
+            {formatPercentage(resourceUtilization)}
+            {initialSolution && initialResourceUtilization !== resourceUtilization && (
+              <i style={{ fontSize: "0.8em" }}>
+                {" "}
+                ({formatPercentage(resourceUtilization - initialResourceUtilization)}{" "}
+                {resourceUtilization > initialResourceUtilization ? "more" : "less"} than initial solution)
+              </i>
             )}
           </Typography>
         </Grid>

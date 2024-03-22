@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { Solution } from "~/shared/optimos_json_type";
+import { EnhancedResource, Solution } from "~/shared/optimos_json_type";
 
 export const InitialSolutionContext = createContext<Solution | undefined>(undefined);
 
@@ -11,12 +11,13 @@ export const useInitialSolution = () => {
   return initialSolution;
 };
 
-export const useInitialResource = (resourceId: string) => {
+export const useInitialResource = (resourceId?: string) => {
   const initialSolution = useInitialSolution();
+  if (!resourceId) return null;
   const resource = initialSolution.solution_info.pools_info.pools[resourceId];
   return resource;
 };
-export const useInitialResourceStats = (resourceId: string) => {
+export const useInitialResourceStats = (resourceId?: string) => {
   const initialSolution = useInitialSolution();
   const {
     pool_time,
@@ -25,6 +26,7 @@ export const useInitialResourceStats = (resourceId: string) => {
     available_time,
     pools_info: { task_allocations, task_pools },
   } = initialSolution.solution_info;
+  if (!resourceId) return null;
   return {
     total_worktime: pool_time[resourceId],
     total_cost: pool_cost[resourceId],
@@ -36,21 +38,20 @@ export const useInitialResourceStats = (resourceId: string) => {
   };
 };
 
-export const useInitialEnhancedResource = (resourceId: string) => {
+export const useInitialEnhancedResource = (resourceId?: string): EnhancedResource | null => {
   const initialResource = useInitialResource(resourceId);
   const initialResourceStats = useInitialResourceStats(resourceId);
-  const initialEnhancedResource = { ...initialResource, ...initialResourceStats };
+  if (!resourceId) return null;
+  const initialEnhancedResource = { ...initialResource!, ...initialResourceStats! };
   return initialEnhancedResource;
 };
 
 export const getBaseName = (resourceName: string) => resourceName.replace(/_COPY.*$/, "");
 
-export const useInitialEnhancedResourceByName = (resourceName: string) => {
+export const useInitialEnhancedResourceByName = (resourceName: string): EnhancedResource | null => {
   const initialSolution = useInitialSolution();
   const pools = initialSolution.solution_info.pools_info.pools;
   const resourceId = Object.keys(pools).find((id) => pools[id].resource_name === getBaseName(resourceName));
-  if (resourceId === undefined) {
-    throw new Error(`Resource with name ${resourceName} not found`);
-  }
+  console.log("Looking for resource with name", resourceName, "found id", resourceId, "in pools", pools);
   return useInitialEnhancedResource(resourceId);
 };

@@ -1,11 +1,12 @@
 import { Card, Checkbox, FormControlLabel, Grid, MenuItem, Switch, TextField, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
 import { Controller, useFieldArray, type UseFormReturn } from "react-hook-form";
-import { type NeverWorkMask, type ConsJsonData } from "../../JsonData";
+
 import { REQUIRED_ERROR_MSG, SHOULD_BE_GREATER_0_MSG } from "../validationMessages";
 import { ConstraintMaskInput } from "./ConstraintMaskInput";
+import type { ConsParams, ConstraintWorkMask } from "~/shared/optimos_json_type";
 
-const daysOfWeek: Array<keyof NeverWorkMask> = [
+const daysOfWeek: Array<keyof ConstraintWorkMask> = [
   "monday",
   "tuesday",
   "wednesday",
@@ -16,7 +17,7 @@ const daysOfWeek: Array<keyof NeverWorkMask> = [
 ];
 
 interface ResourceCalendarsProps {
-  formState: UseFormReturn<ConsJsonData, object>;
+  formState: UseFormReturn<ConsParams, object>;
   setErrorMessage: (value: string) => void;
 }
 
