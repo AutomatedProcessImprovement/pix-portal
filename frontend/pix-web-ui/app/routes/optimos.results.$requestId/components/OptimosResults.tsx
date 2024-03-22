@@ -79,6 +79,9 @@ const OptimizationResults = (props: SimulationResultsProps) => {
   const final_metrics = report.final_solution_metrics?.[0];
   const initial_solution = report.initial_solution;
 
+  console.log("Initial Solution", initial_solution);
+  console.log("This Solution", report.final_solutions);
+
   return (
     <InitialSolutionContext.Provider value={initial_solution}>
       <div style={{ height: "50px" }} />

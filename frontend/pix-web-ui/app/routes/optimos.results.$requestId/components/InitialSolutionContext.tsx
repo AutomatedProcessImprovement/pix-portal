@@ -35,6 +35,7 @@ export const useInitialResourceStats = (resourceId?: string) => {
     tasks: task_allocations[resourceId].map((taskIndex) => {
       return Object.keys(task_pools)[taskIndex];
     }),
+    isDuplicate: false,
   };
 };
 
@@ -52,6 +53,11 @@ export const useInitialEnhancedResourceByName = (resourceName: string): Enhanced
   const initialSolution = useInitialSolution();
   const pools = initialSolution.solution_info.pools_info.pools;
   const resourceId = Object.keys(pools).find((id) => pools[id].resource_name === getBaseName(resourceName));
-  console.log("Looking for resource with name", resourceName, "found id", resourceId, "in pools", pools);
+
   return useInitialEnhancedResource(resourceId);
+};
+
+export const useIsInitialSolutions = (poolsInfoId: string) => {
+  const initialSolution = useInitialSolution();
+  return initialSolution.solution_info.pools_info.id === poolsInfoId;
 };

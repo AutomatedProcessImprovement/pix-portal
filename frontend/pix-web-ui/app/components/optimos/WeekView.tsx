@@ -1,24 +1,24 @@
-import React, { FC, useState } from "react";
+import React, { CSSProperties, FC, useState } from "react";
 import { Box, Grid, Typography, Divider } from "@mui/material";
 import Selecto from "react-selecto";
 import { ConstraintWorkMask, Resource, Shift, TimePeriod } from "~/shared/optimos_json_type";
 
 export type WeekViewProps = {
   entries: Record<string, TimePeriod[] | Shift | ConstraintWorkMask>;
-  columnColors: Record<string, string>;
+  columnStyles: Record<string, CSSProperties>;
   columnIndices?: Record<string, number>;
 };
 
 export type InternalEntry = {
   day: string;
   hour: number;
-  color?: string;
+  style?: CSSProperties;
   column: number;
 };
 
 const convertToInternalEntries = (
   entries: WeekViewProps["entries"],
-  columnColors: WeekViewProps["columnColors"],
+  columnStyles: WeekViewProps["columnStyles"],
   columns: WeekViewProps["columnIndices"]
 ) => {
   const internalEntries: InternalEntry[] = [];
@@ -29,7 +29,7 @@ const convertToInternalEntries = (
         const from = parseInt(timePeriod.beginTime.split(":")[0]);
         const to = parseInt(timePeriod.endTime.split(":")[0]);
         for (let hour = from; hour < to; hour++) {
-          internalEntries.push({ day, hour, color: columnColors[name], column: columns?.[name] ?? 0 });
+          internalEntries.push({ day, hour, style: columnStyles[name], column: columns?.[name] ?? 0 });
         }
       }
     } else {
@@ -40,7 +40,7 @@ const convertToInternalEntries = (
           .split("")
           .forEach((value: string, index: number) => {
             if (value === "1") {
-              internalEntries.push({ day, hour: index, color: columnColors[name], column: columns?.[name] ?? 0 });
+              internalEntries.push({ day, hour: index, style: columnStyles[name], column: columns?.[name] ?? 0 });
             }
           });
       }
@@ -79,7 +79,7 @@ export const WeekView: FC<WeekViewProps> = (props) => {
     setSelectedCells(selected);
   };
 
-  const internalEntries = convertToInternalEntries(props.entries, props.columnColors, props.columnIndices);
+  const internalEntries = convertToInternalEntries(props.entries, props.columnStyles, props.columnIndices);
 
   return (
     <Box>
@@ -119,17 +119,11 @@ export const WeekView: FC<WeekViewProps> = (props) => {
                         entry.column === columnIndex
                     );
                     const hasEvent = entry !== undefined;
-                    const eventColor = entry?.color;
+
                     return (
                       <Grid item key={`event-${day}-${hourIndex}-${columnIndex}`} style={{ flex: hasEvent ? 1 : 0 }}>
                         <Box
-                          bgcolor={
-                            hasEvent
-                              ? eventColor
-                              : selectedCells.includes(`${dayIndex}-${hourIndex}`)
-                              ? "#c0c0c0"
-                              : "transparent"
-                          }
+                          style={hasEvent ? entry.style : {}}
                           borderBottom={1}
                           borderColor="grey.300"
                           height={20}

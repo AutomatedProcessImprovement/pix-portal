@@ -87,17 +87,10 @@ export interface ConstraintWorkMask {
   saturday: number;
   sunday: number;
 }
-export interface Shift {
-  monday: number;
-  tuesday: number;
-  wednesday: number;
-  thursday: number;
-  friday: number;
-  saturday: number;
-  sunday: number;
+export type Shift = ConstraintWorkMask & {
   total?: number;
   resource_id?: string;
-}
+};
 
 export interface DailyStartTimes {
   monday?: string;
@@ -223,6 +216,7 @@ export type ResourceStats = {
   utilization: number;
   available_time: number;
   tasks: string[];
+  is_duplicate: boolean;
 };
 
 export type EnhancedResource = Resource & ResourceStats;

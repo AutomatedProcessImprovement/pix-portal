@@ -14,10 +14,10 @@ import { parseDate } from "~/shared/utils";
 import { AssetCard } from "./AssetCard";
 import { useAuthRefreshRequest } from "../hooks/useAutoRefreshRequest";
 
-export function ProcessingRequestCard({ request }: { request: ProcessingRequest }) {
+export function ProcessingRequestCard({ request: initialRequest }: { request: ProcessingRequest }) {
   // polling of running requests to update the status
 
-  const request_ = useAuthRefreshRequest(request);
+  const request_ = useAuthRefreshRequest(initialRequest);
 
   function getDuration(start: string, end: string) {
     const startDate = new Date(start);
@@ -98,7 +98,7 @@ export function ProcessingRequestCard({ request }: { request: ProcessingRequest 
         )}
       {request_.type === ProcessingRequestType.SIMULATION_MODEL_OPTIMIZATION_OPTIMOS &&
         request_.status === ProcessingRequestStatus.RUNNING &&
-        !!request.output_assets.length && (
+        !!request_.output_assets.length && (
           <Link to={`/optimos/results/${request_.id}`} target="_blank" className="shrink w-fit">
             Show (live) results
           </Link>

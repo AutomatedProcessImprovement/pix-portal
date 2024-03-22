@@ -22,15 +22,17 @@ import {
   FiberNew as FiberNewIcon,
 } from "@mui/icons-material";
 import type {
+  ConstraintWorkMask,
   EnhancedResource,
   Resource,
   ResourceListItem,
   ResourceStats,
+  Shift,
   SolutionInfo,
 } from "~/shared/optimos_json_type";
 import { formatCurrency, formatHourlyRate, formatHours, formatPercentage, formatSeconds } from "~/shared/num_helper";
 import { WeekView } from "~/components/optimos/WeekView";
-import { useInitialEnhancedResource, useInitialEnhancedResourceByName } from "./InitialSolutionContext";
+import { getBaseName, useInitialEnhancedResource, useInitialEnhancedResourceByName } from "./InitialSolutionContext";
 
 const COLUMN_DEFINITIONS: {
   id: keyof EnhancedResource;
@@ -55,6 +57,34 @@ type ResourceRowProps = {
   resource: EnhancedResource;
 };
 
+const getShifts = (originalShift?: Shift, currentShift?: Shift) => {
+  if (!originalShift || !currentShift) return undefined;
+  const onlyInOriginalShift: ConstraintWorkMask = {
+    ...originalShift,
+  };
+  const onlyInCurrent: ConstraintWorkMask = {
+    ...currentShift,
+  };
+  const unchangedShift: ConstraintWorkMask = {
+    ...currentShift,
+  };
+  const DAYS: (keyof ConstraintWorkMask)[] = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+  ];
+  for (const day of DAYS) {
+    onlyInOriginalShift[day] = (originalShift[day] as number) & ~(currentShift[day] as number);
+    onlyInCurrent[day] = (currentShift[day] as number) & ~(originalShift[day] as number);
+    unchangedShift[day] = (currentShift[day] as number) & (originalShift[day] as number);
+  }
+  return { onlyInOriginalShift, onlyInCurrent, unchangedShift };
+};
+
 const ResourceRow: FC<ResourceRowProps> = (props) => {
   const { resource } = props;
   const [open, setOpen] = useState(false);
@@ -64,15 +94,10 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
   const neverWorkTimes = resource.never_work_masks;
   const alwaysWorkTimes = resource.always_work_masks;
   const resource_calendar_entries = {
-    calendar: resource.shifts[0],
+    ...getShifts(initialResource?.shifts[0], resource.shifts[0]),
     neverWorkTimes: neverWorkTimes,
     alwaysWorkTimes: alwaysWorkTimes,
-    originalWorkTimes: initialResource?.shifts?.[0] ?? [],
   };
-
-  const areTimesDifferent =
-    JSON.stringify(resource_calendar_entries["calendar"]) !=
-    JSON.stringify(resource_calendar_entries["originalWorkTimes"]);
 
   return (
     <React.Fragment>
@@ -84,6 +109,7 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
         </TableCell>
         <TableCell>
           {!initialResource && <Chip label="New" color="success" variant="outlined" />}
+          {resource.is_duplicate && <Chip label="Duplicate" color="success" variant="outlined" />}
           {areTasksDifferent(resource, initialResource) && (
             <Chip icon={<FiberNewIcon />} label="Tasks" color="warning" variant="outlined" />
           )}
@@ -129,23 +155,43 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
                 Calendar
               </Typography>
               <Typography variant="caption" fontSize={12} sx={{ marginTop: 2 }}>
-                <Grid container xs={6} justifyContent={"space-evenly"}>
+                <Grid item xs={9} justifyContent={"space-evenly"}>
                   <strong>Legend:</strong>
-                  <span style={{ color: "lightgray" }}>Actual Working Time</span>
-                  <span style={{ color: "lightcoral" }}>Never Work Times</span>
-                  <span style={{ color: "lightblue" }}>Always Work Times</span>
-                  <span style={{ color: "darkgrey" }}>Original Work Times</span>
+                  <span style={{ color: "darkgrey" }}>Unchanged Working Time</span>
+                  <span style={{ color: "rgb(240,128,128)" }}>Never Work Time</span>
+                  <span style={{ color: "lightblue" }}>Always Work Time</span>
+                  <span style={{ color: "rgb(232,232,232)" }}>Removed Work Time</span>
+                  <span style={{ color: "rgb(34,139,34)" }}>Added Work Time</span>
                 </Grid>
               </Typography>
               <WeekView
                 entries={resource_calendar_entries}
-                columnColors={{
-                  calendar: "lightgray",
-                  neverWorkTimes: "lightcoral",
-                  alwaysWorkTimes: "lightblue",
-                  originalWorkTimes: "darkgrey",
+                columnStyles={{
+                  unchangedShift: { backgroundColor: "darkgrey" },
+                  neverWorkTimes: {
+                    backgroundColor: "rgb(240,128,128,0.5)",
+                    borderColor: "rgb(240,128,128,1)",
+                    borderWidth: 1,
+                    borderStyle: "dashed",
+                  },
+                  alwaysWorkTimes: { backgroundColor: "lightblue" },
+                  onlyInOriginalShift: {
+                    backgroundColor: "rgb(232,232,232)",
+                    borderColor: "rgb(196,196,196)",
+                    borderWidth: 1,
+                    borderStyle: "dashed",
+                  },
+                  onlyInCurrent: {
+                    backgroundColor: "rgb(34,139,34, 0.7)",
+                  },
                 }}
-                columnIndices={{ calendar: 0, neverWorkTimes: 1, alwaysWorkTimes: 1, originalWorkTimes: 2 }}
+                columnIndices={{
+                  unchangedShift: 0,
+                  neverWorkTimes: 1,
+                  alwaysWorkTimes: 1,
+                  onlyInOriginalShift: 2,
+                  onlyInCurrent: 2,
+                }}
               ></WeekView>
             </Box>
           </Collapse>
@@ -180,6 +226,9 @@ export const ResourcesTable: FC<ResourcesTableProps> = (props) => {
     tasks: task_allocations[resource.id].map((taskIndex) => {
       return Object.keys(task_pools)[taskIndex];
     }),
+    is_duplicate:
+      getBaseName(resource.resource_name) !== resource.resource_name &&
+      resources.filter((r) => getBaseName(r.resource_name) === getBaseName(resource.resource_name)).length > 1,
   });
 
   return (
@@ -210,4 +259,5 @@ const areTasksDifferent = (resource: EnhancedResource, initialResource?: Enhance
   resource.tasks.join() !== (initialResource?.tasks ?? []).join();
 
 const areShiftsDifferent = (resource: EnhancedResource, initialResource?: EnhancedResource | null) =>
-  JSON.stringify(resource.shifts[0]) !== JSON.stringify(initialResource?.shifts[0]);
+  JSON.stringify({ ...resource.shifts[0], resource_id: "" }) !==
+  JSON.stringify({ ...initialResource?.shifts[0], resource_id: "" });
