@@ -77,6 +77,7 @@ async def get_processing_requests(
             if with_output_assets:
                 for processing_request in processing_requests:
                     if len(processing_request.output_assets_ids) > 0:
+
                         processing_request.output_assets = await asset_service.get_assets_by_ids(
                             processing_request.output_assets_ids
                         )
@@ -130,14 +131,17 @@ async def create_processing_request(
 @router.get("/{processing_request_id}", response_model=ProcessingRequestOut, tags=["processing_requests"])
 async def get_processing_request(
     processing_request_id: uuid.UUID,
+    with_output_assets: Optional[bool] = False,
     processing_request_service: ProcessingRequestService = Depends(get_processing_request_service),
     user: User = Depends(current_user),
+    asset_service: AssetService = Depends(get_asset_service),
 ) -> Any:
     """
     Get a processing request by its id.
     """
     try:
         processing_request = await processing_request_service.get_processing_request(processing_request_id)
+        processing_request.output_assets = await asset_service.get_assets_by_ids(processing_request.output_assets_ids)
     except ProcessingRequestNotFound:
         raise ProcessingRequestNotFoundHTTP()
     _raise_for_no_access_to_processing_request(processing_request, user)
