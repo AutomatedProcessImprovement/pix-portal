@@ -31,7 +31,7 @@ export enum ProcessingRequestStatus {
 }
 
 export async function getProcessingRequest(id: string, token: string) {
-  const url = `processing-requests/${id}`;
+  const url = `processing-requests/${id}?with_output_assets=true`;
   const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
   const response = await fetch(u, {
     headers: {
