@@ -25,6 +25,7 @@ export const useAuthRefreshRequest = (initialRequest?: ProcessingRequest) => {
   useEffect(() => {
     if (!user?.token || !request) return;
     if (terminalStatuses.includes(request.status)) return;
+
     // set up polling for newly created or running processing requests
     const interval = setInterval(async () => {
       // fetch the processing request
@@ -34,7 +35,7 @@ export const useAuthRefreshRequest = (initialRequest?: ProcessingRequest) => {
       } catch (e: any) {
         throw new Error(e);
       }
-      console.log(requestUpdated);
+
       // update on change
       if (request && requestUpdated.status !== request.status) {
         showToast(requestUpdated);
@@ -43,8 +44,6 @@ export const useAuthRefreshRequest = (initialRequest?: ProcessingRequest) => {
 
       // remove polling when done processing
       if (terminalStatuses.includes(requestUpdated.status)) clearInterval(interval);
-
-      return () => clearInterval(interval);
     }, 5000);
     return () => clearInterval(interval);
   }, [request, user?.token]);

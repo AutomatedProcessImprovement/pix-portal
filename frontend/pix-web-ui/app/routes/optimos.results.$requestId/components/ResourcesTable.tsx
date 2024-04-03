@@ -20,6 +20,7 @@ import {
   KeyboardArrowDown as KeyboardArrowDownIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,
   FiberNew as FiberNewIcon,
+  ContentCopy as ContentCopyIcon,
 } from "@mui/icons-material";
 import type {
   ConstraintWorkMask,
@@ -55,6 +56,7 @@ const COLUMN_DEFINITIONS: {
 
 type ResourceRowProps = {
   resource: EnhancedResource;
+  isDeleted?: boolean;
 };
 
 const getShifts = (originalShift?: Shift, currentShift?: Shift) => {
@@ -86,7 +88,7 @@ const getShifts = (originalShift?: Shift, currentShift?: Shift) => {
 };
 
 const ResourceRow: FC<ResourceRowProps> = (props) => {
-  const { resource } = props;
+  const { resource, isDeleted = false } = props;
   const [open, setOpen] = useState(false);
 
   const initialResource = useInitialEnhancedResourceByName(resource.resource_name);
@@ -99,6 +101,9 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
     alwaysWorkTimes: alwaysWorkTimes,
   };
 
+  const { newTasks, oldTasks, removedTasks } = splitTasks(resource, initialResource);
+  const areTasksDifferent = !isDeleted && (newTasks.length > 0 || (removedTasks?.length ?? 0) > 0);
+
   return (
     <React.Fragment>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
@@ -108,12 +113,11 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
           </IconButton>
         </TableCell>
         <TableCell>
+          {isDeleted && <Chip label="Deleted" color="error" variant="outlined" />}
           {!initialResource && <Chip label="New" color="success" variant="outlined" />}
-          {resource.is_duplicate && <Chip label="Duplicate" color="success" variant="outlined" />}
-          {areTasksDifferent(resource, initialResource) && (
-            <Chip icon={<FiberNewIcon />} label="Tasks" color="warning" variant="outlined" />
-          )}
-          {areShiftsDifferent(resource, initialResource) && (
+          {resource.is_duplicate && <Chip icon={<ContentCopyIcon />} label="New" color="success" variant="outlined" />}
+          {areTasksDifferent && <Chip icon={<FiberNewIcon />} label="Tasks" color="warning" variant="outlined" />}
+          {!isDeleted && areShiftsDifferent(resource, initialResource) && (
             <Chip icon={<FiberNewIcon />} label="Shifts" color="warning" variant="outlined" />
           )}
         </TableCell>
@@ -122,6 +126,8 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
             {formatFn(resource[id])}
             <br />
             {lowerIsBetter !== undefined &&
+              !isDeleted &&
+              !resource.is_duplicate &&
               !!initialResource?.[id] &&
               initialResource[id] !== resource[id] &&
               (initialResource[id] < resource[id] ? (
@@ -144,25 +150,25 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
                 Assigned Tasks
               </Typography>
               <Grid container spacing={1}>
-                {resource.tasks.map((name) => (
+                {oldTasks.map((name) => (
                   <Grid item key={name}>
-                    <Chip label={name} variant="outlined" color="primary" />
+                    <Chip label={name} variant="outlined" style={{ color: "grey" }} />
+                  </Grid>
+                ))}
+                {newTasks.map((name) => (
+                  <Grid item key={name}>
+                    <Chip label={name} variant="outlined" color="success" />
+                  </Grid>
+                ))}
+                {removedTasks?.map((name) => (
+                  <Grid item key={name}>
+                    <Chip label={name} variant="outlined" color="error" />
                   </Grid>
                 ))}
               </Grid>
               <br />
               <Typography variant="h6" gutterBottom component="div">
                 Calendar
-              </Typography>
-              <Typography variant="caption" fontSize={12} sx={{ marginTop: 2 }}>
-                <Grid item xs={9} justifyContent={"space-evenly"}>
-                  <strong>Legend:</strong>
-                  <span style={{ color: "darkgrey" }}>Unchanged Working Time</span>
-                  <span style={{ color: "rgb(240,128,128)" }}>Never Work Time</span>
-                  <span style={{ color: "lightblue" }}>Always Work Time</span>
-                  <span style={{ color: "rgb(232,232,232)" }}>Removed Work Time</span>
-                  <span style={{ color: "rgb(34,139,34)" }}>Added Work Time</span>
-                </Grid>
               </Typography>
               <WeekView
                 entries={resource_calendar_entries}
@@ -176,7 +182,7 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
                   },
                   alwaysWorkTimes: { backgroundColor: "lightblue" },
                   onlyInOriginalShift: {
-                    backgroundColor: "rgb(232,232,232)",
+                    backgroundColor: "rgb(248,248,248)",
                     borderColor: "rgb(196,196,196)",
                     borderWidth: 1,
                     borderStyle: "dashed",
@@ -192,7 +198,19 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
                   onlyInOriginalShift: 2,
                   onlyInCurrent: 2,
                 }}
-              ></WeekView>
+              />
+              <Typography variant="caption" fontSize={12} sx={{ marginTop: 2 }}>
+                <Grid item xs={12}>
+                  <Grid container justifyContent={"space-between"} maxWidth={"50vw"}>
+                    <strong>Legend:</strong>
+                    <span style={{ color: "rgb(240,128,128)" }}>Never Work Time</span>
+                    <span style={{ color: "lightblue" }}>Always Work Time</span>
+                    <span style={{ color: "darkgrey" }}>Unchanged Working Time</span>
+                    <span style={{ color: "rgb(232,232,232)" }}>Removed Work Time</span>
+                    <span style={{ color: "rgb(34,139,34)" }}>Added Work Time</span>
+                  </Grid>
+                </Grid>
+              </Typography>
             </Box>
           </Collapse>
         </TableCell>
@@ -203,12 +221,14 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
 
 type ResourcesTableProps = {
   resources: Resource[];
+  deletedResources: Resource[];
   solutionInfo: SolutionInfo;
 };
 
 export const ResourcesTable: FC<ResourcesTableProps> = (props) => {
   const {
     resources,
+    deletedResources,
     solutionInfo: {
       pool_utilization,
       pool_time,
@@ -223,9 +243,10 @@ export const ResourcesTable: FC<ResourcesTableProps> = (props) => {
     total_cost: pool_cost[resource.id],
     utilization: pool_utilization[resource.id],
     available_time: available_time[resource.id],
-    tasks: task_allocations[resource.id].map((taskIndex) => {
-      return Object.keys(task_pools)[taskIndex];
-    }),
+    tasks:
+      task_allocations[resource.id]?.map((taskIndex) => {
+        return Object.keys(task_pools)[taskIndex];
+      }) ?? [],
     is_duplicate:
       getBaseName(resource.resource_name) !== resource.resource_name &&
       resources.filter((r) => getBaseName(r.resource_name) === getBaseName(resource.resource_name)).length > 1,
@@ -249,15 +270,22 @@ export const ResourcesTable: FC<ResourcesTableProps> = (props) => {
           {resources.map((row) => (
             <ResourceRow key={row.id} resource={resourceToEnhancedResource(row)} />
           ))}
+          {deletedResources.map((row) => (
+            <ResourceRow key={row.id} resource={resourceToEnhancedResource(row)} isDeleted />
+          ))}
         </TableBody>
       </Table>
     </TableContainer>
   );
 };
 
-const areTasksDifferent = (resource: EnhancedResource, initialResource?: EnhancedResource | null) =>
-  resource.tasks.join() !== (initialResource?.tasks ?? []).join();
-
 const areShiftsDifferent = (resource: EnhancedResource, initialResource?: EnhancedResource | null) =>
   JSON.stringify({ ...resource.shifts[0], resource_id: "" }) !==
   JSON.stringify({ ...initialResource?.shifts[0], resource_id: "" });
+
+const splitTasks = (resource: EnhancedResource, initialResource?: EnhancedResource | null) => {
+  const newTasks = resource.tasks.filter((task) => !initialResource?.tasks.includes(task));
+  const removedTasks = initialResource?.tasks.filter((task) => !resource.tasks.includes(task));
+  const oldTasks = resource.tasks.filter((task) => initialResource?.tasks.includes(task));
+  return { newTasks, oldTasks, removedTasks };
+};

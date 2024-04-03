@@ -11,16 +11,19 @@ import { InitialSolutionContext } from "./InitialSolutionContext";
 import { useAuthRefreshRequest } from "~/routes/projects.$projectId.$processingType/hooks/useAutoRefreshRequest";
 import { FileType, getFileContent } from "~/services/files";
 import { UserContext } from "~/routes/contexts";
+import type { ProcessingRequest } from "~/services/processing_requests";
 
 interface SimulationResultsProps {
   report: FullOutputJson;
+  processingRequest: ProcessingRequest;
 }
 
 const OptimizationResults = (props: SimulationResultsProps) => {
-  const { report: reportJson } = props;
+  const { report: reportJson, processingRequest: initialRequest } = props;
   const [report, setReport] = useState<FullOutputJson | null>(reportJson);
 
-  const request = useAuthRefreshRequest();
+  const request = useAuthRefreshRequest(initialRequest);
+
   const user = React.useContext(UserContext);
   useEffect(() => {
     if (!request || !user) return;
@@ -79,9 +82,6 @@ const OptimizationResults = (props: SimulationResultsProps) => {
   const final_metrics = report.final_solution_metrics?.[0];
   const initial_solution = report.initial_solution;
 
-  console.log("Initial Solution", initial_solution);
-  console.log("This Solution", report.final_solutions);
-
   return (
     <InitialSolutionContext.Provider value={initial_solution}>
       <div style={{ height: "50px" }} />
@@ -97,14 +97,14 @@ const OptimizationResults = (props: SimulationResultsProps) => {
         <Grid item xs={8}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <h1 className="text-3xl font-semibold">Your Simulation Report</h1>
+              <h1 className="text-3xl font-semibold">Your Optimization Report</h1>
             </Grid>
             <Grid item xs={12}>
               <Paper elevation={5} sx={{ p: 3, minHeight: "10vw" }}>
                 <Grid container>
                   <Grid item xs={8}>
                     <Typography variant="h5" align="left">
-                      {report?.name}
+                      {report.name}
                     </Typography>
                   </Grid>
                   <Grid item xs={4} justifyContent="flexEnd" textAlign={"right"}>

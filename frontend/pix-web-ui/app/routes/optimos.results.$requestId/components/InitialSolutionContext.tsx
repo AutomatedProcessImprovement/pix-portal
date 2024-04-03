@@ -32,10 +32,11 @@ export const useInitialResourceStats = (resourceId?: string) => {
     total_cost: pool_cost[resourceId],
     utilization: pool_utilization[resourceId],
     available_time: available_time[resourceId],
-    tasks: task_allocations[resourceId].map((taskIndex) => {
-      return Object.keys(task_pools)[taskIndex];
-    }),
-    isDuplicate: false,
+    tasks:
+      task_allocations[resourceId]?.map((taskIndex) => {
+        return Object.keys(task_pools)[taskIndex];
+      }) ?? [],
+    is_duplicate: false,
   };
 };
 

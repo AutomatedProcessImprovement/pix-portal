@@ -1,10 +1,19 @@
-import { Button, ButtonGroup, Grid, Paper, Typography } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Button,
+  ButtonGroup,
+  Grid,
+  Paper,
+  Typography,
+} from "@mui/material";
 import type { FC } from "react";
 import { useEffect, useRef, useState } from "react";
 import { WeekView } from "~/components/optimos/WeekView";
 import { formatCurrency, formatSeconds, formatPercentage } from "~/shared/num_helper";
 import type { FinalSolutionMetric, Solution } from "~/shared/optimos_json_type";
-import { CloudDownload as CloudDownloadIcon } from "@mui/icons-material";
+import { CloudDownload as CloudDownloadIcon, ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
 import { ResourcesTable } from "./ResourcesTable";
 
 interface OptimosSolutionProps {
@@ -71,12 +80,18 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
       0
     ) / Object.keys(info.pool_utilization).length;
 
+  const deletedResources = !initialSolution
+    ? []
+    : Object.values(initialSolution.solution_info.pools_info.pools).filter(
+        (pool) => !Object.keys(info.pools_info.pools).includes(pool.id)
+      );
+
   return (
     <Paper elevation={5} sx={{ m: 3, p: 3, minHeight: "10vw" }}>
       <Grid container alignItems={"center"} justifyContent={"center"} height={"4em"}>
         <Grid item xs={8}>
-          <Typography variant="h6" align="left">
-            Variant #{info.pools_info.id}
+          <Typography variant="h6" align="left" textTransform={"capitalize"}>
+            {solution.name.replaceAll("_", " ")}
           </Typography>
         </Grid>
         <Grid item xs={4}>
@@ -122,95 +137,107 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
           </Grid>
         </Grid>
       </Grid>
-      <Grid
-        container
+      <Accordion
+        defaultExpanded
         sx={{
           paddingTop: 1,
         }}
       >
-        <Grid item xs={5}>
-          <Typography
-            sx={{
-              fontWeight: "bold",
-            }}
-            align={"left"}
-          >
-            Median cost
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h6" align="left">
+            Details
           </Typography>
-          <Typography
-            sx={{
-              fontWeight: "bold",
-            }}
-            align={"left"}
-          >
-            Median time
+        </AccordionSummary>
+        <AccordionDetails>
+          <Grid container>
+            <Grid item xs={5}>
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                }}
+                align={"left"}
+              >
+                Median cost
+              </Typography>
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                }}
+                align={"left"}
+              >
+                Median time
+              </Typography>
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                }}
+                align={"left"}
+              >
+                Avg. Resource Utilization
+              </Typography>
+            </Grid>
+            <Grid item xs={7}>
+              <Typography align={"left"}>
+                {formatCurrency(info.total_pool_cost)}
+                {finalMetrics &&
+                  (finalMetrics.ave_cost > info.total_pool_cost ? (
+                    <i style={{ color: "green", fontSize: "0.8em" }}> (≤ avg.)</i>
+                  ) : (
+                    <i style={{ color: "red", fontSize: "0.8em" }}> ({">"} avg.)</i>
+                  ))}
+                {initialSolution && initialSolution.solution_info.total_pool_cost !== info.total_pool_cost && (
+                  <i style={{ fontSize: "0.8em" }}>
+                    {" "}
+                    ({formatPercentage(info.total_pool_cost / initialSolution.solution_info.total_pool_cost)} of initial
+                    solution)
+                  </i>
+                )}
+              </Typography>
+              <Typography align={"left"}>
+                {formatSeconds(info.mean_process_cycle_time)}
+                {finalMetrics &&
+                  (finalMetrics.ave_time > info.mean_process_cycle_time ? (
+                    <i style={{ color: "green", fontSize: "0.8em" }}> (≤ avg.)</i>
+                  ) : (
+                    <i style={{ color: "red", fontSize: "0.8em" }}> ({">"} avg.)</i>
+                  ))}
+                {initialSolution &&
+                  initialSolution.solution_info.mean_process_cycle_time !== info.mean_process_cycle_time && (
+                    <i style={{ fontSize: "0.8em" }}>
+                      {" "}
+                      (
+                      {formatPercentage(
+                        info.mean_process_cycle_time / initialSolution.solution_info.mean_process_cycle_time
+                      )}{" "}
+                      of initial solution)
+                    </i>
+                  )}
+              </Typography>
+              <Typography align={"left"}>
+                {formatPercentage(resourceUtilization)}
+                {initialSolution && initialResourceUtilization !== resourceUtilization && (
+                  <i style={{ fontSize: "0.8em" }}>
+                    {" "}
+                    ({formatPercentage(resourceUtilization - initialResourceUtilization)}{" "}
+                    {resourceUtilization > initialResourceUtilization ? "more" : "less"} than initial solution)
+                  </i>
+                )}
+              </Typography>
+            </Grid>
+          </Grid>
+        </AccordionDetails>
+      </Accordion>
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h6" align="left">
+            Resources
           </Typography>
-          <Typography
-            sx={{
-              fontWeight: "bold",
-            }}
-            align={"left"}
-          >
-            Avg. Resource Utilization
-          </Typography>
-        </Grid>
-        <Grid item xs={7}>
-          <Typography align={"left"}>
-            {formatCurrency(info.total_pool_cost)}
-            {finalMetrics &&
-              (finalMetrics.ave_cost > info.total_pool_cost ? (
-                <i style={{ color: "green", fontSize: "0.8em" }}> (≤ avg.)</i>
-              ) : (
-                <i style={{ color: "red", fontSize: "0.8em" }}> ({">"} avg.)</i>
-              ))}
-            {initialSolution && initialSolution.solution_info.total_pool_cost !== info.total_pool_cost && (
-              <i style={{ fontSize: "0.8em" }}>
-                {" "}
-                ({formatPercentage(info.total_pool_cost / initialSolution.solution_info.total_pool_cost)} of initial
-                solution)
-              </i>
-            )}
-          </Typography>
-          <Typography align={"left"}>
-            {formatSeconds(info.mean_process_cycle_time)}
-            {finalMetrics &&
-              (finalMetrics.ave_time > info.mean_process_cycle_time ? (
-                <i style={{ color: "green", fontSize: "0.8em" }}> (≤ avg.)</i>
-              ) : (
-                <i style={{ color: "red", fontSize: "0.8em" }}> ({">"} avg.)</i>
-              ))}
-            {initialSolution &&
-              initialSolution.solution_info.mean_process_cycle_time !== info.mean_process_cycle_time && (
-                <i style={{ fontSize: "0.8em" }}>
-                  {" "}
-                  (
-                  {formatPercentage(
-                    info.mean_process_cycle_time / initialSolution.solution_info.mean_process_cycle_time
-                  )}{" "}
-                  of initial solution)
-                </i>
-              )}
-          </Typography>
-          <Typography align={"left"}>
-            {formatPercentage(resourceUtilization)}
-            {initialSolution && initialResourceUtilization !== resourceUtilization && (
-              <i style={{ fontSize: "0.8em" }}>
-                {" "}
-                ({formatPercentage(resourceUtilization - initialResourceUtilization)}{" "}
-                {resourceUtilization > initialResourceUtilization ? "more" : "less"} than initial solution)
-              </i>
-            )}
-          </Typography>
-        </Grid>
-      </Grid>
-      <Grid>
-        <Typography variant="h6" align="left">
-          Resources
-        </Typography>
-      </Grid>
-      <Grid>
-        <ResourcesTable resources={resources} solutionInfo={info} />
-      </Grid>
+        </AccordionSummary>
+
+        <AccordionDetails>
+          <ResourcesTable resources={resources} solutionInfo={info} deletedResources={deletedResources} />
+        </AccordionDetails>
+      </Accordion>
     </Paper>
   );
 };
