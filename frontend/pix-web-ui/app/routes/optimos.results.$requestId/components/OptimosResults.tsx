@@ -12,6 +12,7 @@ import { useAuthRefreshRequest } from "~/routes/projects.$projectId.$processingT
 import { FileType, getFileContent } from "~/services/files";
 import { UserContext } from "~/routes/contexts";
 import type { ProcessingRequest } from "~/services/processing_requests";
+import { SolutionChart } from "./SolutionChart";
 
 interface SimulationResultsProps {
   report: FullOutputJson;
@@ -167,9 +168,16 @@ const OptimizationResults = (props: SimulationResultsProps) => {
                       <Grid item xs={7}>
                         <Typography align={"left"}> {formatCurrency(final_metrics?.ave_cost)}</Typography>
                         <Typography align={"left"}> {formatSeconds(final_metrics?.ave_time)}</Typography>
-                        <Typography align={"left"}> {formatPercentage(final_metrics?.cost_metric)}</Typography>
-                        <Typography align={"left"}> {formatPercentage(final_metrics?.time_metric)}</Typography>
+                        <Typography align={"left"}> {formatPercentage(1 / final_metrics?.cost_metric)}</Typography>
+                        <Typography align={"left"}> {formatPercentage(1 / final_metrics?.time_metric)}</Typography>
                       </Grid>
+
+                      <SolutionChart
+                        solutions={report.final_solutions ?? []}
+                        initialSolution={report.initial_solution}
+                        averageCost={final_metrics.ave_cost}
+                        averageTime={final_metrics.ave_time}
+                      />
                     </Grid>
                   ) : (
                     <Grid container p={10}>
@@ -201,7 +209,7 @@ const OptimizationResults = (props: SimulationResultsProps) => {
                 )}
                 {report?.final_solutions?.map((solution, index) => {
                   return (
-                    <Grid item xs={12} key={`grid-${index}`}>
+                    <Grid item xs={12} key={`grid-${index}`} id={"solution_" + index}>
                       <OptimosSolution
                         key={index}
                         solution={solution}

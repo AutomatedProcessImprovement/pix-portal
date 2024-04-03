@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { FC } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import { WeekView } from "~/components/optimos/WeekView";
 import { formatCurrency, formatSeconds, formatPercentage } from "~/shared/num_helper";
 import type { FinalSolutionMetric, Solution } from "~/shared/optimos_json_type";
@@ -22,7 +22,7 @@ interface OptimosSolutionProps {
   initialSolution?: Solution;
 }
 
-export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, solution, initialSolution }) => {
+export const OptimosSolution: FC<OptimosSolutionProps> = memo(({ finalMetrics, solution, initialSolution }) => {
   const info = solution.solution_info;
 
   const resources = Object.values(info.pools_info.pools);
@@ -240,4 +240,4 @@ export const OptimosSolution: FC<OptimosSolutionProps> = ({ finalMetrics, soluti
       </Accordion>
     </Paper>
   );
-};
+});

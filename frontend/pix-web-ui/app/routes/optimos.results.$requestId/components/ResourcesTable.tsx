@@ -87,7 +87,7 @@ const getShifts = (originalShift?: Shift, currentShift?: Shift) => {
   return { onlyInOriginalShift, onlyInCurrent, unchangedShift };
 };
 
-const ResourceRow: FC<ResourceRowProps> = (props) => {
+const ResourceRow: FC<ResourceRowProps> = React.memo((props) => {
   const { resource, isDeleted = false } = props;
   const [open, setOpen] = useState(false);
 
@@ -217,7 +217,7 @@ const ResourceRow: FC<ResourceRowProps> = (props) => {
       </TableRow>
     </React.Fragment>
   );
-};
+});
 
 type ResourcesTableProps = {
   resources: Resource[];
@@ -225,7 +225,7 @@ type ResourcesTableProps = {
   solutionInfo: SolutionInfo;
 };
 
-export const ResourcesTable: FC<ResourcesTableProps> = (props) => {
+export const ResourcesTable: FC<ResourcesTableProps> = React.memo((props) => {
   const {
     resources,
     deletedResources,
@@ -277,7 +277,7 @@ export const ResourcesTable: FC<ResourcesTableProps> = (props) => {
       </Table>
     </TableContainer>
   );
-};
+});
 
 const areShiftsDifferent = (resource: EnhancedResource, initialResource?: EnhancedResource | null) =>
   JSON.stringify({ ...resource.shifts[0], resource_id: "" }) !==
