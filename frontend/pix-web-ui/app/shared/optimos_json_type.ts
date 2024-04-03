@@ -27,6 +27,7 @@ export interface Solution {
   solution_info: SolutionInfo;
   sim_params: SimParams;
   cons_params: ConsParams;
+  name: string;
 }
 
 export interface SolutionInfo {

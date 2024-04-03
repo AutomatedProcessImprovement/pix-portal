@@ -339,6 +339,7 @@ class OptimosService:
             solution_info=simulation_info,
             sim_params=sim_params,
             cons_params=cons_params,
+            name=f"{approach}",
         )
 
         if self._initial_solution is None:
