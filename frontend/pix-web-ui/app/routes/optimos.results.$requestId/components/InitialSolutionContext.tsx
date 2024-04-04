@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { EnhancedResource, Solution } from "~/shared/optimos_json_type";
+import type { EnhancedResource, ResourceStats, Solution } from "~/shared/optimos_json_type";
 
 export const InitialSolutionContext = createContext<Solution | undefined>(undefined);
 
@@ -19,6 +19,11 @@ export const useInitialResource = (resourceId?: string) => {
 };
 export const useInitialResourceStats = (resourceId?: string) => {
   const initialSolution = useInitialSolution();
+  if (!resourceId) return null;
+  return createInitialResourceStats(resourceId, initialSolution);
+};
+
+export const createInitialResourceStats = (resourceId: string, initialSolution: Solution): ResourceStats => {
   const {
     pool_time,
     pool_cost,
@@ -26,7 +31,6 @@ export const useInitialResourceStats = (resourceId?: string) => {
     available_time,
     pools_info: { task_allocations, task_pools },
   } = initialSolution.solution_info;
-  if (!resourceId) return null;
   return {
     total_worktime: pool_time[resourceId],
     total_cost: pool_cost[resourceId],
@@ -37,6 +41,12 @@ export const useInitialResourceStats = (resourceId?: string) => {
         return Object.keys(task_pools)[taskIndex];
       }) ?? [],
     is_duplicate: false,
+    are_tasks_different: false,
+    is_deleted: false,
+    are_shifts_different: false,
+    new_tasks: [],
+    old_tasks: [],
+    removed_tasks: [],
   };
 };
 
@@ -61,4 +71,11 @@ export const useInitialEnhancedResourceByName = (resourceName: string): Enhanced
 export const useIsInitialSolutions = (poolsInfoId: string) => {
   const initialSolution = useInitialSolution();
   return initialSolution.solution_info.pools_info.id === poolsInfoId;
+};
+
+export const getInitialResourceByName = (initialSolution: Solution, resourceName: string) => {
+  const pools = initialSolution.solution_info.pools_info.pools;
+  const resourceId = Object.keys(pools).find((id) => pools[id].resource_name === getBaseName(resourceName));
+  if (!resourceId) return null;
+  return initialSolution.solution_info.pools_info.pools[resourceId];
 };
