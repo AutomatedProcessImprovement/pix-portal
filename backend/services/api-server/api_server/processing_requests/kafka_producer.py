@@ -40,6 +40,10 @@ class KafkaProducerService:
                 "topic": settings.kafka_topic_process_model_optimization_optimos,
                 "current_partition": 0,
             },
+            ProcessingRequestType.SIMULATION_MODEL_OPTIMIZATION_OPTIMOS_CANCELLATION: {
+                "topic": settings.kafka_topic_process_model_optimization_optimos_cancellations,
+                "current_partition": 0,
+            },
             ProcessingRequestType.WAITING_TIME_ANALYSIS_KRONOS: {
                 "topic": settings.kafka_topic_waiting_time_analysis_kronos,
                 "current_partition": 0,
@@ -63,6 +67,7 @@ class KafkaProducerService:
 
     def _send_message(self, topic: str, payload: dict, partition: int = 0):
         self._init_producer()
+        assert self._producer is not None
         self._producer.send(topic, payload, partition=partition)
         logger.info(f"Sending a message to Kafka: topic={topic}, partition={partition}, payload={payload}")
         self._producer.flush()

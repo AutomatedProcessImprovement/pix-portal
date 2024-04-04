@@ -9,10 +9,12 @@ import {
   ProcessingRequestType,
   getProcessingRequest,
   type ProcessingRequest,
+  cancelProcessingRequest,
 } from "~/services/processing_requests";
 import { parseDate } from "~/shared/utils";
 import { AssetCard } from "./AssetCard";
 import { useAuthRefreshRequest } from "../hooks/useAutoRefreshRequest";
+import { Button } from "@mui/material";
 
 export function ProcessingRequestCard({ request: initialRequest }: { request: ProcessingRequest }) {
   // polling of running requests to update the status
@@ -65,6 +67,8 @@ export function ProcessingRequestCard({ request: initialRequest }: { request: Pr
     setCreationDate(parseDate(request_.creation_time));
   }, [request_]);
 
+  const user = useContext(UserContext);
+
   if (!request_) return <></>;
   return (
     <div
@@ -99,12 +103,16 @@ export function ProcessingRequestCard({ request: initialRequest }: { request: Pr
       {request_.type === ProcessingRequestType.SIMULATION_MODEL_OPTIMIZATION_OPTIMOS &&
         request_.status === ProcessingRequestStatus.RUNNING &&
         !!request_.output_assets.length && (
-          <Link to={`/optimos/results/${request_.id}`} target="_blank" className="shrink w-fit">
-            Show (live) results
-          </Link>
+          <>
+            <Link to={`/optimos/results/${request_.id}`} target="_blank" className="shrink w-fit">
+              Show (live) results
+            </Link>
+            <Button onClick={() => cancelProcessingRequest(request_.id, user!.token!)}>Cancel</Button>
+          </>
         )}
       {request_.type === ProcessingRequestType.SIMULATION_MODEL_OPTIMIZATION_OPTIMOS &&
-        request_.status === ProcessingRequestStatus.FINISHED && (
+        (request_.status === ProcessingRequestStatus.FINISHED ||
+          request_.status === ProcessingRequestStatus.CANCELLED) && (
           <Link to={`/optimos/results/${request_.id}`} target="_blank" className="shrink w-fit">
             Show results
           </Link>

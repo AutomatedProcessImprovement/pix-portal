@@ -123,9 +123,14 @@ class OptimosService:
             await self.upload_results(stats_file, output_asset_id)
 
             # update processing request status
+
             await self._processing_request_service_client.update_request(
                 processing_request_id=processing_request.processing_request_id,
-                status=ProcessingRequestStatus.FINISHED,
+                status=(
+                    ProcessingRequestStatus.CANCELLED
+                    if processing_request.should_be_cancelled
+                    else ProcessingRequestStatus.FINISHED
+                ),
                 end_time=datetime.utcnow(),
             )
 
@@ -215,6 +220,7 @@ class OptimosService:
             stats_file.name,
             log_name,
             self.get_iteration_callback(output_asset_id),
+            processing_request,  # type: ignore
         )
 
         jsonContent = json.dumps(output, default=lambda o: o.to_json())
@@ -316,15 +322,13 @@ class OptimosService:
 
     def get_iteration_callback(self, output_asset_id: str):
         print("Iteration callback called (sync)")
-        return lambda iteration_info, approach: asyncio.run(
-            self.async_iteration_callback(
-                iteration_info,
-                approach,
-                output_asset_id,
-            )
+        return lambda iteration_info, approach, iteration: asyncio.run(
+            self.async_iteration_callback(iteration_info, approach, output_asset_id, iteration)
         )
 
-    async def async_iteration_callback(self, iteration_info: IterationNextType, approach: str, output_asset_id: str):
+    async def async_iteration_callback(
+        self, iteration_info: IterationNextType, approach: str, output_asset_id: str, iteration: int
+    ):
         print("Iteration callback called (async)")
         (pool_info, simulation_info, non_optimal_distance) = iteration_info
         if pool_info is None or simulation_info is None:
@@ -339,10 +343,11 @@ class OptimosService:
             solution_info=simulation_info,
             sim_params=sim_params,
             cons_params=cons_params,
-            name=f"{approach}",
+            name=approach,
+            iteration=iteration,
         )
 
-        if self._initial_solution is None:
+        if iteration == 0:
             print("Setting initial solution")
             self._initial_solution = solution_json
 

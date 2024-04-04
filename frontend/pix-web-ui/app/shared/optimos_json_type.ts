@@ -218,6 +218,13 @@ export type ResourceStats = {
   available_time: number;
   tasks: string[];
   is_duplicate: boolean;
+  is_deleted: boolean;
+  are_tasks_different: boolean;
+  are_shifts_different: boolean;
+  initial_resource?: EnhancedResource;
+  new_tasks: string[];
+  old_tasks: string[];
+  removed_tasks: string[];
 };
 
 export type EnhancedResource = Resource & ResourceStats;

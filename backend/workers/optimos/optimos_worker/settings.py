@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     kafka_bootstrap_servers: str
     kafka_topic_requests: str
     kafka_topic_results: str
+    kafka_topic_cancellations: str
     kafka_consumer_group_id: str
     kafka_topic_email_notifications: str
     asset_service_url: HttpUrl

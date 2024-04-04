@@ -49,3 +49,24 @@ export async function getProcessingRequest(id: string, token: string) {
     throw e;
   }
 }
+
+export async function cancelProcessingRequest(id: string, token: string) {
+  const url = `processing-requests/${id}`;
+  const u = new URL(url, window.ENV.BACKEND_BASE_URL_PUBLIC);
+  const response = await fetch(u, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Origin: window.location.origin,
+    },
+  });
+  if (!response.ok) throw new Error(response.statusText);
+  try {
+    const data = await response.json();
+    if (!data) throw new Error("No data");
+    return data as ProcessingRequest;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+}

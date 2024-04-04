@@ -1563,7 +1563,7 @@ simpy = "^4.0.1"
 type = "git"
 url = "https://github.com/AutomatedProcessImprovement/roptimus-prime.git"
 reference = "optimos_microservice"
-resolved_reference = "f159c9e93eed52a40b379ebe0c022a8cc2cade6f"
+resolved_reference = "13238a9f715db5e6dd41faea6a3c2227b83a3246"
 
 [[package]]
 name = "packaging"
