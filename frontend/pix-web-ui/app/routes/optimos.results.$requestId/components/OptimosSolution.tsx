@@ -14,7 +14,8 @@ import { WeekView } from "~/components/optimos/WeekView";
 import { formatCurrency, formatSeconds, formatPercentage } from "~/shared/num_helper";
 import type { FinalSolutionMetric, Solution } from "~/shared/optimos_json_type";
 import { CloudDownload as CloudDownloadIcon, ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
-import { ResourcesTable } from "./ResourcesTable";
+import { ResourcesTable } from "./ResourcesTable/ResourcesTable";
+import { DiffInfo } from "./ResourcesTable/ResourcesTableCell";
 
 interface OptimosSolutionProps {
   solution: Solution;
@@ -179,49 +180,45 @@ export const OptimosSolution: FC<OptimosSolutionProps> = memo(({ finalMetrics, s
             <Grid item xs={7}>
               <Typography align={"left"}>
                 {formatCurrency(info.total_pool_cost)}
-                {finalMetrics &&
+                {/* {finalMetrics &&
                   (finalMetrics.ave_cost > info.total_pool_cost ? (
                     <i style={{ color: "green", fontSize: "0.8em" }}> (≤ avg.)</i>
                   ) : (
                     <i style={{ color: "red", fontSize: "0.8em" }}> ({">"} avg.)</i>
-                  ))}
-                {initialSolution && initialSolution.solution_info.total_pool_cost !== info.total_pool_cost && (
-                  <i style={{ fontSize: "0.8em" }}>
-                    {" "}
-                    ({formatPercentage(info.total_pool_cost / initialSolution.solution_info.total_pool_cost)} of initial
-                    solution)
-                  </i>
-                )}
+                  ))} */}{" "}
+                <DiffInfo
+                  a={initialSolution?.solution_info.total_pool_cost}
+                  b={info.total_pool_cost}
+                  formatFn={formatCurrency}
+                  lowerIsBetter={true}
+                  suffix="initial solution"
+                  onlyShowDiff
+                  margin={0.0}
+                />
               </Typography>
               <Typography align={"left"}>
-                {formatSeconds(info.mean_process_cycle_time)}
-                {finalMetrics &&
-                  (finalMetrics.ave_time > info.mean_process_cycle_time ? (
-                    <i style={{ color: "green", fontSize: "0.8em" }}> (≤ avg.)</i>
-                  ) : (
-                    <i style={{ color: "red", fontSize: "0.8em" }}> ({">"} avg.)</i>
-                  ))}
-                {initialSolution &&
-                  initialSolution.solution_info.mean_process_cycle_time !== info.mean_process_cycle_time && (
-                    <i style={{ fontSize: "0.8em" }}>
-                      {" "}
-                      (
-                      {formatPercentage(
-                        info.mean_process_cycle_time / initialSolution.solution_info.mean_process_cycle_time
-                      )}{" "}
-                      of initial solution)
-                    </i>
-                  )}
+                {formatSeconds(info.mean_process_cycle_time)}{" "}
+                <DiffInfo
+                  a={initialSolution?.solution_info.mean_process_cycle_time}
+                  b={info.mean_process_cycle_time}
+                  formatFn={formatSeconds}
+                  lowerIsBetter={true}
+                  suffix="initial solution"
+                  onlyShowDiff
+                  margin={0.0}
+                ></DiffInfo>
               </Typography>
               <Typography align={"left"}>
-                {formatPercentage(resourceUtilization)}
-                {initialSolution && initialResourceUtilization !== resourceUtilization && (
-                  <i style={{ fontSize: "0.8em" }}>
-                    {" "}
-                    ({formatPercentage(resourceUtilization - initialResourceUtilization)}{" "}
-                    {resourceUtilization > initialResourceUtilization ? "more" : "less"} than initial solution)
-                  </i>
-                )}
+                {formatPercentage(resourceUtilization)}{" "}
+                <DiffInfo
+                  a={initialResourceUtilization}
+                  b={resourceUtilization}
+                  formatFn={formatPercentage}
+                  lowerIsBetter={false}
+                  suffix="initial solution"
+                  onlyShowDiff
+                  margin={0.01}
+                />
               </Typography>
             </Grid>
           </Grid>

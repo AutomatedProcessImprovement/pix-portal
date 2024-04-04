@@ -37,7 +37,7 @@ export const SolutionChart: FC<SolutionChartProps> = ({ solutions, initialSoluti
       },
       labels: {
         formatter: function () {
-          return Math.round(((this.value as number) * 10) / 60) / 10 + "h";
+          return Math.round(((this.value as number) * 10) / 60 / 60) / 10 + "h";
         },
       },
     },
