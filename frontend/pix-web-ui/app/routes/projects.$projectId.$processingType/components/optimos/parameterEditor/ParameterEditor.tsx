@@ -20,15 +20,18 @@ import GlobalConstraints from "../constraintEditors/GlobalConstraints";
 import { FormProvider, useForm } from "react-hook-form";
 import ResourceConstraints from "../resourceConstraints/ResourceConstraints";
 import ScenarioConstraints from "../constraintEditors/ScenarioConstraints";
-import type { ScenarioProperties } from "~/shared/optimos_json_type";
 import { UserContext } from "~/routes/contexts";
-import { SelectedAssetsContext } from "~/routes/projects.$projectId.$processingType/contexts";
-import { AssetType, patchAsset } from "~/services/assets";
+import { AssetType, createAsset, patchAsset } from "~/services/assets";
 import { useFileFromAsset } from "./useFetchedAsset";
 import { FileType, deleteFile, getFile, uploadFile } from "~/services/files";
 import { useMatches } from "@remix-run/react";
-import { useSelectedInputAsset } from "~/routes/projects.$projectId.$processingType/components/useSelectedInputAsset";
+import {
+  useSelectAsset,
+  useSelectedInputAsset,
+} from "~/routes/projects.$projectId.$processingType/components/useSelectedInputAsset";
 import { ProcessingAppSection } from "~/routes/projects.$projectId.$processingType/components/ProcessingAppSection";
+import { generateConstraints } from "../generateContraints";
+import { SelectedAssetsContext, SetSelectedAssetsContext } from "~/routes/projects.$projectId.$processingType/contexts";
 
 const tooltip_desc: Record<string, string> = {
   GLOBAL_CONSTRAINTS: "Define the algorithm, approach and number of iterations",
@@ -42,7 +45,9 @@ const SetupOptimos = () => {
   const activeColor = theme.palette.info.dark;
   const successColor = theme.palette.success.light;
   const errorColor = theme.palette.error.light;
+  const selectAsset = useSelectAsset();
   const selectedAssets = useContext(SelectedAssetsContext);
+
   const user = useContext(UserContext);
   const projectId = useMatches().filter((match) => match.id === "routes/projects.$projectId")[0].params.projectId;
   const [optimosConfigAsset, setOptimosConfigAsset] = useSelectedInputAsset(AssetType.OPTIMOS_CONFIGURATION);
@@ -60,9 +65,10 @@ const SetupOptimos = () => {
 
   console.log(bpmnFile, simParamsFile, consParamsFile);
 
-  const { jsonData } = useJsonFile(consParamsFile || null);
+  const { jsonData: consParamsJson } = useJsonFile(consParamsFile || null);
+  const { jsonData: simParamsJson } = useJsonFile(simParamsFile || null);
 
-  const { formState } = useFormState(jsonData);
+  const { formState } = useFormState(consParamsJson);
   const {
     formState: { errors, isSubmitted, submitCount },
     getValues,
@@ -273,14 +279,46 @@ const SetupOptimos = () => {
     },
     [optimosConfigAsset, getScenarioValues, user, getConstraintsConfigBlob, setOptimosConfigAsset]
   );
+  const createConstraintsFromSimParams = async () => {
+    if (optimosConfigAsset || !projectId) return;
+    const constraints = generateConstraints(simParamsJson);
+
+    const token = user!.token!;
+    const constraintsConfigFile = await uploadFile(
+      new Blob([JSON.stringify(constraints, null, 2)]),
+      `${uuidv4()}.json`,
+      FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON,
+      token
+    );
+    const fileIds = [constraintsConfigFile.id];
+    const asset = await createAsset(
+      fileIds,
+      "generated_constraints",
+      AssetType.OPTIMOS_CONFIGURATION,
+      projectId,
+      token
+    );
+    document.dispatchEvent(new Event("assetsUpdated"));
+    selectAsset(asset);
+  };
 
   return (
     <ProcessingAppSection heading="Optimization Configuration">
-      {(!bpmnFile || !simParamsFile || !consParamsFile) && (
+      {!(bpmnFile || simParamsFile) && (
         <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
           Select a Optimos Configuration and Simulation Model from the input assets on the left.
         </p>
       )}
+      {bpmnFile && simParamsFile && !consParamsFile && (
+        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
+          You have only selected a Simulation Model, please select a Optimos Configuration file or click "Generate
+          Constraints" below.
+          <Button variant="contained" color="primary" onClick={createConstraintsFromSimParams}>
+            Generate Constraints
+          </Button>
+        </p>
+      )}
+
       {bpmnFile && simParamsFile && consParamsFile && (
         <FormProvider {...scenarioState}>
           <form

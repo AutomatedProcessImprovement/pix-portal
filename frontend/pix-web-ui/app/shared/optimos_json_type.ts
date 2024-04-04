@@ -1,3 +1,10 @@
+export interface ScenarioProperties {
+  scenario_name: string;
+  num_iterations: number;
+  algorithm: "HC-FLEX" | "HC-STRICT" | "TS" | "ALL";
+  approach: "CA" | "AR" | "CO" | "CAAR" | "ARCA" | "ALL";
+}
+
 export interface FinalSolutionMetric {
   name: string;
   func_ev: number;
@@ -94,13 +101,13 @@ export type Shift = ConstraintWorkMask & {
 };
 
 export interface DailyStartTimes {
-  monday?: string;
-  tuesday?: string;
-  wednesday?: string;
-  thursday?: string;
-  friday?: string;
-  saturday?: string;
-  sunday?: string;
+  monday: string | null;
+  tuesday: string | null;
+  wednesday: string | null;
+  thursday: string | null;
+  friday: string | null;
+  saturday: string | null;
+  sunday: string | null;
 }
 
 export interface SimParams {

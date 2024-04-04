@@ -329,7 +329,7 @@ class OptimosService:
     async def async_iteration_callback(
         self, iteration_info: IterationNextType, approach: str, output_asset_id: str, iteration: int
     ):
-        print("Iteration callback called (async)")
+        print(f"Iteration callback called (async) for iteration {iteration}")
         (pool_info, simulation_info, non_optimal_distance) = iteration_info
         if pool_info is None or simulation_info is None:
             return
@@ -347,8 +347,7 @@ class OptimosService:
             iteration=iteration,
         )
 
-        if iteration == 0:
-            print("Setting initial solution")
+        if iteration == 1:
             self._initial_solution = solution_json
 
         output = FullOutputJson(

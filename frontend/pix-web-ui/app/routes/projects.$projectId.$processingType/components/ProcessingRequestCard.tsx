@@ -1,13 +1,10 @@
 import { Link } from "@remix-run/react";
-import { Suspense, useCallback, useContext, useEffect, useState } from "react";
-import type { ToastOptions } from "react-hot-toast";
-import toast from "react-hot-toast";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { UserContext } from "~/routes/contexts";
 import { AssetType } from "~/services/assets";
 import {
   ProcessingRequestStatus,
   ProcessingRequestType,
-  getProcessingRequest,
   type ProcessingRequest,
   cancelProcessingRequest,
 } from "~/services/processing_requests";
