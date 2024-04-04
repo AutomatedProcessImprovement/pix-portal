@@ -28,6 +28,7 @@ class ProcessingRequest:
     input_assets_ids: list[str]
     output_assets_ids: list[str]
     should_notify: bool
+    should_be_cancelled: bool = False
 
 
 class ProcessingRequestStatus(str, Enum):
