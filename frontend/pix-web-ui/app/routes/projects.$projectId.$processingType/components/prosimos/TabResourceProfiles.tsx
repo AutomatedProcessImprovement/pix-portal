@@ -103,6 +103,7 @@ function ResourceProfile({ name, children }: { name: string; children?: React.Re
                 <Select
                   name={`${namePrefix}.calendar`}
                   options={resourceCalendars.map((c: any) => c.id)}
+                  optionLabels={resourceCalendars.map((c: any) => c.name)}
                   defaultValue={resourceCalendars[0].id}
                   pure={true}
                 />
