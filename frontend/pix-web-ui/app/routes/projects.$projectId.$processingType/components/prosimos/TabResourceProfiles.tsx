@@ -102,8 +102,8 @@ function ResourceProfile({ name, children }: { name: string; children?: React.Re
                 <Input name={`${namePrefix}.amount`} label="Name" type="number" pure={true} />
                 <Select
                   name={`${namePrefix}.calendar`}
-                  options={resourceCalendars.map((c: any) => c.name)}
-                  defaultValue={resourceCalendars[0].name}
+                  options={resourceCalendars.map((c: any) => c.id)}
+                  defaultValue={resourceCalendars[0].id}
                   pure={true}
                 />
                 <button type="button" onClick={() => remove(index)} className="bg-slate-400">
