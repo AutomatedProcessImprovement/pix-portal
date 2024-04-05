@@ -35,6 +35,7 @@ export interface Solution {
   sim_params: SimParams;
   cons_params: ConsParams;
   name: string;
+  iteration: number;
 }
 
 export interface SolutionInfo {

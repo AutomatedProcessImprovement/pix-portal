@@ -1,5 +1,6 @@
 import { Button, Grid, Paper, Typography, Box, ButtonGroup, CircularProgress } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
+import YAML from "yaml";
 import * as React from "react";
 import "moment-duration-format";
 import type { FullOutputJson } from "~/shared/optimos_json_type";
@@ -13,6 +14,8 @@ import { FileType, getFileContent } from "~/services/files";
 import { UserContext } from "~/routes/contexts";
 import type { ProcessingRequest } from "~/services/processing_requests";
 import { SolutionChart } from "./SolutionChart";
+import { useFileFromAsset } from "~/routes/projects.$projectId.$processingType/components/optimos/parameterEditor/useFetchedAsset";
+import { AssetType, getAsset } from "~/services/assets";
 
 interface SimulationResultsProps {
   report: FullOutputJson;
@@ -20,12 +23,37 @@ interface SimulationResultsProps {
 }
 
 const OptimizationResults = (props: SimulationResultsProps) => {
+  const user = React.useContext(UserContext);
   const { report: reportJson, processingRequest: initialRequest } = props;
   const [report, setReport] = useState<FullOutputJson | null>(reportJson);
 
+  const [scenarioName, setScenarioName] = useState("");
+
+  useEffect(
+    () =>
+      void (async () => {
+        if (!user?.token) return;
+
+        const assets = await Promise.all(initialRequest.input_assets_ids.map((i) => getAsset(i, user!.token!, false)));
+        const configAsset = assets.find((a) => a.type === AssetType.OPTIMOS_CONFIGURATION);
+        const configFileId = configAsset?.files?.find((file) => file.type === FileType.CONFIGURATION_OPTIMOS_YAML)?.id;
+        if (!configFileId) return;
+        const fileContent = await getFileContent(configFileId, user?.token);
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target?.result;
+          if (content) {
+            const config = YAML.parse(content as string);
+            setScenarioName(config.scenario_name);
+          }
+        };
+        reader.readAsText(fileContent);
+      })(),
+    [initialRequest, user, user?.token]
+  );
   const request = useAuthRefreshRequest(initialRequest);
 
-  const user = React.useContext(UserContext);
   useEffect(() => {
     if (!request || !user) return;
     const optimosReportJsonFile = request.output_assets[0].files?.find(
@@ -105,7 +133,7 @@ const OptimizationResults = (props: SimulationResultsProps) => {
                 <Grid container>
                   <Grid item xs={8}>
                     <Typography variant="h5" align="left">
-                      {report.name}
+                      {scenarioName}
                     </Typography>
                   </Grid>
                   <Grid item xs={4} justifyContent="flexEnd" textAlign={"right"}>
