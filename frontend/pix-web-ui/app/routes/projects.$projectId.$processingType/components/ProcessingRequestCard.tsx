@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link, useNavigate } from "@remix-run/react";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { UserContext } from "~/routes/contexts";
 import { AssetType } from "~/services/assets";
@@ -17,6 +17,7 @@ export function ProcessingRequestCard({ request: initialRequest }: { request: Pr
   // polling of running requests to update the status
 
   const request_ = useAuthRefreshRequest(initialRequest);
+  let navigate = useNavigate();
 
   function getDuration(start: string, end: string) {
     const startDate = new Date(start);
@@ -101,10 +102,12 @@ export function ProcessingRequestCard({ request: initialRequest }: { request: Pr
         request_.status === ProcessingRequestStatus.RUNNING &&
         !!request_.output_assets.length && (
           <>
-            <Link to={`/optimos/results/${request_.id}`} target="_blank" className="shrink w-fit">
+            <Button onClick={() => navigate(`/optimos/results/${request_.id}`)} color="primary" size="small">
               Show (live) results
-            </Link>
-            <Button onClick={() => cancelProcessingRequest(request_.id, user!.token!)}>Cancel</Button>
+            </Button>
+            <Button onClick={() => cancelProcessingRequest(request_.id, user!.token!)} color="error" size="small">
+              Cancel
+            </Button>
           </>
         )}
       {request_.type === ProcessingRequestType.SIMULATION_MODEL_OPTIMIZATION_OPTIMOS &&
