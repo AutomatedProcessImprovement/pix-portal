@@ -63,8 +63,6 @@ const SetupOptimos = () => {
   const [consParamsFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON);
   const [configFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.CONFIGURATION_OPTIMOS_YAML);
 
-  console.log(bpmnFile, simParamsFile, consParamsFile);
-
   const { jsonData: consParamsJson } = useJsonFile(consParamsFile || null);
   const { jsonData: simParamsJson } = useJsonFile(simParamsFile || null);
 

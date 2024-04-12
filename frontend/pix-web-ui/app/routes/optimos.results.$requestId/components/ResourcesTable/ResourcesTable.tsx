@@ -66,7 +66,6 @@ export const ResourcesTable: FC<ResourcesTableProps> = React.memo((props) => {
   );
 
   useEffect(() => {
-    console.log("Sort resources by", orderBy, order);
     setSortedResources(
       [...sortedResources].sort((a, b) => {
         if (orderBy === "has_changes") {

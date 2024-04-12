@@ -16,12 +16,7 @@ export const SolutionChart: FC<SolutionChartProps> = ({ solutions, initialSoluti
   const options: Highcharts.Options = {
     chart: {
       type: "scatter",
-      events: {
-        click: function (event) {
-          // Handle chart click event here
-          console.log("Chart Clicked:", event);
-        },
-      },
+      events: {},
     },
     title: {
       text: "Solutions",
@@ -60,8 +55,6 @@ export const SolutionChart: FC<SolutionChartProps> = ({ solutions, initialSoluti
         point: {
           events: {
             click: function () {
-              // Handle data point click event here
-              console.log("Data Point Clicked:", this.x, this.y);
               // Navigate to specific execution via anchor link
               window.location.href = `#solution_${this.index}`;
             },
