@@ -1,20 +1,10 @@
-import { Card, Checkbox, FormControlLabel, Grid, MenuItem, Switch, TextField, Typography } from "@mui/material";
+import { ResourceSelection } from "./ResourceSelection";
+import { Grid, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
-import { Controller, useFieldArray, type UseFormReturn } from "react-hook-form";
+import { useFieldArray, type UseFormReturn } from "react-hook-form";
 
-import { REQUIRED_ERROR_MSG, SHOULD_BE_GREATER_0_MSG } from "../validationMessages";
-import { ConstraintMaskInput } from "./ConstraintMaskInput";
-import type { ConsParams, ConstraintWorkMask } from "~/shared/optimos_json_type";
-
-const daysOfWeek: Array<keyof ConstraintWorkMask> = [
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-  "sunday",
-];
+import type { ConsParams } from "~/shared/optimos_json_type";
+import { ResourceConstraintsList } from "./ResourceConstraintsList";
 
 interface ResourceCalendarsProps {
   formState: UseFormReturn<ConsParams, object>;
@@ -73,27 +63,13 @@ const ResourceConstraints = (props: ResourceCalendarsProps) => {
 
   return (
     <Grid container width="100%" spacing={2}>
-      <Grid container item xs={12} sx={{ p: 2 }}>
-        <Grid container item xs={12}>
-          <Grid item xs={12}>
-            <TextField
-              sx={{ width: "100%" }}
-              label="Resource"
-              variant="standard"
-              value={currCalendarIndex ?? ""}
-              onChange={handleCalendarSelectChange}
-              select
-            >
-              {allCalendars.map((item, index) => {
-                const { key } = item;
-                return (
-                  <MenuItem key={`calendar_select_${key}`} value={index}>
-                    {item.id}
-                  </MenuItem>
-                );
-              })}
-            </TextField>
-          </Grid>
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <ResourceSelection
+            currCalendarIndex={currCalendarIndex ?? 0}
+            allCalendars={allCalendars}
+            updateCurrCalendar={updateCurrCalendar}
+          />
         </Grid>
       </Grid>
       {currCalendarIndex === undefined ? (
@@ -115,263 +91,9 @@ const ResourceConstraints = (props: ResourceCalendarsProps) => {
   );
 };
 
-interface RConsGlobalProps extends ResourceCalendarsProps {
+export interface RConsGlobalProps extends ResourceCalendarsProps {
   calendarIndex: number;
   calendarKey: string;
 }
-
-const ResourceConstraintsList = (props: RConsGlobalProps) => {
-  const { formState, calendarIndex } = props;
-  const { control } = formState;
-  const [index, setIndex] = useState<number>(calendarIndex);
-
-  useEffect(() => {
-    if (index !== calendarIndex) {
-      setIndex(calendarIndex);
-    }
-  }, [calendarIndex, index]);
-
-  return (
-    <Grid container spacing={3}>
-      <Grid item xs={12}>
-        <Card elevation={5} sx={{ p: 2 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Typography variant="h6" align="left">
-                Resource constraints
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Controller
-                name={`resources.${index}.constraints.global_constraints.max_weekly_cap`}
-                control={control}
-                rules={{
-                  required: REQUIRED_ERROR_MSG,
-                  min: {
-                    value: 1,
-                    message: SHOULD_BE_GREATER_0_MSG,
-                  },
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <TextField
-                    type="number"
-                    value={value}
-                    label="Max weekly capacity"
-                    onChange={(e) => {
-                      onChange(Number(e.target.value));
-                    }}
-                    inputProps={{
-                      step: "1",
-                      min: "1",
-                    }}
-                    // error={errors?.max_shift_blocks !== undefined}
-                    // helperText={errors?.max_shift_blocks?.message || ""}
-                    variant="standard"
-                    style={{ width: "50%" }}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <Controller
-                name={`resources.${index}.constraints.global_constraints.max_daily_cap`}
-                control={control}
-                rules={{
-                  required: REQUIRED_ERROR_MSG,
-                  min: {
-                    value: 1,
-                    message: SHOULD_BE_GREATER_0_MSG,
-                  },
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <TextField
-                    type="number"
-                    value={value}
-                    label="Max daily capacity"
-                    onChange={(e) => {
-                      onChange(Number(e.target.value));
-                    }}
-                    inputProps={{
-                      step: "1",
-                      min: "1",
-                    }}
-                    // error={errors?.max_shift_blocks !== undefined}
-                    // helperText={errors?.max_shift_blocks?.message || ""}
-                    variant="standard"
-                    style={{ width: "50%" }}
-                  />
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={6}>
-              <Controller
-                name={`resources.${index}.constraints.global_constraints.max_consecutive_cap`}
-                control={control}
-                rules={{
-                  required: REQUIRED_ERROR_MSG,
-                  min: {
-                    value: 1,
-                    message: SHOULD_BE_GREATER_0_MSG,
-                  },
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <TextField
-                    type="number"
-                    value={value}
-                    label="Max consecutive capacity"
-                    onChange={(e) => {
-                      onChange(Number(e.target.value));
-                    }}
-                    inputProps={{
-                      step: "1",
-                      min: "1",
-                    }}
-                    // error={errors?.max_shift_blocks !== undefined}
-                    // helperText={errors?.max_shift_blocks?.message || ""}
-                    variant="standard"
-                    style={{ width: "50%" }}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <Controller
-                name={`resources.${index}.constraints.global_constraints.max_shifts_day`}
-                control={control}
-                rules={{
-                  required: REQUIRED_ERROR_MSG,
-                  min: {
-                    value: 1,
-                    message: SHOULD_BE_GREATER_0_MSG,
-                  },
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <TextField
-                    type="number"
-                    value={value}
-                    label="Max shifts per day"
-                    onChange={(e) => {
-                      onChange(Number(e.target.value));
-                    }}
-                    inputProps={{
-                      step: "1",
-                      min: "1",
-                    }}
-                    // error={errors?.max_shift_blocks !== undefined}
-                    // helperText={errors?.max_shift_blocks?.message || ""}
-                    variant="standard"
-                    style={{ width: "50%" }}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <Controller
-                name={`resources.${index}.constraints.global_constraints.max_shifts_week`}
-                control={control}
-                rules={{
-                  required: REQUIRED_ERROR_MSG,
-                  min: {
-                    value: 1,
-                    message: SHOULD_BE_GREATER_0_MSG,
-                  },
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <TextField
-                    type="number"
-                    value={value}
-                    label="Max shifts per week"
-                    onChange={(e) => {
-                      onChange(Number(e.target.value));
-                    }}
-                    inputProps={{
-                      step: "1",
-                      min: "1",
-                    }}
-                    // error={errors?.max_shift_blocks !== undefined}
-                    // helperText={errors?.max_shift_blocks?.message || ""}
-                    variant="standard"
-                    style={{ width: "50%" }}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <Controller
-                name={`resources.${index}.constraints.global_constraints.is_human`}
-                control={control}
-                rules={{
-                  required: REQUIRED_ERROR_MSG,
-                  min: {
-                    value: 1,
-                    message: SHOULD_BE_GREATER_0_MSG,
-                  },
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={value}
-                          onChange={(e) => {
-                            onChange(Boolean(e.target.checked));
-                          }}
-                          // error={errors?.max_shift_blocks !== undefined}
-                          // helperText={errors?.max_shift_blocks?.message || ""}
-                        />
-                      }
-                      label={"Human resource?"}
-                    />
-                  </>
-                )}
-              />
-            </Grid>
-          </Grid>
-        </Card>
-      </Grid>
-      <Grid item xs={12}>
-        <Card elevation={5} sx={{ p: 2 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Typography variant="h6" align="left">
-                Never work times
-              </Typography>
-            </Grid>
-            {daysOfWeek.map((day) => (
-              <ConstraintMaskInput
-                key={`never_work_masks_${day}`}
-                control={control}
-                index={index}
-                field={day}
-                collection="never_work_masks"
-              />
-            ))}
-          </Grid>
-        </Card>
-      </Grid>
-      <Grid item xs={12}>
-        <Card elevation={5} sx={{ p: 2 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Typography variant="h6" align="left">
-                Always work times
-              </Typography>
-            </Grid>
-            {daysOfWeek.map((day) => (
-              <ConstraintMaskInput
-                key={`always_work_masks_${day}`}
-                control={control}
-                index={index}
-                field={day}
-                collection="always_work_masks"
-              />
-            ))}
-          </Grid>
-        </Card>
-      </Grid>
-    </Grid>
-  );
-};
 
 export default ResourceConstraints;

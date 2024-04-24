@@ -32,6 +32,8 @@ import {
 import { ProcessingAppSection } from "~/routes/projects.$projectId.$processingType/components/ProcessingAppSection";
 import { generateConstraints } from "../generateContraints";
 import { SelectedAssetsContext, SetSelectedAssetsContext } from "~/routes/projects.$projectId.$processingType/contexts";
+import { useOptimosTab } from "~/routes/projects.$projectId.$processingType/hooks/useOptimosTab";
+import { ScenarioProperties } from "~/shared/optimos_json_type";
 
 const tooltip_desc: Record<string, string> = {
   GLOBAL_CONSTRAINTS: "Define the algorithm, approach and number of iterations",
@@ -53,7 +55,8 @@ const SetupOptimos = () => {
   const [optimosConfigAsset, setOptimosConfigAsset] = useSelectedInputAsset(AssetType.OPTIMOS_CONFIGURATION);
   const [simulationConfigAsset, setSimulationConfigAsset] = useSelectedInputAsset(AssetType.SIMULATION_MODEL);
 
-  const [activeStep, setActiveStep] = useState<TABS>(TABS.GLOBAL_CONSTRAINTS);
+  const [activeStep, setActiveStep] = useOptimosTab();
+  console.log(activeStep);
 
   const [isScenarioParamsValid, setIsScenarioParamsValid] = useState(true);
 

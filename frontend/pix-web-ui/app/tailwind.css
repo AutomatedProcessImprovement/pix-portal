@@ -132,3 +132,7 @@
 button.MuiStepButton-root:hover {
   background-color: inherit;
 }
+
+input.MuiInputBase-input:focus {
+  box-shadow: none;
+}
