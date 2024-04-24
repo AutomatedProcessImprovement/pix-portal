@@ -179,7 +179,7 @@ export const ConstraintDay: FC<ConstraintDayProps> = ({ day, constraints }) => {
     <Grid item xs borderLeft={1} borderColor={"grey"}>
       <Grid container direction={"row"}>
         {COLUMNS.map((column) => {
-          const selectedIndexes = bitmaskToSelectionIndexes(constraints[column][day] ?? 0);
+          const selectedIndexes = bitmaskToSelectionIndexes(constraints?.[column]?.[day] ?? 0);
           return (
             <Grid item key={`column-${day}-${column}`} xs={6}>
               <Grid container direction="column">

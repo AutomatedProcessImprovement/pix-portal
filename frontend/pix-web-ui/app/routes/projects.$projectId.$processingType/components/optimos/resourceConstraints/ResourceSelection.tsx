@@ -14,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { FC } from "react";
-import React from "react";
+import React, { useEffect } from "react";
 import type { FieldArrayWithId } from "react-hook-form";
 import type { ConsParams } from "~/shared/optimos_json_type";
 
@@ -29,6 +29,14 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
   currCalendarIndex,
   updateCurrCalendar,
 }) => {
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [searchResults, setSearchResults] = React.useState(allCalendars);
+
+  useEffect(() => {
+    const results = allCalendars.filter((calendar) => calendar.id.toLowerCase().includes(searchTerm.toLowerCase()));
+    setSearchResults(results);
+  }, [allCalendars, searchTerm]);
+
   return (
     <Card
       elevation={5}
@@ -54,14 +62,16 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
             }}
             label="Search"
             type="search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <List
             sx={{
               overflow: "scroll",
-              maxHeight: "300px",
+              height: "300px",
             }}
           >
-            {allCalendars.map((item, index) => {
+            {searchResults.map((item, index) => {
               const { key } = item;
               const isSelected = currCalendarIndex === index;
               return (
