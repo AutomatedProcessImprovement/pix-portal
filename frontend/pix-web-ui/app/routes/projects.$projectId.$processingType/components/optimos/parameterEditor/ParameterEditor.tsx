@@ -88,7 +88,7 @@ const SetupOptimos = () => {
     if (masterForm.formState.dirtyFields.simulationParameters !== undefined) {
       await simulationParametersSave();
     }
-    reset({}, { keepValues: true });
+    masterForm.reset({}, { keepValues: true });
   };
   const createConstraintsFromSimParams = async () => {
     if (optimosConfigAsset || !projectId || !hasSimParamsFile) return;

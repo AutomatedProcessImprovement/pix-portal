@@ -1,3 +1,5 @@
+/* eslint-disable no-fallthrough */
+/* eslint-disable no-duplicate-case */
 // flat error object
 
 import type { FieldErrors, FieldPath, GlobalError, UseFormGetValues, UseFormSetValue } from "react-hook-form";
@@ -85,18 +87,18 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
 const createQuickFixes = (path: string, formData: MasterFormData): AutoFix[] => {
   const pathArray = path.split(".");
   const prefix = pathArray.slice(0, 2).join(".");
-  const resourceIndex = pathArray[2];
-  const resourceId = formData.constraints?.resources[parseInt(resourceIndex)].id;
+  const resourceIndex = parseInt(pathArray[2]);
+  const resourceId = formData.constraints?.resources[resourceIndex].id;
 
   const field = pathArray.slice(3, 5).join(".");
 
   switch (field) {
     case "constraints.never_work_masks":
-      const day = pathArray[5] as (typeof DAYS)[number];
       return [
         {
-          title: "Remove Timetable Entries",
+          title: "Remove from Timetable",
           action: (get, set) => {
+            const day = pathArray[5] as (typeof DAYS)[number];
             const calendars = get("simulationParameters.resource_calendars");
             const simParamsCalendarIndex = calendars.findIndex((calendar) => calendar.id === resourceId);
             const timePeriods = calendars[simParamsCalendarIndex]?.time_periods ?? [];
@@ -107,8 +109,9 @@ const createQuickFixes = (path: string, formData: MasterFormData): AutoFix[] => 
           },
         },
         {
-          title: "Remove Never Work Entries",
+          title: "Remove from Never-Work",
           action: (get, set) => {
+            const day = pathArray[5] as (typeof DAYS)[number];
             const calendars = get("simulationParameters.resource_calendars");
             const simParamsCalendarIndex = calendars.findIndex((calendar) => calendar.id === resourceId);
             const timePeriods = calendars[simParamsCalendarIndex]?.time_periods ?? [];
@@ -124,12 +127,26 @@ const createQuickFixes = (path: string, formData: MasterFormData): AutoFix[] => 
     case "constraints.always_work_masks":
       return [
         {
-          title: "Remove Timetable Entries",
-          action: () => {},
+          title: "Remove from Never-Work",
+          action: (get, set) => {
+            const day = pathArray[5] as (typeof DAYS)[number];
+            const neverWorkMasks = get(`constraints.resources.${resourceIndex}.constraints.never_work_masks.${day}`);
+            const alwaysWorkMasks = get(path as any);
+            const newNeverWorkMask = neverWorkMasks & ~alwaysWorkMasks;
+
+            set(`constraints.resources.${resourceIndex}.constraints.never_work_masks.${day}`, newNeverWorkMask);
+          },
         },
         {
-          title: "Remove Always Work Entries",
-          action: () => {},
+          title: "Remove from Always-Work",
+          action: (get, set) => {
+            const day = pathArray[5] as (typeof DAYS)[number];
+            const alwaysWorkMasks = get(path as any);
+            const neverWorkMasks = get(`constraints.resources.${resourceIndex}.constraints.never_work_masks.${day}`);
+            const newAlwaysWorkMasks = alwaysWorkMasks & ~neverWorkMasks;
+
+            set(path as any, newAlwaysWorkMasks);
+          },
         },
       ];
 
