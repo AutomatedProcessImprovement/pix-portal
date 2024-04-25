@@ -1,5 +1,5 @@
 import moment from "moment";
-import type { ConsParams } from "~/shared/optimos_json_type";
+import type { ConsParams, TimePeriod } from "~/shared/optimos_json_type";
 
 export const timePeriodToBinary = (startTime: string, endTime: string, delta: number, num_slots: number) => {
   const start_of_day = moment(new Date("1970-01-01T00:00:00"));
@@ -154,4 +154,14 @@ export const resetResourceConstraintsToNineToFive = (oldResources: ConsParams["r
   };
 
   return [...resources];
+};
+
+export const isTimePeriodInHour = (timePeriod: TimePeriod, hour: number) => {
+  const from = parseInt(timePeriod.beginTime.split(":")[0]);
+  const to = parseInt(timePeriod.endTime.split(":")[0]);
+  return hour >= from && hour < to;
+};
+
+export const isTimePeriodInDay = (timePeriod: TimePeriod, day: string) => {
+  return timePeriod.from.toLocaleLowerCase() === day.toLocaleLowerCase();
 };

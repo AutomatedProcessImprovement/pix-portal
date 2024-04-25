@@ -36,6 +36,7 @@ import { SelectedAssetsContext, SetSelectedAssetsContext } from "~/routes/projec
 import { useOptimosTab } from "~/routes/projects.$projectId.$processingType/hooks/useOptimosTab";
 import { ConsParams, ScenarioProperties, SimParams } from "~/shared/optimos_json_type";
 import { ValidationTab } from "../validation/ValidationTab";
+import { SimParamFormProvider } from "~/routes/projects.$projectId.$processingType/hooks/useSimParamsForm";
 
 const tooltip_desc: Record<string, string> = {
   GLOBAL_CONSTRAINTS: "Define the algorithm, approach and number of iterations",
@@ -73,6 +74,8 @@ const SetupOptimos = () => {
   const constraintsForm = useForm<ConsParams>({ values: consParamsJson });
   const { formState, getValues: getConstraintValues, setValue: setConstraintValue } = constraintsForm;
   const { isSubmitted, errors, submitCount } = formState;
+
+  const simParamsForm = useForm<SimParams>({ values: simParamsJson });
 
   const scenarioForm = useForm<ScenarioProperties>({
     mode: "onBlur",
@@ -295,86 +298,88 @@ const SetupOptimos = () => {
   };
 
   return (
-    <ProcessingAppSection heading="Optimization Configuration">
-      {!(bpmnFile || simParamsFile) && (
-        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
-          Select a Optimos Configuration and Simulation Model from the input assets on the left.
-        </p>
-      )}
-      {bpmnFile && simParamsFile && !consParamsFile && (
-        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
-          You have only selected a Simulation Model, please select a Optimos Configuration file or click "Generate
-          Constraints" below.
-          <Button variant="contained" color="primary" onClick={createConstraintsFromSimParams}>
-            Generate Constraints
-          </Button>
-        </p>
-      )}
+    <SimParamFormProvider value={simParamsForm}>
+      <ProcessingAppSection heading="Optimization Configuration">
+        {!(bpmnFile || simParamsFile) && (
+          <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
+            Select a Optimos Configuration and Simulation Model from the input assets on the left.
+          </p>
+        )}
+        {bpmnFile && simParamsFile && !consParamsFile && (
+          <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
+            You have only selected a Simulation Model, please select a Optimos Configuration file or click "Generate
+            Constraints" below.
+            <Button variant="contained" color="primary" onClick={createConstraintsFromSimParams}>
+              Generate Constraints
+            </Button>
+          </p>
+        )}
 
-      {bpmnFile && simParamsFile && consParamsFile && (
-        <FormProvider {...scenarioForm}>
-          <form
-            method="POST"
-            onSubmit={scenarioForm.handleSubmit(async (e, t) => {
-              await handleConfigSave();
-              t?.target.submit();
-            })}
-          >
-            <input
-              type="hidden"
-              name="selectedInputAssetsIds"
-              value={selectedAssets.map((asset) => asset.id).join(",")}
-            />
-            <input type="hidden" name="shouldNotify" value="off" />
-            <input type="hidden" name="projectId" value={projectId} />
+        {bpmnFile && simParamsFile && consParamsFile && (
+          <FormProvider {...scenarioForm}>
+            <form
+              method="POST"
+              onSubmit={scenarioForm.handleSubmit(async (e, t) => {
+                await handleConfigSave();
+                t?.target.submit();
+              })}
+            >
+              <input
+                type="hidden"
+                name="selectedInputAssetsIds"
+                value={selectedAssets.map((asset) => asset.id).join(",")}
+              />
+              <input type="hidden" name="shouldNotify" value="off" />
+              <input type="hidden" name="projectId" value={projectId} />
 
-            <Grid container alignItems="center" justifyContent="center">
-              <Grid item xs={12} sx={{ paddingTop: "10px" }}>
-                <Grid item container xs={12} alignItems="center" justifyContent="center" sx={{ paddingTop: "20px" }}>
-                  <Stepper nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)} connector={<></>}>
-                    {Object.entries(TabNames).map(([key, label]) => {
-                      const keyTab = key as keyof typeof TABS;
-                      const valueTab: TABS = TABS[keyTab];
+              <Grid container alignItems="center" justifyContent="center">
+                <Grid item xs={12} sx={{ paddingTop: "10px" }}>
+                  <Grid item container xs={12} alignItems="center" justifyContent="center" sx={{ paddingTop: "20px" }}>
+                    <Stepper nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)} connector={<></>}>
+                      {Object.entries(TabNames).map(([key, label]) => {
+                        const keyTab = key as keyof typeof TABS;
+                        const valueTab: TABS = TABS[keyTab];
 
-                      return (
-                        <Step key={label}>
-                          <Tooltip title={tooltip_desc[key]}>
-                            <StepButton
-                              color="inherit"
-                              onClick={() => {
-                                setActiveStep(valueTab);
-                              }}
-                              icon={getStepIcon(valueTab)}
-                            >
-                              {label}
-                            </StepButton>
-                          </Tooltip>
-                        </Step>
-                      );
-                    })}
-                  </Stepper>
-                  <Grid container mt={3} style={{ marginBottom: "2%" }}>
-                    {getStepContent(activeStep)}
+                        return (
+                          <Step key={label}>
+                            <Tooltip title={tooltip_desc[key]}>
+                              <StepButton
+                                color="inherit"
+                                onClick={() => {
+                                  setActiveStep(valueTab);
+                                }}
+                                icon={getStepIcon(valueTab)}
+                              >
+                                {label}
+                              </StepButton>
+                            </Tooltip>
+                          </Step>
+                        );
+                      })}
+                    </Stepper>
+                    <Grid container mt={3} style={{ marginBottom: "2%" }}>
+                      {getStepContent(activeStep)}
+                    </Grid>
+                  </Grid>
+                </Grid>
+                <Grid container item xs={12} alignItems="center" justifyContent="center" textAlign={"center"}>
+                  <Grid item container justifyContent="center">
+                    <Stack direction="row" spacing={2}>
+                      <Button onClick={handleConfigSave} variant="outlined" color="primary" sx={{ marginTop: "20px" }}>
+                        Save Config
+                      </Button>
+                      <Button type="submit" variant="contained" color="primary" sx={{ marginTop: "20px" }}>
+                        Start Optimization
+                      </Button>
+                    </Stack>
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid container item xs={12} alignItems="center" justifyContent="center" textAlign={"center"}>
-                <Grid item container justifyContent="center">
-                  <Stack direction="row" spacing={2}>
-                    <Button onClick={handleConfigSave} variant="outlined" color="primary" sx={{ marginTop: "20px" }}>
-                      Save Config
-                    </Button>
-                    <Button type="submit" variant="contained" color="primary" sx={{ marginTop: "20px" }}>
-                      Start Optimization
-                    </Button>
-                  </Stack>
-                </Grid>
-              </Grid>
-            </Grid>
-          </form>
-        </FormProvider>
-      )}
-    </ProcessingAppSection>
+            </form>
+          </FormProvider>
+        )}
+      </ProcessingAppSection>
+    </SimParamFormProvider>
   );
 };
 export default SetupOptimos;

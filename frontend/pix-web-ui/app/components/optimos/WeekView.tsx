@@ -49,16 +49,6 @@ const convertToInternalEntries = (
   return internalEntries;
 };
 
-const isTimePeriodInHour = (timePeriod: TimePeriod, hour: number) => {
-  const from = parseInt(timePeriod.beginTime.split(":")[0]);
-  const to = parseInt(timePeriod.endTime.split(":")[0]);
-  return hour >= from && hour < to;
-};
-
-const isTimePeriodInDay = (timePeriod: TimePeriod, day: string) => {
-  return timePeriod.from.toLocaleLowerCase() === day.toLocaleLowerCase();
-};
-
 const isDayHourInWorkMask = (day: string, hour: number, workMask: ConstraintWorkMask) =>
   (workMask[day.toLocaleLowerCase() as keyof ConstraintWorkMask] >>> 0).toString(2).padStart(24, "0")[hour] === "1";
 

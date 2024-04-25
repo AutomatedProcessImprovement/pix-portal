@@ -5,6 +5,7 @@ import { Button, Card, Grid, Typography } from "@mui/material";
 import type { ConsParams } from "~/shared/optimos_json_type";
 import { BLANK_CONSTRAINTS } from "../helpers";
 import { ConstraintCalendar, type DAYS } from "./ConstraintCalendar";
+import { useSimParamsWorkTimes } from "~/routes/projects.$projectId.$processingType/hooks/useSimParamsForm";
 
 interface Props {
   constraintsForm: UseFormReturn<ConsParams, object>;
@@ -14,6 +15,7 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
   const { constraintsForm, index } = props;
 
   const constraints = useWatch({ control: constraintsForm.control, name: `resources.${index}.constraints` });
+  const id = useWatch({ control: constraintsForm.control, name: `resources.${index}.id` });
 
   const createOnSelectChange =
     (column: "never_work_masks" | "always_work_masks") => (selection: Array<HTMLElement | SVGElement>) => {
@@ -32,6 +34,7 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
       constraintsForm.setValue(`resources.${index}.constraints.${column}`, newConstraints);
     };
 
+  const workTimes = useSimParamsWorkTimes(id) ?? [];
   return (
     <>
       <Card elevation={5} sx={{ p: 2 }}>
@@ -56,6 +59,7 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
             workMask={constraints?.always_work_masks}
             onSelectChange={createOnSelectChange("always_work_masks")}
             color="lightblue"
+            workTimes={workTimes}
           />
         </Grid>
       </Card>
@@ -78,6 +82,7 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
             </Typography>
           </Grid>
           <ConstraintCalendar
+            workTimes={workTimes}
             prefix={`never`}
             workMask={constraints?.never_work_masks}
             onSelectChange={createOnSelectChange("never_work_masks")}

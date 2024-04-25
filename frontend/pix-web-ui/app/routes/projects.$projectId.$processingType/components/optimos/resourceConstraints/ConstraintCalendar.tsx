@@ -2,21 +2,32 @@ import { Grid, Box, Typography, Divider } from "@mui/material";
 import type { FC } from "react";
 import { useRef, useEffect } from "react";
 import Selecto from "react-selecto";
-import type { ConstraintWorkMask } from "~/shared/optimos_json_type";
-import { bitmaskToSelectionIndexes } from "../helpers";
+import type { ConstraintWorkMask, TimePeriod } from "~/shared/optimos_json_type";
+import { bitmaskToSelectionIndexes, isTimePeriodInDay, isTimePeriodInHour } from "../helpers";
+import {
+  useSimParamsForm,
+  useSimParamsWorkTimes,
+} from "~/routes/projects.$projectId.$processingType/hooks/useSimParamsForm";
 
 export const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
 // Generate an array of 24 hours
 export const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 type ConstraintCalendarProps = {
+  workTimes: TimePeriod[];
   workMask: ConstraintWorkMask;
   prefix: string;
   color: string;
   onSelectChange: (selection: Array<HTMLElement | SVGElement>) => void;
 };
 
-export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({ prefix, onSelectChange, workMask, color }) => {
+export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
+  prefix,
+  onSelectChange,
+  workMask,
+  color,
+  workTimes,
+}) => {
   const selectoRef = useRef<Selecto | null>(null);
 
   const containerClassName = `${prefix}-container`;
@@ -82,10 +93,11 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({ prefix, onSele
               </Grid>
             ))}
           </Grid>
-          {/* Days events */}
+
           <Grid container item direction={"row"} xs>
             {DAYS.map((day, dayIndex) => (
               <ConstraintDay
+                workTimes={workTimes}
                 color={color}
                 key={`constraint-day-${day}`}
                 day={day}
@@ -105,23 +117,29 @@ type ConstraintDayProps = {
   workMask: ConstraintWorkMask;
   prefix: string;
   color: string;
+  workTimes: TimePeriod[];
 };
-export const ConstraintDay: FC<ConstraintDayProps> = ({ day, workMask, prefix, color }) => {
+export const ConstraintDay: FC<ConstraintDayProps> = ({ day, workMask, prefix, color, workTimes }) => {
   const selectedIndexes = bitmaskToSelectionIndexes(workMask?.[day] ?? 0);
   return (
     <Grid item xs borderLeft={1} borderColor={"grey"}>
       <Grid container direction={"column"}>
         {HOURS.map((hour, hourIndex) => {
           const hasEvent = selectedIndexes.includes(hourIndex);
+          const hasWorkTime = workTimes.some(
+            (workTime) => isTimePeriodInDay(workTime, day) && isTimePeriodInHour(workTime, hour)
+          );
+          const style =
+            hasWorkTime && hasEvent
+              ? createCheckeredBackground(color)
+              : hasEvent
+              ? { backgroundColor: color }
+              : hasWorkTime
+              ? { backgroundColor: "lightgrey" }
+              : { borderColor: "grey.300" };
           return (
             <Grid className="element" data-index={hourIndex} data-day={day} item key={`event-${day}-${hourIndex}`}>
-              <Box
-                style={hasEvent ? { backgroundColor: color } : { borderColor: "grey.300" }}
-                borderBottom={1}
-                borderColor="grey.300"
-                width={"100%"}
-                height={30}
-              ></Box>
+              <Box style={style} borderBottom={1} borderColor="grey.300" width={"100%"} height={30}></Box>
             </Grid>
           );
         })}
@@ -129,3 +147,7 @@ export const ConstraintDay: FC<ConstraintDayProps> = ({ day, workMask, prefix, c
     </Grid>
   );
 };
+
+const createCheckeredBackground = (color: string, backgroundColor = "lightgrey") => ({
+  background: `repeating-linear-gradient(135deg, ${color}, ${color} 5px, ${backgroundColor} 5px, ${backgroundColor} 10px)`,
+});
