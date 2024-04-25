@@ -1,32 +1,35 @@
 import { Grid, Box, Typography, Divider } from "@mui/material";
 import type { FC } from "react";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import Selecto from "react-selecto";
 import type { ConstraintWorkMask, TimePeriod } from "~/shared/optimos_json_type";
 import { bitmaskToSelectionIndexes, isTimePeriodInDay, isTimePeriodInHour } from "../helpers";
+import { useController, useFormContext, useWatch } from "react-hook-form";
+import { MasterFormData } from "../hooks/useMasterFormData";
+import { createValidateNeverWorkMask } from "../validation/validationFunctions";
+import { useSimParamsResourceIndex, useSimParamsWorkTimes } from "../hooks/useSimParamsWorkTimes";
 
 export const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
 // Generate an array of 24 hours
 export const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 type ConstraintCalendarProps = {
-  workTimes: TimePeriod[];
-  workMask: ConstraintWorkMask;
-  prefix: string;
+  field: "never_work_masks" | "always_work_masks";
   color: string;
+  resourceId: string;
   onSelectChange: (selection: Array<HTMLElement | SVGElement>) => void;
 };
 
-export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
-  prefix,
-  onSelectChange,
-  workMask,
-  color,
-  workTimes,
-}) => {
+export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({ field, onSelectChange, color, resourceId }) => {
   const selectoRef = useRef<Selecto | null>(null);
+  const form = useFormContext<MasterFormData>();
+  const resources = useWatch({ control: form.control, name: `constraints.resources` });
+  const workMask = useMemo(() => {
+    const resourceIndex = resources.findIndex((resource) => resource.id === resourceId);
+    return resources[resourceIndex]?.constraints[field] as ConstraintWorkMask;
+  }, [resources, field, resourceId]);
 
-  const containerClassName = `${prefix}-container`;
+  const containerClassName = `${field}-container`;
   useEffect(() => {
     // Finds the selected element by data-column, data-day and data-index
     const targets = document.querySelectorAll<HTMLElement>(`.${containerClassName} .element`);
@@ -34,7 +37,7 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
       const index = parseInt(element.dataset.index!);
 
       const day = element.dataset.day as (typeof DAYS)[number];
-      return (workMask?.[day] ?? 0) & (1 << index);
+      return (workMask?.[day] ?? 0) & (1 << (23 - index));
     });
     selectoRef.current?.setSelectedTargets(selectedTargets);
   }, [containerClassName, selectoRef, workMask]);
@@ -93,12 +96,11 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
           <Grid container item direction={"row"} xs>
             {DAYS.map((day, dayIndex) => (
               <ConstraintDay
-                workTimes={workTimes}
                 color={color}
                 key={`constraint-day-${day}`}
                 day={day}
-                workMask={workMask}
-                prefix={prefix}
+                field={field}
+                resourceId={resourceId}
               />
             ))}
           </Grid>
@@ -110,15 +112,29 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
 
 type ConstraintDayProps = {
   day: (typeof DAYS)[number];
-  workMask: ConstraintWorkMask;
-  prefix: string;
+  field: "never_work_masks" | "always_work_masks";
   color: string;
-  workTimes: TimePeriod[];
+  resourceId: string;
 };
-export const ConstraintDay: FC<ConstraintDayProps> = ({ day, workMask, prefix, color, workTimes }) => {
-  const selectedIndexes = bitmaskToSelectionIndexes(workMask?.[day] ?? 0);
+export const ConstraintDay: FC<ConstraintDayProps> = ({ day, field, color, resourceId }) => {
+  const { control } = useFormContext<MasterFormData>();
+  const resourceIndex = useSimParamsResourceIndex(resourceId);
+  const validate = useMemo(() => createValidateNeverWorkMask(resourceIndex, day), [resourceIndex, day]);
+  const workTimes = useSimParamsWorkTimes(resourceId, day) ?? [];
+
+  const {
+    field: { value: workMask },
+    fieldState: { error },
+  } = useController({
+    control,
+    rules: { validate },
+    name: `constraints.resources.${resourceIndex}.constraints.${field}.${day}`,
+  });
+  const selectedIndexes = bitmaskToSelectionIndexes(workMask ?? 0);
+  const style = error ? { borderColor: "red" } : {};
+
   return (
-    <Grid item xs borderLeft={1} borderColor={"grey"}>
+    <Grid item xs borderLeft={1} borderColor={"grey"} style={style}>
       <Grid container direction={"column"}>
         {HOURS.map((hour, hourIndex) => {
           const hasEvent = selectedIndexes.includes(hourIndex);
@@ -140,6 +156,7 @@ export const ConstraintDay: FC<ConstraintDayProps> = ({ day, workMask, prefix, c
           );
         })}
       </Grid>
+      {error && <Typography color="error">{error.message}</Typography>}
     </Grid>
   );
 };

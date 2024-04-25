@@ -1,7 +1,7 @@
 import moment from "moment";
 import type { ConsParams, TimePeriod } from "~/shared/optimos_json_type";
 
-export const timePeriodToBinary = (startTime: string, endTime: string, delta: number, num_slots: number) => {
+export const timePeriodToBinary = (startTime: string, endTime: string, delta: number = 60, num_slots: number = 24) => {
   const start_of_day = moment(new Date("1970-01-01T00:00:00"));
   const tp_start = moment(new Date("1970-01-01T" + startTime));
   const tp_end = moment(new Date("1970-01-01T" + endTime));
@@ -10,8 +10,7 @@ export const timePeriodToBinary = (startTime: string, endTime: string, delta: nu
 
   const current = start_of_day;
   for (let i = 0; i < num_slots; i++) {
-    // TODO: Ask why this condition is ()
-    if (current.isBetween(tp_start, tp_end, "minute", "()")) {
+    if (current.isBetween(tp_start, tp_end, "minute", "[)")) {
       res += "1";
     } else {
       res += "0";
@@ -47,14 +46,14 @@ export const applyConstraintsToResources = (
 
 export const selectionIndexesToBitmask = (indexes: number[]) => {
   return indexes.reduce((acc, index) => {
-    return (acc << 1) | index;
+    return (acc << 1) | (23 - index);
   }, 0);
 };
 
 export const bitmaskToSelectionIndexes = (mask: number) => {
   const indexes = [];
   for (let i = 0; i < 24; i++) {
-    if (mask & (1 << i)) indexes.push(i);
+    if (mask & (1 << i)) indexes.push(23 - i);
   }
   return indexes;
 };

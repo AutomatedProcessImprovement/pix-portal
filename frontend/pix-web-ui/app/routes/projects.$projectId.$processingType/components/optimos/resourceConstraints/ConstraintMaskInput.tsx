@@ -7,7 +7,7 @@ import { BLANK_CONSTRAINTS } from "../helpers";
 import { ConstraintCalendar, type DAYS } from "./ConstraintCalendar";
 
 import type { MasterFormData } from "../hooks/useMasterFormData";
-import { useSimParamsWorkTimes } from "../hooks/useSimParamsWorkTimes";
+import { useSimParamsResourceIndex, useSimParamsWorkTimes } from "../hooks/useSimParamsWorkTimes";
 
 interface Props {
   index: number;
@@ -36,16 +36,19 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
         return { index, day };
       });
 
+      console.log("workHours monday entries", constraintsEntries);
+
       // Group by column, then day
       const newConstraints = constraintsEntries.reduce(
-        (acc, { index, day }) => ({ ...acc, [day]: acc[day] | (1 << index) }),
+        (acc, { index, day }) => ({ ...acc, [day]: acc[day] | (1 << (23 - index)) }),
         { ...BLANK_CONSTRAINTS[column] }
       );
 
-      form.setValue(`constraints.resources.${index}.constraints.${column}`, newConstraints);
+      form.setValue(`constraints.resources.${index}.constraints.${column}`, newConstraints, {
+        shouldValidate: true,
+      });
     };
 
-  const workTimes = useSimParamsWorkTimes(id) ?? [];
   return (
     <>
       <Card elevation={5} sx={{ p: 2 }}>
@@ -66,11 +69,10 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
             </Typography>
           </Grid>
           <ConstraintCalendar
-            prefix={`always`}
-            workMask={always_work_masks}
+            field={`always_work_masks`}
+            resourceId={id}
             onSelectChange={createOnSelectChange("always_work_masks")}
             color="lightblue"
-            workTimes={workTimes}
           />
         </Grid>
       </Card>
@@ -93,9 +95,8 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
             </Typography>
           </Grid>
           <ConstraintCalendar
-            workTimes={workTimes}
-            prefix={`never`}
-            workMask={never_work_masks}
+            resourceId={id}
+            field={`never_work_masks`}
             onSelectChange={createOnSelectChange("never_work_masks")}
             color="rgb(242, 107, 44,0.5)"
           />

@@ -117,7 +117,11 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currCalendarInde
                         resources[currCalendarIndex].id,
                         resources.map((r) => r.id)
                       );
-                      form.setValue("constraints.resources", newResources, { shouldDirty: true, shouldTouch: true });
+                      form.setValue("constraints.resources", newResources, {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                        shouldValidate: true,
+                      });
                     }}
                     startIcon={<ContentPasteIcon />}
                   >
@@ -139,7 +143,11 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currCalendarInde
                     startIcon={<RestartAltIcon />}
                     onClick={() => {
                       const newResources = resetResourceConstraintsToBlank(resources, resources[currCalendarIndex].id);
-                      form.setValue("constraints.resources", newResources, { shouldDirty: true, shouldTouch: true });
+                      form.setValue("constraints.resources", newResources, {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                        shouldValidate: true,
+                      });
                     }}
                   >
                     Reset to blank constraints
@@ -153,7 +161,11 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currCalendarInde
                         resources[currCalendarIndex].id
                       );
 
-                      form.setValue("constraints.resources", newResources, { shouldDirty: true, shouldTouch: true });
+                      form.setValue("constraints.resources", newResources, {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                        shouldValidate: true,
+                      });
                     }}
                   >
                     Reset to 9-5 working times
@@ -169,7 +181,11 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currCalendarInde
         onClose={(selectedIds) => {
           setModalOpen(false);
           const newResources = applyConstraintsToResources(resources, resources[currCalendarIndex].id, selectedIds);
-          form.setValue("constraints.resources", newResources, { shouldDirty: true, shouldTouch: true });
+          form.setValue("constraints.resources", newResources, {
+            shouldDirty: true,
+            shouldTouch: true,
+            shouldValidate: true,
+          });
         }}
         selectedValue={resources[currCalendarIndex].id}
         resources={resources}

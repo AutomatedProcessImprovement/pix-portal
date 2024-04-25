@@ -1,18 +1,9 @@
 import type { AlertColor } from "@mui/material";
 import YAML from "yaml";
-import { Badge, Button, Grid, Stack, Step, StepButton, StepIcon, Stepper, Tooltip, useTheme } from "@mui/material";
+import { Badge, Button, Grid, Stack, Step, StepButton, Stepper, Tooltip, useTheme } from "@mui/material";
 import toast from "react-hot-toast";
 import { v4 as uuidv4 } from "uuid";
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import {
-  Groups as GroupsIcon,
-  BarChart as BarChartIcon,
-  Settings as SettingsIcon,
-  CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon,
-  Build as BuildIcon,
-  Warning as WarningIcon,
-} from "@mui/icons-material";
 
 import useFormState from "../hooks/useFormState";
 import useJsonFile from "../hooks/useJsonFile";
@@ -37,6 +28,7 @@ import { useOptimosTab } from "~/routes/projects.$projectId.$processingType/comp
 import { ValidationTab } from "../validation/ValidationTab";
 import { useYAMLFile } from "../hooks/useYAMLFile";
 import { MasterFormData, useMasterFormData } from "../hooks/useMasterFormData";
+import { CustomStepIcon } from "./CustomStepIcon";
 
 const tooltip_desc: Record<string, string> = {
   GLOBAL_CONSTRAINTS: "Define the algorithm, approach and number of iterations",
@@ -46,10 +38,6 @@ const tooltip_desc: Record<string, string> = {
 };
 
 const SetupOptimos = () => {
-  const theme = useTheme();
-  const activeColor = theme.palette.info.dark;
-  const successColor = theme.palette.success.light;
-  const errorColor = theme.palette.error.light;
   const selectAsset = useSelectAsset();
   const selectedAssets = useContext(SelectedAssetsContext);
 
@@ -80,47 +68,6 @@ const SetupOptimos = () => {
         return <ResourceConstraints />;
       case TABS.VALIDATION_RESULTS:
         return <ValidationTab />;
-    }
-  };
-
-  const getBadgeContent = (areAnyErrors: boolean) => {
-    let BadgeIcon: typeof CancelIcon | typeof CheckCircleIcon, color: string;
-    if (areAnyErrors) {
-      BadgeIcon = CancelIcon;
-      color = errorColor;
-    } else {
-      BadgeIcon = CheckCircleIcon;
-      color = successColor;
-    }
-
-    return <BadgeIcon style={{ marginRight: "-9px", color }} />;
-  };
-  const getStepIcon = (currentTab: TABS): React.ReactNode => {
-    const isActiveStep = activeStep === currentTab;
-    const styles = isActiveStep ? { color: activeColor } : {};
-
-    let currError: any;
-
-    switch (currentTab) {
-      case TABS.GLOBAL_CONSTRAINTS:
-        return <BuildIcon style={styles} />;
-
-      case TABS.SCENARIO_CONSTRAINTS:
-        return <SettingsIcon style={styles} />;
-
-      case TABS.RESOURCE_CONSTRAINTS:
-        return <GroupsIcon style={styles} />;
-
-      case TABS.VALIDATION_RESULTS:
-        const areAnyErrors = currError && (currError.length > 0 || Object.keys(currError)?.length > 0);
-        return (
-          <Badge badgeContent={getBadgeContent(areAnyErrors)} overlap="circular">
-            <WarningIcon style={styles} />
-          </Badge>
-        );
-
-      default:
-        return <></>;
     }
   };
 
@@ -278,7 +225,7 @@ const SetupOptimos = () => {
                               onClick={() => {
                                 setActiveStep(valueTab);
                               }}
-                              icon={getStepIcon(valueTab)}
+                              icon={<CustomStepIcon activeStep={activeStep} currentTab={valueTab} />}
                             >
                               {label}
                             </StepButton>

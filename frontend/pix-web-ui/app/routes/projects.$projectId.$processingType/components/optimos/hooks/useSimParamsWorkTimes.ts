@@ -11,3 +11,10 @@ export const useSimParamsWorkTimes = (resourceId: string, day?: string) => {
     return workTimes;
   }
 };
+
+export const useSimParamsResourceIndex = (resourceId: string) => {
+  const form = useFormContext<MasterFormData>();
+  const calendars = useWatch({ control: form.control, name: `simulationParameters.resource_calendars` });
+  const index = calendars.findIndex((calendar) => calendar.id === resourceId);
+  return index;
+};
