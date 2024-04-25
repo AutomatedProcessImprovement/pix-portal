@@ -4,14 +4,14 @@ export enum TABS {
   GLOBAL_CONSTRAINTS,
   SCENARIO_CONSTRAINTS,
   RESOURCE_CONSTRAINTS,
-  SIMULATION_RESULTS,
+  VALIDATION_RESULTS,
 }
 
 export const TabNames: Record<string, string> = {
   GLOBAL_CONSTRAINTS: "Global Constraints",
   SCENARIO_CONSTRAINTS: "Scenario Constraints",
   RESOURCE_CONSTRAINTS: "Resource Constraints",
-  // SIMULATION_RESULTS: "Simulation Results",
+  VALIDATION_RESULTS: "Constraint Validation",
 };
 
 export const getIndexOfTab = (tab: TABS) => {

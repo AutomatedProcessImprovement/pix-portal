@@ -41,7 +41,7 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
                   <TextField
                     type="number"
                     value={value}
-                    label="Max weekly capacity"
+                    label="Max weekly shifts"
                     onChange={(e) => {
                       onChange(Number(e.target.value));
                     }}
@@ -213,6 +213,7 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
           </Grid>
         </Card>
       </Grid>
+
       <Grid item xs={12}>
         <ConstraintMaskInput constraintsForm={constraintsForm} index={index} />
       </Grid>

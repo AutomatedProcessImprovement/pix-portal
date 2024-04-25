@@ -11,6 +11,7 @@ import {
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
   Build as BuildIcon,
+  Warning as WarningIcon,
 } from "@mui/icons-material";
 
 import useFormState from "./useFormState";
@@ -34,6 +35,7 @@ import { generateConstraints } from "../generateContraints";
 import { SelectedAssetsContext, SetSelectedAssetsContext } from "~/routes/projects.$projectId.$processingType/contexts";
 import { useOptimosTab } from "~/routes/projects.$projectId.$processingType/hooks/useOptimosTab";
 import { ConsParams, ScenarioProperties, SimParams } from "~/shared/optimos_json_type";
+import { ValidationTab } from "../validation/ValidationTab";
 
 const tooltip_desc: Record<string, string> = {
   GLOBAL_CONSTRAINTS: "Define the algorithm, approach and number of iterations",
@@ -142,67 +144,52 @@ const SetupOptimos = () => {
         );
       case TABS.RESOURCE_CONSTRAINTS:
         return <ResourceConstraints setErrorMessage={setErrorMessage} constraintsForm={constraintsForm} />;
+      case TABS.VALIDATION_RESULTS:
+        return <ValidationTab constraintsForm={constraintsForm} />;
     }
+  };
+
+  const getBadgeContent = (areAnyErrors: boolean) => {
+    let BadgeIcon: typeof CancelIcon | typeof CheckCircleIcon, color: string;
+    if (areAnyErrors) {
+      BadgeIcon = CancelIcon;
+      color = errorColor;
+    } else {
+      BadgeIcon = CheckCircleIcon;
+      color = successColor;
+    }
+
+    return <BadgeIcon style={{ marginRight: "-9px", color }} />;
   };
   const getStepIcon = (currentTab: TABS): React.ReactNode => {
     const isActiveStep = activeStep === currentTab;
     const styles = isActiveStep ? { color: activeColor } : {};
 
-    let Icon: React.ReactNode;
     let currError: any;
-    let lastStep = false;
+
     switch (currentTab) {
       case TABS.GLOBAL_CONSTRAINTS:
         currError = scenarioErrors;
-        Icon = <BuildIcon style={styles} />;
-        break;
+        return <BuildIcon style={styles} />;
+
       case TABS.SCENARIO_CONSTRAINTS:
-        currError =
-          errors.time_var ??
-          errors.hours_in_day ??
-          errors.max_cap ??
-          errors.max_shift_size ??
-          errors.hours_in_day ??
-          errors.max_shift_blocks;
-        Icon = <SettingsIcon style={styles} />;
-        break;
+        return <SettingsIcon style={styles} />;
+
       case TABS.RESOURCE_CONSTRAINTS:
         currError = errors.hours_in_day;
-        Icon = <GroupsIcon style={styles} />;
-        break;
-      case TABS.SIMULATION_RESULTS:
-        lastStep = true;
-        Icon = <BarChartIcon style={styles} />;
-        break;
+        return <GroupsIcon style={styles} />;
+
+      case TABS.VALIDATION_RESULTS:
+        const areAnyErrors = currError && (currError.length > 0 || Object.keys(currError)?.length > 0);
+        return (
+          <Badge badgeContent={getBadgeContent(areAnyErrors)} overlap="circular">
+            <WarningIcon style={styles} />
+          </Badge>
+        );
+
       default:
         return <></>;
     }
-
-    const getBadgeContent = (areAnyErrors: boolean) => {
-      let BadgeIcon: typeof CancelIcon | typeof CheckCircleIcon, color: string;
-      if (areAnyErrors) {
-        BadgeIcon = CancelIcon;
-        color = errorColor;
-      } else {
-        BadgeIcon = CheckCircleIcon;
-        color = successColor;
-      }
-
-      return <BadgeIcon style={{ marginRight: "-9px", color }} />;
-    };
-
-    const areAnyErrors = currError && (currError.length > 0 || Object.keys(currError)?.length > 0);
-    const finalIcon =
-      isSubmitted && !lastStep ? (
-        <Badge badgeContent={getBadgeContent(areAnyErrors)} overlap="circular">
-          {" "}
-          {Icon}
-        </Badge>
-      ) : (
-        Icon
-      );
-
-    return <StepIcon active={isActiveStep} icon={finalIcon} />;
   };
 
   const fromContentToBlob = (values: any) => {

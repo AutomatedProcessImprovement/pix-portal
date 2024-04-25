@@ -1,7 +1,7 @@
 import { type FC } from "react";
 import { useWatch } from "react-hook-form";
 import type { UseFormReturn } from "react-hook-form";
-import { Card, Grid, Typography } from "@mui/material";
+import { Button, Card, Grid, Typography } from "@mui/material";
 import type { ConsParams } from "~/shared/optimos_json_type";
 import { BLANK_CONSTRAINTS } from "../helpers";
 import { ConstraintCalendar, type DAYS } from "./ConstraintCalendar";
@@ -26,15 +26,10 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
 
       // Group by column, then day
       const newConstraints = constraintsEntries.reduce(
-        (acc, { index, column, day }) => {
-          return {
-            ...acc,
-            [column]: { ...acc[column], [day]: acc[column]?.[day] | (1 << index) },
-          };
-        },
-        { ...BLANK_CONSTRAINTS }
+        (acc, { index, column, day }) => ({ ...acc, [day]: acc[day] | (1 << index) }),
+        { ...BLANK_CONSTRAINTS[column] }
       );
-      constraintsForm.setValue(`resources.${index}.constraints`, { ...constraints, ...newConstraints });
+      constraintsForm.setValue(`resources.${index}.constraints.${column}`, newConstraints);
     };
 
   return (
@@ -44,6 +39,16 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
           <Grid item xs={12}>
             <Typography variant="h6" align="left">
               Always Work Times
+              <Button
+                onClick={() => {
+                  constraintsForm.setValue(
+                    `resources.${index}.constraints.always_work_masks`,
+                    BLANK_CONSTRAINTS["always_work_masks"]
+                  );
+                }}
+              >
+                <Typography variant="body2">Clear</Typography>
+              </Button>
             </Typography>
           </Grid>
           <ConstraintCalendar
@@ -60,6 +65,16 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
           <Grid item xs={12}>
             <Typography variant="h6" align="left">
               Never Work Times
+              <Button
+                onClick={() => {
+                  constraintsForm.setValue(
+                    `resources.${index}.constraints.never_work_masks`,
+                    BLANK_CONSTRAINTS["never_work_masks"]
+                  );
+                }}
+              >
+                <Typography variant="body2">Clear</Typography>
+              </Button>
             </Typography>
           </Grid>
           <ConstraintCalendar
