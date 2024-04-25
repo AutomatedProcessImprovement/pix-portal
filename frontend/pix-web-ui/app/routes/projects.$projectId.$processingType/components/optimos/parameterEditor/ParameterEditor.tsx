@@ -1,12 +1,9 @@
-import type { AlertColor } from "@mui/material";
 import YAML from "yaml";
-import { Badge, Button, Grid, Stack, Step, StepButton, Stepper, Tooltip, useTheme } from "@mui/material";
-import toast from "react-hot-toast";
-import { v4 as uuidv4 } from "uuid";
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import { Button, Grid, Stack, Step, StepButton, Stepper, Tooltip } from "@mui/material";
 
-import useFormState from "../hooks/useFormState";
-import useJsonFile from "../hooks/useJsonFile";
+import { v4 as uuidv4 } from "uuid";
+import { useEffect, useCallback, useContext } from "react";
+
 import { TABS, TabNames, getIndexOfTab } from "../hooks/useTabVisibility";
 import GlobalConstraints from "../constraintEditors/GlobalConstraints";
 import { FormProvider, useForm } from "react-hook-form";
@@ -23,12 +20,13 @@ import {
 } from "~/routes/projects.$projectId.$processingType/components/useSelectedInputAsset";
 import { ProcessingAppSection } from "~/routes/projects.$projectId.$processingType/components/ProcessingAppSection";
 import { generateConstraints } from "../generateContraints";
-import { SelectedAssetsContext, SetSelectedAssetsContext } from "~/routes/projects.$projectId.$processingType/contexts";
+import { SelectedAssetsContext } from "~/routes/projects.$projectId.$processingType/contexts";
 import { useOptimosTab } from "~/routes/projects.$projectId.$processingType/components/optimos/hooks/useOptimosTab";
 import { ValidationTab } from "../validation/ValidationTab";
-import { useYAMLFile } from "../hooks/useYAMLFile";
 import { MasterFormData, useMasterFormData } from "../hooks/useMasterFormData";
 import { CustomStepIcon } from "./CustomStepIcon";
+import { constraintResolver } from "../validation/validationFunctions";
+import { useOptimosConfigSave, useSimulationParametersSave } from "../hooks/useConfigSave";
 
 const tooltip_desc: Record<string, string> = {
   GLOBAL_CONSTRAINTS: "Define the algorithm, approach and number of iterations",
@@ -50,13 +48,17 @@ const SetupOptimos = () => {
   //   const { bpmnFile, simParamsFile, consParamsFile } = state as LocationState
   const [bpmnFile] = useFileFromAsset(AssetType.SIMULATION_MODEL, FileType.PROCESS_MODEL_BPMN);
 
-  const [masterFormData, hasSimParamsFile, hasConsParamsFile, hasConfigFile] = useMasterFormData();
+  const [masterFormData, hasSimParamsFile, _hasConsParamsFile, hasConfigFile] = useMasterFormData();
 
   const masterForm = useForm<MasterFormData>({
     values: masterFormData,
+    resolver: constraintResolver,
   });
-  const { formState, getValues, setValue } = masterForm;
-  const { isSubmitted, errors, submitCount } = formState;
+  const { getValues, trigger } = masterForm;
+
+  useEffect(() => {
+    trigger();
+  }, [trigger, masterFormData]);
 
   const getStepContent = (index: TABS) => {
     switch (index) {
@@ -71,19 +73,6 @@ const SetupOptimos = () => {
     }
   };
 
-  const fromContentToBlob = (values: any) => {
-    const content = JSON.stringify(values);
-    const blob = new Blob([content], { type: "text/plain" });
-    return blob;
-  };
-
-  const getConstraintsConfigBlob = useCallback((): Blob => {
-    const values = getValues().constraints;
-    const blob = fromContentToBlob(values);
-
-    return blob;
-  }, [getValues]);
-
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
     if (!(bpmnFile || hasSimParamsFile) && searchParams.get("tabIndex") !== null) {
@@ -91,65 +80,16 @@ const SetupOptimos = () => {
     }
   }, [bpmnFile, hasSimParamsFile, searchParams, setSearchParams]);
 
-  const handleConfigSave = useCallback(
-    // save form data as configuration file, create or update the asset, and update the selected asset IDs
-    async () => {
-      if (!optimosConfigAsset) return;
-      const { num_iterations, approach, algorithm, scenario_name } = getValues().scenarioProperties;
+  const optimosConfigSave = useOptimosConfigSave(masterForm);
+  const simulationParametersSave = useSimulationParametersSave(masterForm);
 
-      const globalConfig = {
-        scenario_name: scenario_name,
-        num_instances: num_iterations,
-        algorithm: algorithm,
-        approach: approach,
-      };
-
-      const token = user!.token!;
-
-      const constraints = getConstraintsConfigBlob();
-      const constraintsConfigFile = await uploadFile(
-        constraints,
-        `${uuidv4()}.json`,
-        FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON,
-        token
-      );
-
-      const globalConfigBlob = new Blob([YAML.stringify(globalConfig)], { type: "text/yaml" });
-      const globalConfigFile = await uploadFile(
-        globalConfigBlob,
-        `${uuidv4()}.yaml`,
-        FileType.CONFIGURATION_OPTIMOS_YAML,
-        token
-      );
-
-      const files = await Promise.all(optimosConfigAsset.files_ids.map((id) => getFile(id, token)));
-      const outdatedFiles = files.filter(
-        (file) =>
-          file.type === FileType.CONFIGURATION_OPTIMOS_YAML || file.type === FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON
-      );
-
-      const preservedFiles = files.filter((file) => !outdatedFiles.includes(file));
-
-      const newFileIds = [globalConfigFile.id, constraintsConfigFile.id, ...preservedFiles.map((file) => file.id)];
-
-      // update existing asset
-      const updatedAsset = await patchAsset({ files_ids: newFileIds }, optimosConfigAsset.id, token);
-      if (updatedAsset) {
-        // remove the old file if all is successful
-        try {
-          for (const file of outdatedFiles) {
-            await deleteFile(file.id, token);
-          }
-        } catch (e) {
-          console.error("error deleting old file", e);
-          // don't throw, still continue with the update below because the asset was updated
-        }
-      }
-      setOptimosConfigAsset(updatedAsset);
-      toast.success("Optimos configuration updated", { duration: 5000 });
-    },
-    [optimosConfigAsset, getValues, user, getConstraintsConfigBlob, setOptimosConfigAsset]
-  );
+  const handleConfigSave = async () => {
+    await optimosConfigSave();
+    if (masterForm.formState.dirtyFields.simulationParameters !== undefined) {
+      await simulationParametersSave();
+    }
+    reset({}, { keepValues: true });
+  };
   const createConstraintsFromSimParams = async () => {
     if (optimosConfigAsset || !projectId || !hasSimParamsFile) return;
     const simParams = getValues().simulationParameters;
@@ -196,10 +136,16 @@ const SetupOptimos = () => {
         <FormProvider {...masterForm}>
           <form
             method="POST"
-            onSubmit={masterForm.handleSubmit(async (e, t) => {
-              await handleConfigSave();
-              t?.target.submit();
-            })}
+            onSubmit={masterForm.handleSubmit(
+              async () => {
+                await handleConfigSave();
+                // t?.target.submit();
+                console.log("Submitted!");
+              },
+              () => {
+                alert("There are still errors in the parameters, please correct them before submitting.");
+              }
+            )}
           >
             <input
               type="hidden"

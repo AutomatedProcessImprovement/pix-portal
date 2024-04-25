@@ -1,8 +1,8 @@
 import { TableRow, TableCell, IconButton, Chip, Collapse, Box, Typography, Grid } from "@mui/material";
+import type { FC } from "react";
 import React, { useState } from "react";
-import { FC } from "react";
 import { WeekView } from "~/components/optimos/WeekView";
-import { EnhancedResource, Shift, ConstraintWorkMask } from "~/shared/optimos_json_type";
+import type { EnhancedResource, Shift, ConstraintWorkMask } from "~/shared/optimos_json_type";
 import {
   KeyboardArrowDown as KeyboardArrowDownIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,

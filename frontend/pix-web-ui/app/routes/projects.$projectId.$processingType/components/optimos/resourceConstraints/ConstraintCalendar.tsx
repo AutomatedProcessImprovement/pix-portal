@@ -115,13 +115,6 @@ type ConstraintDayProps = {
 export const ConstraintDay: FC<ConstraintDayProps> = ({ day, field, color, resourceId }) => {
   const { control } = useFormContext<MasterFormData>();
   const resourceIndex = useSimParamsResourceIndex(resourceId);
-  const validate = useMemo(
-    () =>
-      field === "never_work_masks"
-        ? createValidateNeverWorkMask(resourceIndex, day)
-        : createValidateAlwaysWorkMask(resourceIndex, day),
-    [resourceIndex, day, field]
-  );
   const workTimes = useSimParamsWorkTimes(resourceId, day) ?? [];
 
   const {
@@ -129,11 +122,10 @@ export const ConstraintDay: FC<ConstraintDayProps> = ({ day, field, color, resou
     fieldState: { error },
   } = useController({
     control,
-    rules: { validate },
     name: `constraints.resources.${resourceIndex}.constraints.${field}.${day}`,
   });
   const selectedIndexes = bitmaskToSelectionIndexes(workMask ?? 0);
-  const style = error ? { borderColor: "red" } : {};
+  const style = error ? { borderColor: "red", borderWidth: "1px" } : {};
 
   return (
     <Grid item xs borderLeft={1} borderColor={"grey"} style={style}>
@@ -158,7 +150,11 @@ export const ConstraintDay: FC<ConstraintDayProps> = ({ day, field, color, resou
           );
         })}
       </Grid>
-      {error && <Typography color="error">{error.message}</Typography>}
+      {error && (
+        <Typography textAlign={"center"} color="error">
+          {error.message}
+        </Typography>
+      )}
     </Grid>
   );
 };

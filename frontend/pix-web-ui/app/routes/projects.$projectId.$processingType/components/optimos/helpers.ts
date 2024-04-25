@@ -1,5 +1,7 @@
 import moment from "moment";
 import type { ConsParams, TimePeriod } from "~/shared/optimos_json_type";
+import type { MasterFormData } from "./hooks/useMasterFormData";
+import type { FieldErrors, FieldPath, GlobalError } from "react-hook-form";
 
 export const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
 // Generate an array of 24 hours
@@ -48,10 +50,16 @@ export const applyConstraintsToResources = (
   return resources;
 };
 
+// Converts an array of indexes to a bitmask
+// with index 23 being the first bit (rightmost bit)
+// and index 0 being the last bit (leftmost bit)
+// the array doesn't have to be sorted
 export const selectionIndexesToBitmask = (indexes: number[]) => {
-  return indexes.reduce((acc, index) => {
-    return (acc << 1) | (23 - index);
-  }, 0);
+  let mask = 0;
+  for (const index of indexes) {
+    mask |= 1 << (23 - index);
+  }
+  return mask;
 };
 
 export const bitmaskToSelectionIndexes = (mask: number) => {
