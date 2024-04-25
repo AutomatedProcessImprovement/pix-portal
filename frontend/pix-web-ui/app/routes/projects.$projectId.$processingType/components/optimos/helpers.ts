@@ -1,4 +1,5 @@
 import moment from "moment";
+import type { ConsParams } from "~/shared/optimos_json_type";
 
 export const timePeriodToBinary = (startTime: string, endTime: string, delta: number, num_slots: number) => {
   const start_of_day = moment(new Date("1970-01-01T00:00:00"));
@@ -19,4 +20,27 @@ export const timePeriodToBinary = (startTime: string, endTime: string, delta: nu
     // console.log(current.format('hh:mm:ss'))
   }
   return parseInt(res, 2);
+};
+
+export const deepClone = <T>(obj: T): T => {
+  return JSON.parse(JSON.stringify(obj));
+};
+
+export const applyConstraintsToResources = (
+  resources: ConsParams["resources"],
+  srcResourceId: string,
+  targetResourceIds: string[]
+) => {
+  const srcConstraints = resources.find((resource) => resource.id === srcResourceId)?.constraints;
+  if (!srcConstraints) return resources;
+
+  for (const targetResourceId of targetResourceIds) {
+    if (targetResourceId === srcResourceId) continue;
+    const targetResource = resources.find((resource) => resource.id === targetResourceId);
+    if (!targetResource) continue;
+
+    targetResource.constraints = deepClone(srcConstraints);
+  }
+
+  return resources;
 };

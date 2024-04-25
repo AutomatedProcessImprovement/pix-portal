@@ -24,7 +24,7 @@ import { UserContext } from "~/routes/contexts";
 import { AssetType, createAsset, patchAsset } from "~/services/assets";
 import { useFileFromAsset } from "./useFetchedAsset";
 import { FileType, deleteFile, getFile, uploadFile } from "~/services/files";
-import { useMatches } from "@remix-run/react";
+import { useMatches, useSearchParams } from "@remix-run/react";
 import {
   useSelectAsset,
   useSelectedInputAsset,
@@ -220,6 +220,13 @@ const SetupOptimos = () => {
 
     return blob;
   }, [getValues]);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (!(bpmnFile || simParamsFile) && searchParams.get("tabIndex") !== null) {
+      setSearchParams({ tabIndex: "" });
+    }
+  }, [bpmnFile, simParamsFile, searchParams, setSearchParams]);
 
   const handleConfigSave = useCallback(
     // save form data as configuration file, create or update the asset, and update the selected asset IDs

@@ -15,22 +15,22 @@ import {
 } from "@mui/material";
 import type { FC } from "react";
 import React, { useEffect } from "react";
-import type { FieldArrayWithId } from "react-hook-form";
+import type { FieldArrayWithId, UseFormReturn } from "react-hook-form";
 import type { ConsParams } from "~/shared/optimos_json_type";
+import { ResourceCopyDialog } from "./ResourceCopyDialog";
+import { applyConstraintsToResources } from "../helpers";
 
 export type ResourceSelectionProps = {
-  allCalendars: FieldArrayWithId<ConsParams, "resources", "key">[];
+  formState: UseFormReturn<ConsParams, object>;
   currCalendarIndex: number;
   updateCurrCalendar: (index: number) => void;
 };
 
-export const ResourceSelection: FC<ResourceSelectionProps> = ({
-  allCalendars,
-  currCalendarIndex,
-  updateCurrCalendar,
-}) => {
+export const ResourceSelection: FC<ResourceSelectionProps> = ({ formState, currCalendarIndex, updateCurrCalendar }) => {
+  const allCalendars = formState.getValues().resources;
   const [searchTerm, setSearchTerm] = React.useState("");
   const [searchResults, setSearchResults] = React.useState(allCalendars);
+  const [modalOpen, setModalOpen] = React.useState(false);
 
   useEffect(() => {
     const results = allCalendars.filter((calendar) => calendar.id.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -38,76 +38,94 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
   }, [allCalendars, searchTerm]);
 
   return (
-    <Card
-      elevation={5}
-      sx={{
-        p: 2,
-      }}
-    >
-      <Grid item xs={12}>
-        <Typography variant="h6">Resources</Typography>
-      </Grid>
-      <Grid container direction={"row"} justifyContent={"space-around"} alignItems={"stretch"}>
-        <Grid
-          item
-          xs={5}
-          sx={{
-            p: 2,
-          }}
-        >
-          <TextField
+    <>
+      <Card
+        elevation={5}
+        sx={{
+          p: 2,
+        }}
+      >
+        <Grid item xs={12}>
+          <Typography variant="h6">Resources</Typography>
+        </Grid>
+        <Grid container direction={"row"} justifyContent={"space-around"} alignItems={"stretch"}>
+          <Grid
+            item
+            xs={5}
             sx={{
-              width: "100%",
-              mb: 1,
-            }}
-            label="Search"
-            type="search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <List
-            sx={{
-              overflow: "scroll",
-              height: "300px",
+              p: 2,
             }}
           >
-            {searchResults.map((item, index) => {
-              const { key } = item;
-              const isSelected = currCalendarIndex === index;
-              return (
-                <ListItemButton selected={isSelected} key={key} onClick={() => updateCurrCalendar(index)}>
-                  <ListItemIcon>
-                    {item.constraints.global_constraints.is_human ? <PersonIcon /> : <PrecisionManufacturingIcon />}
-                  </ListItemIcon>
-                  <ListItemText>{item.id}</ListItemText>
-                </ListItemButton>
-              );
-            })}
-          </List>
-        </Grid>
+            <TextField
+              sx={{
+                width: "100%",
+                mb: 1,
+              }}
+              label="Search"
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <List
+              sx={{
+                overflow: "scroll",
+                height: "300px",
+              }}
+            >
+              {searchResults.map((item, index) => {
+                console.log(item);
+                const isSelected = currCalendarIndex === index;
+                return (
+                  <ListItemButton selected={isSelected} key={item.id} onClick={() => updateCurrCalendar(index)}>
+                    <ListItemIcon>
+                      {item.constraints.global_constraints?.is_human ? <PersonIcon /> : <PrecisionManufacturingIcon />}
+                    </ListItemIcon>
+                    <ListItemText>{item.id}</ListItemText>
+                  </ListItemButton>
+                );
+              })}
+            </List>
+          </Grid>
 
-        <Divider orientation="vertical" flexItem variant="middle" />
+          <Divider orientation="vertical" flexItem variant="middle" />
 
-        <Grid item xs={5}>
-          <Grid container width={"100%"} height={"100%"} justifyContent={"space-between"}>
-            <Grid item width={"100%"}>
-              <Typography variant="subtitle1">Copy Constraints</Typography>
-              <ButtonGroup fullWidth>
-                <Button variant="outlined">Apply constraints to all resources</Button>
-                <Button variant="outlined">Copy Constraints to...</Button>
-              </ButtonGroup>
-            </Grid>
-            <Divider flexItem variant="middle" orientation="horizontal" />
-            <Grid item width={"100%"}>
-              <Typography variant="subtitle1">Reset Constraints</Typography>
-              <ButtonGroup orientation="vertical" fullWidth>
-                <Button variant="outlined">Reset Resource to blank constraints</Button>
-                <Button variant="outlined">Reset Resources to 9-5 Working times</Button>
-              </ButtonGroup>
+          <Grid item xs={5}>
+            <Grid container width={"100%"} height={"100%"} justifyContent={"space-between"}>
+              <Grid item width={"100%"}>
+                <Typography variant="subtitle1">Copy Constraints</Typography>
+                <ButtonGroup fullWidth>
+                  <Button variant="outlined">Apply constraints to all resources</Button>
+                  <Button variant="outlined" onClick={() => setModalOpen(true)}>
+                    Copy Constraints to...
+                  </Button>
+                </ButtonGroup>
+              </Grid>
+              <Divider flexItem variant="middle" orientation="horizontal" />
+              <Grid item width={"100%"}>
+                <Typography variant="subtitle1">Reset Constraints</Typography>
+                <ButtonGroup orientation="vertical" fullWidth>
+                  <Button variant="outlined">Reset to blank constraints</Button>
+                  <Button variant="outlined">Reset to 9-5 working times</Button>
+                </ButtonGroup>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
-      </Grid>
-    </Card>
+      </Card>
+      <ResourceCopyDialog
+        open={modalOpen}
+        onClose={(selectedIds) => {
+          setModalOpen(false);
+          const newResources = applyConstraintsToResources(
+            allCalendars,
+            allCalendars[currCalendarIndex].id,
+            selectedIds
+          );
+          formState.setValue("resources", newResources);
+        }}
+        selectedValue={allCalendars[currCalendarIndex].id}
+        allCalendars={allCalendars}
+      />
+    </>
   );
 };

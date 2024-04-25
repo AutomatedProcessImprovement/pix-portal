@@ -136,3 +136,13 @@ button.MuiStepButton-root:hover {
 input.MuiInputBase-input:focus {
   box-shadow: none;
 }
+input.PrivateSwitchBase-input:checked {
+  background-image: none;
+}
+input.PrivateSwitchBase-input:checked {
+  background-image: none;
+  border-color: transparent;
+  background-color: inherit;
+  background-position: inherit;
+  background-repeat: inherit;
+}

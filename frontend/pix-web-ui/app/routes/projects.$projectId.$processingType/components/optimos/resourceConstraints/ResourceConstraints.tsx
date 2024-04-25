@@ -67,7 +67,7 @@ const ResourceConstraints = (props: ResourceCalendarsProps) => {
         <Grid item xs={12}>
           <ResourceSelection
             currCalendarIndex={currCalendarIndex ?? 0}
-            allCalendars={allCalendars}
+            formState={formState}
             updateCurrCalendar={updateCurrCalendar}
           />
         </Grid>

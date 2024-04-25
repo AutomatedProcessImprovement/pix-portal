@@ -75,7 +75,7 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
             const index = parseInt(element.dataset.index!);
             const column = element.dataset.column as (typeof COLUMNS)[number];
             const day = element.dataset.day as (typeof DAYS)[number];
-            return (constraints[column][day] ?? 0) & (1 << index);
+            return (constraints?.[column]?.[day] ?? 0) & (1 << index);
           });
           selectoRef.current?.setSelectedTargets(selectedTargets);
         }, []);
@@ -101,7 +101,7 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
             { ...BASE_CONSTRAINTS }
           );
 
-          onChange(newConstraints);
+          onChange({ ...value, ...newConstraints });
         };
         return (
           <Grid item xs={12} className={containerClass}>
@@ -155,7 +155,7 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
                   ))}
                 </Grid>
                 {/* Days events */}
-                <Grid container direction={"row"} xs>
+                <Grid container item direction={"row"} xs>
                   {DAYS.map((day, dayIndex) => (
                     <ConstraintDay key={`constraint-day-${day}`} day={day} constraints={constraints} />
                   ))}
