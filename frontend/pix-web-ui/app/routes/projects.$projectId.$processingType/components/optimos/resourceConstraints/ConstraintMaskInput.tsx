@@ -3,8 +3,8 @@ import { useController, useFormContext, useWatch } from "react-hook-form";
 import type { UseFormReturn } from "react-hook-form";
 import { Button, Card, Grid, Typography } from "@mui/material";
 import type { ConsParams } from "~/shared/optimos_json_type";
-import { BLANK_CONSTRAINTS } from "../helpers";
-import { ConstraintCalendar, type DAYS } from "./ConstraintCalendar";
+import { BLANK_CONSTRAINTS, DAYS } from "../helpers";
+import { ConstraintCalendar } from "./ConstraintCalendar";
 
 import type { MasterFormData } from "../hooks/useMasterFormData";
 import { useSimParamsResourceIndex, useSimParamsWorkTimes } from "../hooks/useSimParamsWorkTimes";

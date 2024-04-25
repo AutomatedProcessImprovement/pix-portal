@@ -3,15 +3,11 @@ import type { FC } from "react";
 import { useRef, useEffect, useMemo } from "react";
 import Selecto from "react-selecto";
 import type { ConstraintWorkMask, TimePeriod } from "~/shared/optimos_json_type";
-import { bitmaskToSelectionIndexes, isTimePeriodInDay, isTimePeriodInHour } from "../helpers";
+import { DAYS, HOURS, bitmaskToSelectionIndexes, isTimePeriodInDay, isTimePeriodInHour } from "../helpers";
 import { useController, useFormContext, useWatch } from "react-hook-form";
 import { MasterFormData } from "../hooks/useMasterFormData";
-import { createValidateNeverWorkMask } from "../validation/validationFunctions";
+import { createValidateAlwaysWorkMask, createValidateNeverWorkMask } from "../validation/validationFunctions";
 import { useSimParamsResourceIndex, useSimParamsWorkTimes } from "../hooks/useSimParamsWorkTimes";
-
-export const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
-// Generate an array of 24 hours
-export const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 type ConstraintCalendarProps = {
   field: "never_work_masks" | "always_work_masks";
@@ -119,7 +115,13 @@ type ConstraintDayProps = {
 export const ConstraintDay: FC<ConstraintDayProps> = ({ day, field, color, resourceId }) => {
   const { control } = useFormContext<MasterFormData>();
   const resourceIndex = useSimParamsResourceIndex(resourceId);
-  const validate = useMemo(() => createValidateNeverWorkMask(resourceIndex, day), [resourceIndex, day]);
+  const validate = useMemo(
+    () =>
+      field === "never_work_masks"
+        ? createValidateNeverWorkMask(resourceIndex, day)
+        : createValidateAlwaysWorkMask(resourceIndex, day),
+    [resourceIndex, day, field]
+  );
   const workTimes = useSimParamsWorkTimes(resourceId, day) ?? [];
 
   const {
