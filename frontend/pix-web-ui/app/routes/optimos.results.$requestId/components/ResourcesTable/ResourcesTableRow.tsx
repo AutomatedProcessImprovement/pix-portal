@@ -80,6 +80,9 @@ export const ResourceTableRow: FC<ResourceRowProps> = React.memo((props) => {
           {is_duplicate && <Chip icon={<ContentCopyIcon />} label="New" color="success" variant="outlined" />}
           {are_tasks_different && <Chip icon={<FiberNewIcon />} label="Tasks" color="warning" variant="outlined" />}
           {are_shifts_different && <Chip icon={<FiberNewIcon />} label="Shifts" color="warning" variant="outlined" />}
+          {!is_deleted && !is_duplicate && !are_tasks_different && !are_shifts_different && (
+            <Chip label="Unchanged" color="default" variant="outlined" />
+          )}
         </TableCell>
         {COLUMN_DEFINITIONS.map((column) => (
           <ResourcesTableCell key={column.id} column={column} resource={resource} />
