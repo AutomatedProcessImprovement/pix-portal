@@ -14,7 +14,7 @@ import { FileType, getFileContent } from "~/services/files";
 import { UserContext } from "~/routes/contexts";
 import type { ProcessingRequest } from "~/services/processing_requests";
 import { SolutionChart } from "./SolutionChart";
-import { useFileFromAsset } from "~/routes/projects.$projectId.$processingType/components/optimos/parameterEditor/useFetchedAsset";
+import { useFileFromAsset } from "~/routes/projects.$projectId.$processingType/components/optimos/hooks/useFetchedAsset";
 import { AssetType, getAsset } from "~/services/assets";
 
 interface SimulationResultsProps {

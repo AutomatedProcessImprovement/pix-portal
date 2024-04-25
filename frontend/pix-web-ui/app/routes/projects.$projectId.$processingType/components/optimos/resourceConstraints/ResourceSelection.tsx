@@ -23,29 +23,25 @@ import {
 
 import type { FC } from "react";
 import React, { useEffect } from "react";
-import { useWatch, type FieldArrayWithId, type UseFormReturn } from "react-hook-form";
-import type { ConsParams } from "~/shared/optimos_json_type";
+import { useFormContext, useWatch } from "react-hook-form";
 import { ResourceCopyDialog } from "./ResourceCopyDialog";
 import {
   applyConstraintsToResources,
   resetResourceConstraintsToBlank,
   resetResourceConstraintsToNineToFive,
 } from "../helpers";
+import type { MasterFormData } from "../hooks/useMasterFormData";
 
 export type ResourceSelectionProps = {
-  constraintsForm: UseFormReturn<ConsParams, object>;
   currCalendarIndex: number;
   updateCurrCalendar: (index: number) => void;
 };
 
-export const ResourceSelection: FC<ResourceSelectionProps> = ({
-  constraintsForm,
-  currCalendarIndex,
-  updateCurrCalendar,
-}) => {
+export const ResourceSelection: FC<ResourceSelectionProps> = ({ currCalendarIndex, updateCurrCalendar }) => {
+  const form = useFormContext<MasterFormData>();
   const resources = useWatch({
-    control: constraintsForm.control,
-    name: "resources",
+    control: form.control,
+    name: "constraints.resources",
     defaultValue: [],
   });
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -121,7 +117,7 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
                         resources[currCalendarIndex].id,
                         resources.map((r) => r.id)
                       );
-                      constraintsForm.setValue("resources", newResources, { shouldDirty: true, shouldTouch: true });
+                      form.setValue("constraints.resources", newResources, { shouldDirty: true, shouldTouch: true });
                     }}
                     startIcon={<ContentPasteIcon />}
                   >
@@ -143,7 +139,7 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
                     startIcon={<RestartAltIcon />}
                     onClick={() => {
                       const newResources = resetResourceConstraintsToBlank(resources, resources[currCalendarIndex].id);
-                      constraintsForm.setValue("resources", newResources, { shouldDirty: true, shouldTouch: true });
+                      form.setValue("constraints.resources", newResources, { shouldDirty: true, shouldTouch: true });
                     }}
                   >
                     Reset to blank constraints
@@ -157,7 +153,7 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
                         resources[currCalendarIndex].id
                       );
 
-                      constraintsForm.setValue("resources", newResources, { shouldDirty: true, shouldTouch: true });
+                      form.setValue("constraints.resources", newResources, { shouldDirty: true, shouldTouch: true });
                     }}
                   >
                     Reset to 9-5 working times
@@ -173,10 +169,10 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
         onClose={(selectedIds) => {
           setModalOpen(false);
           const newResources = applyConstraintsToResources(resources, resources[currCalendarIndex].id, selectedIds);
-          constraintsForm.setValue("resources", newResources, { shouldDirty: true, shouldTouch: true });
+          form.setValue("constraints.resources", newResources, { shouldDirty: true, shouldTouch: true });
         }}
         selectedValue={resources[currCalendarIndex].id}
-        allCalendars={resources}
+        resources={resources}
       />
     </>
   );

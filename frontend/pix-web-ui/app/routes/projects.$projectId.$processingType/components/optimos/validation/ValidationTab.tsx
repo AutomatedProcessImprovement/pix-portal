@@ -2,9 +2,7 @@ import type { FC } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import type { ConsParams } from "~/shared/optimos_json_type";
 
-type ValidationTabProps = {
-  constraintsForm: UseFormReturn<ConsParams, object>;
-};
+type ValidationTabProps = {};
 export const ValidationTab: FC<ValidationTabProps> = (props) => {
   return (
     <div>

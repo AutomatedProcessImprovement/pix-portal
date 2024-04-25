@@ -1,5 +1,5 @@
 import { useLocation, useSearchParams } from "@remix-run/react";
-import { TABS, getIndexOfTab } from "../components/optimos/parameterEditor/useTabVisibility";
+import { TABS, getIndexOfTab } from "./useTabVisibility";
 import { useEffect } from "react";
 
 export const useOptimosTab = () => {

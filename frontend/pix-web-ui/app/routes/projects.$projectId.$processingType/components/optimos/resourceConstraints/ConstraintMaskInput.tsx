@@ -1,29 +1,31 @@
 import { type FC } from "react";
-import { useController, useWatch } from "react-hook-form";
+import { useController, useFormContext, useWatch } from "react-hook-form";
 import type { UseFormReturn } from "react-hook-form";
 import { Button, Card, Grid, Typography } from "@mui/material";
 import type { ConsParams } from "~/shared/optimos_json_type";
 import { BLANK_CONSTRAINTS } from "../helpers";
 import { ConstraintCalendar, type DAYS } from "./ConstraintCalendar";
-import { useSimParamsWorkTimes } from "~/routes/projects.$projectId.$processingType/hooks/useSimParamsForm";
+
+import type { MasterFormData } from "../hooks/useMasterFormData";
+import { useSimParamsWorkTimes } from "../hooks/useSimParamsWorkTimes";
 
 interface Props {
-  constraintsForm: UseFormReturn<ConsParams, object>;
   index: number;
 }
 export const ConstraintMaskInput: FC<Props> = (props) => {
-  const { constraintsForm, index } = props;
+  const { index } = props;
+  const form = useFormContext<MasterFormData>();
 
   const never_work_masks = useWatch({
-    control: constraintsForm.control,
-    name: `resources.${index}.constraints.never_work_masks`,
+    control: form.control,
+    name: `constraints.resources.${index}.constraints.never_work_masks`,
   });
   const always_work_masks = useWatch({
-    control: constraintsForm.control,
-    name: `resources.${index}.constraints.always_work_masks`,
+    control: form.control,
+    name: `constraints.resources.${index}.constraints.always_work_masks`,
   });
 
-  const id = useWatch({ control: constraintsForm.control, name: `resources.${index}.id` });
+  const id = useWatch({ control: form.control, name: `constraints.resources.${index}.id` });
 
   const createOnSelectChange =
     (column: "never_work_masks" | "always_work_masks") => (selection: Array<HTMLElement | SVGElement>) => {
@@ -40,7 +42,7 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
         { ...BLANK_CONSTRAINTS[column] }
       );
 
-      constraintsForm.setValue(`resources.${index}.constraints.${column}`, newConstraints);
+      form.setValue(`constraints.resources.${index}.constraints.${column}`, newConstraints);
     };
 
   const workTimes = useSimParamsWorkTimes(id) ?? [];
@@ -53,8 +55,8 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
               Always Work Times
               <Button
                 onClick={() => {
-                  constraintsForm.setValue(
-                    `resources.${index}.constraints.always_work_masks`,
+                  form.setValue(
+                    `constraints.resources.${index}.constraints.always_work_masks`,
                     BLANK_CONSTRAINTS["always_work_masks"]
                   );
                 }}
@@ -80,8 +82,8 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
               Never Work Times
               <Button
                 onClick={() => {
-                  constraintsForm.setValue(
-                    `resources.${index}.constraints.never_work_masks`,
+                  form.setValue(
+                    `constraints.resources.${index}.constraints.never_work_masks`,
                     BLANK_CONSTRAINTS["never_work_masks"]
                   );
                 }}

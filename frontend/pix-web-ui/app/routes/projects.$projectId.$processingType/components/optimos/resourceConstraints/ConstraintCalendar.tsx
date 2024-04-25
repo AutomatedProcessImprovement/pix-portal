@@ -4,10 +4,6 @@ import { useRef, useEffect } from "react";
 import Selecto from "react-selecto";
 import type { ConstraintWorkMask, TimePeriod } from "~/shared/optimos_json_type";
 import { bitmaskToSelectionIndexes, isTimePeriodInDay, isTimePeriodInHour } from "../helpers";
-import {
-  useSimParamsForm,
-  useSimParamsWorkTimes,
-} from "~/routes/projects.$projectId.$processingType/hooks/useSimParamsForm";
 
 export const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
 // Generate an array of 24 hours

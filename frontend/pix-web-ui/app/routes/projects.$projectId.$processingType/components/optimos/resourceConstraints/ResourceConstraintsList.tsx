@@ -1,13 +1,20 @@
 import { Card, Checkbox, FormControlLabel, Grid, TextField, Typography } from "@mui/material";
+import type { FC } from "react";
 import { useState, useEffect } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { REQUIRED_ERROR_MSG, SHOULD_BE_GREATER_0_MSG } from "../validationMessages";
 import { ConstraintMaskInput } from "./ConstraintMaskInput";
-import type { RConsGlobalProps } from "./ResourceConstraints";
 
-export const ResourceConstraintsList = (props: RConsGlobalProps) => {
-  const { constraintsForm, calendarIndex } = props;
-  const { control } = constraintsForm;
+import type { MasterFormData } from "../hooks/useMasterFormData";
+
+type ResourceConstraintsListProps = {
+  calendarIndex: number;
+};
+
+export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props) => {
+  const { calendarIndex } = props;
+  const { control } = useFormContext<MasterFormData>();
+
   const [index, setIndex] = useState<number>(calendarIndex);
 
   useEffect(() => {
@@ -29,7 +36,7 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
             <Grid item xs={6}>
               <Controller
                 control={control}
-                name={`resources.${index}.constraints.global_constraints.max_weekly_cap`}
+                name={`constraints.resources.${index}.constraints.global_constraints.max_weekly_cap`}
                 rules={{
                   required: REQUIRED_ERROR_MSG,
                   min: {
@@ -59,7 +66,7 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
             </Grid>
             <Grid item xs={6}>
               <Controller
-                name={`resources.${index}.constraints.global_constraints.max_daily_cap`}
+                name={`constraints.resources.${index}.constraints.global_constraints.max_daily_cap`}
                 control={control}
                 rules={{
                   required: REQUIRED_ERROR_MSG,
@@ -91,7 +98,7 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
 
             <Grid item xs={6}>
               <Controller
-                name={`resources.${index}.constraints.global_constraints.max_consecutive_cap`}
+                name={`constraints.resources.${index}.constraints.global_constraints.max_consecutive_cap`}
                 control={control}
                 rules={{
                   required: REQUIRED_ERROR_MSG,
@@ -122,7 +129,7 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
             </Grid>
             <Grid item xs={6}>
               <Controller
-                name={`resources.${index}.constraints.global_constraints.max_shifts_day`}
+                name={`constraints.resources.${index}.constraints.global_constraints.max_shifts_day`}
                 control={control}
                 rules={{
                   required: REQUIRED_ERROR_MSG,
@@ -153,7 +160,7 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
             </Grid>
             <Grid item xs={6}>
               <Controller
-                name={`resources.${index}.constraints.global_constraints.max_shifts_week`}
+                name={`constraints.resources.${index}.constraints.global_constraints.max_shifts_week`}
                 control={control}
                 rules={{
                   required: REQUIRED_ERROR_MSG,
@@ -184,7 +191,7 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
             </Grid>
             <Grid item xs={6}>
               <Controller
-                name={`resources.${index}.constraints.global_constraints.is_human`}
+                name={`constraints.resources.${index}.constraints.global_constraints.is_human`}
                 control={control}
                 rules={{
                   required: REQUIRED_ERROR_MSG,
@@ -215,7 +222,7 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
       </Grid>
 
       <Grid item xs={12}>
-        <ConstraintMaskInput constraintsForm={constraintsForm} index={index} />
+        <ConstraintMaskInput index={index} />
       </Grid>
     </Grid>
   );
