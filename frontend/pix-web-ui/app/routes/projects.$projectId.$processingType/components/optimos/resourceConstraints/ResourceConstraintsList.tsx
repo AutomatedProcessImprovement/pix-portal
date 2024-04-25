@@ -28,6 +28,7 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
             </Grid>
             <Grid item xs={6}>
               <Controller
+                control={control}
                 name={`resources.${index}.constraints.global_constraints.max_weekly_cap`}
                 rules={{
                   required: REQUIRED_ERROR_MSG,
@@ -59,6 +60,7 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
             <Grid item xs={6}>
               <Controller
                 name={`resources.${index}.constraints.global_constraints.max_daily_cap`}
+                control={control}
                 rules={{
                   required: REQUIRED_ERROR_MSG,
                   min: {
@@ -212,16 +214,7 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
         </Card>
       </Grid>
       <Grid item xs={12}>
-        <Card elevation={5} sx={{ p: 2 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Typography variant="h6" align="left">
-                Never/Always work times
-              </Typography>
-            </Grid>
-            <ConstraintMaskInput constraintsForm={constraintsForm} index={index} />
-          </Grid>
-        </Card>
+        <ConstraintMaskInput constraintsForm={constraintsForm} index={index} />
       </Grid>
     </Grid>
   );

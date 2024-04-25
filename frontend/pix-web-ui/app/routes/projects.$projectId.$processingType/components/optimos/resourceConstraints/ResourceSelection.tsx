@@ -132,9 +132,9 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
                   </Button>
                 </ButtonGroup>
               </Grid>
-              <Grid item alignSelf={"center"} width={"80%"}>
+              {/* <Grid item alignSelf={"center"} width={"80%"}>
                 <Divider variant="middle" orientation="horizontal" />
-              </Grid>
+              </Grid> */}
               <Grid item width={"100%"}>
                 <Typography variant="caption">RESET CONSTRAINTS</Typography>
                 <ButtonGroup orientation="vertical" fullWidth>
