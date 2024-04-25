@@ -4,10 +4,10 @@ import { Controller, type UseFormReturn } from "react-hook-form";
 import { Card, Grid, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { REQUIRED_ERROR_MSG, SHOULD_BE_GREATER_0_MSG } from "../validationMessages";
 import { useState } from "react";
-import { ConsParams, SimParams } from "~/shared/optimos_json_type";
+import type { ConsParams, ScenarioProperties } from "~/shared/optimos_json_type";
 
 interface ScenarioConstraintsProps {
-  scenarioFormState: UseFormReturn<SimParams, object>;
+  scenarioFormState: UseFormReturn<ScenarioProperties, object>;
   jsonFormState: UseFormReturn<ConsParams, object>;
   setErrorMessage: (value: string) => void;
 }

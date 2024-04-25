@@ -44,3 +44,112 @@ export const applyConstraintsToResources = (
 
   return resources;
 };
+
+export const selectionIndexesToBitmask = (indexes: number[]) => {
+  return indexes.reduce((acc, index) => {
+    return (acc << 1) | index;
+  }, 0);
+};
+
+export const bitmaskToSelectionIndexes = (mask: number) => {
+  const indexes = [];
+  for (let i = 0; i < 24; i++) {
+    if (mask & (1 << i)) indexes.push(i);
+  }
+  return indexes;
+};
+
+export const BLANK_CONSTRAINTS = {
+  never_work_masks: {
+    monday: 0,
+    tuesday: 0,
+    wednesday: 0,
+    thursday: 0,
+    friday: 0,
+    saturday: 0,
+    sunday: 0,
+  },
+  always_work_masks: {
+    monday: 0,
+    tuesday: 0,
+    wednesday: 0,
+    thursday: 0,
+    friday: 0,
+    saturday: 0,
+    sunday: 0,
+  },
+};
+
+export const NINE_TO_FIVE_BITMASK = selectionIndexesToBitmask([
+  0, // 0:00 -> 1:00
+  0, // 1:00 -> 2:00
+  0, // 2:00 -> 3:00
+  0, // 3:00 -> 4:00
+  0, // 4:00 -> 5:00
+  0, // 5:00 -> 6:00
+  0, // 6:00 -> 7:00
+  0, // 7:00 -> 8:00
+  0, // 8:00 -> 9:00
+  1, // 9:00 -> 10:00
+  1, // 10:00 -> 11:00
+  1, // 11:00 -> 12:00
+  1, // 12:00 -> 13:00
+  1, // 13:00 -> 14:00
+  1, // 14:00 -> 15:00
+  1, // 15:00 -> 16:00
+  1, // 16:00 -> 17:00
+  0, // 17:00 -> 18:00
+  0, // 18:00 -> 19:00
+  0, // 19:00 -> 20:00
+  0, // 20:00 -> 21:00
+  0, // 21:00 -> 22:00
+  0, // 22:00 -> 23:00
+  0, // 23:00 -> 24:00
+]);
+
+export const NINE_TO_FIVE_CONSTRAINTS = {
+  never_work_masks: {
+    monday: 0,
+    tuesday: 0,
+    wednesday: 0,
+    thursday: 0,
+    friday: 0,
+    saturday: 0,
+    sunday: 0,
+  },
+  always_work_masks: {
+    monday: NINE_TO_FIVE_BITMASK,
+    tuesday: NINE_TO_FIVE_BITMASK,
+    wednesday: NINE_TO_FIVE_BITMASK,
+    thursday: NINE_TO_FIVE_BITMASK,
+    friday: NINE_TO_FIVE_BITMASK,
+    saturday: 0,
+    sunday: 0,
+  },
+};
+
+export const resetResourceConstraintsToBlank = (oldResources: ConsParams["resources"], resourceId: string) => {
+  const resources = deepClone(oldResources);
+  const resource = resources.find((resource) => resource.id === resourceId);
+  if (!resource) return resources;
+
+  resource.constraints = {
+    ...resource.constraints,
+    ...BLANK_CONSTRAINTS,
+  };
+
+  return [...resources];
+};
+
+export const resetResourceConstraintsToNineToFive = (oldResources: ConsParams["resources"], resourceId: string) => {
+  const resources = deepClone(oldResources);
+  const resource = resources.find((resource) => resource.id === resourceId);
+  if (!resource) return resources;
+
+  resource.constraints = {
+    ...resource.constraints,
+    ...NINE_TO_FIVE_CONSTRAINTS,
+  };
+
+  return [...resources];
+};

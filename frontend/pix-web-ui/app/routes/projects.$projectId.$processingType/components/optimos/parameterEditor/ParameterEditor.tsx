@@ -33,7 +33,7 @@ import { ProcessingAppSection } from "~/routes/projects.$projectId.$processingTy
 import { generateConstraints } from "../generateContraints";
 import { SelectedAssetsContext, SetSelectedAssetsContext } from "~/routes/projects.$projectId.$processingType/contexts";
 import { useOptimosTab } from "~/routes/projects.$projectId.$processingType/hooks/useOptimosTab";
-import { ScenarioProperties } from "~/shared/optimos_json_type";
+import { ConsParams, ScenarioProperties, SimParams } from "~/shared/optimos_json_type";
 
 const tooltip_desc: Record<string, string> = {
   GLOBAL_CONSTRAINTS: "Define the algorithm, approach and number of iterations",
@@ -56,7 +56,6 @@ const SetupOptimos = () => {
   const [simulationConfigAsset, setSimulationConfigAsset] = useSelectedInputAsset(AssetType.SIMULATION_MODEL);
 
   const [activeStep, setActiveStep] = useOptimosTab();
-  console.log(activeStep);
 
   const [isScenarioParamsValid, setIsScenarioParamsValid] = useState(true);
 
@@ -66,16 +65,14 @@ const SetupOptimos = () => {
   const [consParamsFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON);
   const [configFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.CONFIGURATION_OPTIMOS_YAML);
 
-  const { jsonData: consParamsJson } = useJsonFile(consParamsFile || null);
-  const { jsonData: simParamsJson } = useJsonFile(simParamsFile || null);
+  const { jsonData: consParamsJson } = useJsonFile<ConsParams>(consParamsFile || null);
+  const { jsonData: simParamsJson } = useJsonFile<SimParams>(simParamsFile || null);
 
-  const { formState } = useFormState(consParamsJson);
-  const {
-    formState: { errors, isSubmitted, submitCount },
-    getValues,
-  } = formState;
+  const constraintsForm = useForm<ConsParams>({ values: consParamsJson });
+  const { formState, getValues: getConstraintValues, setValue: setConstraintValue } = constraintsForm;
+  const { isSubmitted, errors, submitCount } = formState;
 
-  const scenarioState = useForm<ScenarioProperties>({
+  const scenarioForm = useForm<ScenarioProperties>({
     mode: "onBlur",
     defaultValues: {
       scenario_name: "My first scenario",
@@ -91,7 +88,7 @@ const SetupOptimos = () => {
     getValues: getScenarioValues,
     formState: { errors: scenarioErrors },
     setValue: setScenarioValue,
-  } = scenarioState;
+  } = scenarioForm;
 
   useEffect(() => {
     if (configFile) {
@@ -119,7 +116,7 @@ const SetupOptimos = () => {
       console.log(errors);
       setErrorMessage("There are validation errors");
     }
-  }, [isSubmitted, submitCount]);
+  }, [errors, isScenarioParamsValid, isSubmitted, submitCount]);
 
   const setErrorMessage = (value: string) => {
     // TODO Error Handling
@@ -130,21 +127,21 @@ const SetupOptimos = () => {
       case TABS.GLOBAL_CONSTRAINTS:
         return (
           <GlobalConstraints
-            scenarioFormState={scenarioState}
-            jsonFormState={formState}
+            scenarioFormState={scenarioForm}
+            jsonFormState={constraintsForm}
             setErrorMessage={setErrorMessage}
           />
         );
       case TABS.SCENARIO_CONSTRAINTS:
         return (
           <ScenarioConstraints
-            scenarioFormState={scenarioState}
-            jsonFormState={formState}
+            scenarioFormState={scenarioForm}
+            jsonFormState={constraintsForm}
             setErrorMessage={setErrorMessage}
           />
         );
       case TABS.RESOURCE_CONSTRAINTS:
-        return <ResourceConstraints setErrorMessage={setErrorMessage} formState={formState} />;
+        return <ResourceConstraints setErrorMessage={setErrorMessage} constraintsForm={constraintsForm} />;
     }
   };
   const getStepIcon = (currentTab: TABS): React.ReactNode => {
@@ -215,11 +212,11 @@ const SetupOptimos = () => {
   };
 
   const getConstraintsConfigBlob = useCallback((): Blob => {
-    const values = getValues();
+    const values = getConstraintValues();
     const blob = fromContentToBlob(values);
 
     return blob;
-  }, [getValues]);
+  }, [getConstraintValues]);
 
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
@@ -288,7 +285,7 @@ const SetupOptimos = () => {
     [optimosConfigAsset, getScenarioValues, user, getConstraintsConfigBlob, setOptimosConfigAsset]
   );
   const createConstraintsFromSimParams = async () => {
-    if (optimosConfigAsset || !projectId) return;
+    if (optimosConfigAsset || !projectId || !simParamsJson) return;
     const constraints = generateConstraints(simParamsJson);
 
     const token = user!.token!;
@@ -328,10 +325,10 @@ const SetupOptimos = () => {
       )}
 
       {bpmnFile && simParamsFile && consParamsFile && (
-        <FormProvider {...scenarioState}>
+        <FormProvider {...scenarioForm}>
           <form
             method="POST"
-            onSubmit={scenarioState.handleSubmit(async (e, t) => {
+            onSubmit={scenarioForm.handleSubmit(async (e, t) => {
               await handleConfigSave();
               t?.target.submit();
             })}

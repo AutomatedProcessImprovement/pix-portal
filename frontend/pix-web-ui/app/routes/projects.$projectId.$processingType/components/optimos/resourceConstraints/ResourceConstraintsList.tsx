@@ -6,8 +6,8 @@ import { ConstraintMaskInput } from "./ConstraintMaskInput";
 import type { RConsGlobalProps } from "./ResourceConstraints";
 
 export const ResourceConstraintsList = (props: RConsGlobalProps) => {
-  const { formState, calendarIndex } = props;
-  const { control } = formState;
+  const { constraintsForm, calendarIndex } = props;
+  const { control } = constraintsForm;
   const [index, setIndex] = useState<number>(calendarIndex);
 
   useEffect(() => {
@@ -29,7 +29,6 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
             <Grid item xs={6}>
               <Controller
                 name={`resources.${index}.constraints.global_constraints.max_weekly_cap`}
-                control={control}
                 rules={{
                   required: REQUIRED_ERROR_MSG,
                   min: {
@@ -60,7 +59,6 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
             <Grid item xs={6}>
               <Controller
                 name={`resources.${index}.constraints.global_constraints.max_daily_cap`}
-                control={control}
                 rules={{
                   required: REQUIRED_ERROR_MSG,
                   min: {
@@ -221,7 +219,7 @@ export const ResourceConstraintsList = (props: RConsGlobalProps) => {
                 Never/Always work times
               </Typography>
             </Grid>
-            <ConstraintMaskInput control={control} index={index} />
+            <ConstraintMaskInput constraintsForm={constraintsForm} index={index} />
           </Grid>
         </Card>
       </Grid>

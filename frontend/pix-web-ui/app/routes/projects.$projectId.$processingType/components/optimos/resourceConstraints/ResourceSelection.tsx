@@ -1,4 +1,11 @@
-import { Person as PersonIcon, PrecisionManufacturing as PrecisionManufacturingIcon } from "@mui/icons-material";
+import {
+  Person as PersonIcon,
+  PrecisionManufacturing as PrecisionManufacturingIcon,
+  ContentPaste as ContentPasteIcon,
+  ContentPasteGo as ContentPasteGoIcon,
+  RestartAlt as RestartAltIcon,
+  Event as EventIcon,
+} from "@mui/icons-material";
 
 import {
   Button,
@@ -13,29 +20,42 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+
 import type { FC } from "react";
 import React, { useEffect } from "react";
-import type { FieldArrayWithId, UseFormReturn } from "react-hook-form";
+import { useWatch, type FieldArrayWithId, type UseFormReturn } from "react-hook-form";
 import type { ConsParams } from "~/shared/optimos_json_type";
 import { ResourceCopyDialog } from "./ResourceCopyDialog";
-import { applyConstraintsToResources } from "../helpers";
+import {
+  applyConstraintsToResources,
+  resetResourceConstraintsToBlank,
+  resetResourceConstraintsToNineToFive,
+} from "../helpers";
 
 export type ResourceSelectionProps = {
-  formState: UseFormReturn<ConsParams, object>;
+  constraintsForm: UseFormReturn<ConsParams, object>;
   currCalendarIndex: number;
   updateCurrCalendar: (index: number) => void;
 };
 
-export const ResourceSelection: FC<ResourceSelectionProps> = ({ formState, currCalendarIndex, updateCurrCalendar }) => {
-  const allCalendars = formState.getValues().resources;
+export const ResourceSelection: FC<ResourceSelectionProps> = ({
+  constraintsForm,
+  currCalendarIndex,
+  updateCurrCalendar,
+}) => {
+  const resources = useWatch({
+    control: constraintsForm.control,
+    name: "resources",
+    defaultValue: [],
+  });
   const [searchTerm, setSearchTerm] = React.useState("");
-  const [searchResults, setSearchResults] = React.useState(allCalendars);
+  const [searchResults, setSearchResults] = React.useState(resources);
   const [modalOpen, setModalOpen] = React.useState(false);
 
   useEffect(() => {
-    const results = allCalendars.filter((calendar) => calendar.id.toLowerCase().includes(searchTerm.toLowerCase()));
+    const results = resources.filter((calendar) => calendar.id.toLowerCase().includes(searchTerm.toLowerCase()));
     setSearchResults(results);
-  }, [allCalendars, searchTerm]);
+  }, [resources, searchTerm]);
 
   return (
     <>
@@ -68,12 +88,11 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ formState, currC
             />
             <List
               sx={{
-                overflow: "scroll",
+                overflowY: "scroll",
                 height: "300px",
               }}
             >
               {searchResults.map((item, index) => {
-                console.log(item);
                 const isSelected = currCalendarIndex === index;
                 return (
                   <ListItemButton selected={isSelected} key={item.id} onClick={() => updateCurrCalendar(index)}>
@@ -89,23 +108,60 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ formState, currC
 
           <Divider orientation="vertical" flexItem variant="middle" />
 
-          <Grid item xs={5}>
-            <Grid container width={"100%"} height={"100%"} justifyContent={"space-between"}>
+          <Grid item container xs={5} justifyContent={"center"} alignItems={"center"}>
+            <Grid container width={"100%"} height={"80%"} justifyContent={"center"} alignItems={"center"}>
               <Grid item width={"100%"}>
-                <Typography variant="subtitle1">Copy Constraints</Typography>
+                <Typography variant="caption">COPY CONSTRAINTS</Typography>
                 <ButtonGroup fullWidth>
-                  <Button variant="outlined">Apply constraints to all resources</Button>
-                  <Button variant="outlined" onClick={() => setModalOpen(true)}>
-                    Copy Constraints to...
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      const newResources = applyConstraintsToResources(
+                        resources,
+                        resources[currCalendarIndex].id,
+                        resources.map((r) => r.id)
+                      );
+                      constraintsForm.setValue("resources", newResources, { shouldDirty: true, shouldTouch: true });
+                    }}
+                    startIcon={<ContentPasteIcon />}
+                  >
+                    Apply to All
+                  </Button>
+                  <Button variant="outlined" onClick={() => setModalOpen(true)} startIcon={<ContentPasteGoIcon />}>
+                    Copy to...
                   </Button>
                 </ButtonGroup>
               </Grid>
-              <Divider flexItem variant="middle" orientation="horizontal" />
+              <Grid item alignSelf={"center"} width={"80%"}>
+                <Divider variant="middle" orientation="horizontal" />
+              </Grid>
               <Grid item width={"100%"}>
-                <Typography variant="subtitle1">Reset Constraints</Typography>
+                <Typography variant="caption">RESET CONSTRAINTS</Typography>
                 <ButtonGroup orientation="vertical" fullWidth>
-                  <Button variant="outlined">Reset to blank constraints</Button>
-                  <Button variant="outlined">Reset to 9-5 working times</Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<RestartAltIcon />}
+                    onClick={() => {
+                      const newResources = resetResourceConstraintsToBlank(resources, resources[currCalendarIndex].id);
+                      constraintsForm.setValue("resources", newResources, { shouldDirty: true, shouldTouch: true });
+                    }}
+                  >
+                    Reset to blank constraints
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<EventIcon />}
+                    onClick={() => {
+                      const newResources = resetResourceConstraintsToNineToFive(
+                        resources,
+                        resources[currCalendarIndex].id
+                      );
+
+                      constraintsForm.setValue("resources", newResources, { shouldDirty: true, shouldTouch: true });
+                    }}
+                  >
+                    Reset to 9-5 working times
+                  </Button>
                 </ButtonGroup>
               </Grid>
             </Grid>
@@ -116,15 +172,11 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ formState, currC
         open={modalOpen}
         onClose={(selectedIds) => {
           setModalOpen(false);
-          const newResources = applyConstraintsToResources(
-            allCalendars,
-            allCalendars[currCalendarIndex].id,
-            selectedIds
-          );
-          formState.setValue("resources", newResources);
+          const newResources = applyConstraintsToResources(resources, resources[currCalendarIndex].id, selectedIds);
+          constraintsForm.setValue("resources", newResources, { shouldDirty: true, shouldTouch: true });
         }}
-        selectedValue={allCalendars[currCalendarIndex].id}
-        allCalendars={allCalendars}
+        selectedValue={resources[currCalendarIndex].id}
+        allCalendars={resources}
       />
     </>
   );
