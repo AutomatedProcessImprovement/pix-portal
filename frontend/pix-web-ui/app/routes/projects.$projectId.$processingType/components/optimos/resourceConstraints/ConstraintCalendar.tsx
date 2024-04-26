@@ -48,7 +48,6 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({ field, onSelec
         continueSelect={true}
         onSelect={(e) => onSelectChange(e.selected)}
       />
-
       <Box>
         <Grid container spacing={1}>
           <Grid item xs={2} />
@@ -96,6 +95,26 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({ field, onSelec
           </Grid>
         </Grid>
       </Box>
+      <Typography variant="caption" color="textSecondary" flexDirection={"row"}>
+        <Box
+          mx={1}
+          display={"inline-block"}
+          width={"15px"}
+          height={"15px"}
+          style={createCheckeredBackground(color)}
+        ></Box>
+        Work time and Entry
+        <Box mx={1} display={"inline-block"} width={"15px"} height={"15px"} style={{ backgroundColor: color }}></Box>
+        Entry
+        <Box
+          mx={1}
+          display={"inline-block"}
+          width={"15px"}
+          height={"15px"}
+          style={{ backgroundColor: "lightgrey" }}
+        ></Box>
+        Work time
+      </Typography>
     </Grid>
   );
 };
