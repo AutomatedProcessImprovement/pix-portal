@@ -10,14 +10,14 @@ import {
 } from "~/services/processing_requests";
 import { parseDate } from "~/shared/utils";
 import { AssetCard } from "./AssetCard";
-import { useAuthRefreshRequest } from "../hooks/useAutoRefreshRequest";
+import { useAutoRefreshRequest } from "../hooks/useAutoRefreshRequest";
 import { Button } from "@mui/material";
 import toast from "react-hot-toast";
 
 export function ProcessingRequestCard({ request: initialRequest }: { request: ProcessingRequest }) {
   // polling of running requests to update the status
 
-  const request_ = useAuthRefreshRequest(initialRequest);
+  const request_ = useAutoRefreshRequest(initialRequest);
   let navigate = useNavigate();
 
   function getDuration(start: string, end: string) {

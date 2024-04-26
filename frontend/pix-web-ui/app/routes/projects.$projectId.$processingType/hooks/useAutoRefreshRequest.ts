@@ -18,7 +18,7 @@ function showToast(requestUpdated: ProcessingRequest) {
   else if (requestUpdated.status === ProcessingRequestStatus.FAILED) toast.error(toastMessage, toastProps);
   else toast(toastMessage, { ...toastProps, icon: "👌" });
 }
-export const useAuthRefreshRequest = (initialRequest?: ProcessingRequest) => {
+export const useAutoRefreshRequest = (initialRequest?: ProcessingRequest) => {
   const user = useContext(UserContext);
   const [request, setRequest] = useState<ProcessingRequest | undefined>(initialRequest);
 
@@ -28,6 +28,7 @@ export const useAuthRefreshRequest = (initialRequest?: ProcessingRequest) => {
 
     // set up polling for newly created or running processing requests
     const interval = setInterval(async () => {
+      console.log("Polling processing request", request.id);
       // fetch the processing request
       let requestUpdated;
       try {
@@ -40,6 +41,7 @@ export const useAuthRefreshRequest = (initialRequest?: ProcessingRequest) => {
       if (request && requestUpdated.status !== request.status) {
         showToast(requestUpdated);
       }
+      console.log("Update Request to", requestUpdated);
       setRequest(requestUpdated);
 
       // remove polling when done processing

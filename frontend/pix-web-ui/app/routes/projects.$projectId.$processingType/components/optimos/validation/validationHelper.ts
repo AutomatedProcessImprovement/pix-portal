@@ -50,7 +50,7 @@ export type ParsedError = {
   autoFixes: AutoFix[];
 };
 
-export const convertError = (error: FieldErrors<MasterFormData>, formData: MasterFormData) => {
+export const convertError = (error: FieldErrors<MasterFormData>, formData: MasterFormData, projectId: string) => {
   const flattedError = flattenErrors(error);
 
   return Object.entries(flattedError)
@@ -65,7 +65,7 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
             humanReadablePath: "Max Capacity",
             message: error.message,
             path,
-            link: "/projects.%24projectId.%24processingType/components/optimos",
+            link: `/projects/${projectId}/optimization?tabIndex=1`,
             humanReadableFieldName: "Max Capacity",
             autoFixes: createScenarioConstraintsQuickFixes(path, error),
           };
@@ -74,7 +74,7 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
             humanReadablePath: "Max Shift Size",
             message: error.message,
             path,
-            link: "/projects.%24projectId.%24processingType/components/optimos",
+            link: `/projects/${projectId}/optimization?tabIndex=1`,
             humanReadableFieldName: "Max Shift Size",
             autoFixes: createScenarioConstraintsQuickFixes(path, error),
           };
@@ -83,7 +83,7 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
             humanReadablePath: "Max Shift Blocks",
             message: error.message,
             path,
-            link: "/projects.%24projectId.%24processingType/components/optimos",
+            link: `/projects/${projectId}/optimization?tabIndex=1`,
             humanReadableFieldName: "Max Shift Blocks",
             autoFixes: createScenarioConstraintsQuickFixes(path, error),
           };
@@ -104,7 +104,7 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
                 humanReadablePath: `Resource Constraints > ${resource} > ${humanReadableFieldName} > ${day}`,
                 message: error.message,
                 path,
-                link: "/projects.%24projectId.%24processingType/components/optimos",
+                link: `/projects/${projectId}/optimization?tabIndex=2`,
                 humanReadableFieldName,
                 autoFixes: createResourceConstraintQuickFixes(path, formData, error),
               };
@@ -117,7 +117,7 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
                 )}`,
                 message: error.message,
                 path,
-                link: "/projects.%24projectId.%24processingType/components/optimos",
+                link: `/projects/${projectId}/optimization?tabIndex=2`,
                 humanReadableFieldName: globalConstraint.replace(/_/g, " "),
                 autoFixes: createResourceConstraintQuickFixes(path, formData, error),
               };

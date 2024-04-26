@@ -9,8 +9,8 @@ import { CloudDownload as CloudDownloadIcon } from "@mui/icons-material";
 import { WeekView } from "~/components/optimos/WeekView";
 import { OptimosSolution } from "./OptimosSolution";
 import { InitialSolutionContext } from "./InitialSolutionContext";
-import { useAuthRefreshRequest } from "~/routes/projects.$projectId.$processingType/hooks/useAutoRefreshRequest";
-import { FileType, getFileContent } from "~/services/files";
+import { useAutoRefreshRequest } from "~/routes/projects.$projectId.$processingType/hooks/useAutoRefreshRequest";
+import { FileType, getFile, getFileContent } from "~/services/files";
 import { UserContext } from "~/routes/contexts";
 import type { ProcessingRequest } from "~/services/processing_requests";
 import { SolutionChart } from "./SolutionChart";
@@ -52,20 +52,27 @@ const OptimizationResults = (props: SimulationResultsProps) => {
       })(),
     [initialRequest, user, user?.token]
   );
-  const request = useAuthRefreshRequest(initialRequest);
+  const request = useAutoRefreshRequest(initialRequest);
+  var oldFileId = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!request || !user) return;
-    const optimosReportJsonFile = request.output_assets[0].files?.find(
-      (file) => file.type === FileType.OPTIMIZATION_REPORT_OPTIMOS_JSON
-    );
-    if (!optimosReportJsonFile) return;
-    getFileContent(optimosReportJsonFile.id, user.token!).then((fileContent) => {
-      const jsonStr = fileContent.toString();
+    (async () => {
+      if (!request || !user) return;
+      const fileIds = request.output_assets[0].files_ids;
+      const files = await Promise.all(fileIds.map((id) => getFile(id, user.token!)));
+      const optimosReportJsonFile = files?.find((file) => file.type === FileType.OPTIMIZATION_REPORT_OPTIMOS_JSON);
+
+      if (!optimosReportJsonFile) return;
+      if (oldFileId.current === optimosReportJsonFile.id) return;
+      oldFileId.current = optimosReportJsonFile.id;
+      console.log("Getting Content");
+      const fileContent = await getFileContent(optimosReportJsonFile.id, user.token!);
+      const jsonStr = await fileContent.text();
       const newReport = JSON.parse(jsonStr);
+      console.log("Downloaded new Json");
       setReport(newReport);
-    });
-  }, [report, request, user]);
+    })();
+  }, [request, user]);
 
   const [fileDownloadUrl, setFileDownloadUrl] = useState("");
 

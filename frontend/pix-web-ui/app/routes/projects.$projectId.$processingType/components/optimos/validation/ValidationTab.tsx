@@ -9,6 +9,7 @@ import {
   AutoFixNormal as AutoFixNormalIcon,
 } from "@mui/icons-material";
 import { convertError } from "./validationHelper";
+import { useMatches, useNavigate } from "@remix-run/react";
 
 type ValidationTabProps = {};
 export const ValidationTab: FC<ValidationTabProps> = (props) => {
@@ -21,9 +22,11 @@ export const ValidationTab: FC<ValidationTabProps> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
+  const projectId = useMatches().filter((match) => match.id === "routes/projects.$projectId")[0].params.projectId!;
 
   const { errors } = useFormState({ control });
-  const convertedErrors = useMemo(() => convertError(errors, getValues()), [errors, getValues]);
+  const convertedErrors = useMemo(() => convertError(errors, getValues(), projectId), [errors, getValues]);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -54,7 +57,7 @@ export const ValidationTab: FC<ValidationTabProps> = (props) => {
                   title={`Issue in ${error.humanReadableFieldName}`}
                   subheader={error.humanReadablePath}
                   action={
-                    <IconButton aria-label="go to issue">
+                    <IconButton aria-label="go to issue" onClick={() => navigate(error.link)}>
                       <LaunchIcon />
                     </IconButton>
                   }
