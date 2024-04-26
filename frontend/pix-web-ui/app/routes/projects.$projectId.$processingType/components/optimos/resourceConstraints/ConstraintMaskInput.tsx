@@ -5,27 +5,18 @@ import { Button, Card, Grid, Typography } from "@mui/material";
 import type { ConsParams } from "~/shared/optimos_json_type";
 import { BLANK_CONSTRAINTS, DAYS } from "../helpers";
 import { ConstraintCalendar } from "./ConstraintCalendar";
-
 import type { MasterFormData } from "../hooks/useMasterFormData";
 import { useSimParamsResourceIndex, useSimParamsWorkTimes } from "../hooks/useSimParamsWorkTimes";
+import { useDebouncedCallback } from "../hooks/useDebounce";
 
 interface Props {
-  index: number;
+  resourceId: string;
 }
 export const ConstraintMaskInput: FC<Props> = (props) => {
-  const { index } = props;
-  const form = useFormContext<MasterFormData>();
+  const { resourceId } = props;
+  const { getValues, setValue, trigger } = useFormContext<MasterFormData>();
 
-  const never_work_masks = useWatch({
-    control: form.control,
-    name: `constraints.resources.${index}.constraints.never_work_masks`,
-  });
-  const always_work_masks = useWatch({
-    control: form.control,
-    name: `constraints.resources.${index}.constraints.always_work_masks`,
-  });
-
-  const id = useWatch({ control: form.control, name: `constraints.resources.${index}.id` });
+  const debouncedTrigger = useDebouncedCallback(trigger, 300);
 
   const createOnSelectChange =
     (column: "never_work_masks" | "always_work_masks") => (selection: Array<HTMLElement | SVGElement>) => {
@@ -36,17 +27,19 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
         return { index, day };
       });
 
-      console.log("workHours monday entries", constraintsEntries);
-
       // Group by column, then day
       const newConstraints = constraintsEntries.reduce(
         (acc, { index, day }) => ({ ...acc, [day]: acc[day] | (1 << (23 - index)) }),
         { ...BLANK_CONSTRAINTS[column] }
       );
 
-      form.setValue(`constraints.resources.${index}.constraints.${column}`, newConstraints, {
-        shouldValidate: true,
+      const index = getValues("constraints.resources").findIndex((resource) => resource.id === resourceId);
+
+      setValue(`constraints.resources.${index}.constraints.${column}`, newConstraints, {
+        shouldValidate: false,
+        shouldDirty: true,
       });
+      debouncedTrigger();
     };
 
   return (
@@ -58,11 +51,13 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
               Always Work Times
               <Button
                 onClick={() => {
-                  form.setValue(
+                  const index = getValues("constraints.resources").findIndex((resource) => resource.id === resourceId);
+
+                  setValue(
                     `constraints.resources.${index}.constraints.always_work_masks`,
-                    BLANK_CONSTRAINTS["always_work_masks"]
+                    BLANK_CONSTRAINTS["always_work_masks"],
+                    { shouldValidate: true }
                   );
-                  form.trigger();
                 }}
               >
                 <Typography variant="body2">Clear</Typography>
@@ -71,7 +66,7 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
           </Grid>
           <ConstraintCalendar
             field={`always_work_masks`}
-            resourceId={id}
+            resourceId={resourceId}
             onSelectChange={createOnSelectChange("always_work_masks")}
             color="lightblue"
           />
@@ -85,11 +80,13 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
               Never Work Times
               <Button
                 onClick={() => {
-                  form.setValue(
+                  const index = getValues("constraints.resources").findIndex((resource) => resource.id === resourceId);
+
+                  setValue(
                     `constraints.resources.${index}.constraints.never_work_masks`,
-                    BLANK_CONSTRAINTS["never_work_masks"]
+                    BLANK_CONSTRAINTS["never_work_masks"],
+                    { shouldValidate: true }
                   );
-                  form.trigger();
                 }}
               >
                 <Typography variant="body2">Clear</Typography>
@@ -97,7 +94,7 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
             </Typography>
           </Grid>
           <ConstraintCalendar
-            resourceId={id}
+            resourceId={resourceId}
             field={`never_work_masks`}
             onSelectChange={createOnSelectChange("never_work_masks")}
             color="rgb(242, 107, 44,0.5)"

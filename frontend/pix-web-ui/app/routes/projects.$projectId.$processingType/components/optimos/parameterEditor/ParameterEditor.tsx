@@ -52,7 +52,7 @@ const SetupOptimos = () => {
 
   const masterForm = useForm<MasterFormData>({
     values: masterFormData,
-
+    mode: "onChange",
     resolver: constraintResolver,
   });
   const { getValues, trigger } = masterForm;
@@ -138,10 +138,9 @@ const SetupOptimos = () => {
           <form
             method="POST"
             onSubmit={masterForm.handleSubmit(
-              async () => {
+              async (e, t) => {
                 await handleConfigSave();
-                // t?.target.submit();
-                console.log("Submitted!");
+                t?.target.submit();
               },
               () => {
                 alert("There are still errors in the parameters, please correct them before submitting.");

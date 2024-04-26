@@ -18,14 +18,13 @@ type ConstraintCalendarProps = {
 
 export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({ field, onSelectChange, color, resourceId }) => {
   const selectoRef = useRef<Selecto | null>(null);
-  const form = useFormContext<MasterFormData>();
-  const resources = useWatch({ control: form.control, name: `constraints.resources` });
-  const workMask = useMemo(() => {
-    const resourceIndex = resources.findIndex((resource) => resource.id === resourceId);
-    return resources[resourceIndex]?.constraints[field] as ConstraintWorkMask;
-  }, [resources, field, resourceId]);
+  const { control } = useFormContext<MasterFormData>();
 
   const containerClassName = `${field}-container`;
+
+  const resources = useWatch({ control: control, name: `constraints.resources` });
+  const workMask = resources.find((resource) => resource.id === resourceId)?.constraints[field] as ConstraintWorkMask;
+
   useEffect(() => {
     // Finds the selected element by data-column, data-day and data-index
     const targets = document.querySelectorAll<HTMLElement>(`.${containerClassName} .element`);
@@ -36,7 +35,7 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({ field, onSelec
       return (workMask?.[day] ?? 0) & (1 << (23 - index));
     });
     selectoRef.current?.setSelectedTargets(selectedTargets);
-  }, [containerClassName, selectoRef, workMask]);
+  }, [containerClassName, workMask]);
   return (
     <Grid item xs={12} className={containerClassName}>
       <Selecto
@@ -76,12 +75,6 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({ field, onSelec
                 alignItems={"center"}
                 justifyContent={"center"}
               >
-                {/* <IconButton size="small">
-                          <StartIcon />
-                        </IconButton>
-                        <IconButton size="small">
-                          <LastPageIcon />
-                        </IconButton> */}
                 <Box key={hour} textAlign="center">
                   <Typography variant="body2">{`${hour}:00`}</Typography>
                 </Box>
@@ -97,6 +90,7 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({ field, onSelec
                 day={day}
                 field={field}
                 resourceId={resourceId}
+                workMask={workMask[day]}
               />
             ))}
           </Grid>
@@ -111,19 +105,20 @@ type ConstraintDayProps = {
   field: "never_work_masks" | "always_work_masks";
   color: string;
   resourceId: string;
+  workMask: number;
 };
-export const ConstraintDay: FC<ConstraintDayProps> = ({ day, field, color, resourceId }) => {
+export const ConstraintDay: FC<ConstraintDayProps> = ({ day, field, color, resourceId, workMask }) => {
   const { control } = useFormContext<MasterFormData>();
   const resourceIndex = useSimParamsResourceIndex(resourceId);
   const workTimes = useSimParamsWorkTimes(resourceId, day) ?? [];
 
   const {
-    field: { value: workMask },
     fieldState: { error },
   } = useController({
     control,
     name: `constraints.resources.${resourceIndex}.constraints.${field}.${day}`,
   });
+
   const selectedIndexes = bitmaskToSelectionIndexes(workMask ?? 0);
   const style = error ? { borderColor: "red", borderWidth: "1px" } : {};
 

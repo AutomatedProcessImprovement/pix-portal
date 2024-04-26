@@ -2,7 +2,14 @@
 /* eslint-disable no-duplicate-case */
 // flat error object
 
-import type { FieldErrors, FieldPath, GlobalError, UseFormGetValues, UseFormSetValue } from "react-hook-form";
+import type {
+  FieldError,
+  FieldErrors,
+  FieldPath,
+  GlobalError,
+  UseFormGetValues,
+  UseFormSetValue,
+} from "react-hook-form";
 import type { MasterFormData } from "../hooks/useMasterFormData";
 import type { DAYS } from "../helpers";
 import { isTimePeriodInDay, isTimePeriodInHour, selectionIndexesToBitmask } from "../helpers";
@@ -11,7 +18,7 @@ import { getOverlappingHours } from "./validationFunctions";
 
 // e.g {a: {b: {c: {message: 'error'}}}} => {'a.b.c': {message: 'error'}}
 export const flattenErrors = (errors: FieldErrors<MasterFormData>) => {
-  const result: Partial<Record<FieldPath<MasterFormData>, GlobalError>> = {};
+  const result: Partial<Record<FieldPath<MasterFormData>, GlobalError & { fix?: number }>> = {};
 
   const recurse = (obj: any, path: string) => {
     for (const key in obj) {
@@ -47,17 +54,45 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
   const flattedError = flattenErrors(error);
 
   return Object.entries(flattedError)
-    .map(([path, value]) => {
+    .map(([path, error]) => {
       const pathArray = path.split(".");
       const prefix = pathArray.slice(0, 2).join(".");
 
-      if (!value) return null;
+      if (!error) return null;
       switch (prefix) {
+        case "constraints.max_cap":
+          return {
+            humanReadablePath: "Max Capacity",
+            message: error.message,
+            path,
+            link: "/projects.%24projectId.%24processingType/components/optimos",
+            humanReadableFieldName: "Max Capacity",
+            autoFixes: createScenarioConstraintsQuickFixes(path, error),
+          };
+        case "constraints.max_shift_size":
+          return {
+            humanReadablePath: "Max Shift Size",
+            message: error.message,
+            path,
+            link: "/projects.%24projectId.%24processingType/components/optimos",
+            humanReadableFieldName: "Max Shift Size",
+            autoFixes: createScenarioConstraintsQuickFixes(path, error),
+          };
+        case "constraints.max_shift_blocks":
+          return {
+            humanReadablePath: "Max Shift Blocks",
+            message: error.message,
+            path,
+            link: "/projects.%24projectId.%24processingType/components/optimos",
+            humanReadableFieldName: "Max Shift Blocks",
+            autoFixes: createScenarioConstraintsQuickFixes(path, error),
+          };
         case "constraints.resources":
           const resourceIndex = pathArray[2];
           const resource = formData.constraints?.resources[parseInt(resourceIndex)].id;
 
           const field = pathArray.slice(3, 5).join(".");
+          console.log("field", field);
 
           switch (field) {
             case "constraints.never_work_masks":
@@ -67,37 +102,45 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
                 field === "constraints.never_work_masks" ? "Never Work Times" : "Always Work Times";
               return {
                 humanReadablePath: `Resource Constraints > ${resource} > ${humanReadableFieldName} > ${day}`,
-                message: value.message,
+                message: error.message,
                 path,
                 link: "/projects.%24projectId.%24processingType/components/optimos",
                 humanReadableFieldName,
-                autoFixes: createQuickFixes(path, formData),
+                autoFixes: createResourceConstraintQuickFixes(path, formData, error),
               };
             case "constraints.global_constraints":
               const globalConstraint = pathArray[5];
               return {
-                humanReadablePath: `Resource Constraints > ${resource} > Global Constraints > ${globalConstraint}`,
-                message: value.message,
+                humanReadablePath: `Resource Constraints > ${resource} > Global Constraints > ${globalConstraint.replaceAll(
+                  "_",
+                  " "
+                )}`,
+                message: error.message,
                 path,
                 link: "/projects.%24projectId.%24processingType/components/optimos",
                 humanReadableFieldName: globalConstraint.replace(/_/g, " "),
-                autoFixes: [],
+                autoFixes: createResourceConstraintQuickFixes(path, formData, error),
               };
 
             default:
+              console.log("field", field);
               return null;
           }
 
         default:
+          console.log("prefix", prefix);
           return null;
       }
     })
     .filter((x) => x !== null) as ParsedError[];
 };
 
-const createQuickFixes = (path: string, formData: MasterFormData): AutoFix[] => {
+const createResourceConstraintQuickFixes = (
+  path: string,
+  formData: MasterFormData,
+  error: GlobalError & { fix?: number }
+): AutoFix[] => {
   const pathArray = path.split(".");
-  const prefix = pathArray.slice(0, 2).join(".");
   const resourceIndex = parseInt(pathArray[2]);
   const resourceId = formData.constraints?.resources[resourceIndex].id;
 
@@ -160,7 +203,54 @@ const createQuickFixes = (path: string, formData: MasterFormData): AutoFix[] => 
           },
         },
       ];
+    case "constraints.global_constraints":
+      const subField = pathArray[5];
+      if (!error.fix) return [];
+      return [
+        {
+          title: `Set ${subField.replaceAll("_", " ")} max to ${error.fix}`,
+          action: (get, set) => {
+            set(path as any, error.fix);
+          },
+        },
+      ];
+    default:
+      return [];
+  }
+};
 
+export const createScenarioConstraintsQuickFixes = (path: string, error: GlobalError & { fix?: number }): AutoFix[] => {
+  const fix = error.fix;
+  if (!fix) return [];
+
+  switch (path) {
+    case "constraints.max_cap":
+      return [
+        {
+          title: `Set Max Capacity to ${fix}`,
+          action: (get, set) => {
+            set("constraints.max_cap", fix);
+          },
+        },
+      ];
+    case "constraints.max_shift_size":
+      return [
+        {
+          title: `Set Max Shift Size to ${fix}`,
+          action: (get, set) => {
+            set("constraints.max_shift_size", fix);
+          },
+        },
+      ];
+    case "constraints.max_shift_blocks":
+      return [
+        {
+          title: `Set Max Shift Blocks to ${fix}`,
+          action: (get, set) => {
+            set("constraints.max_shift_blocks", fix);
+          },
+        },
+      ];
     default:
       return [];
   }
@@ -211,4 +301,29 @@ export const removeTimeFromTimetable = (day: string, hour: number, timePeriods: 
   }
 
   return updatedTimePeriods;
+};
+
+export const getMaxShiftSizeFromTimePeriods = (timePeriods: TimePeriod[]) => {
+  return timePeriods.reduce((max, { beginTime, endTime }) => {
+    const shiftSize = parseInt(endTime.split(":")[0]) - parseInt(beginTime.split(":")[0]);
+    return shiftSize > max ? shiftSize : max;
+  }, 0);
+};
+
+export const getMaxShiftSizeFromBitmask = (bitmask: number) => {
+  return bitmask
+    .toString(2)
+    .split("1")
+    .reduce((max, block) => {
+      const shiftSize = block.length;
+      return shiftSize > max ? shiftSize : max;
+    }, 0);
+};
+
+export const getNumberOfShiftsFromBitmask = (bitmask: number) => {
+  return bitmask.toString(2).split("1").length - 1;
+};
+
+export const getNumberOfShiftsFromTimePeriods = (timePeriods: TimePeriod[]) => {
+  return timePeriods.length;
 };

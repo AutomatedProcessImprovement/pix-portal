@@ -33,7 +33,7 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props)
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <Typography variant="h6" align="left">
-                Resource constraints
+                {currResourceId}'s constraints
               </Typography>
             </Grid>
             <Grid item xs={6}>
@@ -225,7 +225,7 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props)
       </Grid>
 
       <Grid item xs={12}>
-        <ConstraintMaskInput index={index} />
+        <ConstraintMaskInput resourceId={currResourceId} />
       </Grid>
     </Grid>
   );

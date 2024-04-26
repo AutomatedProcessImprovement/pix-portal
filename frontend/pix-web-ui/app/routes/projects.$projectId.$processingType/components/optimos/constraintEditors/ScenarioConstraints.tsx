@@ -25,13 +25,6 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
             <Controller
               name="constraints.max_cap"
               control={control}
-              rules={{
-                required: REQUIRED_ERROR_MSG,
-                min: {
-                  value: 1,
-                  message: SHOULD_BE_GREATER_0_MSG,
-                },
-              }}
               render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <TextField
                   type="number"
@@ -56,13 +49,6 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
             <Controller
               name="constraints.max_shift_size"
               control={control}
-              rules={{
-                required: REQUIRED_ERROR_MSG,
-                min: {
-                  value: 1,
-                  message: SHOULD_BE_GREATER_0_MSG,
-                },
-              }}
               render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <TextField
                   type="number"
@@ -88,13 +74,6 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
             <Controller
               name="constraints.max_shift_blocks"
               control={control}
-              rules={{
-                required: REQUIRED_ERROR_MSG,
-                min: {
-                  value: 1,
-                  message: SHOULD_BE_GREATER_0_MSG,
-                },
-              }}
               render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <TextField
                   type="number"
@@ -120,13 +99,6 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
             <Controller
               name="constraints.hours_in_day"
               control={control}
-              rules={{
-                required: REQUIRED_ERROR_MSG,
-                min: {
-                  value: 1,
-                  message: SHOULD_BE_GREATER_0_MSG,
-                },
-              }}
               render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <TextField
                   style={{ display: "none" }}
@@ -149,13 +121,6 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
             <Controller
               name="constraints.time_var"
               control={control}
-              rules={{
-                required: REQUIRED_ERROR_MSG,
-                min: {
-                  value: 1,
-                  message: SHOULD_BE_GREATER_0_MSG,
-                },
-              }}
               render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <>
                   <InputLabel id={"time-granularity-select-label"}>Time Granularity</InputLabel>

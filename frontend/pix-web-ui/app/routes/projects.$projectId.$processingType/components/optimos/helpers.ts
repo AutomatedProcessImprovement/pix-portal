@@ -67,6 +67,19 @@ export const applyConstraintsToAllResources = (resources: ConsParams["resources"
   return resources;
 };
 
+export const applyTimetableToAllResources = (resources: ConsParams["resources"], srcResourceId: string) => {
+  const { never_work_masks, always_work_masks } = resources.find(
+    (resource) => resource.id === srcResourceId
+  )!.constraints;
+
+  for (const resource of resources) {
+    resource.constraints.never_work_masks = deepClone(never_work_masks);
+    resource.constraints.always_work_masks = deepClone(always_work_masks);
+  }
+
+  return resources;
+};
+
 // Converts an array of indexes to a bitmask
 // with index 23 being the first bit (rightmost bit)
 // and index 0 being the last bit (leftmost bit)

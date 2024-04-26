@@ -28,6 +28,7 @@ import { ResourceCopyDialog } from "./ResourceCopyDialog";
 import {
   applyConstraintsToAllResources,
   applyConstraintsToResources,
+  applyTimetableToAllResources,
   resetResourceConstraintsToBlank,
   resetResourceConstraintsToNineToFive,
 } from "../helpers";
@@ -117,6 +118,7 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, 
                       const newResources = applyConstraintsToAllResources(resources, currResourceId!);
                       form.setValue("constraints.resources", newResources, {
                         shouldDirty: true,
+                        shouldValidate: false,
                       });
                       form.trigger();
                     }}
@@ -131,6 +133,27 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, 
                     startIcon={<ContentPasteGoIcon />}
                   >
                     Copy to...
+                  </Button>
+                </ButtonGroup>
+              </Grid>
+              <Grid item width={"100%"}>
+                <Typography variant="caption">COPY TIMETABLE</Typography>
+                <ButtonGroup fullWidth>
+                  <Button
+                    variant="outlined"
+                    disabled={!currResourceId}
+                    onClick={() => {
+                      const newResources = applyTimetableToAllResources(resources, currResourceId!);
+
+                      form.setValue("constraints.resources", newResources, {
+                        shouldDirty: true,
+                        shouldValidate: false,
+                      });
+                      form.trigger();
+                    }}
+                    startIcon={<ContentPasteIcon />}
+                  >
+                    Apply Timetable to All
                   </Button>
                 </ButtonGroup>
               </Grid>
@@ -184,8 +207,8 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, 
           const newResources = applyConstraintsToResources(resources, currResourceId!, selectedIds);
           form.setValue("constraints.resources", newResources, {
             shouldDirty: true,
+            shouldValidate: true,
           });
-          form.trigger();
         }}
         selectedValue={currResourceId ?? ""}
         resources={resources}

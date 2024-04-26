@@ -12,6 +12,7 @@ import { parseDate } from "~/shared/utils";
 import { AssetCard } from "./AssetCard";
 import { useAuthRefreshRequest } from "../hooks/useAutoRefreshRequest";
 import { Button } from "@mui/material";
+import toast from "react-hot-toast";
 
 export function ProcessingRequestCard({ request: initialRequest }: { request: ProcessingRequest }) {
   // polling of running requests to update the status
@@ -67,6 +68,17 @@ export function ProcessingRequestCard({ request: initialRequest }: { request: Pr
 
   const user = useContext(UserContext);
 
+  const onCancel = useCallback(async () => {
+    if (!request_) return;
+    try {
+      await cancelProcessingRequest(request_.id, user!.token!);
+      toast.success("Request cancelled (this may take a moment)");
+    } catch (e) {
+      toast.error("Failed to cancel the request");
+      return;
+    }
+  }, [request_, user]);
+
   if (!request_) return <></>;
   return (
     <div
@@ -105,7 +117,7 @@ export function ProcessingRequestCard({ request: initialRequest }: { request: Pr
             <Button onClick={() => navigate(`/optimos/results/${request_.id}`)} color="primary" size="small">
               Show (live) results
             </Button>
-            <Button onClick={() => cancelProcessingRequest(request_.id, user!.token!)} color="error" size="small">
+            <Button onClick={onCancel} color="error" size="small">
               Cancel
             </Button>
           </>

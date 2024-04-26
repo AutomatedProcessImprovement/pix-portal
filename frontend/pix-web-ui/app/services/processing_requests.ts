@@ -61,12 +61,5 @@ export async function cancelProcessingRequest(id: string, token: string) {
     },
   });
   if (!response.ok) throw new Error(response.statusText);
-  try {
-    const data = await response.json();
-    if (!data) throw new Error("No data");
-    return data as ProcessingRequest;
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+  return true;
 }

@@ -75,7 +75,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
           </Grid>
           <Grid item xs={6}>
             <Controller
-              name="scenarioProperties.num_iterations"
+              name="scenarioProperties.num_instances"
               control={control}
               rules={{
                 required: REQUIRED_ERROR_MSG,

@@ -14,7 +14,7 @@ export type MasterFormData = {
 
 const DEFAULT_CONFIG: ScenarioProperties = {
   scenario_name: "My first scenario",
-  num_iterations: 100,
+  num_instances: 100,
   algorithm: "HC-FLEX",
   approach: "CO",
 };

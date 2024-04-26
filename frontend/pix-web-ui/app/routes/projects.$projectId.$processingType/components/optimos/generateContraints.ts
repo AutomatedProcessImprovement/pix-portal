@@ -98,7 +98,7 @@ export const generateConstraints = (simParams: SimParams): ConsParams => {
     for (const wDay of DAY_NUMBERS) {
       const cDay = int_week_days[wDay].toLowerCase() as keyof ConstraintWorkMask;
       dailyStartTimes[cDay] = cInfo.work_rest_count[wDay][0] > 0 ? minDateStr : null;
-      neverWorkMasks[cDay] = !dailyStartTimes[cDay] ? mask24Hour : 0;
+      //neverWorkMasks[cDay] = !dailyStartTimes[cDay] ? mask24Hour : 0;
       alwaysWorkMasks[cDay] = 0; // will keep untouched to always allowing removal
     }
 

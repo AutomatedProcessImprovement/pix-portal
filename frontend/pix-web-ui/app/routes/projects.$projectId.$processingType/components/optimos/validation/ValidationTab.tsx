@@ -18,12 +18,13 @@ export const ValidationTab: FC<ValidationTabProps> = (props) => {
       setValue(key, value, { shouldDirty: true, shouldValidate: true });
       trigger();
     },
-    [setValue, trigger]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
 
   const { errors } = useFormState({ control });
   const convertedErrors = useMemo(() => convertError(errors, getValues()), [errors, getValues]);
-  console.log("convertedErrors", errors, convertedErrors);
+
   return (
     <>
       <Card elevation={5} sx={{ p: 2, mb: 3, width: "100%" }}>

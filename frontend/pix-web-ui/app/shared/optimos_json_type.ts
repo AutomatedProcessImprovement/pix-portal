@@ -1,6 +1,6 @@
 export interface ScenarioProperties {
   scenario_name: string;
-  num_iterations: number;
+  num_instances: number;
   algorithm: "HC-FLEX" | "HC-STRICT" | "TS" | "ALL";
   approach: "CA" | "AR" | "CO" | "CAAR" | "ARCA" | "ALL";
 }
