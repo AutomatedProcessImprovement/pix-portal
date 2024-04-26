@@ -1,27 +1,30 @@
 import { Card, Checkbox, FormControlLabel, Grid, TextField, Typography } from "@mui/material";
 import type { FC } from "react";
-import { useState, useEffect } from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { useState, useEffect, useMemo } from "react";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { REQUIRED_ERROR_MSG, SHOULD_BE_GREATER_0_MSG } from "../validationMessages";
 import { ConstraintMaskInput } from "./ConstraintMaskInput";
 
 import type { MasterFormData } from "../hooks/useMasterFormData";
 
 type ResourceConstraintsListProps = {
-  calendarIndex: number;
+  currResourceId: string;
 };
 
 export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props) => {
-  const { calendarIndex } = props;
+  const { currResourceId } = props;
   const { control } = useFormContext<MasterFormData>();
 
-  const [index, setIndex] = useState<number>(calendarIndex);
+  const resources = useWatch({
+    control,
+    name: "constraints.resources",
+    defaultValue: [],
+  });
 
-  useEffect(() => {
-    if (index !== calendarIndex) {
-      setIndex(calendarIndex);
-    }
-  }, [calendarIndex, index]);
+  const index = useMemo(
+    () => resources.findIndex((resource) => resource.id === currResourceId),
+    [resources, currResourceId]
+  );
 
   return (
     <Grid container spacing={3}>
@@ -44,7 +47,7 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props)
                     message: SHOULD_BE_GREATER_0_MSG,
                   },
                 }}
-                render={({ field: { onChange, value } }) => (
+                render={({ field: { onChange, value }, fieldState: { error } }) => (
                   <TextField
                     type="number"
                     value={value}
@@ -56,8 +59,8 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props)
                       step: "1",
                       min: "1",
                     }}
-                    // error={errors?.max_shift_blocks !== undefined}
-                    // helperText={errors?.max_shift_blocks?.message || ""}
+                    error={!!error}
+                    helperText={error?.message || ""}
                     variant="standard"
                     style={{ width: "50%" }}
                   />
@@ -75,7 +78,7 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props)
                     message: SHOULD_BE_GREATER_0_MSG,
                   },
                 }}
-                render={({ field: { onChange, value } }) => (
+                render={({ field: { onChange, value }, fieldState: { error } }) => (
                   <TextField
                     type="number"
                     value={value}
@@ -87,8 +90,8 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props)
                       step: "1",
                       min: "1",
                     }}
-                    // error={errors?.max_shift_blocks !== undefined}
-                    // helperText={errors?.max_shift_blocks?.message || ""}
+                    error={!!error}
+                    helperText={error?.message || ""}
                     variant="standard"
                     style={{ width: "50%" }}
                   />
@@ -107,7 +110,7 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props)
                     message: SHOULD_BE_GREATER_0_MSG,
                   },
                 }}
-                render={({ field: { onChange, value } }) => (
+                render={({ field: { onChange, value }, fieldState: { error } }) => (
                   <TextField
                     type="number"
                     value={value}
@@ -119,8 +122,8 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props)
                       step: "1",
                       min: "1",
                     }}
-                    // error={errors?.max_shift_blocks !== undefined}
-                    // helperText={errors?.max_shift_blocks?.message || ""}
+                    error={!!error}
+                    helperText={error?.message || ""}
                     variant="standard"
                     style={{ width: "50%" }}
                   />
@@ -138,7 +141,7 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props)
                     message: SHOULD_BE_GREATER_0_MSG,
                   },
                 }}
-                render={({ field: { onChange, value } }) => (
+                render={({ field: { onChange, value }, fieldState: { error } }) => (
                   <TextField
                     type="number"
                     value={value}
@@ -150,8 +153,8 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props)
                       step: "1",
                       min: "1",
                     }}
-                    // error={errors?.max_shift_blocks !== undefined}
-                    // helperText={errors?.max_shift_blocks?.message || ""}
+                    error={!!error}
+                    helperText={error?.message || ""}
                     variant="standard"
                     style={{ width: "50%" }}
                   />
@@ -169,7 +172,7 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props)
                     message: SHOULD_BE_GREATER_0_MSG,
                   },
                 }}
-                render={({ field: { onChange, value } }) => (
+                render={({ field: { onChange, value }, fieldState: { error } }) => (
                   <TextField
                     type="number"
                     value={value}
@@ -181,8 +184,8 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props)
                       step: "1",
                       min: "1",
                     }}
-                    // error={errors?.max_shift_blocks !== undefined}
-                    // helperText={errors?.max_shift_blocks?.message || ""}
+                    error={!!error}
+                    helperText={error?.message || ""}
                     variant="standard"
                     style={{ width: "50%" }}
                   />
@@ -200,7 +203,7 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (props)
                     message: SHOULD_BE_GREATER_0_MSG,
                   },
                 }}
-                render={({ field: { onChange, value } }) => (
+                render={({ field: { onChange, value }, fieldState: { error } }) => (
                   <>
                     <FormControlLabel
                       control={

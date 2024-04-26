@@ -26,6 +26,7 @@ import React, { useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { ResourceCopyDialog } from "./ResourceCopyDialog";
 import {
+  applyConstraintsToAllResources,
   applyConstraintsToResources,
   resetResourceConstraintsToBlank,
   resetResourceConstraintsToNineToFive,
@@ -33,11 +34,11 @@ import {
 import type { MasterFormData } from "../hooks/useMasterFormData";
 
 export type ResourceSelectionProps = {
-  currCalendarIndex: number;
-  updateCurrCalendar: (index: number) => void;
+  currResourceId?: string;
+  updateCurrCalendar: (id: string) => void;
 };
 
-export const ResourceSelection: FC<ResourceSelectionProps> = ({ currCalendarIndex, updateCurrCalendar }) => {
+export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, updateCurrCalendar }) => {
   const form = useFormContext<MasterFormData>();
   const resources = useWatch({
     control: form.control,
@@ -88,10 +89,10 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currCalendarInde
                 height: "300px",
               }}
             >
-              {searchResults.map((item, index) => {
-                const isSelected = currCalendarIndex === index;
+              {searchResults.map((item) => {
+                const isSelected = currResourceId === item.id;
                 return (
-                  <ListItemButton selected={isSelected} key={item.id} onClick={() => updateCurrCalendar(index)}>
+                  <ListItemButton selected={isSelected} key={item.id} onClick={() => updateCurrCalendar(item.id)}>
                     <ListItemIcon>
                       {item.constraints.global_constraints?.is_human ? <PersonIcon /> : <PrecisionManufacturingIcon />}
                     </ListItemIcon>
@@ -111,23 +112,24 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currCalendarInde
                 <ButtonGroup fullWidth>
                   <Button
                     variant="outlined"
+                    disabled={!currResourceId}
                     onClick={() => {
-                      const newResources = applyConstraintsToResources(
-                        resources,
-                        resources[currCalendarIndex].id,
-                        resources.map((r) => r.id)
-                      );
+                      const newResources = applyConstraintsToAllResources(resources, currResourceId!);
                       form.setValue("constraints.resources", newResources, {
                         shouldDirty: true,
-                        shouldTouch: true,
-                        shouldValidate: true,
                       });
+                      form.trigger();
                     }}
                     startIcon={<ContentPasteIcon />}
                   >
                     Apply to All
                   </Button>
-                  <Button variant="outlined" onClick={() => setModalOpen(true)} startIcon={<ContentPasteGoIcon />}>
+                  <Button
+                    disabled={!currResourceId}
+                    variant="outlined"
+                    onClick={() => setModalOpen(true)}
+                    startIcon={<ContentPasteGoIcon />}
+                  >
                     Copy to...
                   </Button>
                 </ButtonGroup>
@@ -139,10 +141,11 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currCalendarInde
                 <Typography variant="caption">RESET CONSTRAINTS</Typography>
                 <ButtonGroup orientation="vertical" fullWidth>
                   <Button
+                    disabled={!currResourceId}
                     variant="outlined"
                     startIcon={<RestartAltIcon />}
                     onClick={() => {
-                      const newResources = resetResourceConstraintsToBlank(resources, resources[currCalendarIndex].id);
+                      const newResources = resetResourceConstraintsToBlank(resources, currResourceId!);
                       form.setValue("constraints.resources", newResources, {
                         shouldDirty: true,
                         shouldTouch: true,
@@ -153,13 +156,11 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currCalendarInde
                     Reset to blank constraints
                   </Button>
                   <Button
+                    disabled={!currResourceId}
                     variant="outlined"
                     startIcon={<EventIcon />}
                     onClick={() => {
-                      const newResources = resetResourceConstraintsToNineToFive(
-                        resources,
-                        resources[currCalendarIndex].id
-                      );
+                      const newResources = resetResourceConstraintsToNineToFive(resources, currResourceId!);
 
                       form.setValue("constraints.resources", newResources, {
                         shouldDirty: true,
@@ -180,14 +181,13 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currCalendarInde
         open={modalOpen}
         onClose={(selectedIds) => {
           setModalOpen(false);
-          const newResources = applyConstraintsToResources(resources, resources[currCalendarIndex].id, selectedIds);
+          const newResources = applyConstraintsToResources(resources, currResourceId!, selectedIds);
           form.setValue("constraints.resources", newResources, {
             shouldDirty: true,
-            shouldTouch: true,
-            shouldValidate: true,
           });
+          form.trigger();
         }}
-        selectedValue={resources[currCalendarIndex].id}
+        selectedValue={currResourceId ?? ""}
         resources={resources}
       />
     </>

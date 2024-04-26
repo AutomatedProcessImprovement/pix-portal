@@ -62,6 +62,7 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
                     `constraints.resources.${index}.constraints.always_work_masks`,
                     BLANK_CONSTRAINTS["always_work_masks"]
                   );
+                  form.trigger();
                 }}
               >
                 <Typography variant="body2">Clear</Typography>
@@ -88,6 +89,7 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
                     `constraints.resources.${index}.constraints.never_work_masks`,
                     BLANK_CONSTRAINTS["never_work_masks"]
                   );
+                  form.trigger();
                 }}
               >
                 <Typography variant="body2">Clear</Typography>

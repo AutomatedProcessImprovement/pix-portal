@@ -11,57 +11,32 @@ interface ResourceCalendarsProps {}
 
 const ResourceConstraints = (props: ResourceCalendarsProps) => {
   const form = useFormContext<MasterFormData>();
-  const [currCalendarIndex, setCurrCalendarIndex] = useState<number>();
-  const [currCalendarKey, setCurrCalendarKey] = useState<string>("");
+  const [currResourceId, setCurrResourceId] = useState<string>();
 
   const resources = useWatch({ control: form.control, name: "constraints.resources" });
-  const updateCurrCalendar = (index?: number) => {
+  const updateCurrCalendar = (id?: string) => {
     // update index
-    setCurrCalendarIndex(index);
-
-    // update key
-    updateCurrKey(index);
+    setCurrResourceId(id);
   };
 
-  const updateCurrKey = useCallback(
-    (currIndex?: number) => {
-      if (currIndex === undefined) {
-        setCurrCalendarKey("");
-      } else {
-        const calendarKey = resources[currIndex]?.id || "";
-        setCurrCalendarKey(calendarKey);
-      }
-    },
-    [resources]
-  );
-
   useEffect(() => {
-    // once we get the new number of calendars, we:
-    // either created a new one and redirect users to this newly created resource
-    // or loading the page for the first time and select the first calendar of the list as an active one
-    setCurrCalendarIndex(0);
-  }, [resources]);
-
-  useEffect(() => {
-    // once index of the selected calendar changed,
-    // we need to update the key accordingly
-    updateCurrKey(currCalendarIndex);
-  }, [currCalendarIndex, updateCurrKey]);
+    if (currResourceId == null) setCurrResourceId(resources.length > 0 ? resources[0].id : undefined);
+  }, [currResourceId, resources]);
 
   return (
     <Grid container width="100%" spacing={2}>
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <ResourceSelection currCalendarIndex={currCalendarIndex ?? 0} updateCurrCalendar={updateCurrCalendar} />
+          <ResourceSelection currResourceId={currResourceId} updateCurrCalendar={updateCurrCalendar} />
         </Grid>
       </Grid>
-      {currCalendarIndex === undefined ? (
+      {currResourceId === undefined ? (
         <Grid item xs={12} sx={{ p: 2 }}>
           <Typography>Please select the resource to see its configuration</Typography>
         </Grid>
       ) : (
         <Grid item xs={12} sx={{ p: 2 }}>
-          <ResourceConstraintsList key={`resource_calendars.${currCalendarKey}`} calendarIndex={currCalendarIndex} />
+          <ResourceConstraintsList currResourceId={currResourceId} />
         </Grid>
       )}
     </Grid>

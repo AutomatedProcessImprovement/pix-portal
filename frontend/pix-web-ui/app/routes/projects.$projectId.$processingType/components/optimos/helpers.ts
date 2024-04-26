@@ -27,6 +27,12 @@ export const timePeriodToBinary = (startTime: string, endTime: string, delta: nu
   return parseInt(res, 2);
 };
 
+export const timePeriodsToBinary = (timePeriods: TimePeriod[], day: (typeof DAYS)[number]) =>
+  timePeriods
+    .filter((time) => time.from.toLocaleLowerCase() === day.toLocaleLowerCase())
+    .map((time) => timePeriodToBinary(time.beginTime, time.endTime))
+    .reduce((acc, val) => acc | val, 0);
+
 export const deepClone = <T>(obj: T): T => {
   return JSON.parse(JSON.stringify(obj));
 };
@@ -45,6 +51,17 @@ export const applyConstraintsToResources = (
     if (!targetResource) continue;
 
     targetResource.constraints = deepClone(srcConstraints);
+  }
+
+  return resources;
+};
+
+export const applyConstraintsToAllResources = (resources: ConsParams["resources"], srcResourceId: string) => {
+  const srcConstraints = resources.find((resource) => resource.id === srcResourceId)?.constraints;
+  if (!srcConstraints) return resources;
+
+  for (const resource of resources) {
+    resource.constraints = deepClone(srcConstraints);
   }
 
   return resources;

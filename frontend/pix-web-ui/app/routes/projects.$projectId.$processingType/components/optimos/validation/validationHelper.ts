@@ -73,6 +73,17 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
                 humanReadableFieldName,
                 autoFixes: createQuickFixes(path, formData),
               };
+            case "constraints.global_constraints":
+              const globalConstraint = pathArray[5];
+              return {
+                humanReadablePath: `Resource Constraints > ${resource} > Global Constraints > ${globalConstraint}`,
+                message: value.message,
+                path,
+                link: "/projects.%24projectId.%24processingType/components/optimos",
+                humanReadableFieldName: globalConstraint.replace(/_/g, " "),
+                autoFixes: [],
+              };
+
             default:
               return null;
           }
