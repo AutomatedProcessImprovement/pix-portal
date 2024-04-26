@@ -10,7 +10,7 @@ export default function ProjectCard({ project }: { project: Project }) {
 
   return (
     <Link
-      to={`/projects/${project.id}/discovery`}
+      to={`/projects/${project.id}/optimization`}
       className="border-none flex flex-col bg-white border border-slate-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-slate-100"
     >
       <div className="flex flex-grow flex-col justify-between p-4 space-y-2 leading-normal text-slate-900">
