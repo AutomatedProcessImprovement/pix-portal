@@ -114,7 +114,7 @@ export default function EventLogColumnMappingDialog({
                     />
                   </div>
                   <div className="flex flex-col space-y-2">
-                    <label htmlFor="end_time">Start timestamp column:</label>
+                    <label htmlFor="end_time">End timestamp column:</label>
                     <input
                       id="end_time"
                       name="end_time"
