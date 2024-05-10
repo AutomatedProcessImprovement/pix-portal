@@ -172,8 +172,9 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, 
                       form.setValue("constraints.resources", newResources, {
                         shouldDirty: true,
                         shouldTouch: true,
-                        shouldValidate: true,
+                        shouldValidate: false,
                       });
+                      form.trigger();
                     }}
                   >
                     Reset to blank constraints
@@ -188,8 +189,9 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, 
                       form.setValue("constraints.resources", newResources, {
                         shouldDirty: true,
                         shouldTouch: true,
-                        shouldValidate: true,
+                        shouldValidate: false,
                       });
+                      form.trigger();
                     }}
                   >
                     Reset to 9-5 working times

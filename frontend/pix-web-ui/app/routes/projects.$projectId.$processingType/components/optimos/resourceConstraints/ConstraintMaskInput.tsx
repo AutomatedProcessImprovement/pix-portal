@@ -56,8 +56,9 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
                   setValue(
                     `constraints.resources.${index}.constraints.always_work_masks`,
                     BLANK_CONSTRAINTS["always_work_masks"],
-                    { shouldValidate: true }
+                    { shouldValidate: false, shouldDirty: true }
                   );
+                  trigger();
                 }}
               >
                 <Typography variant="body2">Clear</Typography>
@@ -85,8 +86,9 @@ export const ConstraintMaskInput: FC<Props> = (props) => {
                   setValue(
                     `constraints.resources.${index}.constraints.never_work_masks`,
                     BLANK_CONSTRAINTS["never_work_masks"],
-                    { shouldValidate: true }
+                    { shouldValidate: false, shouldDirty: true }
                   );
+                  trigger();
                 }}
               >
                 <Typography variant="body2">Clear</Typography>

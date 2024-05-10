@@ -149,11 +149,11 @@ export const ResourceTableRow: FC<ResourceRowProps> = React.memo((props) => {
                 <Grid item xs={12}>
                   <Grid container justifyContent={"space-between"} maxWidth={"50vw"}>
                     <strong>Legend:</strong>
-                    <span style={{ color: "rgb(242, 107, 44)" }}>Never Work Time</span>
+                    <span style={{ color: "rgb(242, 107, 44, 0.5)" }}>Never Work Time</span>
                     <span style={{ color: "lightblue" }}>Always Work Time</span>
                     <span style={{ color: "darkgrey" }}>Unchanged Working Time</span>
-                    <span style={{ color: "rgb(232,232,232)" }}>Removed Work Time</span>
-                    <span style={{ color: "rgb(34,139,34)" }}>Added Work Time</span>
+                    <span style={{ color: "rgb(248,248,248))" }}>Removed Work Time</span>
+                    <span style={{ color: "rgb(34,139,34,0.7)" }}>Added Work Time</span>
                   </Grid>
                 </Grid>
               </Typography>
