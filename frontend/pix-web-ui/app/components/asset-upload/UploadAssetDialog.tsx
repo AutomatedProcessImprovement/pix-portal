@@ -9,8 +9,6 @@ import { makeLabeledAny } from "../shared";
 import { SelectedAssetTypeContext } from "./contexts";
 import { useDialog } from "./useDialog";
 
-export const ENABLED_ASSETS = [AssetType.SIMULATION_MODEL, AssetType.OPTIMOS_CONFIGURATION];
-
 export default function UploadAssetDialog({
   trigger,
   initialAssetType,
@@ -21,7 +19,13 @@ export default function UploadAssetDialog({
   let [assetType, setAssetType] = useState<ILabeledAny | undefined>();
 
   const assetTypes = useMemo(() => {
-    const options = ENABLED_ASSETS.map((assetType) => ({
+    const options = [
+      AssetType.EVENT_LOG,
+      AssetType.PROCESS_MODEL,
+      AssetType.SIMULATION_MODEL,
+      AssetType.SIMOD_CONFIGURATION,
+      AssetType.OPTIMOS_CONFIGURATION,
+    ].map((assetType) => ({
       label: assetTypeToString(assetType),
       value: assetType,
     }));
@@ -30,8 +34,7 @@ export default function UploadAssetDialog({
 
   useEffect(() => {
     setAssetType(
-      makeLabeledAny(initialAssetType, assetTypeToString) ||
-        makeLabeledAny(AssetType.SIMULATION_MODEL, assetTypeToString)
+      makeLabeledAny(initialAssetType, assetTypeToString) || makeLabeledAny(AssetType.EVENT_LOG, assetTypeToString)
     );
   }, [initialAssetType]);
 

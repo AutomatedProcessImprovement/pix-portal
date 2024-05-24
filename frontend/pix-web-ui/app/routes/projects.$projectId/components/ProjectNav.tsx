@@ -88,8 +88,7 @@ function ProjectsSelect() {
         if (!projectLabeled) return;
         if (selectedProject?.value.id === projectLabeled?.value.id) return;
         setSelectedProject(projectLabeled);
-        const href =
-          `/projects/${selectedProject?.value?.id}/${params.processingType || "optimization"}` ?? "/projects";
+        const href = `/projects/${selectedProject?.value?.id}/${params.processingType || "discovery"}` ?? "/projects";
         window.location.href = href;
       }}
       options={projects}
