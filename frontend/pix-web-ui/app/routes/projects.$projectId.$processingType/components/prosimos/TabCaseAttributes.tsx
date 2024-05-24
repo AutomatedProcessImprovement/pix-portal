@@ -93,7 +93,7 @@ function CaseAttribute({ name, children }: { name: string; children?: React.Reac
                       type="text"
                       label="Option Name"
                     />
-                    <Input name={`${name}.values[${index}].value`} defaultValue={1} type="number" label="Probability" />
+                    <Input name={`${name}.values[${index}].value`} defaultValue={1} step={0.01} type="number" label="Probability" />
                     <button type="button" onClick={() => remove(index)} className="bg-slate-400">
                       Remove
                     </button>

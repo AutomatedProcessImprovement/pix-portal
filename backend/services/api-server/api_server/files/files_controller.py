@@ -28,7 +28,7 @@ async def create_file(
         raise HTTPException(status_code=400, detail="Invalid file type")
 
     try:
-        if users_ids is None:
+        if users_ids is None or len(users_ids) == 0:
             users_ids = [str(user.id)]
         else:
             users_ids = [uuid.UUID(user_id.strip()) for user_id in users_ids.split(",")]

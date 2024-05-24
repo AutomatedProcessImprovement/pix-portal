@@ -45,7 +45,7 @@ def _prosimos_configuration_from_simulation_model(simulation_model_path: Path) -
 
     config = ProsimosConfiguration(
         total_cases=simulation_model.get("total_cases", 1000),
-        starting_at=simulation_model.get("starting_at", datetime.now(tz=timezone.utc)),
+        starting_at=simulation_model.get("start_time", datetime.now(tz=timezone.utc)),
         is_event_added_to_log=simulation_model.get("is_event_added_to_log", False),
     )
     return config
