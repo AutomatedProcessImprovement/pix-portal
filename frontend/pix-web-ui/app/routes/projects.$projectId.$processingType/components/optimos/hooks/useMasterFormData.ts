@@ -8,6 +8,7 @@ import { useMemo } from "react";
 import { timetableSchema } from "../validation/timetableSchema";
 import type { ValidationError } from "yup";
 import { constraintsSchema } from "../validation/constraintsSchema";
+import { validateBPMN } from "../validation/validateBPMN";
 
 export type MasterFormData = {
   constraints?: ConsParams;
@@ -27,8 +28,8 @@ export const useMasterFormData = () => {
   const [consParamsFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON);
   const [configFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.CONFIGURATION_OPTIMOS_YAML);
 
-  const { jsonData: consParamsJson } = useJsonFile<ConsParams>(consParamsFile || null);
-  const { jsonData: simParamsJson } = useJsonFile<SimParams>(simParamsFile || null);
+  const { jsonData: consParamsJson, error: consParamsJsonError } = useJsonFile<ConsParams>(consParamsFile || null);
+  const { jsonData: simParamsJson, error: simParamsJsonError } = useJsonFile<SimParams>(simParamsFile || null);
   const { yamlData: scenarioJson } = useYAMLFile<ScenarioProperties>(configFile || null);
 
   const masterFormData = useMemo<MasterFormData>(
@@ -44,28 +45,34 @@ export const useMasterFormData = () => {
   const hasConsParamsFile = consParamsFile !== null;
   const hasConfigFile = configFile !== null;
 
-  const simParamsError = useMemo<ValidationError | null>(() => {
+  const simParamsError = useMemo<Error | null>(() => {
+    if (simParamsJsonError) {
+      return new Error(`Simulation parameters file is not a valid JSON file: ${simParamsJsonError}`);
+    }
     try {
       if (simParamsJson) {
         timetableSchema.validateSync(simParamsJson);
       }
     } catch (e) {
       debugger;
-      return e as ValidationError;
+      return e as Error;
     }
     return null;
-  }, [simParamsJson]);
+  }, [simParamsJson, simParamsJsonError]);
 
-  const constraintsError = useMemo<ValidationError | null>(() => {
+  const constraintsError = useMemo<Error | null>(() => {
+    if (consParamsJsonError) {
+      return new Error(`Constraints file is not a valid JSON file: ${consParamsJsonError}`);
+    }
     try {
       if (consParamsJson) {
         constraintsSchema.validateSync(consParamsJson);
       }
     } catch (e) {
-      return e as ValidationError;
+      return e as Error;
     }
     return null;
-  }, [consParamsJson]);
+  }, [consParamsJson, consParamsJsonError]);
 
   return [
     masterFormData,

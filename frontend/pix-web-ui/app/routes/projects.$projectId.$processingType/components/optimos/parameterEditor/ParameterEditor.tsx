@@ -2,7 +2,7 @@ import YAML from "yaml";
 import { Button, Grid, Stack, Step, StepButton, Stepper, Tooltip } from "@mui/material";
 
 import { v4 as uuidv4 } from "uuid";
-import { useEffect, useCallback, useContext } from "react";
+import { useEffect, useCallback, useContext, useMemo, useState } from "react";
 
 import { TABS, TabNames, getIndexOfTab } from "../hooks/useTabVisibility";
 import GlobalConstraints from "../constraintEditors/GlobalConstraints";
@@ -27,6 +27,7 @@ import { MasterFormData, useMasterFormData } from "../hooks/useMasterFormData";
 import { CustomStepIcon } from "./CustomStepIcon";
 import { constraintResolver } from "../validation/validationFunctions";
 import { useOptimosConfigSave, useSimulationParametersSave } from "../hooks/useConfigSave";
+import { validateBPMN } from "../validation/validateBPMN";
 
 const tooltip_desc: Record<string, string> = {
   GLOBAL_CONSTRAINTS: "Define the algorithm, approach and number of iterations",
@@ -45,11 +46,10 @@ const SetupOptimos = () => {
 
   const [activeStep, setActiveStep] = useOptimosTab();
 
-  //   const { bpmnFile, simParamsFile, consParamsFile } = state as LocationState
-  const [bpmnFile] = useFileFromAsset(AssetType.SIMULATION_MODEL, FileType.PROCESS_MODEL_BPMN);
-
   const [masterFormData, hasSimParamsFile, hasConsParamsFile, hasConfigFile, simParamsError, constraintsError] =
     useMasterFormData();
+
+  const [bpmnFile] = useFileFromAsset(AssetType.SIMULATION_MODEL, FileType.PROCESS_MODEL_BPMN);
 
   const masterForm = useForm<MasterFormData>({
     values: masterFormData,
@@ -57,6 +57,21 @@ const SetupOptimos = () => {
     resolver: constraintResolver,
   });
   const { getValues, trigger } = masterForm;
+
+  const [bpmnError, setBpmnError] = useState<Error | null>(null);
+  useEffect(() => {
+    if (bpmnFile && hasSimParamsFile) {
+      const simParams = getValues().simulationParameters;
+      if (!simParams) return;
+      validateBPMN(bpmnFile, simParams)
+        .then(() => {
+          setBpmnError(null);
+        })
+        .catch((e) => {
+          setBpmnError(e);
+        });
+    }
+  }, [bpmnFile, user, hasSimParamsFile, getValues]);
 
   useEffect(() => {
     trigger();
@@ -119,7 +134,7 @@ const SetupOptimos = () => {
 
   return (
     <ProcessingAppSection heading="Optimization Configuration">
-      {!(bpmnFile || hasSimParamsFile) && (
+      {!(bpmnFile || hasSimParamsFile) && !constraintsError && !simParamsError && (
         <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
           Select a Optimos Configuration and Simulation Model from the input assets on the left.
         </p>
@@ -127,19 +142,29 @@ const SetupOptimos = () => {
 
       {hasSimParamsFile && simParamsError && (
         <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
-          The Simulation Parameters file contains errors. Please correct them before proceeding:
+          The Simulation Parameters doesn't follow the required format. Please upload a correct version, before
+          proceeding. Technical details:
           <pre>{simParamsError.message}</pre>
         </p>
       )}
 
       {!simParamsError && hasConsParamsFile && constraintsError && (
         <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
-          The Constraints file contains errors. Please correct them before proceeding:
+          The Constraints doesn't follow the required format. Please upload a correct version, before proceeding.
+          Technical details:
           <pre>{constraintsError.message}</pre>
         </p>
       )}
 
-      {bpmnFile && hasSimParamsFile && !simParamsError && !hasConsParamsFile && (
+      {bpmnFile && bpmnError && (
+        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
+          The BPMN file doesn't match the Simulation Model. Please make sure, the Simulation Model (Timetable) contains
+          the necessary tasks and gateways. Technical details:
+          <pre>{bpmnError.message}</pre>
+        </p>
+      )}
+
+      {bpmnFile && hasSimParamsFile && !simParamsError && !hasConsParamsFile && !bpmnError && (
         <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
           You have only selected a Simulation Model, please select a Optimos Configuration file or click "Generate
           Constraints" below.
@@ -149,7 +174,7 @@ const SetupOptimos = () => {
         </p>
       )}
 
-      {bpmnFile && hasSimParamsFile && hasConsParamsFile && !simParamsError && !constraintsError && (
+      {bpmnFile && hasSimParamsFile && hasConsParamsFile && !simParamsError && !constraintsError && !bpmnError && (
         <FormProvider {...masterForm}>
           <form
             method="POST"

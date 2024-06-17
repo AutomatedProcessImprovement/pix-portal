@@ -290,6 +290,8 @@ export enum DistributionType {
   norm = "norm",
   uniform = "uniform",
   default = "default",
+  exponnorm = "exponnorm",
+  triang = "triang",
 }
 
 export const distributionParameters = {
@@ -300,6 +302,8 @@ export const distributionParameters = {
   [DistributionType.lognorm]: ["Mean (s)", "Variance (s)", "Min (s)", "Max (s)"],
   [DistributionType.norm]: ["Mean (s)", "Std Dev (s)", "Min (s)", "Max (s)"],
   [DistributionType.default]: ["Min (s)", "Max (s)"],
+  [DistributionType.exponnorm]: ["Mean (s)", "Variance (s)", "Min (s)", "Max (s)"],
+  [DistributionType.triang]: ["Mean (s)", "Min (s)", "Max (s)"],
 };
 
 export const distributionParametersLength = (distr_func: DistributionType) => {
