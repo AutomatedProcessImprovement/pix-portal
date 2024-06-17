@@ -50,7 +50,7 @@ class Asset:
     users_ids: list[str]
     processing_requests_ids: list[str]
     url: Optional[str] = None
-    files: Optional[File_] = None
+    files: Optional[list[File_]] = None
 
     def is_deleted(self) -> bool:
         return self.deletion_time is not None
@@ -76,7 +76,7 @@ class AssetServiceClient(SelfAuthenticatingClient):
         """
         asset = await self.get_asset(asset_id, token=token)
 
-        files = []
+        files: list[File_] = []
         for file_id in asset.files_ids:
             file = await self._file_client.get_file(file_id, token=token)
             file_path = await self._compose_file_path(file, output_dir)
@@ -198,6 +198,37 @@ class AssetServiceClient(SelfAuthenticatingClient):
 
         return data["id"]
 
+    async def replace_assets_files(
+        self,
+        files: list[File_],
+        asset_id: str,
+        token: Optional[str] = None,
+    ) -> bool:
+
+        asset = await self.get_asset(asset_id, token)
+        await self._validate_files(asset.type, files)
+
+        files_ids = await asyncio.gather(
+            *[
+                self._file_client.upload_file(
+                    name=file.name,
+                    path=file.path,
+                    type=file.type,
+                    users_ids=self._str_list_to_uuid_list(asset.users_ids),
+                    token=token,
+                )
+                for file in files
+            ]
+        )
+
+        response = await self._http_client.patch(
+            urljoin(self._base_url, asset_id),
+            headers=await self.request_headers(token),
+            json={"files_ids": self._uuid_list_to_str_list(files_ids)},
+        )
+        response.raise_for_status()
+        return True
+
     async def _validate_files(self, asset_type: AssetType, files: list[File_]):
         if asset_type == AssetType.EVENT_LOG:
             self._files_must_have_at_least_length(files, 2)
@@ -241,8 +272,11 @@ class AssetServiceClient(SelfAuthenticatingClient):
         return event_log_valid and str(FileType.EVENT_LOG_COLUMN_MAPPING_JSON) in files_types
 
     @staticmethod
-    def _uuid_list_to_str_list(uuid_list: Union[list[uuid.UUID], tuple[Any]]) -> list[str]:
+    def _uuid_list_to_str_list(uuid_list: Union[list[uuid.UUID], tuple[Any], list[Any]]) -> list[str]:
         return [str(v) for v in uuid_list]
+
+    def _str_list_to_uuid_list(self, str_list: list[str]) -> list[uuid.UUID]:
+        return [uuid.UUID(v) for v in str_list]
 
     async def delete_asset(self, asset_id: UUID, token: str) -> bool:
         url = urljoin(self._base_url, str(asset_id))

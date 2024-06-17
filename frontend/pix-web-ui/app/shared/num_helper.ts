@@ -5,7 +5,8 @@ export const formatNumber = (num: number, decimals = 2) => {
   });
 };
 
-export const formatSeconds = (seconds: number, includeHours = true) => {
+export const formatSeconds = (seconds?: number, includeHours = true) => {
+  if (seconds === undefined) return "";
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secondsLeft = Math.round(seconds % 60);
@@ -22,13 +23,25 @@ export const formatSeconds = (seconds: number, includeHours = true) => {
   return result;
 };
 
-export const formatCurrency = (num: number) => {
+export const formatHours = (hours?: number) => {
+  if (hours === undefined) return "";
+  return `${formatNumber(hours)}h`;
+};
+
+export const formatCurrency = (num?: number) => {
+  if (num === undefined) return "";
   return num.toLocaleString(undefined, {
     style: "currency",
     currency: "USD",
   });
 };
 
-export const formatPercentage = (num: number, decimals = 2) => {
+export const formatHourlyRate = (num?: number) => {
+  if (num === undefined) return "";
+  return `${formatCurrency(num)}/h`;
+};
+
+export const formatPercentage = (num?: number, decimals = 2) => {
+  if (num === undefined) return "";
   return `${formatNumber(num * 100, decimals)}%`;
 };

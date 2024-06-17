@@ -1,11 +1,11 @@
-import { type ConsJsonData } from "../../JsonData";
 import { useEffect, useMemo } from "react";
 import * as yup from "yup";
 import { MIN_LENGTH_REQUIRED_MSG, REQUIRED_ERROR_MSG, SHOULD_BE_NUMBER_MSG } from "../validationMessages";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import type { ConsParams } from "~/shared/optimos_json_type";
 
-const useFormState = (consJsonData?: ConsJsonData) => {
+const useFormState = (consJsonData?: ConsParams) => {
   const constraintsValidationSchema = useMemo(
     () =>
       yup.object({
@@ -63,8 +63,8 @@ const useFormState = (consJsonData?: ConsJsonData) => {
     []
   );
 
-  const formState = useForm<ConsJsonData>({
-    resolver: yupResolver<yup.AnyObjectSchema>(constraintsValidationSchema),
+  const formState = useForm<ConsParams>({
+    resolver: yupResolver(constraintsValidationSchema) as any,
     mode: "onBlur",
   });
 

@@ -1,100 +1,108 @@
-import { useState, type FC, useRef } from "react";
-import { type Control, Controller } from "react-hook-form";
-import { Button, Grid } from "@mui/material";
-import { REQUIRED_ERROR_MSG, SHOULD_BE_GREATER_0_MSG } from "../validationMessages";
-import type { ConsJsonData } from "~/shared/optimos_json_type";
-import Selecto from "react-selecto";
-
-const selectionIndexesToBitmask = (indexes: number[]) => {
-  let mask = 0;
-  indexes.forEach((i) => (mask |= 1 << i));
-  return mask;
-};
-
-const bitmaskToSelectionIndexes = (mask: number) => {
-  const indexes = [];
-  for (let i = 0; i < 24; i++) {
-    if (mask & (1 << i)) indexes.push(i);
-  }
-  return indexes;
-};
+import { type FC } from "react";
+import { useController, useFormContext, useWatch } from "react-hook-form";
+import type { UseFormReturn } from "react-hook-form";
+import { Button, Card, Grid, Typography } from "@mui/material";
+import type { ConsParams } from "~/shared/optimos_json_type";
+import { BLANK_CONSTRAINTS, DAYS } from "../helpers";
+import { ConstraintCalendar } from "./ConstraintCalendar";
+import type { MasterFormData } from "../hooks/useMasterFormData";
+import { useSimParamsResourceIndex, useSimParamsWorkTimes } from "../hooks/useSimParamsWorkTimes";
+import { useDebouncedCallback } from "../hooks/useDebounce";
 
 interface Props {
-  control: Control<ConsJsonData, object>;
-  index: number;
-  field: keyof ConsJsonData["resources"][0]["constraints"]["never_work_masks"];
-  collection: "never_work_masks" | "always_work_masks";
+  resourceId: string;
 }
 export const ConstraintMaskInput: FC<Props> = (props) => {
-  const { control, index, collection, field } = props;
-  const selectoRef = useRef<Selecto | null>(null);
+  const { resourceId } = props;
+  const { getValues, setValue, trigger } = useFormContext<MasterFormData>();
 
-  const containerClass = `elements-${collection}-${field}`;
+  const debouncedTrigger = useDebouncedCallback(trigger, 300);
+
+  const createOnSelectChange =
+    (column: "never_work_masks" | "always_work_masks") => (selection: Array<HTMLElement | SVGElement>) => {
+      const constraintsEntries = selection.map((element) => {
+        const index = parseInt(element.dataset.index!);
+
+        const day = element.dataset.day as (typeof DAYS)[number];
+        return { index, day };
+      });
+
+      // Group by column, then day
+      const newConstraints = constraintsEntries.reduce(
+        (acc, { index, day }) => ({ ...acc, [day]: acc[day] | (1 << (23 - index)) }),
+        { ...BLANK_CONSTRAINTS[column] }
+      );
+
+      const index = getValues("constraints.resources").findIndex((resource) => resource.id === resourceId);
+
+      setValue(`constraints.resources.${index}.constraints.${column}`, newConstraints, {
+        shouldValidate: false,
+        shouldDirty: true,
+      });
+      debouncedTrigger();
+    };
 
   return (
-    <Controller
-      name={`resources.${index}.constraints.${collection}.${field}`}
-      control={control}
-      rules={{
-        required: REQUIRED_ERROR_MSG,
-        min: {
-          value: 1,
-          message: SHOULD_BE_GREATER_0_MSG,
-        },
-      }}
-      render={({ field: { onChange, value } }) => {
-        const [selectedIndexes, setSelectedIndexes] = useState<number[]>(bitmaskToSelectionIndexes(value));
-
-        const onSelectChange = (selection: Array<HTMLElement | SVGElement>, triggerSelecto = false) => {
-          if (triggerSelecto) selectoRef.current?.setSelectedTargets(selection);
-          const indexes = selection.map((el) => parseInt(el.dataset.index!));
-          setSelectedIndexes(indexes);
-          onChange(selectionIndexesToBitmask(indexes));
-        };
-        return (
-          <Grid item xs={12} className={containerClass}>
-            <Selecto
-              ref={selectoRef}
-              dragContainer={`.${containerClass}`}
-              selectableTargets={[`.${containerClass} .element`]}
-              hitRate={20}
-              selectFromInside={true}
-              selectByClick={true}
-              continueSelect={true}
-              onSelect={(e) => onSelectChange(e.selected)}
-            ></Selecto>
-            <h4 style={{ textTransform: "capitalize" }}>
-              {field}{" "}
+    <>
+      <Card elevation={5} sx={{ p: 2 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Typography variant="h6" align="left">
+              Always Work Times
               <Button
                 onClick={() => {
-                  selectoRef.current?.setSelectedTargets([]);
-                  setSelectedIndexes([]);
+                  const index = getValues("constraints.resources").findIndex((resource) => resource.id === resourceId);
+
+                  setValue(
+                    `constraints.resources.${index}.constraints.always_work_masks`,
+                    BLANK_CONSTRAINTS["always_work_masks"],
+                    { shouldValidate: false, shouldDirty: true }
+                  );
+                  trigger();
                 }}
-                size="small"
               >
-                Clear
-              </Button>{" "}
-            </h4>
-            <Grid container spacing={1}>
-              {Array.from({ length: 24 }, (_, i) => (
-                <Grid item key={i} xs={1} className="element" data-index={i}>
-                  <div
-                    style={{
-                      textAlign: "center",
-                      cursor: "pointer",
-                      borderRadius: "10px",
-                      padding: "2px",
-                      backgroundColor: selectedIndexes.includes(i) ? "chocolate" : undefined,
-                    }}
-                  >
-                    {i.toString().padStart(2, "0")}
-                  </div>
-                </Grid>
-              ))}
-            </Grid>
+                <Typography variant="body2">Clear</Typography>
+              </Button>
+            </Typography>
           </Grid>
-        );
-      }}
-    ></Controller>
+          <ConstraintCalendar
+            field={`always_work_masks`}
+            resourceId={resourceId}
+            onSelectChange={createOnSelectChange("always_work_masks")}
+            color="lightblue"
+          />
+        </Grid>
+      </Card>
+
+      <Card elevation={5} sx={{ p: 2, mt: 3 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Typography variant="h6" align="left">
+              Never Work Times
+              <Button
+                onClick={() => {
+                  const index = getValues("constraints.resources").findIndex((resource) => resource.id === resourceId);
+
+                  setValue(
+                    `constraints.resources.${index}.constraints.never_work_masks`,
+                    BLANK_CONSTRAINTS["never_work_masks"],
+                    { shouldValidate: false, shouldDirty: true }
+                  );
+                  trigger();
+                }}
+              >
+                <Typography variant="body2">Clear</Typography>
+              </Button>
+            </Typography>
+          </Grid>
+          <ConstraintCalendar
+            resourceId={resourceId}
+            field={`never_work_masks`}
+            onSelectChange={createOnSelectChange("never_work_masks")}
+            color="rgb(242, 107, 44,0.5)"
+          />
+        </Grid>
+      </Card>
+    </>
   );
 };

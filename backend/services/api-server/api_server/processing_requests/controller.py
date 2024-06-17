@@ -77,6 +77,7 @@ async def get_processing_requests(
             if with_output_assets:
                 for processing_request in processing_requests:
                     if len(processing_request.output_assets_ids) > 0:
+
                         processing_request.output_assets = await asset_service.get_assets_by_ids(
                             processing_request.output_assets_ids
                         )
@@ -127,17 +128,45 @@ async def create_processing_request(
         raise HTTPException(status_code=503, detail="Service Unavailable")
 
 
-@router.get("/{processing_request_id}", response_model=ProcessingRequestOut, tags=["processing_requests"])
-async def get_processing_request(
+@router.delete("/{processing_request_id}", tags=["processing_requests"], status_code=204)
+async def cancel_processing_request(
     processing_request_id: uuid.UUID,
     processing_request_service: ProcessingRequestService = Depends(get_processing_request_service),
     user: User = Depends(current_user),
+) -> None:
+    """
+    Cancel a processing request for the authenticated user.
+    """
+    try:
+        await processing_request_service.create_cancellation_request(
+            processing_request_id=processing_request_id, current_user=user.__dict__
+        )
+    except UserNotFound:
+        raise UserNotFoundHTTP()
+    except ProjectNotFound:
+        raise ProjectNotFoundHTTP()
+    except AssetNotFound as e:
+        raise AssetNotFoundHTTP(f"Asset not found: {e.asset_id}")
+    except NotEnoughPermissions:
+        raise NotEnoughPermissionsHTTP()
+    except QueueNotAvailable:
+        raise HTTPException(status_code=503, detail="Service Unavailable")
+
+
+@router.get("/{processing_request_id}", response_model=ProcessingRequestOut, tags=["processing_requests"])
+async def get_processing_request(
+    processing_request_id: uuid.UUID,
+    with_output_assets: Optional[bool] = False,
+    processing_request_service: ProcessingRequestService = Depends(get_processing_request_service),
+    user: User = Depends(current_user),
+    asset_service: AssetService = Depends(get_asset_service),
 ) -> Any:
     """
     Get a processing request by its id.
     """
     try:
         processing_request = await processing_request_service.get_processing_request(processing_request_id)
+        processing_request.output_assets = await asset_service.get_assets_by_ids(processing_request.output_assets_ids)
     except ProcessingRequestNotFound:
         raise ProcessingRequestNotFoundHTTP()
     _raise_for_no_access_to_processing_request(processing_request, user)

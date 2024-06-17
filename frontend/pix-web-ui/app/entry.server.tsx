@@ -1,10 +1,12 @@
 import { PassThrough } from "node:stream";
+import { CacheProvider } from "@emotion/react";
 
 import type { AppLoadContext, EntryContext } from "@remix-run/node";
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import isbot from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
+import createEmotionCache from "./shared/create_emotion_cache";
 
 const ABORT_DELAY = 5_000;
 
@@ -16,18 +18,8 @@ export default function handleRequest(
   loadContext: AppLoadContext
 ) {
   return isbot(request.headers.get("user-agent"))
-    ? handleBotRequest(
-        request,
-        responseStatusCode,
-        responseHeaders,
-        remixContext
-      )
-    : handleBrowserRequest(
-        request,
-        responseStatusCode,
-        responseHeaders,
-        remixContext
-      );
+    ? handleBotRequest(request, responseStatusCode, responseHeaders, remixContext)
+    : handleBrowserRequest(request, responseStatusCode, responseHeaders, remixContext);
 }
 
 function handleBotRequest(
@@ -39,11 +31,7 @@ function handleBotRequest(
   return new Promise((resolve, reject) => {
     let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
-      <RemixServer
-        context={remixContext}
-        url={request.url}
-        abortDelay={ABORT_DELAY}
-      />,
+      <RemixServer context={remixContext} url={request.url} abortDelay={ABORT_DELAY} />,
       {
         onAllReady() {
           shellRendered = true;
@@ -86,14 +74,13 @@ function handleBrowserRequest(
   responseHeaders: Headers,
   remixContext: EntryContext
 ) {
+  const cache = createEmotionCache();
   return new Promise((resolve, reject) => {
     let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
-      <RemixServer
-        context={remixContext}
-        url={request.url}
-        abortDelay={ABORT_DELAY}
-      />,
+      <CacheProvider value={cache}>
+        <RemixServer context={remixContext} url={request.url} abortDelay={ABORT_DELAY} />,
+      </CacheProvider>,
       {
         onShellReady() {
           shellRendered = true;

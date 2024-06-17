@@ -108,7 +108,7 @@ export default function ProcessingPage() {
       });
     }
     document.addEventListener("assetsUpdated", handleAssetsUpdated);
-    return document.removeEventListener("assetsUpdated", handleAssetsUpdated);
+    return () => document.removeEventListener("assetsUpdated", handleAssetsUpdated);
   }, [projectId, user?.token, processingType, assets]);
 
   return (

@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     kafka_topic_simulation_prosimos: str
     kafka_topic_process_model_optimization_simod: str
     kafka_topic_process_model_optimization_optimos: str
+    kafka_topic_process_model_optimization_optimos_cancellations: str
     kafka_topic_waiting_time_analysis_kronos: str
 
     # files

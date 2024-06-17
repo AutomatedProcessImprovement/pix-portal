@@ -1,22 +1,13 @@
-import { Controller, type UseFormReturn } from "react-hook-form";
+import { Controller, useController, useFormContext, useFormState, type UseFormReturn } from "react-hook-form";
 import { Card, Grid, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { REQUIRED_ERROR_MSG, SHOULD_BE_GREATER_0_MSG } from "../validationMessages";
-import type { ConsJsonData, ScenarioProperties } from "~/shared/optimos_json_type";
+import type { ConsParams, ScenarioProperties } from "~/shared/optimos_json_type";
+import { MasterFormData } from "../hooks/useMasterFormData";
 
-interface GlobalConstraintsProps {
-  scenarioFormState: UseFormReturn<ScenarioProperties, object>;
-  jsonFormState: UseFormReturn<ConsJsonData, object>;
-  setErrorMessage: (value: string) => void;
-}
+interface GlobalConstraintsProps {}
 
 const GlobalConstraints = (props: GlobalConstraintsProps) => {
-  const {
-    scenarioFormState: {
-      control: scenarioFormControl,
-      formState: { errors: scenarioErrors },
-    },
-  } = props;
-
+  const { control } = useFormContext<MasterFormData>();
   return (
     <>
       <Card elevation={5} sx={{ p: 2, mb: 3, width: "100%" }}>
@@ -28,12 +19,12 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
           </Grid>
           <Grid item xs={6}>
             <Controller
-              name="scenario_name"
-              control={scenarioFormControl}
+              name="scenarioProperties.scenario_name"
+              control={control}
               rules={{
                 required: REQUIRED_ERROR_MSG,
               }}
-              render={({ field: { onChange, value } }) => (
+              render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <TextField
                   type="text"
                   value={value}
@@ -41,8 +32,8 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                   onChange={(e) => {
                     onChange(e.target.value);
                   }}
-                  error={scenarioErrors?.scenario_name !== undefined}
-                  helperText={scenarioErrors?.scenario_name?.message ?? ""}
+                  error={error !== undefined}
+                  helperText={error?.message}
                   variant="standard"
                   style={{ width: "75%" }}
                 />
@@ -51,12 +42,12 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
           </Grid>
           <Grid item xs={6}>
             <Controller
-              name="algorithm"
-              control={scenarioFormControl}
+              name="scenarioProperties.algorithm"
+              control={control}
               rules={{
                 required: REQUIRED_ERROR_MSG,
               }}
-              render={({ field: { onChange, value } }) => (
+              render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <>
                   <InputLabel id={"algorithm-select-label"}>Algorithm</InputLabel>
                   <Select
@@ -70,7 +61,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                     onChange={(e) => {
                       onChange(String(e.target.value));
                     }}
-                    error={scenarioErrors?.algorithm !== undefined}
+                    error={error !== undefined}
                     variant="standard"
                   >
                     <MenuItem value={"HC-STRICT"}>HC-STRICT | Hill Climb strict</MenuItem>
@@ -84,8 +75,8 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
           </Grid>
           <Grid item xs={6}>
             <Controller
-              name="num_iterations"
-              control={scenarioFormControl}
+              name="scenarioProperties.num_instances"
+              control={control}
               rules={{
                 required: REQUIRED_ERROR_MSG,
                 min: {
@@ -93,7 +84,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                   message: SHOULD_BE_GREATER_0_MSG,
                 },
               }}
-              render={({ field: { onChange, value } }) => (
+              render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <TextField
                   type="number"
                   value={value}
@@ -105,8 +96,8 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                     step: "1",
                     min: "1",
                   }}
-                  error={scenarioErrors?.num_iterations !== undefined}
-                  helperText={scenarioErrors?.num_iterations?.message ?? ""}
+                  error={error !== undefined}
+                  helperText={error?.message ?? ""}
                   variant="standard"
                   style={{ width: "75%" }}
                 />
@@ -115,12 +106,12 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
           </Grid>
           <Grid item xs={6}>
             <Controller
-              name="approach"
-              control={scenarioFormControl}
+              name="scenarioProperties.approach"
+              control={control}
               rules={{
                 required: REQUIRED_ERROR_MSG,
               }}
-              render={({ field: { onChange, value } }) => (
+              render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <>
                   <InputLabel id="approach-select-label">Approach</InputLabel>
                   <Select
@@ -134,7 +125,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                     onChange={(e) => {
                       onChange(String(e.target.value));
                     }}
-                    error={scenarioErrors?.num_iterations !== undefined}
+                    error={error !== undefined}
                     variant="standard"
                   >
                     <MenuItem value={"CA"}>CA | Calendar Only</MenuItem>

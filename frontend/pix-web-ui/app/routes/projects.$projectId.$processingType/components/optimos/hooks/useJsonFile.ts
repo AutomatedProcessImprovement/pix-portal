@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import type { ConsJsonData } from "~/shared/optimos_json_type";
 
-const useJsonFile = (jsonFile: File | Blob | null) => {
-  const [jsonData, setJsonData] = useState<ConsJsonData>();
+const useJsonFile = <T>(jsonFile: File | Blob | null) => {
+  const [jsonData, setJsonData] = useState<T>();
 
   useEffect(() => {
     if (jsonFile !== null) {

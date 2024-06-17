@@ -16,8 +16,15 @@ processing_request_service_url = get_env("PROCESSING_REQUEST_SERVICE_URL")
 logger = logging.getLogger()
 
 
+class Cancelable:
+    should_be_cancelled: bool = False
+
+    def cancel(self):
+        self.should_be_cancelled = True
+
+
 @dataclass
-class ProcessingRequest:
+class ProcessingRequest(Cancelable):
     """
     A data processing request that is received from the Kafka topic.
     """

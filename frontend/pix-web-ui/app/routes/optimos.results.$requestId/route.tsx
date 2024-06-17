@@ -1,20 +1,19 @@
-import { json, redirect, type LoaderFunctionArgs, type MetaFunction, TypedResponse } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import type { TypedResponse, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { isRouteErrorResponse, useLoaderData, useRouteError } from "@remix-run/react";
 import type { AxiosError } from "axios";
 import { getAsset } from "~/services/assets.server";
 import { getProcessingRequest } from "~/services/processing_requests.server";
 import { requireLoggedInUser } from "~/shared/guards.server";
 import OptimizationResults from "./components/OptimosResults";
-import { JsonReport } from "~/shared/optimos_json_type";
 import { FileType, getFileContent } from "~/services/files.server";
 import Header from "~/components/Header";
 import { UserContext } from "../contexts";
-import ProjectNav from "../projects.$projectId/components/ProjectNav";
-import { ProjectContext } from "../projects.$projectId/contexts";
-import { User } from "~/services/auth";
+import type { User } from "~/services/auth";
 import { getProject } from "~/services/projects.server";
-import { Project } from "~/services/projects";
-import { GlobalNav } from "~/components/GlobalNav";
+import type { Project } from "~/services/projects";
+import type { ProcessingRequest } from "~/services/processing_requests";
+import type { FullOutputJson } from "~/shared/optimos_json_type";
 
 export const meta: MetaFunction = ({ matches }) => {
   const rootMeta = matches.find((match) => match.id === "root")?.meta as
@@ -37,9 +36,10 @@ export const loader = async ({
   params,
 }: LoaderFunctionArgs): Promise<
   TypedResponse<{
-    report: JsonReport | null;
+    report: FullOutputJson | null;
     project?: Project;
     user?: User;
+    processingRequest?: ProcessingRequest;
   }>
 > => {
   const user = await requireLoggedInUser(request);
@@ -74,21 +74,25 @@ export const loader = async ({
 
   const project = await getProject(projectId, user.token!);
 
-  return json({ report, project, user });
+  return json({ report, project, user, processingRequest });
 };
 
 export default function OptimosStatisticsPage() {
-  const { report, user, project } = useLoaderData<typeof loader>();
+  const { report, user, processingRequest } = useLoaderData<typeof loader>();
 
-  if (!report || !user) throw new Error("No report found");
+  if (!report || !user || !processingRequest) throw new Error("No report found");
   return (
-    <div className="min-h-full flex flex-col justify-between">
-      <div className="flex grow flex-col min-h-full">
-        <Header userEmail={user.email} />
+    <UserContext.Provider value={user}>
+      <div className="min-h-full flex flex-col justify-between">
+        <div className="flex grow flex-col min-h-full">
+          <Header userEmail={user.email} />
 
-        {report && <OptimizationResults report={report} />}
+          {report && (
+            <OptimizationResults report={report as unknown as FullOutputJson} processingRequest={processingRequest} />
+          )}
+        </div>
       </div>
-    </div>
+    </UserContext.Provider>
   );
 }
 

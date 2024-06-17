@@ -181,6 +181,30 @@ class ProcessingRequestService:
     async def get_processing_request(self, processing_request_id: uuid.UUID) -> ProcessingRequest:
         return await self._processing_request_repository.get_processing_request(processing_request_id)
 
+    async def create_cancellation_request(self, processing_request_id: uuid.UUID, current_user: dict):
+        processing_request = await self._processing_request_repository.get_processing_request(processing_request_id)
+        if not await self.does_user_have_access_to_project(current_user, processing_request.project_id):
+            raise NotEnoughPermissions()
+
+        if processing_request.status in [ProcessingRequestStatus.FINISHED, ProcessingRequestStatus.FAILED]:
+            raise Exception("Cannot cancel a finished or failed processing request")
+
+        if processing_request.type != ProcessingRequestType.SIMULATION_MODEL_OPTIMIZATION_OPTIMOS:
+            raise Exception("Cannot cancel a processing request of this type")
+
+        try:
+            self._kafka_service.send_message(
+                ProcessingRequestType.SIMULATION_MODEL_OPTIMIZATION_OPTIMOS_CANCELLATION,
+                {
+                    "processing_request_id": str(processing_request_id),
+                    "user_id": str(processing_request.user_id),
+                    "project_id": str(processing_request.project_id),
+                },
+            )
+        except KafkaTimeoutError as e:
+            logger.error(f"Failed to send a message to Kafka. " f"Details: " f"type={type}, " f"error: {e}")
+            raise QueueNotAvailable()
+
     async def update_processing_request(
         self,
         processing_request_id: uuid.UUID,

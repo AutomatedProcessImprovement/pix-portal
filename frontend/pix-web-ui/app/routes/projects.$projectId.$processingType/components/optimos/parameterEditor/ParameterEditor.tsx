@@ -1,35 +1,32 @@
-import type { AlertColor } from "@mui/material";
 import YAML from "yaml";
-import { Badge, Button, Grid, Stack, Step, StepButton, StepIcon, Stepper, Tooltip, useTheme } from "@mui/material";
-import toast from "react-hot-toast";
-import { v4 as uuidv4 } from "uuid";
-import React, { useState, useEffect, useCallback, useContext } from "react";
-import {
-  Groups as GroupsIcon,
-  BarChart as BarChartIcon,
-  Settings as SettingsIcon,
-  CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon,
-  Build as BuildIcon,
-} from "@mui/icons-material";
+import { Button, Grid, Stack, Step, StepButton, Stepper, Tooltip } from "@mui/material";
 
-import useFormState from "./useFormState";
-import useJsonFile from "./useJsonFile";
-import useTabVisibility, { TABS } from "./useTabVisibility";
+import { v4 as uuidv4 } from "uuid";
+import { useEffect, useCallback, useContext } from "react";
+
+import { TABS, TabNames, getIndexOfTab } from "../hooks/useTabVisibility";
 import GlobalConstraints from "../constraintEditors/GlobalConstraints";
 import { FormProvider, useForm } from "react-hook-form";
 import ResourceConstraints from "../resourceConstraints/ResourceConstraints";
 import ScenarioConstraints from "../constraintEditors/ScenarioConstraints";
-import useSimParamsJsonFile from "./useSimParamsJsonFile";
-import type { ScenarioProperties } from "~/shared/optimos_json_type";
 import { UserContext } from "~/routes/contexts";
-import { SelectedAssetsContext } from "~/routes/projects.$projectId.$processingType/contexts";
-import { AssetType, patchAsset } from "~/services/assets";
-import { useFileFromAsset } from "./useFetchedAsset";
+import { AssetType, createAsset, patchAsset } from "~/services/assets";
+import { useFileFromAsset } from "../hooks/useFetchedAsset";
 import { FileType, deleteFile, getFile, uploadFile } from "~/services/files";
-import { useMatches } from "@remix-run/react";
-import { useSelectedInputAsset } from "~/routes/projects.$projectId.$processingType/components/useSelectedInputAsset";
+import { useMatches, useSearchParams } from "@remix-run/react";
+import {
+  useSelectAsset,
+  useSelectedInputAsset,
+} from "~/routes/projects.$projectId.$processingType/components/useSelectedInputAsset";
 import { ProcessingAppSection } from "~/routes/projects.$projectId.$processingType/components/ProcessingAppSection";
+import { generateConstraints } from "../generateContraints";
+import { SelectedAssetsContext } from "~/routes/projects.$projectId.$processingType/contexts";
+import { useOptimosTab } from "~/routes/projects.$projectId.$processingType/components/optimos/hooks/useOptimosTab";
+import { ValidationTab } from "../validation/ValidationTab";
+import { MasterFormData, useMasterFormData } from "../hooks/useMasterFormData";
+import { CustomStepIcon } from "./CustomStepIcon";
+import { constraintResolver } from "../validation/validationFunctions";
+import { useOptimosConfigSave, useSimulationParametersSave } from "../hooks/useConfigSave";
 
 const tooltip_desc: Record<string, string> = {
   GLOBAL_CONSTRAINTS: "Define the algorithm, approach and number of iterations",
@@ -39,259 +36,116 @@ const tooltip_desc: Record<string, string> = {
 };
 
 const SetupOptimos = () => {
-  const theme = useTheme();
-  const activeColor = theme.palette.info.dark;
-  const successColor = theme.palette.success.light;
-  const errorColor = theme.palette.error.light;
+  const selectAsset = useSelectAsset();
   const selectedAssets = useContext(SelectedAssetsContext);
+
   const user = useContext(UserContext);
   const projectId = useMatches().filter((match) => match.id === "routes/projects.$projectId")[0].params.projectId;
   const [optimosConfigAsset, setOptimosConfigAsset] = useSelectedInputAsset(AssetType.OPTIMOS_CONFIGURATION);
-  const [simulationConfigAsset, setSimulationConfigAsset] = useSelectedInputAsset(AssetType.SIMULATION_MODEL);
 
-  const [activeStep, setActiveStep] = useState<TABS>(TABS.GLOBAL_CONSTRAINTS);
-
-  const [isScenarioParamsValid, setIsScenarioParamsValid] = useState(true);
+  const [activeStep, setActiveStep] = useOptimosTab();
 
   //   const { bpmnFile, simParamsFile, consParamsFile } = state as LocationState
   const [bpmnFile] = useFileFromAsset(AssetType.SIMULATION_MODEL, FileType.PROCESS_MODEL_BPMN);
-  const [simParamsFile] = useFileFromAsset(AssetType.SIMULATION_MODEL, FileType.SIMULATION_MODEL_PROSIMOS_JSON);
-  const [consParamsFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON);
-  const [configFile] = useFileFromAsset(AssetType.OPTIMOS_CONFIGURATION, FileType.CONFIGURATION_OPTIMOS_YAML);
 
-  console.log(bpmnFile, simParamsFile, consParamsFile);
+  const [masterFormData, hasSimParamsFile, hasConsParamsFile, hasConfigFile] = useMasterFormData();
 
-  const { jsonData } = useJsonFile(consParamsFile || null);
-
-  const { formState } = useFormState(jsonData);
-  const {
-    formState: { errors, isSubmitted, submitCount },
-    getValues,
-  } = formState;
-
-  const { visibleTabs, getIndexOfTab } = useTabVisibility();
-
-  const scenarioState = useForm<ScenarioProperties>({
-    mode: "onBlur",
-    defaultValues: {
-      scenario_name: "My first scenario",
-      num_iterations: 100,
-      algorithm: "HC-FLEX",
-      approach: "CO",
-    },
-    // TODO Form validation
-    // resolver: yupResolver(prosimosConfigurationSchema),
-    shouldUseNativeValidation: true,
+  const masterForm = useForm<MasterFormData>({
+    values: masterFormData,
+    mode: "onChange",
+    resolver: constraintResolver,
   });
-  const {
-    getValues: getScenarioValues,
-    formState: { errors: scenarioErrors },
-    setValue: setScenarioValue,
-  } = scenarioState;
+  const { getValues, trigger } = masterForm;
 
   useEffect(() => {
-    if (configFile) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target?.result;
-        if (content) {
-          const config = YAML.parse(content as string);
-          setScenarioValue("scenario_name", config.scenario_name);
-          setScenarioValue("num_iterations", config.num_instances);
-          setScenarioValue("algorithm", config.algorithm);
-          setScenarioValue("approach", config.approach);
-        }
-      };
-      reader.readAsText(configFile);
-    }
-  }, [configFile, setScenarioValue]);
-
-  // validate both forms: scenario params and json fields
-  useEffect(() => {
-    // isValid doesn't work properly on init
-    const isJsonParamsValid = Object.keys(errors)?.length === 0;
-
-    if (!isScenarioParamsValid || !isJsonParamsValid) {
-      console.log(errors);
-      setErrorMessage("There are validation errors");
-    }
-  }, [isSubmitted, submitCount]);
-
-  const setErrorMessage = (value: string) => {
-    // TODO Error Handling
-  };
+    trigger();
+  }, [trigger, masterFormData]);
 
   const getStepContent = (index: TABS) => {
     switch (index) {
       case TABS.GLOBAL_CONSTRAINTS:
-        return (
-          <GlobalConstraints
-            scenarioFormState={scenarioState}
-            jsonFormState={formState}
-            setErrorMessage={setErrorMessage}
-          />
-        );
+        return <GlobalConstraints />;
       case TABS.SCENARIO_CONSTRAINTS:
-        return (
-          <ScenarioConstraints
-            scenarioFormState={scenarioState}
-            jsonFormState={formState}
-            setErrorMessage={setErrorMessage}
-          />
-        );
+        return <ScenarioConstraints />;
       case TABS.RESOURCE_CONSTRAINTS:
-        return <ResourceConstraints setErrorMessage={setErrorMessage} formState={formState} />;
+        return <ResourceConstraints />;
+      case TABS.VALIDATION_RESULTS:
+        return <ValidationTab />;
     }
   };
-  const getStepIcon = (currentTab: TABS): React.ReactNode => {
-    const isActiveStep = activeStep === currentTab;
-    const styles = isActiveStep ? { color: activeColor } : {};
 
-    let Icon: React.ReactNode;
-    let currError: any;
-    let lastStep = false;
-    switch (currentTab) {
-      case TABS.GLOBAL_CONSTRAINTS:
-        currError = scenarioErrors;
-        Icon = <BuildIcon style={styles} />;
-        break;
-      case TABS.SCENARIO_CONSTRAINTS:
-        currError =
-          errors.time_var ??
-          errors.hours_in_day ??
-          errors.max_cap ??
-          errors.max_shift_size ??
-          errors.hours_in_day ??
-          errors.max_shift_blocks;
-        Icon = <SettingsIcon style={styles} />;
-        break;
-      case TABS.RESOURCE_CONSTRAINTS:
-        currError = errors.hours_in_day;
-        Icon = <GroupsIcon style={styles} />;
-        break;
-      case TABS.SIMULATION_RESULTS:
-        lastStep = true;
-        Icon = <BarChartIcon style={styles} />;
-        break;
-      default:
-        return <></>;
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (!(bpmnFile || hasSimParamsFile) && searchParams.get("tabIndex") !== null) {
+      setSearchParams({ tabIndex: "" });
     }
+  }, [bpmnFile, hasSimParamsFile, searchParams, setSearchParams]);
 
-    const getBadgeContent = (areAnyErrors: boolean) => {
-      let BadgeIcon: typeof CancelIcon | typeof CheckCircleIcon, color: string;
-      if (areAnyErrors) {
-        BadgeIcon = CancelIcon;
-        color = errorColor;
-      } else {
-        BadgeIcon = CheckCircleIcon;
-        color = successColor;
-      }
+  const optimosConfigSave = useOptimosConfigSave(masterForm);
+  const simulationParametersSave = useSimulationParametersSave(masterForm);
 
-      return <BadgeIcon style={{ marginRight: "-9px", color }} />;
-    };
-
-    const areAnyErrors = currError && (currError.length > 0 || Object.keys(currError)?.length > 0);
-    const finalIcon =
-      isSubmitted && !lastStep ? (
-        <Badge badgeContent={getBadgeContent(areAnyErrors)} overlap="circular">
-          {" "}
-          {Icon}
-        </Badge>
-      ) : (
-        Icon
-      );
-
-    return <StepIcon active={isActiveStep} icon={finalIcon} />;
+  const handleConfigSave = async () => {
+    await optimosConfigSave();
+    if (masterForm.formState.dirtyFields.simulationParameters !== undefined) {
+      await simulationParametersSave();
+    }
+    masterForm.reset({}, { keepValues: true });
   };
+  const createConstraintsFromSimParams = async () => {
+    if (optimosConfigAsset || !projectId || !hasSimParamsFile) return;
+    const simParams = getValues().simulationParameters;
+    if (!simParams) return;
+    const constraints = generateConstraints(simParams);
 
-  const fromContentToBlob = (values: any) => {
-    const content = JSON.stringify(values);
-    const blob = new Blob([content], { type: "text/plain" });
-    return blob;
+    const token = user!.token!;
+    const constraintsConfigFile = await uploadFile(
+      new Blob([JSON.stringify(constraints, null, 2)]),
+      `${uuidv4()}.json`,
+      FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON,
+      token
+    );
+    const fileIds = [constraintsConfigFile.id];
+    const asset = await createAsset(
+      fileIds,
+      "generated_constraints",
+      AssetType.OPTIMOS_CONFIGURATION,
+      projectId,
+      token
+    );
+    document.dispatchEvent(new Event("assetsUpdated"));
+    selectAsset(asset);
   };
-
-  const getConstraintsConfigBlob = useCallback((): Blob => {
-    const values = getValues();
-    const blob = fromContentToBlob(values);
-
-    return blob;
-  }, [getValues]);
-
-  const handleConfigSave = useCallback(
-    // save form data as configuration file, create or update the asset, and update the selected asset IDs
-    async () => {
-      if (!optimosConfigAsset) return;
-      const { num_iterations, approach, algorithm, scenario_name } = getScenarioValues();
-
-      const globalConfig = {
-        scenario_name: scenario_name,
-        num_instances: num_iterations,
-        algorithm: algorithm,
-        approach: approach,
-      };
-
-      const token = user!.token!;
-
-      const constraints = getConstraintsConfigBlob();
-      const constraintsConfigFile = await uploadFile(
-        constraints,
-        `${uuidv4()}.json`,
-        FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON,
-        token
-      );
-
-      const globalConfigBlob = new Blob([YAML.stringify(globalConfig)], { type: "text/yaml" });
-      const globalConfigFile = await uploadFile(
-        globalConfigBlob,
-        `${uuidv4()}.yaml`,
-        FileType.CONFIGURATION_OPTIMOS_YAML,
-        token
-      );
-
-      const files = await Promise.all(optimosConfigAsset.files_ids.map((id) => getFile(id, token)));
-      const outdatedFiles = files.filter(
-        (file) =>
-          file.type === FileType.CONFIGURATION_OPTIMOS_YAML || file.type === FileType.CONSTRAINTS_MODEL_OPTIMOS_JSON
-      );
-
-      const preservedFiles = files.filter((file) => !outdatedFiles.includes(file));
-
-      const newFileIds = [globalConfigFile.id, constraintsConfigFile.id, ...preservedFiles.map((file) => file.id)];
-
-      // update existing asset
-      const updatedAsset = await patchAsset({ files_ids: newFileIds }, optimosConfigAsset.id, token);
-      if (updatedAsset) {
-        // remove the old file if all is successful
-        try {
-          for (const file of outdatedFiles) {
-            await deleteFile(file.id, token);
-          }
-        } catch (e) {
-          console.error("error deleting old file", e);
-          // don't throw, still continue with the update below because the asset was updated
-        }
-      }
-      setOptimosConfigAsset(updatedAsset);
-      toast.success("Optimos configuration updated", { duration: 5000 });
-    },
-    [optimosConfigAsset, getScenarioValues, user, getConstraintsConfigBlob, setOptimosConfigAsset]
-  );
 
   return (
     <ProcessingAppSection heading="Optimization Configuration">
-      {(!bpmnFile || !simParamsFile || !consParamsFile) && (
+      {!(bpmnFile || hasSimParamsFile) && (
         <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
           Select a Optimos Configuration and Simulation Model from the input assets on the left.
         </p>
       )}
-      {bpmnFile && simParamsFile && consParamsFile && (
-        <FormProvider {...scenarioState}>
+      {bpmnFile && hasSimParamsFile && !hasConsParamsFile && (
+        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
+          You have only selected a Simulation Model, please select a Optimos Configuration file or click "Generate
+          Constraints" below.
+          <Button variant="contained" color="primary" onClick={createConstraintsFromSimParams}>
+            Generate Constraints
+          </Button>
+        </p>
+      )}
+
+      {bpmnFile && hasSimParamsFile && hasConsParamsFile && (
+        <FormProvider {...masterForm}>
           <form
             method="POST"
-            onSubmit={scenarioState.handleSubmit(async (e, t) => {
-              await handleConfigSave();
-              t?.target.submit();
-            })}
+            onSubmit={masterForm.handleSubmit(
+              async (e, t) => {
+                await handleConfigSave();
+                t?.target.submit();
+              },
+              () => {
+                alert("There are still errors in the parameters, please correct them before submitting.");
+              }
+            )}
           >
             <input
               type="hidden"
@@ -302,10 +156,10 @@ const SetupOptimos = () => {
             <input type="hidden" name="projectId" value={projectId} />
 
             <Grid container alignItems="center" justifyContent="center">
-              <Grid item xs={10} sx={{ paddingTop: "10px" }}>
+              <Grid item xs={12} sx={{ paddingTop: "10px" }}>
                 <Grid item container xs={12} alignItems="center" justifyContent="center" sx={{ paddingTop: "20px" }}>
                   <Stepper nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)} connector={<></>}>
-                    {Object.entries(visibleTabs).map(([key, label]) => {
+                    {Object.entries(TabNames).map(([key, label]) => {
                       const keyTab = key as keyof typeof TABS;
                       const valueTab: TABS = TABS[keyTab];
 
@@ -317,7 +171,7 @@ const SetupOptimos = () => {
                               onClick={() => {
                                 setActiveStep(valueTab);
                               }}
-                              icon={getStepIcon(valueTab)}
+                              icon={<CustomStepIcon activeStep={activeStep} currentTab={valueTab} />}
                             >
                               {label}
                             </StepButton>
@@ -343,7 +197,6 @@ const SetupOptimos = () => {
                   </Stack>
                 </Grid>
               </Grid>
-              <Grid item xs={10} alignItems="center" justifyContent="center" textAlign={"center"}></Grid>
             </Grid>
           </form>
         </FormProvider>
