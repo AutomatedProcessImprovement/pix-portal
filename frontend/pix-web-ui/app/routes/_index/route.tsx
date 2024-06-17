@@ -20,10 +20,10 @@ export const meta: MetaFunction = () => {
     { property: "og:title", content: title },
     { property: "og:description", content: description },
     { property: "og:type", content: "website" },
-    { property: "og:url", content: "https://pix.cloud.ut.ee" },
+    { property: "og:url", content: "https://pix-w1.cloud.ut.ee" },
     {
       property: "og:image",
-      content: "https://pix.cloud.ut.ee/build/_assets/pedro-lastra-Nyvq2juw4_o-unsplash-HQMIWBCD.jpg",
+      content: "https://pix-w1.cloud.ut.ee/build/_assets/pedro-lastra-Nyvq2juw4_o-unsplash-HQMIWBCD.jpg",
     },
   ];
 };

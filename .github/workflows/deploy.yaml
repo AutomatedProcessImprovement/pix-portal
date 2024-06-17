@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://pix.cloud.ut.ee/
+      url: https://pix-w1.cloud.ut.ee/
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v3

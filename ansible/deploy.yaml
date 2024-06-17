@@ -1,6 +1,6 @@
 - name: Build & Deploy
   hosts:
-    - pix
+    - pix-w1
   remote_user: ubuntu
   become: true
   vars:
