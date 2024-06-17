@@ -7,6 +7,8 @@ export enum ProcessingType {
   Optimization = "optimization",
 }
 
+export const EnabledProcessingTypes = [ProcessingType.Optimization];
+
 export const ProcessingTypes = Object.values(ProcessingType);
 
 export function processingTypeToAssetType(type: ProcessingType | undefined | null): AssetType {
