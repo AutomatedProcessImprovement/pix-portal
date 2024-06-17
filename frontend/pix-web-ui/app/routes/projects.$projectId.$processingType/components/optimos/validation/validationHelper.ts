@@ -12,8 +12,14 @@ import type {
 } from "react-hook-form";
 import type { MasterFormData } from "../hooks/useMasterFormData";
 import type { DAYS } from "../helpers";
-import { isTimePeriodInDay, isTimePeriodInHour, selectionIndexesToBitmask } from "../helpers";
-import type { ResourceCalendar, TimePeriod } from "~/shared/optimos_json_type";
+import {
+  bitmaskToSelectionIndexes,
+  isTimePeriodInDay,
+  isTimePeriodInHour,
+  selectionIndexesToBitmask,
+  timePeriodsToBinary,
+} from "../helpers";
+import type { ConstraintWorkMask, ResourceCalendar, TimePeriod } from "~/shared/optimos_json_type";
 import { getOverlappingHours } from "./validationFunctions";
 
 // e.g {a: {b: {c: {message: 'error'}}}} => {'a.b.c': {message: 'error'}}
@@ -179,6 +185,38 @@ const createResourceConstraintQuickFixes = (
         },
       ];
     case "constraints.always_work_masks":
+      if (error.message === "Always work time not in timetable.") {
+        return [
+          {
+            title: "Add to Timetable",
+            action: (get, set) => {
+              const day = pathArray[5] as (typeof DAYS)[number];
+              const calendars = get("simulationParameters.resource_calendars");
+              const simParamsCalendarIndex = calendars.findIndex((calendar) => calendar.id === resourceId);
+              const timePeriods = calendars[simParamsCalendarIndex]?.time_periods ?? [];
+              const alwaysWorkMasks = get(path as any) as number;
+
+              const newTimePeriods = addManyToTimeTable(day, alwaysWorkMasks, timePeriods);
+              set(`simulationParameters.resource_calendars.${simParamsCalendarIndex}.time_periods`, newTimePeriods);
+            },
+          },
+          {
+            title: "Remove from Always-Work",
+            action: (get, set) => {
+              const day = pathArray[5] as (typeof DAYS)[number];
+              const alwaysWorkMasks = get(path as any);
+              const calendars = get("simulationParameters.resource_calendars");
+              const simParamsCalendarIndex = calendars.findIndex((calendar) => calendar.id === resourceId);
+              const timePeriods = calendars[simParamsCalendarIndex]?.time_periods ?? [];
+              const overlappingHours = getOverlappingHours(day, alwaysWorkMasks, timePeriods);
+              const overlappingHoursMask = selectionIndexesToBitmask(overlappingHours);
+              const newAlwaysWorkMasks = alwaysWorkMasks & ~overlappingHoursMask;
+
+              set(path as any, newAlwaysWorkMasks);
+            },
+          },
+        ];
+      }
       return [
         {
           title: "Remove from Never-Work",
@@ -254,6 +292,51 @@ export const createScenarioConstraintsQuickFixes = (path: string, error: GlobalE
     default:
       return [];
   }
+};
+
+export const addManyToTimeTable = (day: (typeof DAYS)[number], always_work_mask: number, timePeriods: TimePeriod[]) => {
+  const bitmask = timePeriodsToBinary(timePeriods, day);
+  const new_time_period_bitmask = always_work_mask | bitmask;
+
+  const indices = bitmaskToSelectionIndexes(new_time_period_bitmask);
+  if (indices.length === 0) {
+    return timePeriods;
+  }
+
+  const new_time_periods = timePeriods.filter((timePeriod) => !isTimePeriodInDay(timePeriod, day));
+  // Go through the indices, and add the time periods to the timetable.
+  // We are smart about it, e.g. grouping continuous hours together in one time period
+  let beginTime: number | null = null;
+  let lastHour: number | null = null;
+  for (const index of indices) {
+    if (lastHour === null) {
+      beginTime = index;
+      lastHour = index;
+    } else if (index === lastHour + 1) {
+      // We are still in the same time period
+      lastHour = index;
+    } else {
+      // We are in a new time period
+      new_time_periods.push({
+        beginTime: `${beginTime!.toString().padStart(2, "0")}:00:00`,
+        endTime: `${(lastHour + 1).toString().padStart(2, "0")}:00:00`,
+        from: day.toLocaleUpperCase(),
+        to: day.toLocaleUpperCase(),
+      });
+      beginTime = index;
+      lastHour = index;
+    }
+  }
+  if (lastHour !== null && beginTime !== null) {
+    // Add the last time period
+    new_time_periods.push({
+      beginTime: `${beginTime.toString().padStart(2, "0")}:00:00`,
+      endTime: `${(lastHour! + 1).toString().padStart(2, "0")}:00:00`,
+      from: day.toLocaleUpperCase(),
+      to: day.toLocaleUpperCase(),
+    });
+  }
+  return new_time_periods;
 };
 
 export const removeManyFromTimetable = (day: string, hours: number[], timePeriods: TimePeriod[]) => {

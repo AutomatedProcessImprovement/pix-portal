@@ -4,6 +4,7 @@ import type { MasterFormData } from "./hooks/useMasterFormData";
 import type { FieldErrors, FieldPath, GlobalError } from "react-hook-form";
 
 export const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
+export const DAYS_UPPERCASE = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] as const;
 // Generate an array of 24 hours
 export const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
@@ -27,7 +28,10 @@ export const timePeriodToBinary = (startTime: string, endTime: string, delta: nu
   return parseInt(res, 2);
 };
 
-export const timePeriodsToBinary = (timePeriods: TimePeriod[], day: (typeof DAYS)[number]) =>
+export const timePeriodsToBinary = (
+  timePeriods: TimePeriod[],
+  day: (typeof DAYS_UPPERCASE)[number] | (typeof DAYS)[number]
+) =>
   timePeriods
     .filter((time) => time.from.toLocaleLowerCase() === day.toLocaleLowerCase())
     .map((time) => timePeriodToBinary(time.beginTime, time.endTime))
@@ -97,7 +101,7 @@ export const bitmaskToSelectionIndexes = (mask: number) => {
   for (let i = 0; i < 24; i++) {
     if (mask & (1 << i)) indexes.push(23 - i);
   }
-  return indexes;
+  return indexes.reverse();
 };
 
 export const BLANK_CONSTRAINTS = {

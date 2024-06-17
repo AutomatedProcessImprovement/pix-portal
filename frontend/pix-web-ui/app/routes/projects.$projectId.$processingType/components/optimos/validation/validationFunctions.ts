@@ -1,5 +1,6 @@
 import type { FieldErrors, Resolver, Validate } from "react-hook-form";
 import type { ConsParams, ConstraintWorkMask, SimParams, TimePeriod } from "~/shared/optimos_json_type";
+import type { DAYS_UPPERCASE } from "../helpers";
 import { DAYS, bitmaskToSelectionIndexes, timePeriodToBinary, timePeriodsToBinary } from "../helpers";
 import type { MasterFormData } from "../hooks/useMasterFormData";
 import {
@@ -32,11 +33,19 @@ export const createValidateNeverWorkMask =
 export const createValidateAlwaysWorkMask =
   (resourceIndex: number, day: (typeof DAYS)[number]) => (mask: number, masterForm: MasterFormData) => {
     const never_work_masks = masterForm.constraints!.resources[resourceIndex].constraints.never_work_masks[day];
+    const work_times = masterForm.simulationParameters!.resource_calendars[resourceIndex].time_periods;
 
     if (!never_work_masks) return true;
 
     if ((mask & never_work_masks) !== 0) {
       return "There is a conflict with the never work hours.";
+    }
+
+    const work_mask = timePeriodsToBinary(work_times, day.toLocaleUpperCase() as (typeof DAYS_UPPERCASE)[number]);
+    const always_work_outside_timetable = (mask | work_mask) !== work_mask;
+
+    if (always_work_outside_timetable) {
+      return "Always work time not in timetable.";
     }
 
     return true;

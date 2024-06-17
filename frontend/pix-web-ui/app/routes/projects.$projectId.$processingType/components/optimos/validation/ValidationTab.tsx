@@ -39,9 +39,16 @@ export const ValidationTab: FC<ValidationTabProps> = (props) => {
               </Typography>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="body1" align="left">
-                The following errors are still present in the constraints. Please fix them before proceeding.
-              </Typography>
+              {!!convertedErrors.length && (
+                <Typography variant="body1" align="left">
+                  The following errors are still present in the constraints. Please fix them before proceeding.
+                </Typography>
+              )}
+              {!convertedErrors.length && (
+                <Typography variant="body1" align="left">
+                  No errors found in the constraints, you may start the optimization below.
+                </Typography>
+              )}
             </Grid>
           </Grid>
         </CardContent>
