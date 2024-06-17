@@ -149,7 +149,7 @@ class OptimosService:
                 processing_request_id=processing_request.processing_request_id,
                 status=ProcessingRequestStatus.FAILED,
                 end_time=datetime.utcnow(),
-                message="Processing Failed. If you are sure that your input files are correct, please try again (Error: {e})",
+                message=f"Processing Failed. If you are sure that your input files are correct, please try again (Error: {e})",
             )
 
         finally:
