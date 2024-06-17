@@ -5,6 +5,9 @@ import { useFileFromAsset } from "./useFetchedAsset";
 import { AssetType } from "~/services/assets";
 import { FileType } from "~/services/files";
 import { useMemo } from "react";
+import { timetableSchema } from "../validation/timetableSchema";
+import type { ValidationError } from "yup";
+import { constraintsSchema } from "../validation/constraintsSchema";
 
 export type MasterFormData = {
   constraints?: ConsParams;
@@ -41,5 +44,35 @@ export const useMasterFormData = () => {
   const hasConsParamsFile = consParamsFile !== null;
   const hasConfigFile = configFile !== null;
 
-  return [masterFormData, hasSimParamsFile, hasConsParamsFile, hasConfigFile] as const;
+  const simParamsError = useMemo<ValidationError | null>(() => {
+    try {
+      if (simParamsJson) {
+        timetableSchema.validateSync(simParamsJson);
+      }
+    } catch (e) {
+      debugger;
+      return e as ValidationError;
+    }
+    return null;
+  }, [simParamsJson]);
+
+  const constraintsError = useMemo<ValidationError | null>(() => {
+    try {
+      if (consParamsJson) {
+        constraintsSchema.validateSync(consParamsJson);
+      }
+    } catch (e) {
+      return e as ValidationError;
+    }
+    return null;
+  }, [consParamsJson]);
+
+  return [
+    masterFormData,
+    hasSimParamsFile,
+    hasConsParamsFile,
+    hasConfigFile,
+    simParamsError,
+    constraintsError,
+  ] as const;
 };

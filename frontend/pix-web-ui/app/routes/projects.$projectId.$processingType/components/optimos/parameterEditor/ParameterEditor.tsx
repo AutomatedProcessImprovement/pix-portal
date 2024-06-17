@@ -48,7 +48,8 @@ const SetupOptimos = () => {
   //   const { bpmnFile, simParamsFile, consParamsFile } = state as LocationState
   const [bpmnFile] = useFileFromAsset(AssetType.SIMULATION_MODEL, FileType.PROCESS_MODEL_BPMN);
 
-  const [masterFormData, hasSimParamsFile, hasConsParamsFile, hasConfigFile] = useMasterFormData();
+  const [masterFormData, hasSimParamsFile, hasConsParamsFile, hasConfigFile, simParamsError, constraintsError] =
+    useMasterFormData();
 
   const masterForm = useForm<MasterFormData>({
     values: masterFormData,
@@ -123,7 +124,22 @@ const SetupOptimos = () => {
           Select a Optimos Configuration and Simulation Model from the input assets on the left.
         </p>
       )}
-      {bpmnFile && hasSimParamsFile && !hasConsParamsFile && (
+
+      {hasSimParamsFile && simParamsError && (
+        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
+          The Simulation Parameters file contains errors. Please correct them before proceeding:
+          <pre>{simParamsError.message}</pre>
+        </p>
+      )}
+
+      {!simParamsError && hasConsParamsFile && constraintsError && (
+        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
+          The Constraints file contains errors. Please correct them before proceeding:
+          <pre>{constraintsError.message}</pre>
+        </p>
+      )}
+
+      {bpmnFile && hasSimParamsFile && !simParamsError && !hasConsParamsFile && (
         <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
           You have only selected a Simulation Model, please select a Optimos Configuration file or click "Generate
           Constraints" below.
@@ -133,7 +149,7 @@ const SetupOptimos = () => {
         </p>
       )}
 
-      {bpmnFile && hasSimParamsFile && hasConsParamsFile && (
+      {bpmnFile && hasSimParamsFile && hasConsParamsFile && !simParamsError && !constraintsError && (
         <FormProvider {...masterForm}>
           <form
             method="POST"

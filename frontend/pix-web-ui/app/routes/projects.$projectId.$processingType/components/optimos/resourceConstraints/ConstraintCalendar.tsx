@@ -6,7 +6,6 @@ import type { ConstraintWorkMask, TimePeriod } from "~/shared/optimos_json_type"
 import { DAYS, HOURS, bitmaskToSelectionIndexes, isTimePeriodInDay, isTimePeriodInHour } from "../helpers";
 import { useController, useFormContext, useWatch } from "react-hook-form";
 import { MasterFormData } from "../hooks/useMasterFormData";
-import { createValidateAlwaysWorkMask, createValidateNeverWorkMask } from "../validation/validationFunctions";
 import { useSimParamsResourceIndex, useSimParamsWorkTimes } from "../hooks/useSimParamsWorkTimes";
 
 type ConstraintCalendarProps = {
