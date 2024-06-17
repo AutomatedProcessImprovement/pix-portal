@@ -156,10 +156,10 @@ const SetupOptimos = () => {
         </p>
       )}
 
-      {bpmnFile && bpmnError && (
+      {bpmnFile && bpmnError && !simParamsError && (
         <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
-          The BPMN file doesn't match the Simulation Model. Please make sure, the Simulation Model (Timetable) contains
-          the necessary tasks and gateways. Technical details:
+          The BPMN file doesn't match the Simulation Model or the BPMN File is invalid. Please make sure, the Simulation
+          Model (Timetable) contains the necessary tasks and gateways. Technical details:
           <pre>{bpmnError.message}</pre>
         </p>
       )}
