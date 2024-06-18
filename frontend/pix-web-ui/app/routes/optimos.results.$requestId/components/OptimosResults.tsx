@@ -17,6 +17,7 @@ import { SolutionChart } from "./SolutionChart";
 import { useFileFromAsset } from "~/routes/projects.$projectId.$processingType/components/optimos/hooks/useFetchedAsset";
 import { AssetType, getAsset } from "~/services/assets";
 import { isMadDominated, isNonMadDominated } from "~/shared/pareto_helper";
+import JSZip from "jszip";
 
 interface SimulationResultsProps {
   report: FullOutputJson;
@@ -70,7 +71,10 @@ const OptimizationResults = (props: SimulationResultsProps) => {
       oldFileId.current = optimosReportJsonFile.id;
       console.log("Getting Content");
       const fileContent = await getFileContent(optimosReportJsonFile.id, user.token!);
-      const jsonStr = await fileContent.text();
+
+      const zipFile = await new JSZip().loadAsync(fileContent);
+      const jsonStr = await Object.values(zipFile.files)[0].async("string");
+
       const newReport = JSON.parse(jsonStr);
       console.log("Downloaded new Json");
       setReport(newReport);

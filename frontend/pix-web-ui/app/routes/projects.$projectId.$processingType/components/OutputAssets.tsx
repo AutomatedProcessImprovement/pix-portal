@@ -4,7 +4,7 @@ import { ProcessingRequestCard } from "./ProcessingRequestCard";
 
 export default function OutputAssets({ processingRequests }: { processingRequests: ProcessingRequest[] }) {
   function byCreationTime(a: ProcessingRequest, b: ProcessingRequest) {
-    return a.creation_time.localeCompare(b.creation_time);
+    return b.creation_time.localeCompare(a.creation_time);
   }
 
   return (

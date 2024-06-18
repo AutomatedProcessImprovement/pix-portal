@@ -34,6 +34,7 @@
     "highcharts": "^11.4.0",
     "highcharts-react-official": "^3.2.1",
     "isbot": "^3.6.8",
+    "jszip": "^3.10.1",
     "moment": "^2.29.4",
     "moment-duration-format": "^2.3.2",
     "morgan": "^1.10.0",

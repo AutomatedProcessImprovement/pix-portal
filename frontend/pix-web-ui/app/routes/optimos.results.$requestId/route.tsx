@@ -14,6 +14,7 @@ import { getProject } from "~/services/projects.server";
 import type { Project } from "~/services/projects";
 import type { ProcessingRequest } from "~/services/processing_requests";
 import type { FullOutputJson } from "~/shared/optimos_json_type";
+import JSZip from "jszip";
 
 export const meta: MetaFunction = ({ matches }) => {
   const rootMeta = matches.find((match) => match.id === "root")?.meta as
@@ -66,8 +67,10 @@ export const loader = async ({
     (file) => file.type === FileType.OPTIMIZATION_REPORT_OPTIMOS_JSON
   );
   if (!optimosReportJsonFile) return json({ report: null });
-  const fileContent = await getFileContent(optimosReportJsonFile.id, user.token!);
-  const jsonStr = fileContent.toString();
+  const fileContent = await getFileContent(optimosReportJsonFile.id, user.token!, "arraybuffer");
+  const zipFile = await new JSZip().loadAsync(fileContent);
+  const jsonStr = await Object.values(zipFile.files)[0].async("string");
+
   const report = JSON.parse(jsonStr);
 
   const projectId = processingRequest.project_id;

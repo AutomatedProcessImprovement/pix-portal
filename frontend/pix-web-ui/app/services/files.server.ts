@@ -1,5 +1,6 @@
 import { filesURL, http } from "~/services/shared.server";
 import type { File } from "./files";
+import type { AxiosRequestConfig } from "axios";
 
 export enum FileType {
   EVENT_LOG_CSV = "event_log_csv",
@@ -40,13 +41,17 @@ export async function deleteFile(fileId: string, token: string) {
   });
 }
 
-export async function getFileContent(fileId: string, token: string) {
+export async function getFileContent(
+  fileId: string,
+  token: string,
+  responseType: AxiosRequestConfig["responseType"] = "blob"
+) {
   const url = `${filesURL}/${fileId}/content`;
   const response = await http.get(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    responseType: "blob",
+    responseType,
   });
   return response.data;
 }
