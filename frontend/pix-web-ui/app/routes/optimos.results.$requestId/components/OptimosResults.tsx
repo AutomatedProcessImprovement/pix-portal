@@ -146,14 +146,11 @@ const OptimizationResults = (props: SimulationResultsProps) => {
     for (let solution of report?.final_solutions ?? []) {
       if (solution.iteration === 0) {
         pareto_fronts.push([solution]);
+        continue;
       }
       const last_front = pareto_fronts[pareto_fronts.length - 1];
 
-      if (
-        last_front.some((front_solution) =>
-          isMad ? isMadDominated(solution, front_solution) : isNonMadDominated(solution, front_solution)
-        )
-      ) {
+      if (last_front.some((front_solution) => isNonMadDominated(solution, front_solution))) {
         last_front.push(solution);
       } else {
         pareto_fronts.push([solution]);
@@ -163,7 +160,7 @@ const OptimizationResults = (props: SimulationResultsProps) => {
   }, [algorithm, report]);
 
   const final_pareto_front = solutions_by_pareto_front[solutions_by_pareto_front.length - 1];
-  const all_but_last_pareto_front = solutions_by_pareto_front.slice(0, solutions_by_pareto_front.length - 1);
+  const all_but_last_pareto_front = solutions_by_pareto_front.slice(0, solutions_by_pareto_front.length - 1).reverse();
 
   if (!report) return <div>Loading...</div>;
   const final_metrics = report.final_solution_metrics?.[0];
@@ -302,7 +299,9 @@ const OptimizationResults = (props: SimulationResultsProps) => {
                 <Grid item xs={12} my={3}>
                   {all_but_last_pareto_front.map((pareto_front, paretoIndex) => (
                     <Accordion key={"pareto-front-" + paretoIndex} slotProps={{ transition: { unmountOnExit: true } }}>
-                      <AccordionSummary>Solution {String(paretoIndex + 1)}</AccordionSummary>
+                      <AccordionSummary>
+                        Solution {String(all_but_last_pareto_front.length - paretoIndex)}
+                      </AccordionSummary>
                       <AccordionDetails>
                         {pareto_front?.map((solution, index) => (
                           <Grid item xs={12} key={`grid-${index}`} id={"solution_" + index}>
