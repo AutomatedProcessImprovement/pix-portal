@@ -67,9 +67,14 @@ export const loader = async ({
     (file) => file.type === FileType.OPTIMIZATION_REPORT_OPTIMOS_JSON
   );
   if (!optimosReportJsonFile) return json({ report: null });
-  const fileContent = await getFileContent(optimosReportJsonFile.id, user.token!, "arraybuffer");
-  const zipFile = await new JSZip().loadAsync(fileContent);
-  const jsonStr = await Object.values(zipFile.files)[0].async("string");
+  var jsonStr = "";
+  if (optimosReportJsonFile.name.endsWith(".zip")) {
+    const fileContent = await getFileContent(optimosReportJsonFile.id, user.token!, "arraybuffer");
+    const zipFile = await new JSZip().loadAsync(fileContent);
+    jsonStr = await Object.values(zipFile.files)[0].async("string");
+  } else {
+    jsonStr = await getFileContent(optimosReportJsonFile.id, user.token!, "text");
+  }
 
   const report = JSON.parse(jsonStr);
 

@@ -1,4 +1,15 @@
-import { Button, Grid, Paper, Typography, Box, ButtonGroup, CircularProgress } from "@mui/material";
+import {
+  Button,
+  Grid,
+  Paper,
+  Typography,
+  Box,
+  ButtonGroup,
+  CircularProgress,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+} from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import YAML, { isMap } from "yaml";
 import * as React from "react";
@@ -72,8 +83,13 @@ const OptimizationResults = (props: SimulationResultsProps) => {
       console.log("Getting Content");
       const fileContent = await getFileContent(optimosReportJsonFile.id, user.token!);
 
-      const zipFile = await new JSZip().loadAsync(fileContent);
-      const jsonStr = await Object.values(zipFile.files)[0].async("string");
+      var jsonStr = "";
+      if (optimosReportJsonFile.name.endsWith(".zip")) {
+        const zipFile = await new JSZip().loadAsync(fileContent);
+        jsonStr = await Object.values(zipFile.files)[0].async("string");
+      } else {
+        jsonStr = await fileContent.text();
+      }
 
       const newReport = JSON.parse(jsonStr);
       console.log("Downloaded new Json");
@@ -123,6 +139,8 @@ const OptimizationResults = (props: SimulationResultsProps) => {
 
   const solutions_by_pareto_front = React.useMemo(() => {
     const isMad = algorithm === "HC-FLEX";
+    if (!report || (!report?.final_solutions && !report.current_solution)) return [];
+    if (!report?.final_solutions && report.current_solution) return [[report!.current_solution]];
     const pareto_fronts: Solution[][] = [];
 
     for (let solution of report?.final_solutions ?? []) {
@@ -142,9 +160,10 @@ const OptimizationResults = (props: SimulationResultsProps) => {
       }
     }
     return pareto_fronts;
-  }, [algorithm, report?.final_solutions]);
+  }, [algorithm, report]);
 
   const final_pareto_front = solutions_by_pareto_front[solutions_by_pareto_front.length - 1];
+  const all_but_last_pareto_front = solutions_by_pareto_front.slice(0, solutions_by_pareto_front.length - 1);
 
   if (!report) return <div>Loading...</div>;
   const final_metrics = report.final_solution_metrics?.[0];
@@ -265,30 +284,40 @@ const OptimizationResults = (props: SimulationResultsProps) => {
                 </Grid>
               </Paper>
               <Grid container>
-                {!report?.final_solutions && report.current_solution && (
-                  <Grid item xs={12}>
+                {final_pareto_front.map((solution, index) => (
+                  <Grid item xs={12} key={`grid-${index}`} id={"solution_" + index}>
                     <OptimosSolution
-                      solution={report.current_solution}
+                      key={index}
+                      solution={solution}
                       finalMetrics={final_metrics}
                       initialSolution={initial_solution}
                     ></OptimosSolution>
                   </Grid>
-                )}
-                {solutions_by_pareto_front.map((solutions, paretoIndex) => (
-                  <div key={"pareto-front-" + paretoIndex}>
-                    <p>Pareto Front {String(paretoIndex)}</p>
-                    {solutions?.map((solution, index) => (
-                      <Grid item xs={12} key={`grid-${index}`} id={"solution_" + index}>
-                        <OptimosSolution
-                          key={index}
-                          solution={solution}
-                          finalMetrics={final_metrics}
-                          initialSolution={initial_solution}
-                        ></OptimosSolution>
-                      </Grid>
-                    ))}
-                  </div>
                 ))}
+                {!!all_but_last_pareto_front.length && (
+                  <Grid item>
+                    <Typography variant="h5">Previous (non-optimal) solutions</Typography>
+                  </Grid>
+                )}
+                <Grid item xs={12} my={3}>
+                  {all_but_last_pareto_front.map((pareto_front, paretoIndex) => (
+                    <Accordion key={"pareto-front-" + paretoIndex} slotProps={{ transition: { unmountOnExit: true } }}>
+                      <AccordionSummary>Solution {String(paretoIndex + 1)}</AccordionSummary>
+                      <AccordionDetails>
+                        {pareto_front?.map((solution, index) => (
+                          <Grid item xs={12} key={`grid-${index}`} id={"solution_" + index}>
+                            <OptimosSolution
+                              key={index}
+                              solution={solution}
+                              finalMetrics={final_metrics}
+                              initialSolution={initial_solution}
+                            ></OptimosSolution>
+                          </Grid>
+                        ))}
+                      </AccordionDetails>
+                    </Accordion>
+                  ))}
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
