@@ -10,6 +10,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union
 from uuid import UUID
+import zipfile
 
 import tempfile
 import os
@@ -227,7 +228,11 @@ class OptimosService:
         with open("output.json", "w") as f:
             f.write(jsonContent)
 
-        return Path(stats_file.name)
+        # Zip the stats_file, and return it's path
+        with zipfile.ZipFile(f"{stats_file.name}.zip", "w") as zipf:
+            zipf.write(stats_file.name, stats_filename)
+
+        return Path(f"{stats_file.name}.zip")
 
     @staticmethod
     def _find_file_by_type(files: list[File_], type: FileType) -> Optional[File_]:

@@ -158,7 +158,7 @@ export const OptimosSolution: FC<OptimosSolutionProps> = memo(({ finalMetrics, s
                 }}
                 align={"left"}
               >
-                Median cost
+                Mean cost
               </Typography>
               <Typography
                 sx={{
@@ -166,7 +166,7 @@ export const OptimosSolution: FC<OptimosSolutionProps> = memo(({ finalMetrics, s
                 }}
                 align={"left"}
               >
-                Median time
+                Mean time
               </Typography>
               <Typography
                 sx={{
