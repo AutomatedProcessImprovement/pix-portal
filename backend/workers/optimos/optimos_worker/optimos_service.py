@@ -229,7 +229,7 @@ class OptimosService:
             f.write(jsonContent)
 
         # Zip the stats_file, and return it's path
-        with zipfile.ZipFile(f"{stats_file.name}.zip", "w") as zipf:
+        with zipfile.ZipFile(f"{stats_file.name}.zip", "w", compression=zipfile.ZIP_DEFLATED) as zipf:
             zipf.write(stats_file.name, stats_filename)
 
         return Path(f"{stats_file.name}.zip")
