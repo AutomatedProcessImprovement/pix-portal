@@ -23,7 +23,9 @@ export const SolutionChart: FC<SolutionChartProps> = ({ solutions, initialSoluti
     },
     tooltip: {
       formatter: function () {
-        return `Time: ${formatSeconds(this.x as number)}<br>Cost: ${formatCurrency(this.y ?? 0)}`;
+        return `<span style="text-transform: capitalize;text-decoration: underline;">${
+          this.point.name
+        }</span><br><b>Time:</b> ${formatSeconds(this.x as number)}<br><b>Cost:</b> ${formatCurrency(this.y ?? 0)}`;
       },
     },
     xAxis: {
@@ -69,6 +71,7 @@ export const SolutionChart: FC<SolutionChartProps> = ({ solutions, initialSoluti
           x: solution.solution_info.mean_process_cycle_time,
           y: solution.solution_info.total_pool_cost,
           id: `execution_${index}`,
+          name: `${solution.name.replaceAll("_", " ")} #${solution.iteration}`,
         })),
         type: "scatter",
       },

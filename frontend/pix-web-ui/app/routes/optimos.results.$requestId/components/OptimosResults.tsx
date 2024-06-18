@@ -1,9 +1,9 @@
 import { Button, Grid, Paper, Typography, Box, ButtonGroup, CircularProgress } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import YAML from "yaml";
+import YAML, { isMap } from "yaml";
 import * as React from "react";
 import "moment-duration-format";
-import type { FullOutputJson } from "~/shared/optimos_json_type";
+import type { FullOutputJson, ScenarioProperties, Solution } from "~/shared/optimos_json_type";
 import { formatCurrency, formatPercentage, formatSeconds } from "~/shared/num_helper";
 import { CloudDownload as CloudDownloadIcon } from "@mui/icons-material";
 import { WeekView } from "~/components/optimos/WeekView";
@@ -16,6 +16,7 @@ import type { ProcessingRequest } from "~/services/processing_requests";
 import { SolutionChart } from "./SolutionChart";
 import { useFileFromAsset } from "~/routes/projects.$projectId.$processingType/components/optimos/hooks/useFetchedAsset";
 import { AssetType, getAsset } from "~/services/assets";
+import { isMadDominated, isNonMadDominated } from "~/shared/pareto_helper";
 
 interface SimulationResultsProps {
   report: FullOutputJson;
@@ -28,6 +29,7 @@ const OptimizationResults = (props: SimulationResultsProps) => {
   const [report, setReport] = useState<FullOutputJson | null>(reportJson);
 
   const [scenarioName, setScenarioName] = useState("");
+  const [algorithm, setAlgorithm] = useState("");
 
   useEffect(
     () =>
@@ -44,8 +46,9 @@ const OptimizationResults = (props: SimulationResultsProps) => {
         reader.onload = (e) => {
           const content = e.target?.result;
           if (content) {
-            const config = YAML.parse(content as string);
+            const config = YAML.parse(content as string) as ScenarioProperties;
             setScenarioName(config.scenario_name);
+            setAlgorithm(config.algorithm);
           }
         };
         reader.readAsText(fileContent);
@@ -113,6 +116,31 @@ const OptimizationResults = (props: SimulationResultsProps) => {
         return "Unknown";
     }
   };
+
+  const solutions_by_pareto_front = React.useMemo(() => {
+    const isMad = algorithm === "HC-FLEX";
+    const pareto_fronts: Solution[][] = [];
+
+    for (let solution of report?.final_solutions ?? []) {
+      if (solution.iteration === 0) {
+        pareto_fronts.push([solution]);
+      }
+      const last_front = pareto_fronts[pareto_fronts.length - 1];
+
+      if (
+        last_front.some((front_solution) =>
+          isMad ? isMadDominated(solution, front_solution) : isNonMadDominated(solution, front_solution)
+        )
+      ) {
+        last_front.push(solution);
+      } else {
+        pareto_fronts.push([solution]);
+      }
+    }
+    return pareto_fronts;
+  }, [algorithm, report?.final_solutions]);
+
+  const final_pareto_front = solutions_by_pareto_front[solutions_by_pareto_front.length - 1];
 
   if (!report) return <div>Loading...</div>;
   const final_metrics = report.final_solution_metrics?.[0];
@@ -208,8 +236,8 @@ const OptimizationResults = (props: SimulationResultsProps) => {
                       </Grid>
 
                       <SolutionChart
-                        solutions={report.final_solutions ?? []}
-                        initialSolution={report.initial_solution}
+                        solutions={final_pareto_front ?? []}
+                        // initialSolution={report.initial_solution}
                         averageCost={final_metrics.ave_cost}
                         averageTime={final_metrics.ave_time}
                       />
@@ -242,18 +270,21 @@ const OptimizationResults = (props: SimulationResultsProps) => {
                     ></OptimosSolution>
                   </Grid>
                 )}
-                {report?.final_solutions?.map((solution, index) => {
-                  return (
-                    <Grid item xs={12} key={`grid-${index}`} id={"solution_" + index}>
-                      <OptimosSolution
-                        key={index}
-                        solution={solution}
-                        finalMetrics={final_metrics}
-                        initialSolution={initial_solution}
-                      ></OptimosSolution>
-                    </Grid>
-                  );
-                })}
+                {solutions_by_pareto_front.map((solutions, paretoIndex) => (
+                  <div key={"pareto-front-" + paretoIndex}>
+                    <p>Pareto Front {String(paretoIndex)}</p>
+                    {solutions?.map((solution, index) => (
+                      <Grid item xs={12} key={`grid-${index}`} id={"solution_" + index}>
+                        <OptimosSolution
+                          key={index}
+                          solution={solution}
+                          finalMetrics={final_metrics}
+                          initialSolution={initial_solution}
+                        ></OptimosSolution>
+                      </Grid>
+                    ))}
+                  </div>
+                ))}
               </Grid>
             </Grid>
           </Grid>

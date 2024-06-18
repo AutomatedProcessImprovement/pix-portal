@@ -4,7 +4,6 @@ import { parseBpmn } from "../../prosimos/bpmn";
 export const validateBPMN = async (bpmn: Blob, simParams: SimParams) => {
   const { tasks, gateways, catchEvents } = await parseBpmn(bpmn);
 
-  debugger;
   // Ensure all tasks have a task_resource_distribution
   const taskIds = tasks.map((task) => task.id);
   const taskResourceDistributions = simParams.task_resource_distribution.map((taskResource) => taskResource.task_id);

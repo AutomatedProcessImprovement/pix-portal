@@ -54,7 +54,6 @@ export const useMasterFormData = () => {
         timetableSchema.validateSync(simParamsJson);
       }
     } catch (e) {
-      debugger;
       return e as Error;
     }
     return null;
